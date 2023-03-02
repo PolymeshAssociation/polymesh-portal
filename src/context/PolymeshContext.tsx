@@ -41,7 +41,7 @@ export const PolymeshProvider = ({ children }) => {
           appName: 'polymesh-user-portal',
         });
       setSigningManager(signingManagerInstance);
-    } catch (initError) {
+    } catch (error) {
       if (error instanceof Error) {
         setWalletError(error.message);
       } else {
@@ -63,7 +63,7 @@ export const PolymeshProvider = ({ children }) => {
 
         setSdk(sdkInstance);
         setInitialized(true);
-      } catch (initError) {
+      } catch (error) {
         if (error instanceof Error) {
           setWalletError(error.message);
         } else {
