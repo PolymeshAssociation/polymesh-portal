@@ -32,11 +32,23 @@ const useInjectedWeb3 = () => {
     setInjectedExtensions(Object.keys(win.injectedWeb3) || []);
   }, []);
 
+  // Function is being triggered after sdk is successfully created
   const connectExtension = (name: string) => {
+    // Case 1: There are no previously authorized extensions
     if (!persistedExtensions.length) {
       setPersistedExtensions([{ name, authorized: true, recent: true }]);
       return;
     }
+
+    // Case 2: First time connecting current extension
+    if (!persistedExtensions.some((extension) => extension.name === name)) {
+      setPersistedExtensions([
+        ...persistedExtensions,
+        { name, authorized: true, recent: true },
+      ]);
+      return;
+    }
+    // Case 3: Current extension previously connected, updating its data
     const updatedExtensions = persistedExtensions.map((extension) => {
       if (extension.name === name) {
         return { ...extension, authorized: true, recent: true };
