@@ -7,17 +7,20 @@ import {
 } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { useInjectedWeb3 } from '~/hooks/polymesh';
 
 interface IPolymeshContext {
   state: {
     connecting: boolean;
+    initialized: boolean;
     walletError: string;
+    selectedAccount: string;
+    setSelectedAccount: () => void;
   };
   api: {
     sdk: Polymesh;
     signingManager: BrowserExtensionSigningManager;
   };
-  accounts: string[];
   connectWallet: () => Promise<void>;
 }
 
@@ -27,10 +30,15 @@ export const PolymeshProvider = ({ children }) => {
   const [sdk, setSdk] = useState<Polymesh>(null);
   const [signingManager, setSigningManager] =
     useState<BrowserExtensionSigningManager>(null);
-  const [accounts, setAccounts] = useState<string[]>([]);
   const [connecting, setConnecting] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [walletError, setWalletError] = useState('');
+  const { connectExtension, recentExtension } = useInjectedWeb3();
+  /*
+    selectedAccount and setSelectedAccount are being used by useAccounts hook,
+    which exposes them to rest of the app. They are here for global sync between helper hooks
+  */
+  const [selectedAccount, setSelectedAccount] = useState('');
 
   // Create the browser extension signing manager.
   const connectWallet = useCallback(async () => {
@@ -50,10 +58,16 @@ export const PolymeshProvider = ({ children }) => {
     }
   }, []);
 
+  // Trigger signing manager initialization automatically when recent used extension data exists
+  useEffect(() => {
+    if (!recentExtension || initialized) return;
+
+    connectWallet();
+  }, [connectWallet, initialized, recentExtension]);
+
   // Connect to the Polymesh SDK once signing manager is created
   useEffect(() => {
-    if (!signingManager) return;
-
+    if (!signingManager || initialized) return;
     (async () => {
       try {
         const sdkInstance = await Polymesh.connect({
@@ -63,6 +77,7 @@ export const PolymeshProvider = ({ children }) => {
 
         setSdk(sdkInstance);
         setInitialized(true);
+        connectExtension(signingManager.extension.name as string);
       } catch (error) {
         if (error instanceof Error) {
           setWalletError(error.message);
@@ -73,37 +88,30 @@ export const PolymeshProvider = ({ children }) => {
         setConnecting(false);
       }
     })();
-  }, [signingManager]);
-
-  // Get list of connected accounts when sdk is initialized with signing manager
-  useEffect(() => {
-    if (!initialized) return;
-
-    (async () => {
-      const connectedAccounts = await signingManager.getAccounts();
-      setAccounts(connectedAccounts);
-    })();
-  }, [initialized, signingManager]);
-
-  // Perform actions when account change occurs in extension
-  useEffect(() => {
-    if (!initialized) return undefined;
-
-    const unsubCb = signingManager.onAccountChange((newAccounts) => {
-      setAccounts(newAccounts);
-    });
-
-    return () => unsubCb();
-  }, [initialized, signingManager]);
+  }, [connectExtension, initialized, signingManager]);
 
   const contextValue = useMemo(
     () => ({
-      state: { connecting, walletError },
+      state: {
+        connecting,
+        initialized,
+        walletError,
+        selectedAccount,
+        setSelectedAccount,
+      },
       api: { sdk, signingManager },
-      accounts,
       connectWallet,
     }),
-    [sdk, signingManager, accounts, connecting, walletError, connectWallet],
+    [
+      connecting,
+      initialized,
+      walletError,
+      sdk,
+      signingManager,
+      selectedAccount,
+      setSelectedAccount,
+      connectWallet,
+    ],
   );
 
   return (
