@@ -2,7 +2,11 @@ import { useContext } from 'react';
 import Lottie from 'lottie-react';
 import { Navigate } from 'react-router-dom';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { StyledLogoBox, StyledInfoBox, StyledAnimationBox } from './styles';
+import {
+  StyledContainerBox,
+  StyledInfoBox,
+  StyledAnimationBox,
+} from './styles';
 import { Icon } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
 import landingAnimation from '~/assets/animations/landingAnimation.json';
@@ -15,11 +19,9 @@ const Landing = () => {
   } = useContext(PolymeshContext);
 
   return (
-    <>
+    <StyledContainerBox>
       {connecting && <Navigate to={PATHS.OVERVIEW} replace />}
-      <StyledLogoBox>
-        <Icon name="PolymeshLogo" />
-      </StyledLogoBox>
+      <Icon name="PolymeshLogo" />
       <StyledInfoBox>
         <Heading marginBottom={16}>Welcome to the Polymesh Dashboard</Heading>
         <Text>
@@ -35,7 +37,7 @@ const Landing = () => {
       <StyledAnimationBox>
         <Lottie animationData={landingAnimation} loop />
       </StyledAnimationBox>
-    </>
+    </StyledContainerBox>
   );
 };
 
