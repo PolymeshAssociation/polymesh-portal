@@ -1,8 +1,8 @@
 import { StyledButton } from './styles';
-import { IButtonProps } from './types';
+import { EButtonVariants, IButtonProps } from './types';
 
 const Button: React.FC<IButtonProps> = ({
-  variant,
+  variant = EButtonVariants.PRIMARY,
   marginTop,
   marginBottom,
   children,

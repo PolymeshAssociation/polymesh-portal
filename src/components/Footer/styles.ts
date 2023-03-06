@@ -1,16 +1,38 @@
 import styled from 'styled-components';
 
 export const StyledFooter = styled.footer`
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100vw;
+  border-top: 2px solid #f0f0f0;
+  color: #727272;
+  background-color: ${({ theme }) => theme.colors.dashboardBackground};
+  ${({ isLandingPage }) =>
+    isLandingPage &&
+    `
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    background-color: transparent;
+  `}
+`;
+
+export const StyledContainer = styled.div`
   display: flex;
-  justify-content: space-between;
-  border-top: 1px solid black;
+  align-items: center;
+  ${({ isLandingPage }) => isLandingPage && 'width: 1440px;'}
+  padding: ${({ isLandingPage }) => (isLandingPage ? '0 64px' : '0 48px')};
+  margin: 0 auto;
 `;
 
 export const StyledLinkList = styled.ul`
   display: flex;
   align-items: center;
+  gap: 24px;
+  margin-left: auto;
+`;
+
+export const StyledLink = styled.a`
+  display: inline-block;
+  padding: 16px 0;
+  font-weight: 500;
+  font-size: 14px;
 `;

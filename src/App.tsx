@@ -1,19 +1,24 @@
-import { createElement, Suspense } from 'react';
+import { createElement, Suspense, useContext } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { PolymeshProvider } from 'context/PolymeshContext';
-import { AppThemeProvider } from 'context/ThemeContext';
+import { ThemeProvider } from 'styled-components';
+import { PolymeshProvider } from '~/context/PolymeshContext';
+import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
 import { ROUTES } from '~/constants/routes';
 import SharedLayout from '~/layouts/SharedLayout';
+import theme from '~/styles/theme';
 
 const App = () => {
+  const { currentTheme } = useContext(ThemeContext);
   return (
-    <SharedLayout>
-      <Routes>
-        {ROUTES.map(({ path, component }) => (
-          <Route path={path} element={createElement(component)} key={path} />
-        ))}
-      </Routes>
-    </SharedLayout>
+    <ThemeProvider theme={theme[currentTheme]}>
+      <SharedLayout>
+        <Routes>
+          {ROUTES.map(({ path, component }) => (
+            <Route path={path} element={createElement(component)} key={path} />
+          ))}
+        </Routes>
+      </SharedLayout>
+    </ThemeProvider>
   );
 };
 

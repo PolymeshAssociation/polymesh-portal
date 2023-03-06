@@ -10,12 +10,23 @@ interface IThemeContext {
   toggleTheme: () => void;
 }
 
-const readThemeFromLS = () => localStorage.getItem('theme') || Themes.Light;
+const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
+
+const getInitialTheme = () => {
+  const themeFromLs = localStorage.getItem('theme') || null;
+
+  if (!themeFromLs) {
+    const isDarkTheme = darkThemeMq.matches;
+    return isDarkTheme ? Themes.Dark : Themes.Light;
+  }
+
+  return themeFromLs;
+};
 
 export const ThemeContext = createContext<IThemeContext>();
 
 export const AppThemeProvider = ({ children }) => {
-  const [currentTheme, setCurrentTheme] = useState(readThemeFromLS);
+  const [currentTheme, setCurrentTheme] = useState(getInitialTheme);
 
   useEffect(() => {
     localStorage.setItem('theme', currentTheme);
@@ -35,8 +46,10 @@ export const AppThemeProvider = ({ children }) => {
   };
 
   return (
-    // eslint-disable-next-line react/jsx-no-constructed-context-values
-    <ThemeContext.Provider value={{ currentTheme, toggleTheme }}>
+    <ThemeContext.Provider
+      // eslint-disable-next-line react/jsx-no-constructed-context-values
+      value={{ currentTheme, toggleTheme }}
+    >
       {children}
     </ThemeContext.Provider>
   );

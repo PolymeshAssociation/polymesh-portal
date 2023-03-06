@@ -4,12 +4,13 @@ import { StyledMain } from './styles';
 
 const SharedLayout = ({ children }) => {
   const { pathname } = useLocation();
+  const isLandingPage = pathname === '/';
 
   return (
     <>
-      {pathname !== '/' && <Header />}
-      <StyledMain>{children}</StyledMain>
-      <Footer />
+      {!isLandingPage && <Header />}
+      <StyledMain isLandingPage={isLandingPage}>{children}</StyledMain>
+      <Footer isLandingPage={isLandingPage} />
     </>
   );
 };
