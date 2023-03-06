@@ -18,7 +18,7 @@ export const StyledFooter = styled.footer`
 export const StyledContainer = styled.div`
   display: flex;
   align-items: center;
-  /* ${({ isLandingPage }) => isLandingPage && 'max-width: 1440px;'} */
+  ${({ isLandingPage }) => isLandingPage && 'max-width: 1440px;'}
   padding: ${({ isLandingPage }) => (isLandingPage ? '0 64px' : '0 48px')};
   margin: 0 auto;
 `;
