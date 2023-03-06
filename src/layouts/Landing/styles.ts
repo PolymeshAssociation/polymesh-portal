@@ -1,21 +1,21 @@
 import styled from 'styled-components';
 
-export const StyledContainerBox = styled.div`
-  position: relative;
-  max-width: 1440px;
-  height: 100%;
+export const StyledLogoBox = styled.div`
   padding: 38px 64px 0 64px;
-  margin: 0 auto;
 `;
 
 export const StyledInfoBox = styled.div`
   position: absolute;
   top: 50%;
-  left: 18%;
+  left: 15%;
   transform: translateY(-60%);
   max-width: 540px;
   padding-right: 40px;
   z-index: 1;
+
+  @media only screen and (min-width: 1024px) {
+    left: 22%;
+  }
 `;
 
 export const StyledAnimationBox = styled.div`
