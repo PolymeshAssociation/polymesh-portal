@@ -14,7 +14,9 @@ const Footer: React.FC<IFooterProps> = ({ isLandingPage }) => {
   return (
     <StyledFooter isLandingPage={isLandingPage}>
       <StyledContainer isLandingPage={isLandingPage}>
-        <Text>© 2022 Polymesh Association. All rights reserved</Text>
+        <Text color="secondary">
+          © 2022 Polymesh Association. All rights reserved
+        </Text>
         <StyledLinkList>
           <li>
             <StyledLink href="https://somelink.com" target="_blank">

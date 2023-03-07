@@ -4,12 +4,17 @@ export enum ETextSize {
   SMALL = 'small',
 }
 
+export enum ETextColor {
+  PRIMARY = 'primary',
+  SECONDARY = 'secondary',
+}
+
 export interface ITextProps {
   centered?: boolean;
   marginTop?: number;
   marginBottom?: number;
   width?: number;
-  color?: string;
+  color: ETextColor;
   size: ETextSize;
   bold?: boolean;
   children: React.ReactNode;

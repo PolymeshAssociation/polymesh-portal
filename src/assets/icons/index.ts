@@ -4,3 +4,8 @@ export { ReactComponent as PolymeshSymbol } from './polymesh-symbol.svg';
 export { ReactComponent as IdCard } from './id-card.svg';
 export { ReactComponent as CopyIcon } from './copy-icon.svg';
 export { ReactComponent as KeyIcon } from './key-icon.svg';
+export { ReactComponent as DownloadIcon } from './download.svg';
+export { ReactComponent as SelectedIcon } from './selected-icon.svg';
+export { ReactComponent as PolkadotSymbol } from './polkadot-symbol.svg';
+export { ReactComponent as SubwalletSymbol } from './subwallet-symbol.svg';
+export { ReactComponent as TalismanSymbol } from './talisman-symbol.svg';
