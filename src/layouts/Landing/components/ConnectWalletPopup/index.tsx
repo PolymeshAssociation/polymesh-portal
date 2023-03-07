@@ -1,16 +1,26 @@
 import { useContext, useState } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { useInjectedWeb3 } from '~/hooks/polymesh';
+import { WALLET_CONNECT_OPTIONS } from '~/constants/wallets';
 import { Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
 import { WalletOptionGroup } from '../WalletOptionGroup';
 import { DefaultSelectionCheckbox } from '../DefaultSelectionCheckbox';
 import { StyledButtonWrapper } from './styles';
-import { WALLET_CONNECT_OPTIONS } from '~/constants/wallets';
 
 export const ConnectWalletPopup = ({ handleClose }) => {
   const { connectWallet } = useContext(PolymeshContext);
+  const { injectedExtensions } = useInjectedWeb3();
   const [selectedWallet, setSelectedWallet] = useState('');
   const [isDefault, setIsDefault] = useState(false);
+
+  // Check if any of available extensions are installed to display them accordingly
+  const walletOptions = WALLET_CONNECT_OPTIONS.map((option) => {
+    if (injectedExtensions.includes(option.extensionName)) {
+      return { ...option, isInstalled: true };
+    }
+    return { ...option, isInstalled: false };
+  });
 
   const handleWalletSelect: React.ReactEventHandler = ({ target }) => {
     setSelectedWallet(target.value);
@@ -26,7 +36,7 @@ export const ConnectWalletPopup = ({ handleClose }) => {
   };
 
   const handleConnectWallet = () => {
-    connectWallet({ selectedWallet, isDefault });
+    connectWallet({ extensionName: selectedWallet, isDefault });
   };
 
   return (
@@ -35,7 +45,7 @@ export const ConnectWalletPopup = ({ handleClose }) => {
         Choose Wallet to Connect
       </Heading>
       <WalletOptionGroup
-        options={WALLET_CONNECT_OPTIONS}
+        options={walletOptions}
         onChange={handleWalletSelect}
       />
       <DefaultSelectionCheckbox

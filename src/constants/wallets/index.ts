@@ -1,4 +1,4 @@
-enum Wallet {
+export enum Wallet {
   POLYMESH = 'polywallet',
   TALISMAN = 'talisman',
   POLKADOT = 'polkadot-js',
@@ -10,7 +10,6 @@ export const WALLET_CONNECT_OPTIONS = [
     walletName: 'Polymesh',
     extensionName: Wallet.POLYMESH,
     iconName: 'PolymeshSymbol',
-    isInstalled: true,
     recommended: true,
     downloadUrl:
       'https://chrome.google.com/webstore/detail/polymesh-wallet/jojhfeoedkpkglbfimdfabpdfjaoolaf',
@@ -19,7 +18,6 @@ export const WALLET_CONNECT_OPTIONS = [
     walletName: 'Polkadot',
     extensionName: Wallet.POLKADOT,
     iconName: 'PolkadotSymbol',
-    isInstalled: false,
     recommended: false,
     downloadUrl: 'https://polkadot.js.org/extension/',
   },
@@ -27,7 +25,6 @@ export const WALLET_CONNECT_OPTIONS = [
     walletName: 'Talisman',
     extensionName: Wallet.TALISMAN,
     iconName: 'TalismanSymbol',
-    isInstalled: true,
     recommended: false,
     downloadUrl:
       'https://chrome.google.com/webstore/detail/talisman-polkadot-wallet/fijngjgcjhjmmpcmkeiomlglpeiijkld',

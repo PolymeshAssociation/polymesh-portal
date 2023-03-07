@@ -8,6 +8,7 @@ import {
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { useInjectedWeb3 } from '~/hooks/polymesh';
+import { Wallet } from '~/constants/wallets';
 
 interface IPolymeshContext {
   state: {
@@ -24,6 +25,11 @@ interface IPolymeshContext {
   connectWallet: () => Promise<void>;
 }
 
+interface IConnectOptions {
+  extensionName: Wallet;
+  isDefault: boolean;
+}
+
 export const PolymeshContext = createContext<IPolymeshContext>();
 
 export const PolymeshProvider = ({ children }) => {
@@ -33,7 +39,14 @@ export const PolymeshProvider = ({ children }) => {
   const [connecting, setConnecting] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [walletError, setWalletError] = useState('');
-  const { connectExtension, recentExtension } = useInjectedWeb3();
+  const { connectExtension, defaultAuthorizedExtension } = useInjectedWeb3();
+  const [connectOptions, setConnectOptions] = useState<IConnectOptions>(() => {
+    if (defaultAuthorizedExtension) {
+      const { extensionName, isDefault } = defaultAuthorizedExtension;
+      return { extensionName, isDefault };
+    }
+    return null;
+  });
   /*
     selectedAccount and setSelectedAccount are being used by useAccounts hook,
     which exposes them to rest of the app. They are here for global sync between helper hooks
@@ -41,29 +54,38 @@ export const PolymeshProvider = ({ children }) => {
   const [selectedAccount, setSelectedAccount] = useState('');
 
   // Create the browser extension signing manager.
-  const connectWallet = useCallback(async () => {
-    try {
-      setConnecting(true);
-      const signingManagerInstance =
-        await BrowserExtensionSigningManager.create({
-          appName: 'polymesh-user-portal',
-        });
-      setSigningManager(signingManagerInstance);
-    } catch (error) {
-      if (error instanceof Error) {
-        setWalletError(error.message);
-      } else {
-        throw error;
+  const connectWallet = useCallback(
+    async ({ extensionName, isDefault }: IConnectOptions) => {
+      try {
+        setConnecting(true);
+        setConnectOptions({ extensionName, isDefault });
+        const signingManagerInstance =
+          await BrowserExtensionSigningManager.create({
+            appName: 'polymesh-user-portal',
+            extensionName,
+          });
+        setSigningManager(signingManagerInstance);
+      } catch (error) {
+        if (error instanceof Error) {
+          setWalletError(error.message);
+        } else {
+          throw error;
+        }
       }
-    }
-  }, []);
+    },
+    [],
+  );
 
   // Trigger signing manager initialization automatically when recent used extension data exists
   useEffect(() => {
-    if (!recentExtension || initialized) return;
+    if (!defaultAuthorizedExtension || initialized) return;
 
-    connectWallet();
-  }, [connectWallet, initialized, recentExtension]);
+    const { extensionName, isDefault } = defaultAuthorizedExtension;
+    connectWallet({
+      extensionName,
+      isDefault,
+    });
+  }, [connectWallet, initialized, defaultAuthorizedExtension]);
 
   // Connect to the Polymesh SDK once signing manager is created
   useEffect(() => {
@@ -77,7 +99,7 @@ export const PolymeshProvider = ({ children }) => {
 
         setSdk(sdkInstance);
         setInitialized(true);
-        connectExtension(signingManager.extension.name as string);
+        connectExtension(...Object.values(connectOptions));
       } catch (error) {
         if (error instanceof Error) {
           setWalletError(error.message);
@@ -88,7 +110,7 @@ export const PolymeshProvider = ({ children }) => {
         setConnecting(false);
       }
     })();
-  }, [connectExtension, initialized, signingManager]);
+  }, [connectExtension, connectOptions, initialized, signingManager]);
 
   const contextValue = useMemo(
     () => ({

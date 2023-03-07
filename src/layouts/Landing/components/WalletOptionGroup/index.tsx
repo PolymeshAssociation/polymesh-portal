@@ -1,10 +1,12 @@
 import { Text } from '~/components/UiKit';
+import { Wallet } from '~/constants/wallets';
 import { WalletOption } from '../WalletOption';
 import { StyledInput, StyledWrapper } from './styles';
 
 interface IWalletOption {
   walletName: string;
-  estensionName: string;
+  extensionName: Wallet;
+  iconName: string;
   isInstalled: boolean;
   recommended: boolean;
   downloadUrl: string;
@@ -19,6 +21,7 @@ export const WalletOptionGroup: React.FC<IWalletOptGroupProps> = ({
   options,
   onChange,
 }) => {
+  // Sorting extension options to display installed ones first
   const recommendedOptions = options
     .filter(({ recommended }) => recommended)
     .sort((a, b) => Number(b.isInstalled) - Number(a.isInstalled));
@@ -26,6 +29,7 @@ export const WalletOptionGroup: React.FC<IWalletOptGroupProps> = ({
     .filter(({ recommended }) => !recommended)
     .sort((a, b) => Number(b.isInstalled) - Number(a.isInstalled));
 
+  // Open extension downloading link on extension card click if it's not installed
   const openDownloadLink = (url: string) => {
     window.open(url, '_blank').focus();
   };
