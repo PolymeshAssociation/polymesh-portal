@@ -22,6 +22,8 @@ module.exports = {
   rules: {
     'react/prop-types': 0,
     'react/react-in-jsx-scope': 0,
+    'import/extensions': 0,
+    'import/prefer-default-export': 0,
     'react/function-component-definition': [
       2,
       { namedComponents: 'arrow-function' },

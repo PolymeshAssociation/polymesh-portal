@@ -1,68 +1,24 @@
-import { useContext, useState } from 'react';
-import { PolymeshContext, PolymeshProvider } from 'context/PolymeshContext';
-import { ThemeContext, AppThemeProvider } from 'context/ThemeContext';
-
-// Temporarily just a raw landing screen demo to test wallet connection and retrieving account data
+import { createElement, Suspense, useContext } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { ThemeProvider } from 'styled-components';
+import { PolymeshProvider } from '~/context/PolymeshContext';
+import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
+import { ROUTES } from '~/constants/routes';
+import SharedLayout from '~/layouts/SharedLayout';
+import theme from '~/styles/theme';
 
 const App = () => {
-  const {
-    accounts,
-    connectWallet,
-    state: { connecting },
-    api: { sdk },
-  } = useContext(PolymeshContext);
-
-  const { currentTheme, toggleTheme } = useContext(ThemeContext);
-
-  const [did, setDid] = useState('');
-  const [balance, setBalance] = useState('');
-
-  const getAccountData = async () => {
-    const data = await sdk.getSigningIdentity();
-    setDid(data?.did || '');
-    const accountBalance = await sdk.accountManagement.getAccountBalance({
-      account: accounts[0],
-    });
-    setBalance(accountBalance.free.toString());
-  };
-
-  const isDataRetrieved = did && balance;
-
+  const { currentTheme } = useContext(ThemeContext);
   return (
-    <div className={currentTheme}>
-      <button type="button" onClick={toggleTheme}>
-        Change theme
-      </button>
-      <h1>Polymesh user portal</h1>
-      {!accounts.length && !connecting && (
-        <button onClick={connectWallet} type="button">
-          Connect wallet
-        </button>
-      )}
-      {connecting && <h3>Loading...</h3>}
-
-      {!!accounts.length && !connecting && (
-        <>
-          <h3>Connected accounts:</h3>
-          <ul>
-            {accounts.map((address, idx) => (
-              <li key={address}>{idx === 0 ? <b>{address}</b> : address}</li>
-            ))}
-          </ul>
-          {!isDataRetrieved && (
-            <button type="button" onClick={getAccountData}>
-              Get selected account data
-            </button>
-          )}
-        </>
-      )}
-      {isDataRetrieved && (
-        <div>
-          <p>DID: {did}</p>
-          <p>Balance: {balance} POLYX</p>
-        </div>
-      )}
-    </div>
+    <ThemeProvider theme={theme[currentTheme]}>
+      <SharedLayout>
+        <Routes>
+          {ROUTES.map(({ path, component }) => (
+            <Route path={path} element={createElement(component)} key={path} />
+          ))}
+        </Routes>
+      </SharedLayout>
+    </ThemeProvider>
   );
 };
 
@@ -70,7 +26,11 @@ const WrappedApp = () => {
   return (
     <PolymeshProvider>
       <AppThemeProvider>
-        <App />
+        <Suspense fallback="loading...">
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </Suspense>
       </AppThemeProvider>
     </PolymeshProvider>
   );
