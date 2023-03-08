@@ -1,8 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { StyledHeader, StyledInfoList, StyledInfoItem } from './styles';
-import { Heading } from '../UiKit';
 import { ROUTES } from '~/constants/routes';
+import {
+  StyledHeader,
+  StyledHeaderContainer,
+  StyledInfoList,
+  StyledInfoItem,
+} from './styles';
+import { Heading } from '../UiKit';
+import { BalanceInfo } from './components/BalanceInfo';
+import { DidInfo } from './components/DidInfo';
+import { KeysInfo } from './components/KeysInfo';
+import { NotificationInfo } from './components/NotificationInfo';
 
 const Header = () => {
   const [pageLabel, setPageLabel] = useState<string | null>(null);
@@ -15,11 +24,23 @@ const Header = () => {
 
   return (
     <StyledHeader>
-      <Heading type="h2">{pageLabel}</Heading>
-      <StyledInfoList>
-        <StyledInfoItem>balance</StyledInfoItem>
-        <StyledInfoItem>DID</StyledInfoItem>
-      </StyledInfoList>
+      <StyledHeaderContainer>
+        <Heading type="h2">{pageLabel}</Heading>
+        <StyledInfoList>
+          <StyledInfoItem>
+            <BalanceInfo />
+          </StyledInfoItem>
+          <StyledInfoItem>
+            <DidInfo />
+          </StyledInfoItem>
+          <StyledInfoItem>
+            <KeysInfo />
+          </StyledInfoItem>
+          <StyledInfoItem>
+            <NotificationInfo />
+          </StyledInfoItem>
+        </StyledInfoList>
+      </StyledHeaderContainer>
     </StyledHeader>
   );
 };

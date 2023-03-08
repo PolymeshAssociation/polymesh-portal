@@ -1,12 +1,16 @@
 import styled from 'styled-components';
 
 export const StyledHeader = styled.header`
+  padding-top: 16px;
+  background-color: ${({ theme }) => theme.colors.dashboardBackground};
+`;
+
+export const StyledHeaderContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 72px;
   padding: 0 48px;
-  background-color: ${({ theme }) => theme.colors.dashboardBackground};
 `;
 
 export const StyledInfoList = styled.ul`
