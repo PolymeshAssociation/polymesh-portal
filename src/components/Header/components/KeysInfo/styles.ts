@@ -5,6 +5,14 @@ export const StyledWrapper = styled.div`
   align-items: center;
   justify-content: center;
   gap: 4px;
+
+  & .copy-icon {
+    color: ${({ theme }) => theme.colors.textSecondary};
+  }
+
+  & .key-icon {
+    color: #ff2e72;
+  }
 `;
 
 export const StyledPrimaryLabel = styled.div`

@@ -8,6 +8,7 @@ const useAccountIdentity = () => {
     api: { sdk },
   } = useContext(PolymeshContext);
   const [identity, setIdentity] = useState<Identity | null>(null);
+  const [allIdentities, setAllIdentities] = useState<Identity[]>([]);
   const [identityLoading, setIdentityLoading] = useState(false);
   const [identityError, setIdentityError] = useState('');
 
@@ -21,10 +22,17 @@ const useAccountIdentity = () => {
         const account = await sdk.accountManagement.getAccount({
           address: selectedAccount,
         });
+        const signingAccounts =
+          await sdk.accountManagement.getSigningAccounts();
 
         const accIdentity = await account.getIdentity();
 
+        const allAccIdentities = await Promise.all(
+          signingAccounts.map((acc) => acc.getIdentity()),
+        );
+
         setIdentity(accIdentity);
+        setAllIdentities(allAccIdentities);
       } catch (error) {
         setIdentityError(error.message);
       } finally {
@@ -33,7 +41,7 @@ const useAccountIdentity = () => {
     })();
   }, [initialized, sdk, selectedAccount]);
 
-  return { identity, identityLoading, identityError };
+  return { identity, allIdentities, identityLoading, identityError };
 };
 
 export default useAccountIdentity;

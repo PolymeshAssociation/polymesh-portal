@@ -14,11 +14,11 @@ export const DidInfo = () => {
 
   return (
     <StyledWrapper>
-      <Icon name="IdCard" />
+      <Icon name="IdCard" className="id-icon" size="16px" />
       {connecting || identityLoading ? (
         '...'
       ) : (
-        <Text size="small" bold color="#727272">
+        <Text size="small" bold color="secondary">
           {formatDid(identity?.did)}
         </Text>
       )}

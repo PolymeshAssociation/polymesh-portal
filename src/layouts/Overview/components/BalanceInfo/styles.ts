@@ -27,4 +27,8 @@ export const StyledButtonGroup = styled.div`
   align-items: center;
   justify-content: center;
   gap: 24px;
+
+  & button {
+    flex-grow: 1;
+  }
 `;

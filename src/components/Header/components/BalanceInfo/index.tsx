@@ -17,7 +17,7 @@ export const BalanceInfo = () => {
       {connecting || balanceIsLoading ? (
         <p>...</p>
       ) : (
-        <Text size="small" bold color="#727272">
+        <Text size="small" bold color="secondary">
           <StyledPriceLabel>{formatBalance(balance.total)}</StyledPriceLabel>{' '}
           POLYX
         </Text>

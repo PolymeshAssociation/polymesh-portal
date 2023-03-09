@@ -10,8 +10,12 @@ import {
   IconWrapper,
 } from './styles';
 import { formatKey } from '~/helpers/formatters';
+import { ISelectProps } from './types';
 
-export const WalletSelect = () => {
+const WalletSelect: React.FC<ISelectProps> = ({
+  placement = 'header',
+  trimValue = true,
+}) => {
   const { selectedAccount, setSelectedAccount, allAccounts } = useAccounts();
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState('');
@@ -30,6 +34,7 @@ export const WalletSelect = () => {
         setExpanded(false);
       }
     };
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -47,11 +52,15 @@ export const WalletSelect = () => {
   };
 
   return (
-    <StyledSelectWrapper ref={ref}>
-      <StyledSelect onClick={handleDropdownToggle} expanded={expanded}>
+    <StyledSelectWrapper ref={ref} placement={placement} expanded={expanded}>
+      <StyledSelect
+        onClick={handleDropdownToggle}
+        expanded={expanded}
+        placement={placement}
+      >
         {selected ? (
           <>
-            {formatKey(selected)}
+            {trimValue ? formatKey(selected) : formatKey(selected, 7, 9)}
             <IconWrapper>
               <Icon name="DropdownIcon" />
             </IconWrapper>
@@ -61,14 +70,15 @@ export const WalletSelect = () => {
         )}
       </StyledSelect>
       {expanded && (
-        <StyledExpandedSelect>
+        <StyledExpandedSelect placement={placement}>
           {allAccounts.map((option) => (
             <StyledLabel
               key={option}
               htmlFor={option}
               selected={selected === option}
+              placement={placement}
             >
-              {formatKey(option)}
+              {trimValue ? formatKey(option) : formatKey(option, 7, 9)}
               <StyledInput
                 type="radio"
                 name="key"
@@ -83,3 +93,5 @@ export const WalletSelect = () => {
     </StyledSelectWrapper>
   );
 };
+
+export default WalletSelect;

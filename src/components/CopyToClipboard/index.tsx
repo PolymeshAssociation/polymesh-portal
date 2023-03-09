@@ -33,7 +33,7 @@ const CopyToClipboard: React.FC<ICopyProps> = ({ value }) => {
   return (
     <BaseCopyToClipboard text={value} onCopy={handleCopy}>
       <StyledCopyWrapper>
-        <Icon name="CopyIcon" />
+        <Icon name="CopyIcon" className="copy-icon" />
         {showNotification && <StyledNotification />}
       </StyledCopyWrapper>
     </BaseCopyToClipboard>

@@ -30,6 +30,7 @@ button {
 
 button:disabled {
   cursor: initial;
+  pointer-events: none;
 }
 
 ul {

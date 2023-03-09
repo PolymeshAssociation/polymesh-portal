@@ -95,6 +95,10 @@ export const PolymeshProvider = ({ children }) => {
         const sdkInstance = await Polymesh.connect({
           nodeUrl: import.meta.env.VITE_NODE_URL,
           signingManager,
+          middlewareV2: {
+            link: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL,
+            key: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
+          },
         });
 
         setSdk(sdkInstance);

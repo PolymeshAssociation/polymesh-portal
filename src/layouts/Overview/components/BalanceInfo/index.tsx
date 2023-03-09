@@ -1,3 +1,5 @@
+import { useContext } from 'react';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import { useBalance } from '~/hooks/polymesh';
 import { Icon } from '~/components';
 import { Text, Heading, Button } from '~/components/UiKit';
@@ -10,6 +12,9 @@ import {
 import { formatBalance } from '~/helpers/formatters';
 
 export const BalanceInfo = () => {
+  const {
+    state: { connecting },
+  } = useContext(PolymeshContext);
   const { balance, balanceIsLoading } = useBalance();
 
   return (
@@ -18,7 +23,9 @@ export const BalanceInfo = () => {
         <StyledTotalBalance>
           <Icon name="PolymeshSymbol" size="36px" />
           <Heading type="h2">
-            {balanceIsLoading ? 'loading...' : formatBalance(balance.total)}{' '}
+            {connecting || balanceIsLoading
+              ? 'loading...'
+              : formatBalance(balance.total)}{' '}
             <StyledAsset>POLYX</StyledAsset>
           </Heading>
         </StyledTotalBalance>
@@ -26,21 +33,31 @@ export const BalanceInfo = () => {
       </div>
       <div>
         <Heading type="h3">
-          {balanceIsLoading ? 'loading...' : formatBalance(balance.free)}{' '}
+          {connecting || balanceIsLoading
+            ? 'loading...'
+            : formatBalance(balance.free)}{' '}
           <StyledAsset>POLYX</StyledAsset>
         </Heading>
         <Text size="large">Unlocked</Text>
       </div>
       <div>
         <Heading type="h3">
-          {balanceIsLoading ? 'loading...' : formatBalance(balance.locked)}{' '}
+          {connecting || balanceIsLoading
+            ? 'loading...'
+            : formatBalance(balance.locked)}{' '}
           <StyledAsset>POLYX</StyledAsset>
         </Heading>
         <Text size="large">Locked</Text>
       </div>
       <StyledButtonGroup>
-        <Button variant="accent">Send</Button>
-        <Button variant="accent">Receive</Button>
+        <Button>
+          <Icon name="ArrowTopRight" />
+          Send
+        </Button>
+        <Button variant="secondary">
+          <Icon name="ArrowBottomLeft" />
+          Receive
+        </Button>
       </StyledButtonGroup>
     </StyledWrapper>
   );

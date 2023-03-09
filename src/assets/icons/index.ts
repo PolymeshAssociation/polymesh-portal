@@ -11,3 +11,5 @@ export { ReactComponent as SubwalletSymbol } from './subwallet-symbol.svg';
 export { ReactComponent as TalismanSymbol } from './talisman-symbol.svg';
 export { ReactComponent as NotificationIcon } from './notification-icon.svg';
 export { ReactComponent as DropdownIcon } from './dropdown-icon.svg';
+export { ReactComponent as ArrowBottomLeft } from './arrow-bottom-left.svg';
+export { ReactComponent as ArrowTopRight } from './arrow-top-right.svg';

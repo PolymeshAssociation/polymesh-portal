@@ -1,11 +1,15 @@
-export const formatDid = (did: string | undefined) => {
+export const formatDid = (
+  did: string | undefined,
+  startChars = 4,
+  endChars = 5,
+) => {
   if (!did) return '';
 
-  return `${did.slice(0, 4)}...${did.slice(did.length - 5)}`;
+  return `${did.slice(0, startChars)}...${did.slice(did.length - endChars)}`;
 };
 
-export const formatKey = (key: string) => {
-  return `${key.slice(0, 4)}...${key.slice(key.length - 5)}`;
+export const formatKey = (key: string, startChars = 4, endChars = 5) => {
+  return `${key.slice(0, startChars)}...${key.slice(key.length - endChars)}`;
 };
 
 export const formatBalance = (balance: string, decimals = 2) =>

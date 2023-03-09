@@ -1,5 +1,16 @@
+import { OverviewGrid } from './styles';
+import { BalanceInfo } from './components/BalanceInfo';
+import { KeyInfo } from './components/KeyInfo';
+import { DidInfo } from './components/DidInfo';
+
 const Overview = () => {
-  return <h1>Overview</h1>;
+  return (
+    <OverviewGrid>
+      <BalanceInfo />
+      <KeyInfo />
+      <DidInfo />
+    </OverviewGrid>
+  );
 };
 
 export default Overview;
