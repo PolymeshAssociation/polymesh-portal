@@ -1,18 +1,21 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import Lottie from 'lottie-react';
 import { Navigate } from 'react-router-dom';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { StyledLogoBox, StyledInfoBox, StyledAnimationBox } from './styles';
 import { Icon } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
+import { ConnectWalletPopup } from './components/ConnectWalletPopup';
 import landingAnimation from '~/assets/animations/landingAnimation.json';
 import { PATHS } from '~/constants/routes';
 
 const Landing = () => {
   const {
-    connectWallet,
     state: { connecting },
   } = useContext(PolymeshContext);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const toggleModal = () => setModalOpen((prev) => !prev);
 
   return (
     <>
@@ -27,7 +30,7 @@ const Landing = () => {
           dApps and manage your Polymesh Account, your regulated assets and
           POLYX.
         </Text>
-        <Button onClick={connectWallet} variant="accent" marginTop={48}>
+        <Button onClick={toggleModal} variant="accent" marginTop={48}>
           <Icon name="Wallet" />
           Connect wallet
         </Button>
@@ -35,6 +38,7 @@ const Landing = () => {
       <StyledAnimationBox>
         <Lottie animationData={landingAnimation} loop />
       </StyledAnimationBox>
+      {modalOpen && <ConnectWalletPopup handleClose={toggleModal} />}
     </>
   );
 };

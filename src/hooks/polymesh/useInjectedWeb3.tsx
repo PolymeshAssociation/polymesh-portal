@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from '~/hooks/utility';
 
 interface IPersistedExtension {
-  name: string;
+  extensionName: string;
+  isDefault: boolean;
   authorized: boolean;
-  recent: boolean;
 }
 
 const win = window as Window & InjectedWindow;
@@ -18,10 +18,10 @@ const useInjectedWeb3 = () => {
   const [injectedExtensions, setInjectedExtensions] = useState<string[]>([]);
 
   const extensionsInstalled = !!injectedExtensions.length;
-  const recentExtension = useMemo(
+  const defaultAuthorizedExtension = useMemo(
     () =>
       persistedExtensions.find(
-        (extension) => extension?.recent && extension?.authorized,
+        (extension) => extension?.isDefault && extension?.authorized,
       ),
     [persistedExtensions],
   );
@@ -33,36 +33,42 @@ const useInjectedWeb3 = () => {
   }, []);
 
   // Function is being triggered after sdk is successfully created
-  const connectExtension = (name: string) => {
+  const connectExtension = (extensionName: string, isDefault: boolean) => {
     // Case 1: There are no previously authorized extensions
     if (!persistedExtensions.length) {
-      setPersistedExtensions([{ name, authorized: true, recent: true }]);
+      setPersistedExtensions([{ extensionName, isDefault, authorized: true }]);
       return;
     }
 
-    // Case 2: First time connecting current extension
-    if (!persistedExtensions.some((extension) => extension.name === name)) {
+    // Case 2: Storing recently connected extension if it doesn't exist in the list
+    if (
+      !persistedExtensions.some(
+        (extension) => extension.extensionName === extensionName,
+      )
+    ) {
       setPersistedExtensions([
         ...persistedExtensions,
-        { name, authorized: true, recent: true },
+        { extensionName, isDefault, authorized: true },
       ]);
       return;
     }
-    // Case 3: Current extension previously connected, updating its data
-    const updatedExtensions = persistedExtensions.map((extension) => {
-      if (extension.name === name) {
-        return { ...extension, authorized: true, recent: true };
-      }
-      return { ...extension, recent: false };
-    });
 
-    setPersistedExtensions(updatedExtensions);
+    // Case 3: Updating isDefault property if extension exists in the list
+    setPersistedExtensions(
+      persistedExtensions.map((extension) => {
+        if (extension.extensionName === extensionName) {
+          return { extensionName, isDefault, authorized: true };
+        }
+        return extension;
+      }),
+    );
   };
 
   return {
     connectExtension,
     extensionsInstalled,
-    recentExtension,
+    injectedExtensions,
+    defaultAuthorizedExtension,
   };
 };
 

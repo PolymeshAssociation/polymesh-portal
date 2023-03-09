@@ -11,6 +11,7 @@ const light = {
   colors: {
     landingBackground: '#FFFFFF',
     dashboardBackground: '#F5F5F5',
+    modalBackground: '#FFFFFF',
     textPrimary: '#1E1E1E',
     textSecondary: '#727272',
   },
@@ -20,6 +21,10 @@ const dark = {
   ...common,
   colors: {
     landingBackground: '#FFFFFF',
+    dashboardBackground: '#F5F5F5',
+    modalBackground: '#FFFFFF',
+    textPrimary: '#1E1E1E',
+    textSecondary: '#727272',
   },
 };
 

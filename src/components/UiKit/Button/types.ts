@@ -10,4 +10,5 @@ export interface IButtonProps {
   marginBottom?: number;
   children: React.ReactNode;
   onClick?: () => void;
+  disabled: boolean;
 }

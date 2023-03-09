@@ -7,6 +7,7 @@ const Button: React.FC<IButtonProps> = ({
   marginBottom,
   children,
   onClick,
+  disabled,
 }) => {
   return (
     <StyledButton
@@ -15,6 +16,7 @@ const Button: React.FC<IButtonProps> = ({
       marginBottom={marginBottom}
       type="button"
       onClick={onClick}
+      disabled={disabled}
     >
       {children}
     </StyledButton>

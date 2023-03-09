@@ -5,9 +5,10 @@ import * as icons from '~/assets/icons';
 interface IIconProps {
   name: string;
   size?: string;
+  className?: string;
 }
 
-const Icon: React.FC<IIconProps> = ({ name, size }) => {
+const Icon: React.FC<IIconProps> = ({ name, size, className }) => {
   if (!name) return null;
 
   const svg = icons[name];
@@ -17,7 +18,11 @@ const Icon: React.FC<IIconProps> = ({ name, size }) => {
     return null;
   }
 
-  return <IconWrapper size={size}>{createElement(svg)}</IconWrapper>;
+  return (
+    <IconWrapper size={size} className={className}>
+      {createElement(svg)}
+    </IconWrapper>
+  );
 };
 
 export default Icon;
