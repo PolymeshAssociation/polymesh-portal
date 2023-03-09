@@ -28,6 +28,10 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: initial;
+}
+
 ul {
   margin: 0;
   padding: 0;
