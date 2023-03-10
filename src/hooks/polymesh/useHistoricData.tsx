@@ -14,12 +14,14 @@ const useHistoricData = () => {
 
   // Get all extrinsics history for current account
   useEffect(() => {
-    if (!sdk || !selectedAccount) return;
+    if (!selectedAccount) return;
 
     (async () => {
       try {
         setDataLoading(true);
-        const account = await sdk.accountManagement.getSigningAccount();
+        const account = await sdk.accountManagement.getAccount({
+          address: selectedAccount,
+        });
         if (!account) return;
 
         const { data, count } = await account.getTransactionHistoryV2();

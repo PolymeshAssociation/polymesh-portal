@@ -13,3 +13,7 @@ export { ReactComponent as NotificationIcon } from './notification-icon.svg';
 export { ReactComponent as DropdownIcon } from './dropdown-icon.svg';
 export { ReactComponent as ArrowBottomLeft } from './arrow-bottom-left.svg';
 export { ReactComponent as ArrowTopRight } from './arrow-top-right.svg';
+export { ReactComponent as FirstPage } from './first-page.svg';
+export { ReactComponent as LastPage } from './last-page.svg';
+export { ReactComponent as PrevPage } from './prev-page.svg';
+export { ReactComponent as NextPage } from './next-page.svg';

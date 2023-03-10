@@ -12,7 +12,8 @@ export const OverviewGrid = styled.div`
     display: grid;
     grid-template-areas:
       'balance key'
-      'balance did';
+      'balance did'
+      'table table';
     grid-template-columns: 1fr 1fr;
     grid-auto-rows: max-content;
   }
