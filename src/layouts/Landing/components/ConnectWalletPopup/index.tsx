@@ -53,10 +53,14 @@ export const ConnectWalletPopup = ({ handleClose }) => {
         onChange={handleDefaultSelect}
       />
       <StyledButtonWrapper>
-        <Button variant="secondary" onClick={handleCancel}>
+        <Button variant="modalSecondary" onClick={handleCancel}>
           Cancel
         </Button>
-        <Button disabled={!selectedWallet} onClick={handleConnectWallet}>
+        <Button
+          variant="modalPrimary"
+          disabled={!selectedWallet}
+          onClick={handleConnectWallet}
+        >
           Apply
         </Button>
       </StyledButtonWrapper>

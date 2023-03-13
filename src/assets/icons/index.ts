@@ -17,3 +17,4 @@ export { ReactComponent as FirstPage } from './first-page.svg';
 export { ReactComponent as LastPage } from './last-page.svg';
 export { ReactComponent as PrevPage } from './prev-page.svg';
 export { ReactComponent as NextPage } from './next-page.svg';
+export { ReactComponent as Check } from './check.svg';

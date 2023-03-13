@@ -1,5 +1,5 @@
 import { Table as ReactTable, flexRender } from '@tanstack/react-table';
-import { Pagination } from '~/components';
+import { Icon, Pagination } from '~/components';
 import { Heading } from '../UiKit';
 import {
   StyledTableWrapper,
@@ -7,25 +7,42 @@ import {
   StyledTableBody,
   StyledTableFooter,
   StyledTablePlaceholder,
+  StyledTabsWrapper,
+  StyledTabItem,
+  StyledPerPageWrapper,
+  StyledPerPageSelect,
 } from './styles';
 
-interface ITableProps {
-  table: ReactTable;
+interface ITableProps<T> {
+  data: {
+    tab: string;
+    table: ReactTable<T>;
+  };
   title: string;
+  tabs: string[];
+  setTab: () => void;
   loading: boolean;
 }
 
-const Table: React.FC<ITableProps> = ({ table, title, loading }) => {
+const perPageOptions = [3, 5, 10, 20, 50];
+
+const Table: React.FC<ITableProps<T>> = ({
+  data: { table, tab },
+  title,
+  tabs,
+  setTab,
+  loading,
+}) => {
   const colsNumber = table.getAllColumns().length;
-  const rowsNumber = table.getExpandedRowModel().rows.length as number;
+  const rowsNumber = table.getExpandedRowModel().rows.length;
+  const {
+    pagination: { pageIndex, pageSize },
+  } = table.getState();
 
   const getCurrentPageItems = () => {
-    const {
-      pagination: { pageIndex, pageSize },
-    } = table.getState();
     const { rows } = table.getPaginationRowModel();
     const first = pageIndex * pageSize + 1;
-    const last = (first - 1 + rows.length) as number;
+    const last = first - 1 + rows.length;
 
     return { first, last };
   };
@@ -34,10 +51,27 @@ const Table: React.FC<ITableProps> = ({ table, title, loading }) => {
     <StyledTableWrapper>
       <StyledTableHeader>
         <Heading type="h3">{title}</Heading>
+        {tabs.length > 1 && (
+          <StyledTabsWrapper>
+            {tabs.map((tabItem) => (
+              <StyledTabItem
+                key={tabItem}
+                selected={tabItem === tab}
+                onClick={() => setTab(tabItem)}
+              >
+                {tabItem}
+              </StyledTabItem>
+            ))}
+          </StyledTabsWrapper>
+        )}
       </StyledTableHeader>
       {loading ? (
         <StyledTablePlaceholder>Loading...</StyledTablePlaceholder>
-      ) : (
+      ) : null}
+      {!loading && !rowsNumber && (
+        <StyledTablePlaceholder>No data available</StyledTablePlaceholder>
+      )}
+      {!loading && !!rowsNumber && (
         <StyledTableBody colsNumber={colsNumber}>
           <thead>
             <tr>
@@ -73,14 +107,38 @@ const Table: React.FC<ITableProps> = ({ table, title, loading }) => {
       )}
       <StyledTableFooter>
         {!loading && rowsNumber ? (
-          <Pagination
-            totalItems={rowsNumber}
-            currentItems={getCurrentPageItems()}
-            isPrevDisabled={!table.getCanPreviousPage()}
-            isNextDisabled={!table.getCanNextPage()}
-            onNextPageClick={() => table.nextPage()}
-            onPrevPageClick={() => table.previousPage()}
-          />
+          <>
+            <StyledPerPageWrapper>
+              Show:
+              <StyledPerPageSelect>
+                <select
+                  onChange={({ target }) => {
+                    table.setPageSize(target.value);
+                  }}
+                  value={pageSize}
+                >
+                  {perPageOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <Icon name="DropdownIcon" className="dropdown-icon" />
+              </StyledPerPageSelect>
+            </StyledPerPageWrapper>
+            <Pagination
+              totalItems={rowsNumber}
+              currentItems={getCurrentPageItems()}
+              isPrevDisabled={!table.getCanPreviousPage()}
+              isNextDisabled={!table.getCanNextPage()}
+              onNextPageClick={() => table.nextPage()}
+              onPrevPageClick={() => table.previousPage()}
+              onFirstPageClick={() => table.setPageIndex(0)}
+              onLastPageClick={() =>
+                table.setPageIndex(Math.ceil(rowsNumber / pageSize) - 1)
+              }
+            />
+          </>
         ) : null}
       </StyledTableFooter>
     </StyledTableWrapper>

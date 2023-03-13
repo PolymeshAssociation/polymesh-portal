@@ -8,6 +8,8 @@ export const StyledPaginationWrapper = styled.div`
 `;
 
 export const StyledPaginationButton = styled.button`
+  display: flex;
+  padding: 0;
   background-color: transparent;
   color: #1e1e1e;
   transition: color 250ms ease-out;

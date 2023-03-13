@@ -8,9 +8,10 @@ import {
   StyledInput,
   StyledLabel,
   IconWrapper,
+  StyledPrimaryLabel,
 } from './styles';
 import { formatKey } from '~/helpers/formatters';
-import { ISelectProps } from './types';
+import { ESelectPlacements, ISelectProps } from './types';
 
 const WalletSelect: React.FC<ISelectProps> = ({
   placement = 'header',
@@ -79,6 +80,10 @@ const WalletSelect: React.FC<ISelectProps> = ({
               placement={placement}
             >
               {trimValue ? formatKey(option) : formatKey(option, 7, 9)}
+              {selected === option &&
+                placement === ESelectPlacements.HEADER && (
+                  <StyledPrimaryLabel>Primary</StyledPrimaryLabel>
+                )}
               <StyledInput
                 type="radio"
                 name="key"

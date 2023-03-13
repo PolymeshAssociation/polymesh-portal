@@ -6,14 +6,8 @@ export const StyledCopyWrapper = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-`;
 
-export const StyledNotification = styled.div`
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: green;
+  & .check-icon {
+    color: #00aa5e;
+  }
 `;

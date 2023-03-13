@@ -1,7 +1,7 @@
 // import { useEffect, useState } from 'react';
 import { useAccounts } from '~/hooks/polymesh';
 import { Icon, CopyToClipboard, WalletSelect } from '~/components';
-import { StyledWrapper, StyledPrimaryLabel } from './styles';
+import { StyledWrapper } from './styles';
 
 export const KeysInfo = () => {
   const { selectedAccount } = useAccounts();
@@ -19,7 +19,6 @@ export const KeysInfo = () => {
   return (
     <StyledWrapper>
       <Icon name="KeyIcon" className="key-icon" size="14px" />
-      <StyledPrimaryLabel>Primary</StyledPrimaryLabel>
       <WalletSelect />
       <CopyToClipboard value={selectedAccount} />
     </StyledWrapper>

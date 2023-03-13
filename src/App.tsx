@@ -9,6 +9,7 @@ import theme from '~/styles/theme';
 
 const App = () => {
   const { currentTheme } = useContext(ThemeContext);
+
   return (
     <ThemeProvider theme={theme[currentTheme]}>
       <SharedLayout>

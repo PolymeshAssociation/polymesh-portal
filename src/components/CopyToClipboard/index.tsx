@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CopyToClipboard as BaseCopyToClipboard } from 'react-copy-to-clipboard';
 import { Icon } from '~/components';
-import { StyledCopyWrapper, StyledNotification } from './styles';
+import { StyledCopyWrapper } from './styles';
 
 interface ICopyProps {
   value: string | number;
@@ -23,7 +23,7 @@ const CopyToClipboard: React.FC<ICopyProps> = ({ value }) => {
     const id = setTimeout(() => {
       setSuccess(false);
       setShowNotification(false);
-    }, 500);
+    }, 350);
 
     return () => {
       clearTimeout(id);
@@ -33,8 +33,11 @@ const CopyToClipboard: React.FC<ICopyProps> = ({ value }) => {
   return (
     <BaseCopyToClipboard text={value} onCopy={handleCopy}>
       <StyledCopyWrapper>
-        <Icon name="CopyIcon" className="copy-icon" />
-        {showNotification && <StyledNotification />}
+        {showNotification ? (
+          <Icon name="Check" className="check-icon" size="16px" />
+        ) : (
+          <Icon name="CopyIcon" className="copy-icon" />
+        )}
       </StyledCopyWrapper>
     </BaseCopyToClipboard>
   );

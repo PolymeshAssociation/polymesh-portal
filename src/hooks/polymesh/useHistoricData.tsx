@@ -1,4 +1,7 @@
-import { ExtrinsicData } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  ExtrinsicData,
+  HistoricInstruction,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { useContext, useState, useEffect } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
 
@@ -8,11 +11,13 @@ const useHistoricData = () => {
     state: { selectedAccount },
   } = useContext(PolymeshContext);
   const [extrinsicHistory, setExtrisicHistory] = useState<ExtrinsicData[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
+  const [instructionsHistory, setInstructionsHistory] = useState<
+    HistoricInstruction[]
+  >([]);
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState('');
 
-  // Get all extrinsics history for current account
+  // Get all extrinsics and instructions history for current account
   useEffect(() => {
     if (!selectedAccount) return;
 
@@ -24,10 +29,16 @@ const useHistoricData = () => {
         });
         if (!account) return;
 
-        const { data, count } = await account.getTransactionHistoryV2();
+        const { data } = await account.getTransactionHistoryV2();
 
         setExtrisicHistory(data);
-        setTotalCount(count?.toNumber() || 0);
+
+        const identity = await account.getIdentity();
+        if (!identity) return;
+
+        const instructions = await identity.getHistoricalInstructions();
+
+        setInstructionsHistory(instructions);
       } catch (error: Error) {
         setDataError(error.message);
       } finally {
@@ -36,7 +47,7 @@ const useHistoricData = () => {
     })();
   }, [sdk, selectedAccount]);
 
-  return { extrinsicHistory, totalCount, dataLoading, dataError };
+  return { extrinsicHistory, instructionsHistory, dataLoading, dataError };
 };
 
 export default useHistoricData;

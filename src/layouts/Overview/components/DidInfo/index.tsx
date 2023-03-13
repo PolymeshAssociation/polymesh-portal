@@ -80,7 +80,7 @@ export const DidInfo = () => {
           Verified by <span>{identityLoading ? '...' : formatDid(issuer)}</span>
         </Text>
       </StyledBottomInfo>
-      <Button variant="secondary" marginTop={20} disabled>
+      <Button variant="transparent" marginTop={20}>
         Details
       </Button>
     </StyledWrapper>

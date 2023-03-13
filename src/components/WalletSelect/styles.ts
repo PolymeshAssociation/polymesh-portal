@@ -15,7 +15,6 @@ export const StyledSelectWrapper = styled.div`
     placement === ESelectPlacements.WIDGET
       ? `
       flex-grow: 1;
-      padding: 7px 28px 7px 8px;
       background-color: rgba(255, 255, 255, 0.24);
       ${
         expanded
@@ -46,6 +45,7 @@ export const StyledSelect = styled.div`
   ${({ placement, theme }) =>
     placement === ESelectPlacements.WIDGET
       ? `
+      padding: 7px 28px 7px 8px;
       color: ${theme.colors.dashboardBackground};
       text-align: center;
 
@@ -66,19 +66,18 @@ export const StyledExpandedSelect = styled.div`
   position: absolute;
   display: flex;
   flex-direction: column;
-  /* gap: 4px; */
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
   overflow: scroll;
   ${({ placement, theme }) =>
     placement === ESelectPlacements.HEADER
       ? `
       top: 120%;
-      left: -5%;
-      width: 105%;
-      background-color: ${theme.colors.dashboardBackground};
-      border-radius: 10px;
-      text-align: center;
-      
+      left: -56%;
+      width: 203px;
+      gap: 10px;
+      padding: 10px 8px;
+      background-color: ${theme.colors.landingBackground};
+      box-shadow: 0px 15px 25px rgba(30, 30, 30, 0.15), 0px 5px 10px rgba(30, 30, 30, 0.05);
+      border-radius: 12px;
       `
       : ''}
   ${({ placement }) =>
@@ -90,6 +89,7 @@ export const StyledExpandedSelect = styled.div`
       background-color: rgba(255, 255, 255, 0.24);
       border-bottom-left-radius: 16px;
       border-bottom-right-radius: 16px;
+      box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
       text-align: center;
       `
       : ''}
@@ -110,18 +110,40 @@ export const StyledInput = styled.input`
 `;
 
 export const StyledLabel = styled.label`
-  font-size: 12px;
-  padding: 6px;
   color: ${({ theme }) => theme.colors.textPrimary};
   cursor: pointer;
-  ${({ selected }) => (selected ? `font-weight: 500;` : '')}
+  ${({ placement, selected, theme }) =>
+    placement === ESelectPlacements.HEADER
+      ? `
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 48px;
+      gap: 10px;
+      padding: 0 16px;
+      border-radius: 62px;
+      font-size: 14px;
+      ${
+        selected ? `background-color: ${theme.colors.dashboardBackground};` : ''
+      }
+      `
+      : ''}
+  ${({ placement, selected }) =>
+    placement === ESelectPlacements.WIDGET
+      ? `
+      font-size: 12px;
+      padding: 6px;
+      ${selected ? `font-weight: 500;` : ''}
+      `
+      : ''}
+  
 
   transition: background-color 250ms ease-out;
   &:hover {
     ${({ placement, theme }) =>
       placement === ESelectPlacements.HEADER
         ? `
-      background-color: ${theme.colors.landingBackground};
+      background-color: ${theme.colors.dashboardBackground};
       `
         : ''}
     ${({ placement }) =>
@@ -141,4 +163,16 @@ export const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+export const StyledPrimaryLabel = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 63px;
+  height: 24px;
+  border: 1px solid #fad1dc;
+  border-radius: 100px;
+  font-size: 12px;
+  color: #ec4673;
 `;

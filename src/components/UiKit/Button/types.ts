@@ -1,7 +1,10 @@
 export enum EButtonVariants {
   ACCENT = 'accent',
+  TRANSPARENT = 'transparent',
   PRIMARY = 'primary',
   SECONDARY = 'secondary',
+  MODAL_PRIMARY = 'modalPrimary',
+  MODAL_SECONDARY = 'modalSecondary',
 }
 
 export interface IButtonProps {
