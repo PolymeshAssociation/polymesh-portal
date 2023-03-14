@@ -1,5 +1,12 @@
+import { Heading } from '~/components/UiKit';
+import { StyledWrapper } from './styles';
+
 const NotFound = () => {
-  return <h1>404 not found</h1>;
+  return (
+    <StyledWrapper>
+      <Heading>404 not found</Heading>
+    </StyledWrapper>
+  );
 };
 
 export default NotFound;

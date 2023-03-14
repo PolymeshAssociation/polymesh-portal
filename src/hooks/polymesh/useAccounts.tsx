@@ -10,13 +10,13 @@ const useAccounts = () => {
 
   // Get list of connected accounts when sdk is initialized with signing manager
   useEffect(() => {
-    if (!initialized) return;
+    if (!initialized || !sdk) return;
 
     (async () => {
       const connectedAccounts = await signingManager.getAccounts();
       setAllAccounts(connectedAccounts);
     })();
-  }, [initialized, signingManager]);
+  }, [initialized, sdk, signingManager]);
 
   // Perform actions when account change occurs in extension
   useEffect(() => {

@@ -7,3 +7,4 @@ export { default as WalletSelect } from './WalletSelect';
 export { default as DidSelect } from './DidSelect';
 export { default as Table } from './Table';
 export { default as Pagination } from './Pagination';
+export { default as Sidebar } from './Sidebar';
