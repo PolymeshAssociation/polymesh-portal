@@ -114,13 +114,13 @@ export const StatusDot = styled.div`
 
   @keyframes loading-animation {
     0% {
-      transform: translateX(0%);
+      transform: translateX(8px);
     }
     50% {
       transform: translateX(1500%);
     }
     100% {
-      transform: translateX(0%);
+      transform: translateX(8px);
     }
   }
 `;

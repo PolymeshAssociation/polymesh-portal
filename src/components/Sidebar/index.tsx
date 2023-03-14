@@ -67,7 +67,7 @@ const Sidebar = () => {
                 >
                   <Icon name={icon} className="link-icon" size="24px" />
                   <span>{label}</span>
-                  {disabled && <SoonLabel>Soon</SoonLabel>}
+                  {disabled && fullWidth && <SoonLabel>Soon</SoonLabel>}
                   {expandable && linksExpanded && (
                     <ExpandedLinks fullWidth={fullWidth}>
                       {nestedLinks?.map(

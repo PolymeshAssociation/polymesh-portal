@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
+import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import useAccounts from './useAccounts';
 
@@ -29,20 +30,24 @@ const useBalance = (): IUseBalance => {
 
   // Get balance data when accounts are set
   useEffect(() => {
-    if (!selectedAccount) return;
+    if (!selectedAccount) return undefined;
 
+    let unsubCb: UnsubCallback | null = null;
     (async () => {
       try {
         setBalanceIsLoading(true);
-        const { free, locked, total } =
-          await sdk.accountManagement.getAccountBalance({
+        unsubCb = await sdk.accountManagement.getAccountBalance(
+          {
             account: selectedAccount,
-          });
-        setBalance({
-          free: free.toString(),
-          locked: locked.toString(),
-          total: total.toString(),
-        });
+          },
+          ({ free, locked, total }) => {
+            setBalance({
+              free: free.toString(),
+              locked: locked.toString(),
+              total: total.toString(),
+            });
+          },
+        );
       } catch (error) {
         if (error instanceof Error) {
           setBalanceError(error.message);
@@ -53,6 +58,8 @@ const useBalance = (): IUseBalance => {
         setBalanceIsLoading(false);
       }
     })();
+
+    return () => (unsubCb ? unsubCb() : undefined);
   }, [selectedAccount, sdk]);
 
   return { balance, balanceError, balanceIsLoading };

@@ -1,11 +1,13 @@
 import { createElement, Suspense, useContext } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
+import { ToastContainer } from 'react-toastify';
 import { PolymeshProvider } from '~/context/PolymeshContext';
 import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
 import { ROUTES } from '~/constants/routes';
 import SharedLayout from '~/layouts/SharedLayout';
 import theme from '~/styles/theme';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   const { currentTheme } = useContext(ThemeContext);
@@ -19,6 +21,7 @@ const App = () => {
           ))}
         </Routes>
       </SharedLayout>
+      <ToastContainer />
     </ThemeProvider>
   );
 };
