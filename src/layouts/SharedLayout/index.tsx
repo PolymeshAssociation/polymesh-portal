@@ -10,13 +10,10 @@ const SharedLayout = ({ children }) => {
     state: { connecting, initialized },
   } = useContext(PolymeshContext);
   const { pathname } = useLocation();
-  const { defaultAuthorizedExtension } = useInjectedWeb3();
+  const { defaultExtension } = useInjectedWeb3();
   const isLandingPage = pathname === '/';
   const redirectToLanding =
-    !defaultAuthorizedExtension &&
-    !isLandingPage &&
-    !connecting &&
-    !initialized;
+    !defaultExtension && !isLandingPage && !connecting && !initialized;
 
   return (
     <>

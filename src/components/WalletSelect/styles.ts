@@ -11,17 +11,12 @@ export const StyledSelectWrapper = styled.div`
       min-width: 94px;
       `
       : ''}
-  ${({ placement, expanded }) =>
+  ${({ placement }) =>
     placement === ESelectPlacements.WIDGET
       ? `
       flex-grow: 1;
       background-color: rgba(255, 255, 255, 0.24);
-      ${
-        expanded
-          ? `border-top-left-radius: 16px;
-            border-top-right-radius: 16px;`
-          : `border-radius: 32px;`
-      }
+      border-radius: 32px;
 
       `
       : ''}
@@ -64,32 +59,33 @@ export const StyledSelect = styled.div`
 
 export const StyledExpandedSelect = styled.div`
   position: absolute;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  overflow: scroll;
-  ${({ placement, theme }) =>
+  overflow-y: scroll;
+  overflow-x: hidden;
+  max-height: 300px;
+  gap: 10px;
+  padding: 10px 8px;
+  background-color: ${({ theme }) => theme.colors.landingBackground};
+  box-shadow: 0px 15px 25px rgba(30, 30, 30, 0.15),
+    0px 5px 10px rgba(30, 30, 30, 0.05);
+  border-radius: 12px;
+  ${({ placement }) =>
     placement === ESelectPlacements.HEADER
       ? `
       top: 120%;
       left: -56%;
       width: 203px;
-      gap: 10px;
-      padding: 10px 8px;
-      background-color: ${theme.colors.landingBackground};
-      box-shadow: 0px 15px 25px rgba(30, 30, 30, 0.15), 0px 5px 10px rgba(30, 30, 30, 0.05);
-      border-radius: 12px;
+      
       `
       : ''}
   ${({ placement }) =>
     placement === ESelectPlacements.WIDGET
       ? `
-      top: 100%;
+      top: 110%;
       left: 0;
       width: 100%;
-      background-color: rgba(255, 255, 255, 0.24);
-      border-bottom-left-radius: 16px;
-      border-bottom-right-radius: 16px;
-      box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
       text-align: center;
       `
       : ''}
@@ -111,47 +107,20 @@ export const StyledInput = styled.input`
 
 export const StyledLabel = styled.label`
   color: ${({ theme }) => theme.colors.textPrimary};
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 62px;
+  font-size: 14px;
+  ${({ theme, selected }) =>
+    selected ? `background-color: ${theme.colors.dashboardBackground};` : ''}
   cursor: pointer;
-  ${({ placement, selected, theme }) =>
-    placement === ESelectPlacements.HEADER
-      ? `
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 48px;
-      gap: 10px;
-      padding: 0 16px;
-      border-radius: 62px;
-      font-size: 14px;
-      ${
-        selected ? `background-color: ${theme.colors.dashboardBackground};` : ''
-      }
-      `
-      : ''}
-  ${({ placement, selected }) =>
-    placement === ESelectPlacements.WIDGET
-      ? `
-      font-size: 12px;
-      padding: 6px;
-      ${selected ? `font-weight: 500;` : ''}
-      `
-      : ''}
-  
-
   transition: background-color 250ms ease-out;
   &:hover {
-    ${({ placement, theme }) =>
-      placement === ESelectPlacements.HEADER
-        ? `
-      background-color: ${theme.colors.dashboardBackground};
-      `
-        : ''}
-    ${({ placement }) =>
-      placement === ESelectPlacements.WIDGET
-        ? `
-      background-color: #FF2E72bb;
-      `
-        : ''}
+    ${({ theme }) => `background-color: ${theme.colors.dashboardBackground}`}
   }
 `;
 

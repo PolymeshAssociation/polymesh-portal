@@ -1,23 +1,26 @@
 import { useContext, useState, useEffect } from 'react';
-import { NetworkInfo } from '@polymeshassociation/browser-extension-signing-manager/types';
+import { NetworkProperties } from '@polymeshassociation/browser-extension-signing-manager/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 
 const useNetwork = () => {
   const {
     state: { connecting },
-    api: { signingManager },
+    api: { sdk, signingManager },
   } = useContext(PolymeshContext);
-  const [network, setNetwork] = useState<NetworkInfo>();
+  const [network, setNetwork] = useState<NetworkProperties>();
+  const [networkName, setNetworkName] = useState('');
   const [networkLoading, setNetworkLoading] = useState(true);
   const [networkError, setNetworkError] = useState('');
 
   useEffect(() => {
-    if (connecting || !signingManager) return undefined;
+    if (connecting || !sdk) return;
 
     (async () => {
       try {
-        const networkInfo = await signingManager.extension.network.get();
+        const networkInfo = await sdk.network.getNetworkProperties();
+
         setNetwork(networkInfo);
+        setNetworkName(networkInfo.name.replace('Polymesh', '').trim());
       } catch (error: Error) {
         setNetworkError(error.message);
       } finally {
@@ -25,15 +28,15 @@ const useNetwork = () => {
       }
     })();
 
-    const unsubCb = signingManager.onNetworkChange((newNetwork) => {
-      setNetwork(newNetwork);
-    });
-    return () => {
-      unsubCb();
-    };
-  }, [connecting, signingManager]);
+    // const unsubCb = signingManager.onNetworkChange((newNetwork) => {
+    //   setNetwork(newNetwork);
+    // });
+    // return () => {
+    //   unsubCb();
+    // };
+  }, [connecting, sdk, signingManager]);
 
-  return { network, setNetwork, networkLoading, networkError };
+  return { network, networkName, setNetwork, networkLoading, networkError };
 };
 
 export default useNetwork;

@@ -11,6 +11,7 @@ import {
   StyledVerifiedLabel,
   StyledDidWrapper,
   StyledBottomInfo,
+  StyledButtonWrapper,
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
 
@@ -18,7 +19,8 @@ export const DidInfo = () => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identity, identityLoading } = useAccountIdentity();
+  const { identity, identityLoading, joinIdentityRequest } =
+    useAccountIdentity();
   const [isVerified, setIsVerified] = useState(false);
   const [expiry, setExpiry] = useState<null | Date>(null);
   const [issuer, setIssuer] = useState<Identity | null>(null);
@@ -61,28 +63,78 @@ export const DidInfo = () => {
           <Icon name="IdCard" size="32px" className="id-icon" />
         </IconWrapper>
         <div className="did-wrapper">
-          {isVerified && <StyledVerifiedLabel>Verified</StyledVerifiedLabel>}
-          <Text marginBottom={4}>Your DID</Text>
-          <StyledDidWrapper>
-            <DidSelect />
-            <IconWrapper>
-              <CopyToClipboard value={identity?.did} />
-            </IconWrapper>
-          </StyledDidWrapper>
+          {joinIdentityRequest ? (
+            <Text bold size="large" marginTop={22}>
+              Your account is incomplete
+            </Text>
+          ) : (
+            <>
+              {isVerified && (
+                <StyledVerifiedLabel>Verified</StyledVerifiedLabel>
+              )}
+              <Text marginBottom={4}>Your DID</Text>
+              <StyledDidWrapper>
+                <DidSelect />
+                <IconWrapper>
+                  <CopyToClipboard value={identity?.did} />
+                </IconWrapper>
+              </StyledDidWrapper>
+            </>
+          )}
         </div>
       </StyledTopInfo>
       <StyledBottomInfo>
-        <Text>
-          Expires on
-          <span>{identityLoading ? '...' : parseExpiry(expiry)}</span>
-        </Text>
-        <Text>
-          Verified by <span>{identityLoading ? '...' : formatDid(issuer)}</span>
-        </Text>
+        {joinIdentityRequest ? (
+          <Text size="small">
+            The selected key is not associated with a Polymesh Account. In order
+            to use this key, either create a Polymesh Account, or have the key
+            assigned to another Polymesh Account.
+          </Text>
+        ) : (
+          <>
+            <div>
+              Expires on
+              <span>{identityLoading ? '...' : parseExpiry(expiry)}</span>
+            </div>
+            <div>
+              Verified by{' '}
+              <span>
+                {identityLoading ? '...' : formatDid(issuer)}
+                {!!issuer && (
+                  <IconWrapper>
+                    <CopyToClipboard value={issuer} />
+                  </IconWrapper>
+                )}
+              </span>
+            </div>
+          </>
+        )}
       </StyledBottomInfo>
-      <Button variant="transparent" marginTop={20}>
-        Details
-      </Button>
+      {joinIdentityRequest ? (
+        <StyledButtonWrapper>
+          {/* todo: make url configutable */}
+          <Button
+            onClick={() =>
+              window.open('https://testnet-onboarding.polymesh.live/', '_blank')
+            }
+          >
+            Create account
+          </Button>
+          <Button
+            variant="transparent"
+            onClick={() =>
+              window.open(
+                'https://polymath.network/polymesh-testnet/key-and-id-assignments',
+                '_blank',
+              )
+            }
+          >
+            Assign key to account
+          </Button>
+        </StyledButtonWrapper>
+      ) : (
+        <Button variant="transparent">Details</Button>
+      )}
     </StyledWrapper>
   );
 };

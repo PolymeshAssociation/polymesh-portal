@@ -12,5 +12,5 @@ export const formatKey = (key: string, startChars = 4, endChars = 5) => {
   return `${key.slice(0, startChars)}...${key.slice(key.length - endChars)}`;
 };
 
-export const formatBalance = (balance: string, decimals = 2) =>
+export const formatBalance = (balance: string | number, decimals = 2) =>
   Number(balance).toFixed(decimals);

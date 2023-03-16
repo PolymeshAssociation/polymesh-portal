@@ -1,5 +1,4 @@
 import { useForm } from 'react-hook-form';
-import { useEffect } from 'react';
 import { useTransferPolyx } from '~/hooks/polymesh';
 import { Modal } from '~/components';
 import { Heading, Button } from '~/components/UiKit';
@@ -11,29 +10,28 @@ import {
   StyledCaption,
   StyledMaxButton,
 } from './styles';
-import { notifyError } from '~/helpers/notifications';
 import { formatBalance } from '~/helpers/formatters';
-import { TRANSFER_INPUTS, FORM_CONFIG } from './constants';
+import { TRANSFER_INPUTS, createFormConfig } from './constants';
 
 export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
   toggleModal,
 }) => {
   const {
     availableBalance,
+    availableMinusGasFee,
     transferPolyx,
     transactionInProcess,
-    transactionError,
   } = useTransferPolyx();
   const {
     register,
     handleSubmit,
-    formState: { isValid },
+    formState: { isValid, errors },
     reset,
     setValue,
-  } = useForm(FORM_CONFIG);
+  } = useForm(createFormConfig({ maxAmount: availableMinusGasFee }));
 
   const handleUseMax = () => {
-    setValue('amount', availableBalance);
+    setValue('amount', availableMinusGasFee);
   };
 
   const onSubmit = (data) => {
@@ -41,12 +39,6 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
     reset();
     toggleModal();
   };
-
-  useEffect(() => {
-    if (!transactionError) return;
-
-    notifyError(transactionError);
-  }, [transactionError]);
 
   return (
     <Modal handleClose={toggleModal}>
@@ -57,6 +49,9 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
             <div key={id}>
               <StyledLabel htmlFor={id}>
                 {label}
+                {errors[id] ? (
+                  <span style={{ color: 'red' }}>{errors[id]?.message}</span>
+                ) : null}
                 <StyledInput
                   // eslint-disable-next-line react/jsx-props-no-spreading
                   {...register(id)}

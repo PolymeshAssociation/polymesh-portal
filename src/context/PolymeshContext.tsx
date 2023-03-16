@@ -30,7 +30,7 @@ interface IConnectOptions {
   isDefault: boolean;
 }
 
-export const PolymeshContext = createContext<IPolymeshContext>();
+export const PolymeshContext = createContext<IPolymeshContext>('');
 
 export const PolymeshProvider = ({ children }) => {
   const [sdk, setSdk] = useState<Polymesh>(null);
@@ -39,10 +39,10 @@ export const PolymeshProvider = ({ children }) => {
   const [connecting, setConnecting] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [walletError, setWalletError] = useState('');
-  const { connectExtension, defaultAuthorizedExtension } = useInjectedWeb3();
+  const { connectExtension, defaultExtension } = useInjectedWeb3();
   const [connectOptions, setConnectOptions] = useState<IConnectOptions>(() => {
-    if (defaultAuthorizedExtension) {
-      const { extensionName, isDefault } = defaultAuthorizedExtension;
+    if (defaultExtension) {
+      const { extensionName, isDefault } = defaultExtension;
       return { extensionName, isDefault };
     }
     return null;
@@ -78,14 +78,14 @@ export const PolymeshProvider = ({ children }) => {
 
   // Trigger signing manager initialization automatically when recent used extension data exists
   useEffect(() => {
-    if (!defaultAuthorizedExtension || initialized) return;
+    if (!defaultExtension || initialized) return;
 
-    const { extensionName, isDefault } = defaultAuthorizedExtension;
+    const { extensionName, isDefault } = defaultExtension;
     connectWallet({
       extensionName,
       isDefault,
     });
-  }, [connectWallet, initialized, defaultAuthorizedExtension]);
+  }, [connectWallet, initialized, defaultExtension]);
 
   // Connect to the Polymesh SDK once signing manager is created
   useEffect(() => {

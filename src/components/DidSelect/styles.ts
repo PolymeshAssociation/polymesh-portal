@@ -6,11 +6,7 @@ export const StyledSelectWrapper = styled.div`
   flex-grow: 1;
   padding: 7px 28px 7px 8px;
   background-color: rgba(255, 255, 255, 0.24);
-  ${({ expanded }) =>
-    expanded
-      ? `border-top-left-radius: 16px;
-            border-top-right-radius: 16px;`
-      : `border-radius: 32px;`}
+  border-radius: 32px;
 `;
 
 export const StyledSelect = styled.div`
@@ -32,14 +28,17 @@ export const StyledExpandedSelect = styled.div`
   position: absolute;
   display: flex;
   flex-direction: column;
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
-  overflow: scroll;
-  top: 100%;
+  top: 110%;
   left: 0;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.24);
-  border-bottom-left-radius: 16px;
-  border-bottom-right-radius: 16px;
+  overflow-y: scroll;
+  max-height: 300px;
+  gap: 10px;
+  padding: 10px 8px;
+  background-color: ${({ theme }) => theme.colors.landingBackground};
+  box-shadow: 0px 15px 25px rgba(30, 30, 30, 0.15),
+    0px 5px 10px rgba(30, 30, 30, 0.05);
+  border-radius: 12px;
   text-align: center;
 `;
 
@@ -57,15 +56,15 @@ export const StyledInput = styled.input`
 `;
 
 export const StyledLabel = styled.label`
-  font-size: 12px;
-  padding: 6px;
-  color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 62px;
+  font-size: 14px;
+  ${({ theme, selected }) =>
+    selected ? `background-color: ${theme.colors.dashboardBackground};` : ''}
   cursor: pointer;
-  ${({ selected }) => (selected ? `font-weight: 500;` : '')}
-
   transition: background-color 250ms ease-out;
   &:hover {
-    background-color: #ff2e72bb;
+    ${({ theme }) => `background-color: ${theme.colors.dashboardBackground}`}
   }
 `;
 

@@ -2,6 +2,9 @@ import styled from 'styled-components';
 
 export const StyledWrapper = styled.div`
   grid-area: did;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   height: 244px;
   padding: 24px;
   background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
@@ -70,15 +73,30 @@ export const StyledBottomInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 14px;
+
+  & div {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #ffffff;
+  }
 
   & p {
-    display: flex;
     color: #ffffff;
   }
 
   & span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     margin-left: auto;
     font-weight: 500;
   }
+`;
+
+export const StyledButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 `;

@@ -1,118 +1,27 @@
 import { useContext, useState, useEffect } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { PolymeshTransactionBase } from '@polymeshassociation/polymesh-sdk/internal';
 import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
-import { toast, Id } from 'react-toastify';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { useTransactionStatus } from '~/hooks/polymesh';
+import { notifyError } from '~/helpers/notifications';
 
 interface ITransfer {
   amount: string;
   to: string;
   memo: string;
 }
-let toastId: Id;
-
-const handleStatusChange = (transaction: PolymeshTransactionBase) => {
-  switch (transaction.status) {
-    case 'Unapproved':
-      toastId = toast.info('Please sign transaction in your wallet', {
-        autoClose: false,
-      });
-      break;
-
-    case 'Running':
-      toast.update(toastId, {
-        render: 'Transaction in progress',
-        isLoading: true,
-        autoClose: false,
-        closeOnClick: false,
-        closeButton: true,
-      });
-      break;
-    case 'Succeeded':
-      toast.update(toastId, {
-        render: (
-          <>
-            Transaction successful,{' '}
-            <a
-              href={`${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${
-                transaction?.txHash
-              }`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              see details
-            </a>
-          </>
-        ),
-        type: toast.TYPE.SUCCESS,
-        isLoading: false,
-        autoClose: false,
-        closeOnClick: false,
-        closeButton: true,
-      });
-      break;
-    case 'Rejected':
-      toast.update(toastId, {
-        render: 'The transaction was rejected',
-        type: toast.TYPE.WARNING,
-        isLoading: false,
-        autoClose: false,
-        closeOnClick: false,
-        closeButton: true,
-      });
-      break;
-
-    case 'Failed':
-      toast.update(toastId, {
-        render: (
-          <>
-            Transaction Failed,{' '}
-            <a
-              href={`${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${
-                transaction?.txHash
-              }`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              see details
-            </a>
-          </>
-        ),
-        type: toast.TYPE.ERROR,
-        isLoading: false,
-        autoClose: false,
-        closeOnClick: false,
-        closeButton: true,
-      });
-      break;
-
-    case 'Aborted':
-      toast.update(toastId, {
-        render: "Transaction Aborted, the transaction couldn't be broadcast",
-        type: toast.TYPE.ERROR,
-        isLoading: false,
-        autoClose: false,
-        closeOnClick: true,
-        closeButton: true,
-      });
-      break;
-
-    default:
-      break;
-  }
-};
 
 const useTransferPolyx = () => {
   const {
     state: { selectedAccount },
     api: { sdk },
   } = useContext(PolymeshContext);
-  const [availableBalance, setAvailableBalance] = useState('');
-  const [transactionError, setTransactionError] = useState('');
+  const [availableBalance, setAvailableBalance] = useState(0);
+  const [availableMinusGasFee, setAvailableMinusGasFee] = useState(0);
   const [transactionInProcess, setTransactionInProcess] = useState(false);
+  const { handleStatusChange } = useTransactionStatus();
 
-  // Subscribe to the selected account's balance.
+  // Subscribe to the selected account's balance and current gas fees.
   useEffect(() => {
     if (!sdk || !selectedAccount) return undefined;
 
@@ -120,8 +29,15 @@ const useTransferPolyx = () => {
     (async () => {
       unsubCb = await sdk.accountManagement.getAccountBalance(
         { account: selectedAccount },
-        (balance) => {
-          setAvailableBalance(balance.free.toString());
+        async (balance) => {
+          setAvailableBalance(balance.free.toNumber());
+
+          const gasFees = await sdk.network.getProtocolFees({
+            tags: ['balances'],
+          });
+          const fee = gasFees[0].fees.toNumber();
+
+          setAvailableMinusGasFee(balance.free - fee * 1.5);
         },
       );
     })();
@@ -136,7 +52,6 @@ const useTransferPolyx = () => {
     memo,
   }) => {
     setTransactionInProcess(true);
-    setTransactionError('');
 
     let unsubCb: UnsubCallback | null = null;
 
@@ -151,7 +66,7 @@ const useTransferPolyx = () => {
 
       await transferPolyxTx.run();
     } catch (error) {
-      setTransactionError(error.message);
+      notifyError(error.message);
     } finally {
       setTransactionInProcess(false);
     }
@@ -161,8 +76,8 @@ const useTransferPolyx = () => {
 
   return {
     availableBalance,
+    availableMinusGasFee,
     transferPolyx,
-    transactionError,
     transactionInProcess,
   };
 };

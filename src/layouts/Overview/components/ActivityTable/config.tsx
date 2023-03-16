@@ -27,11 +27,10 @@ const columns = {
           if (accessor === 'extrinsicIdx') {
             const extrinsicIdx = info.getValue();
             const blockNumber = info.row.getValue('blockNumber');
+            const computedId = `${blockNumber}-${extrinsicIdx}`;
             const handleClick = () =>
               window.open(
-                `${
-                  import.meta.env.VITE_SUBSCAN_URL
-                }extrinsic/${blockNumber}-${extrinsicIdx}`,
+                `${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${computedId}`,
                 '_blank',
               );
             return (
@@ -39,7 +38,7 @@ const columns = {
                 <IconWrapper>
                   <Icon name="ArrowTopRight" />
                 </IconWrapper>
-                {extrinsicIdx}
+                {computedId}
               </IdCellWrapper>
             );
           }

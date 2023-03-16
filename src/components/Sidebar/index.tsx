@@ -16,7 +16,7 @@ import {
 import { NAV_LINKS } from '~/constants/routes';
 
 const Sidebar = () => {
-  const { network, networkLoading } = useNetwork();
+  const { networkName, networkLoading } = useNetwork();
   const [fullWidth, setFullWidth] = useState(true);
   const [linksExpanded, setLinksExpanded] = useState(false);
 
@@ -38,7 +38,7 @@ const Sidebar = () => {
       <StyledNetworkWrapper fullWidth={fullWidth}>
         <StyledNetworkStatus fullWidth={fullWidth}>
           <StatusDot isLoading={networkLoading} fullWidth={fullWidth} />
-          {networkLoading ? '' : <span>{network?.label}</span>}
+          {networkLoading ? '' : <span>{networkName}</span>}
         </StyledNetworkStatus>
       </StyledNetworkWrapper>
       <nav>

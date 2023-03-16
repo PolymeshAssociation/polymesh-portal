@@ -28,18 +28,23 @@ export const TRANSFER_INPUTS = [
   },
 ];
 
-const SCHEMA = yup.object().shape({
-  [INPUT_NAMES.AMOUNT]: yup.string().required('This field is required'),
-  [INPUT_NAMES.TO]: yup.string().required('This field is required'),
-  [INPUT_NAMES.MEMO]: yup.string(),
-});
-
-export const FORM_CONFIG = {
+export const createFormConfig = ({ maxAmount }) => ({
   mode: 'onTouched',
   defaultValues: {
     [INPUT_NAMES.AMOUNT]: '',
     [INPUT_NAMES.TO]: '',
     [INPUT_NAMES.MEMO]: '',
   },
-  resolver: yupResolver(SCHEMA),
-};
+  resolver: yupResolver(
+    yup.object().shape({
+      [INPUT_NAMES.AMOUNT]: yup
+        .number()
+        .required('This field is required')
+        .positive()
+        .lessThan(maxAmount, 'Insufficient balance'),
+
+      [INPUT_NAMES.TO]: yup.string().required('This field is required'),
+      [INPUT_NAMES.MEMO]: yup.string(),
+    }),
+  ),
+});

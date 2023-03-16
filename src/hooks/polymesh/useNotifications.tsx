@@ -29,13 +29,17 @@ const useNotifications = () => {
         const account = await sdk.accountManagement.getAccount({
           address: selectedAccount,
         });
+        const authorizations = await account.authorizations.getReceived();
         const identity = await account.getIdentity();
 
         const instructions = await identity?.getInstructions();
-        const authorizations = await identity?.authorizations.getReceived();
 
-        setPendingInstructions(instructions?.pending);
-        setPendingAuthorizations(authorizations);
+        if (instructions) {
+          setPendingInstructions(instructions.pending);
+        }
+        if (authorizations) {
+          setPendingAuthorizations(authorizations);
+        }
       } catch (error: Error) {
         setNotificationsError(error.message);
       } finally {
@@ -47,7 +51,7 @@ const useNotifications = () => {
   return {
     pendingInstructions,
     pendingAuthorizations,
-    totalPending: pendingAuthorizations.length + pendingInstructions.length,
+    totalPending: pendingInstructions.length + pendingAuthorizations.length,
     notificationsLoading,
     notificationsError,
   };

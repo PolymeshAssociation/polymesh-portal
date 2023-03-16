@@ -39,6 +39,11 @@ const DidSelect: React.FC<ISelectProps> = () => {
     };
   }, [ref]);
 
+  const uniqueIdentities = allIdentities.filter(
+    (value, idx, array) =>
+      idx === array.findIndex(({ did }) => did === value.did),
+  );
+
   const handleDidChange: React.ReactEventHandler = async ({ target }) => {
     const selectedIdentity = allIdentities.find(
       ({ did }) => did === target.value,
@@ -74,7 +79,7 @@ const DidSelect: React.FC<ISelectProps> = () => {
       </StyledSelect>
       {expanded && (
         <StyledExpandedSelect>
-          {allIdentities.map((option) => (
+          {uniqueIdentities.map((option) => (
             <StyledLabel
               key={option.did}
               htmlFor={option.did}

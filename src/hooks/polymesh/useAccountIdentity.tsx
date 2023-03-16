@@ -1,6 +1,14 @@
 import { useState, useEffect, useContext } from 'react';
-import { Identity } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  Identity,
+  AuthorizationType,
+  AuthorizationRequest,
+} from '@polymeshassociation/polymesh-sdk/types';
+import { Id, toast } from 'react-toastify';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { useTransactionStatus } from '~/hooks/polymesh';
+import { PendingJoinIdentityRequest } from '~/components/NotificationToasts';
+import { notifyError } from '~/helpers/notifications';
 
 const useAccountIdentity = () => {
   const {
@@ -9,8 +17,11 @@ const useAccountIdentity = () => {
   } = useContext(PolymeshContext);
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [allIdentities, setAllIdentities] = useState<Identity[]>([]);
+  const [joinIdentityRequest, setJoinIdentityRequest] =
+    useState<AuthorizationRequest | null>(null);
   const [identityLoading, setIdentityLoading] = useState(false);
   const [identityError, setIdentityError] = useState('');
+  const { handleStatusChange } = useTransactionStatus();
 
   // Get identity data when sdk is initialized
   useEffect(() => {
@@ -27,9 +38,17 @@ const useAccountIdentity = () => {
 
         const accIdentity = await account.getIdentity();
 
-        const allAccIdentities = await Promise.all(
-          signingAccounts.map((acc) => acc.getIdentity()),
-        );
+        if (!accIdentity) {
+          const pendingAuthorizations =
+            await account.authorizations.getReceived({
+              type: AuthorizationType.JoinIdentity,
+            });
+          setJoinIdentityRequest(pendingAuthorizations[0]);
+        }
+
+        const allAccIdentities = (
+          await Promise.all(signingAccounts.map((acc) => acc.getIdentity()))
+        ).filter((option) => option !== null);
 
         setIdentity(accIdentity);
         setAllIdentities(allAccIdentities);
@@ -41,7 +60,71 @@ const useAccountIdentity = () => {
     })();
   }, [initialized, sdk, selectedAccount]);
 
-  return { identity, allIdentities, identityLoading, identityError };
+  // Show notification if account has pending Join Identity request
+  useEffect(() => {
+    if (!joinIdentityRequest) return;
+
+    let toastId: Id;
+
+    const approveRequest = async () => {
+      let unsubCb: UnsubCallback | null = null;
+
+      try {
+        const acceptTx = await joinIdentityRequest.accept();
+
+        unsubCb = acceptTx.onStatusChange(handleStatusChange);
+
+        await acceptTx.run();
+      } catch (error) {
+        notifyError(error.message);
+      } finally {
+        toast.dismiss(toastId);
+      }
+
+      return () => (unsubCb ? unsubCb() : undefined);
+    };
+
+    const rejectRequest = async () => {
+      let unsubCb: UnsubCallback | null = null;
+
+      try {
+        const rejectTx = await joinIdentityRequest.remove();
+
+        unsubCb = rejectTx.onStatusChange(handleStatusChange);
+
+        await rejectTx.run();
+      } catch (error) {
+        notifyError(error.message);
+      } finally {
+        toast.dismiss(toastId);
+      }
+
+      return () => (unsubCb ? unsubCb() : undefined);
+    };
+
+    toastId = toast.warning(
+      <PendingJoinIdentityRequest
+        authorizationRequest={joinIdentityRequest}
+        id={toastId}
+        approveRequest={approveRequest}
+        rejectRequest={rejectRequest}
+      />,
+      {
+        autoClose: false,
+        toastId: joinIdentityRequest.uuid,
+        closeOnClick: false,
+        closeButton: true,
+      },
+    );
+  }, [handleStatusChange, joinIdentityRequest]);
+
+  return {
+    identity,
+    allIdentities,
+    joinIdentityRequest,
+    identityLoading,
+    identityError,
+  };
 };
 
 export default useAccountIdentity;
