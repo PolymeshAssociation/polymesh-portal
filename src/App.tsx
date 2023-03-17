@@ -7,7 +7,7 @@ import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
 import { ROUTES } from '~/constants/routes';
 import SharedLayout from '~/layouts/SharedLayout';
 import theme from '~/styles/theme';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastCloseButton } from './components/UiKit';
 
 const App = () => {
   const { currentTheme } = useContext(ThemeContext);
@@ -21,7 +21,7 @@ const App = () => {
           ))}
         </Routes>
       </SharedLayout>
-      <ToastContainer />
+      <ToastContainer closeButton={<ToastCloseButton />} />
     </ThemeProvider>
   );
 };

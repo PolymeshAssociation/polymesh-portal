@@ -33,3 +33,5 @@ export { ReactComponent as PortfolioIcon } from './portfolio-icon.svg';
 export { ReactComponent as MenuIcon } from './menu-icon.svg';
 export { ReactComponent as PolymeshLogoIcon } from './polymesh-logo-icon.svg';
 export { ReactComponent as AuthorizationsIcon } from './authorizations-icon.svg';
+export { ReactComponent as CloseIcon } from './close-icon.svg';
+export { ReactComponent as GotoIcon } from './goto-icon.svg';

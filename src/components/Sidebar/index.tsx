@@ -30,7 +30,7 @@ const Sidebar = () => {
       {fullWidth ? (
         <Icon name="PolymeshLogo" className="text-logo-icon" />
       ) : (
-        <Icon name="PolymeshLogoIcon" className="logo-icon" />
+        <Icon name="PolymeshSymbol" className="logo-icon" />
       )}
       <MenuButton fullWidth={fullWidth} onClick={toggleSidebarWidth}>
         <Icon name="MenuIcon" />

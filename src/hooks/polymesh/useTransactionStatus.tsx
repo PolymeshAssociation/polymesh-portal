@@ -1,106 +1,111 @@
 import { useRef } from 'react';
-import { PolymeshTransaction } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  PolymeshTransaction,
+  TransactionStatus,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { toast } from 'react-toastify';
+import { TransactionToast } from '~/components/NotificationToasts';
 
 const useTransactionStatus = () => {
   const idRef = useRef();
 
   const handleStatusChange = (transaction: PolymeshTransaction) => {
     switch (transaction.status) {
-      case 'Unapproved':
-        idRef.current = toast.info('Please sign transaction in your wallet', {
-          autoClose: false,
-        });
+      case TransactionStatus.Unapproved:
+        idRef.current = toast.info(
+          <TransactionToast
+            message="Please sign transaction in your wallet"
+            tag={transaction.tag}
+            timestamp={Date.now()}
+          />,
+          {
+            autoClose: false,
+            closeOnClick: false,
+          },
+        );
 
         break;
 
-      case 'Running':
+      case TransactionStatus.Running:
         toast.update(idRef.current, {
           render: (
-            <div>
-              <p>{transaction.tag}</p>
-              <p>{transaction.status}</p>
-            </div>
+            <TransactionToast
+              txHash={transaction.txHash}
+              status={transaction.status}
+              tag={transaction.tag}
+              timestamp={Date.now()}
+            />
           ),
           isLoading: true,
           autoClose: false,
           closeOnClick: false,
-          closeButton: true,
         });
         break;
-      case 'Succeeded':
+      case TransactionStatus.Succeeded:
         toast.update(idRef.current, {
           render: (
-            <>
-              <p>{transaction.tag}</p>
-              <p>{transaction.status}</p>
-              <a
-                href={`${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${
-                  transaction?.txHash
-                }`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                see details
-              </a>
-            </>
+            <TransactionToast
+              txHash={transaction.txHash}
+              status={transaction.status}
+              tag={transaction.tag}
+              timestamp={Date.now()}
+            />
           ),
           type: toast.TYPE.SUCCESS,
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
-          closeButton: true,
         });
         break;
-      case 'Rejected':
+      case TransactionStatus.Rejected:
         toast.update(idRef.current, {
           render: (
-            <div>
-              <p>{transaction.tag}</p>
-              <p>{transaction.status}</p>
-            </div>
+            <TransactionToast
+              status={transaction.status}
+              tag={transaction.tag}
+              error="Transaction was rejected"
+              timestamp={Date.now()}
+            />
           ),
           type: toast.TYPE.WARNING,
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
-          closeButton: true,
         });
         break;
 
-      case 'Failed':
+      case TransactionStatus.Failed:
         toast.update(idRef.current, {
           render: (
-            <>
-              <p>{transaction.tag}</p>
-              <p>{transaction.error}</p>
-              <a
-                href={`${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${
-                  transaction?.txHash
-                }`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                see details
-              </a>
-            </>
+            <TransactionToast
+              txHash={transaction.txHash}
+              status={transaction.status}
+              tag={transaction.tag}
+              error={transaction.error?.message}
+              timestamp={Date.now()}
+            />
           ),
           type: toast.TYPE.ERROR,
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
-          closeButton: true,
         });
         break;
 
-      case 'Aborted':
+      case TransactionStatus.Aborted:
         toast.update(idRef.current, {
-          render: "Transaction Aborted, the transaction couldn't be broadcast",
+          render: (
+            <TransactionToast
+              status={transaction.status}
+              tag={transaction.tag}
+              error={transaction.error?.message}
+              timestamp={Date.now()}
+            />
+          ),
           type: toast.TYPE.ERROR,
           isLoading: false,
           autoClose: false,
           closeOnClick: true,
-          closeButton: true,
         });
         break;
 

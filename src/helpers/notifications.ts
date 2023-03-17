@@ -1,9 +1,8 @@
 import { toast } from 'react-toastify';
 
 const toastConfig = {
-  autoClose: 5000,
-  hideProgressBar: false,
-  closeOnClick: true,
+  autoClose: 3000,
+  hideProgressBar: true,
   pauseOnHover: true,
 };
 

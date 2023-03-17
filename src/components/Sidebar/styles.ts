@@ -18,7 +18,7 @@ export const StyledSidebar = styled.aside`
     margin-bottom: 54px;
   }
   & .logo-icon {
-    width: 28px;
+    width: 32px;
     margin: 0 auto 48px auto;
   }
 `;

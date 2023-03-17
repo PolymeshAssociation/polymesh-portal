@@ -1,0 +1,29 @@
+.Toastify__toast {
+    padding: 16px;
+    box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+    border-radius: 12px;
+    overflow: visible;
+    cursor: initial;
+}
+.Toastify__toast > .toast-close {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 250ms ease-out;
+}
+.Toastify__toast:hover > .toast-close {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.Toastify__toast-body {
+    flex: 1 2 auto;
+    padding: 0;
+    margin: 0;
+}
+
+.Toastify__toast-body .custom-toast {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 16px;
+}

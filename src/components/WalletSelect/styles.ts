@@ -115,12 +115,22 @@ export const StyledLabel = styled.label`
   padding: 12px 16px;
   border-radius: 62px;
   font-size: 14px;
-  ${({ theme, selected }) =>
-    selected ? `background-color: ${theme.colors.dashboardBackground};` : ''}
+  ${({ placement, theme, selected }) =>
+    placement === ESelectPlacements.HEADER
+      ? `${
+          selected
+            ? `background-color: ${theme.colors.dashboardBackground};`
+            : ''
+        }`
+      : `${selected ? `background-color: #ffebf1;` : ''}`}
+
   cursor: pointer;
   transition: background-color 250ms ease-out;
   &:hover {
-    ${({ theme }) => `background-color: ${theme.colors.dashboardBackground}`}
+    ${({ theme, placement }) =>
+      placement === ESelectPlacements.HEADER
+        ? `background-color: ${theme.colors.dashboardBackground}`
+        : 'background-color: #ffebf1;'}
   }
 `;
 

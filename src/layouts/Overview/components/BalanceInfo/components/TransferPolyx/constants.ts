@@ -39,12 +39,26 @@ export const createFormConfig = ({ maxAmount }) => ({
     yup.object().shape({
       [INPUT_NAMES.AMOUNT]: yup
         .number()
-        .required('This field is required')
+        .typeError('Amount must be a number')
+        .required('Amount is required')
         .positive()
-        .lessThan(maxAmount, 'Insufficient balance'),
+        .lessThan(maxAmount, 'Insufficient balance')
+        .transform((value, originalValue) =>
+          originalValue.trim() === '' ? undefined : Number(value),
+        )
+        .test(
+          'is-decimal',
+          'Amount must have at most 6 decimal places',
+          (value) =>
+            value ? /^-?\d+(\.\d{1,6})?$/.test(value.toString()) : true,
+        ),
 
-      [INPUT_NAMES.TO]: yup.string().required('This field is required'),
-      [INPUT_NAMES.MEMO]: yup.string(),
+      [INPUT_NAMES.TO]: yup.string().required('A valid address is required'),
+
+      [INPUT_NAMES.MEMO]: yup
+        .string()
+        .max(32, 'Memo must be 32 characters or less')
+        .nullable(),
     }),
   ),
 });
