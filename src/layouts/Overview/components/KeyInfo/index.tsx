@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useAccounts, useAccountIdentity } from '~/hooks/polymesh';
 import { Icon, CopyToClipboard, WalletSelect } from '~/components';
 import { Text } from '~/components/UiKit';
@@ -6,21 +5,12 @@ import {
   StyledWrapper,
   IconWrapper,
   KeyInfoWrapper,
-  StyledPrimaryLabel,
+  StyledLabel,
 } from './styles';
 
 export const KeyInfo = () => {
   const { selectedAccount } = useAccounts();
-  const { identity } = useAccountIdentity();
-  const [isPrimary, setIsPrimary] = useState(false);
-
-  useEffect(() => {
-    if (!selectedAccount || !identity) return;
-
-    identity.getPrimaryAccount(({ account }) => {
-      setIsPrimary(account.address === selectedAccount);
-    });
-  }, [identity, selectedAccount]);
+  const { primaryKey, secondaryKeys } = useAccountIdentity();
 
   return (
     <StyledWrapper>
@@ -30,7 +20,12 @@ export const KeyInfo = () => {
       <div className="info-wrapper">
         <Text marginBottom={4}>Selected key</Text>
         <KeyInfoWrapper>
-          {isPrimary && <StyledPrimaryLabel>Primary</StyledPrimaryLabel>}
+          {selectedAccount === primaryKey ? (
+            <StyledLabel>Primary</StyledLabel>
+          ) : null}
+          {secondaryKeys.includes(selectedAccount) ? (
+            <StyledLabel>Secondary</StyledLabel>
+          ) : null}
           <WalletSelect placement="widget" trimValue={false} />
           <IconWrapper>
             <CopyToClipboard value={selectedAccount} />

@@ -13,7 +13,7 @@ const useNetwork = () => {
   const [networkError, setNetworkError] = useState('');
 
   useEffect(() => {
-    if (connecting || !sdk) return;
+    if (connecting || !sdk) return undefined;
 
     (async () => {
       try {
@@ -28,12 +28,13 @@ const useNetwork = () => {
       }
     })();
 
-    // const unsubCb = signingManager.onNetworkChange((newNetwork) => {
-    //   setNetwork(newNetwork);
-    // });
-    // return () => {
-    //   unsubCb();
-    // };
+    if (signingManager.extension.name !== 'polywallet') return undefined;
+
+    const unsubCb = signingManager.onNetworkChange(() => {
+      setNetwork(newNetwork);
+    });
+
+    return () => unsubCb();
   }, [connecting, sdk, signingManager]);
 
   return { network, networkName, setNetwork, networkLoading, networkError };

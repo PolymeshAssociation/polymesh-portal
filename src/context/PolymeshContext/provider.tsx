@@ -1,38 +1,11 @@
-import {
-  useState,
-  useEffect,
-  createContext,
-  useMemo,
-  useCallback,
-} from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import PolymeshContext from './context';
+import { IConnectOptions } from './constants';
 import { useInjectedWeb3 } from '~/hooks/polymesh';
-import { Wallet } from '~/constants/wallets';
 
-interface IPolymeshContext {
-  state: {
-    connecting: boolean;
-    initialized: boolean;
-    walletError: string;
-    selectedAccount: string;
-    setSelectedAccount: () => void;
-  };
-  api: {
-    sdk: Polymesh;
-    signingManager: BrowserExtensionSigningManager;
-  };
-  connectWallet: () => Promise<void>;
-}
-
-interface IConnectOptions {
-  extensionName: Wallet;
-  isDefault: boolean;
-}
-
-export const PolymeshContext = createContext<IPolymeshContext>('');
-
-export const PolymeshProvider = ({ children }) => {
+const PolymeshProvider = ({ children }) => {
   const [sdk, setSdk] = useState<Polymesh>(null);
   const [signingManager, setSigningManager] =
     useState<BrowserExtensionSigningManager>(null);
@@ -48,9 +21,9 @@ export const PolymeshProvider = ({ children }) => {
     return null;
   });
   /*
-    selectedAccount and setSelectedAccount are being used by useAccounts hook,
-    which exposes them to rest of the app. They are here for global sync between helper hooks
-  */
+      selectedAccount and setSelectedAccount are being used by useAccounts hook,
+      which exposes them to rest of the app. They are here for global sync between helper hooks
+    */
   const [selectedAccount, setSelectedAccount] = useState('');
 
   // Create the browser extension signing manager.
@@ -146,3 +119,5 @@ export const PolymeshProvider = ({ children }) => {
     </PolymeshContext.Provider>
   );
 };
+
+export default PolymeshProvider;

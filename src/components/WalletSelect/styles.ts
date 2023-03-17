@@ -134,14 +134,17 @@ export const IconWrapper = styled.div`
   justify-content: center;
 `;
 
-export const StyledPrimaryLabel = styled.div`
+export const StyledKeyLabel = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 63px;
+  min-width: 63px;
   height: 24px;
-  border: 1px solid #fad1dc;
+  padding: 0 8px;
   border-radius: 100px;
   font-size: 12px;
-  color: #ec4673;
+  ${({ primary }) =>
+    primary
+      ? `border: 1px solid #fad1dc; color: #ec4673;`
+      : `border: 1px solid #F2EFFF; color: #43195B;`};
 `;

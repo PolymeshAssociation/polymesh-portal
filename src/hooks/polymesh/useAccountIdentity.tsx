@@ -3,6 +3,7 @@ import {
   Identity,
   AuthorizationType,
   AuthorizationRequest,
+  UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { Id, toast } from 'react-toastify';
 import { PolymeshContext } from '~/context/PolymeshContext';
@@ -17,10 +18,11 @@ const useAccountIdentity = () => {
   } = useContext(PolymeshContext);
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [allIdentities, setAllIdentities] = useState<Identity[]>([]);
+  const [primaryKey, setPrimaryKey] = useState<string>('');
+  const [secondaryKeys, setSecondaryKeys] = useState<string[]>([]);
   const [joinIdentityRequest, setJoinIdentityRequest] =
     useState<AuthorizationRequest | null>(null);
   const [identityLoading, setIdentityLoading] = useState(false);
-  const [identityError, setIdentityError] = useState('');
   const { handleStatusChange } = useTransactionStatus();
 
   // Get identity data when sdk is initialized
@@ -53,12 +55,45 @@ const useAccountIdentity = () => {
         setIdentity(accIdentity);
         setAllIdentities(allAccIdentities);
       } catch (error) {
-        setIdentityError(error.message);
+        notifyError(error.message);
       } finally {
         setIdentityLoading(false);
       }
     })();
   }, [initialized, sdk, selectedAccount]);
+
+  // Subscribe to primary identity keys
+  useEffect(() => {
+    if (!identity) return undefined;
+
+    let unsubCb: UnsubCallback;
+
+    (async () => {
+      unsubCb = await identity.getPrimaryAccount((primaryAccount) => {
+        setPrimaryKey(primaryAccount.account.address);
+      });
+    })();
+
+    return () => (unsubCb ? unsubCb() : undefined);
+  }, [identity]);
+
+  // Subscribe to secondary identity keys
+  useEffect(() => {
+    if (!identity) return undefined;
+
+    let unsubCb: UnsubCallback;
+
+    (async () => {
+      unsubCb = await identity.getSecondaryAccounts((secondaryAccounts) => {
+        const keys = secondaryAccounts.map(
+          ({ account: { address } }) => address,
+        );
+        setSecondaryKeys(keys);
+      });
+    })();
+
+    return () => (unsubCb ? unsubCb() : undefined);
+  }, [identity]);
 
   // Show notification if account has pending Join Identity request
   useEffect(() => {
@@ -121,9 +156,10 @@ const useAccountIdentity = () => {
   return {
     identity,
     allIdentities,
+    primaryKey,
+    secondaryKeys,
     joinIdentityRequest,
     identityLoading,
-    identityError,
   };
 };
 

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useAccounts } from '~/hooks/polymesh';
+import { useAccounts, useAccountIdentity } from '~/hooks/polymesh';
 import { Icon } from '~/components';
 import {
   StyledSelectWrapper,
@@ -8,7 +8,7 @@ import {
   StyledInput,
   StyledLabel,
   IconWrapper,
-  StyledPrimaryLabel,
+  StyledKeyLabel,
 } from './styles';
 import { formatKey } from '~/helpers/formatters';
 import { ESelectPlacements, ISelectProps } from './types';
@@ -18,6 +18,7 @@ const WalletSelect: React.FC<ISelectProps> = ({
   trimValue = true,
 }) => {
   const { selectedAccount, setSelectedAccount, allAccounts } = useAccounts();
+  const { primaryKey, secondaryKeys } = useAccountIdentity();
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState('');
   const ref = useRef<JSX.Element | null>();
@@ -72,27 +73,35 @@ const WalletSelect: React.FC<ISelectProps> = ({
       </StyledSelect>
       {expanded && (
         <StyledExpandedSelect placement={placement}>
-          {allAccounts.map((option) => (
-            <StyledLabel
-              key={option}
-              htmlFor={option}
-              selected={selected === option}
-              placement={placement}
-            >
-              {trimValue ? formatKey(option) : formatKey(option, 7, 9)}
-              {selected === option &&
-                placement === ESelectPlacements.HEADER && (
-                  <StyledPrimaryLabel>Primary</StyledPrimaryLabel>
+          {allAccounts
+            .sort((account) => (account === selectedAccount ? -1 : 1))
+            .map((option) => (
+              <StyledLabel
+                key={option}
+                htmlFor={option}
+                selected={selected === option}
+                placement={placement}
+              >
+                {trimValue ? formatKey(option) : formatKey(option, 7, 9)}
+                {placement === ESelectPlacements.HEADER && (
+                  <>
+                    {option === primaryKey ? (
+                      <StyledKeyLabel primary>Primary</StyledKeyLabel>
+                    ) : null}
+                    {secondaryKeys.includes(option) ? (
+                      <StyledKeyLabel>Second.</StyledKeyLabel>
+                    ) : null}
+                  </>
                 )}
-              <StyledInput
-                type="radio"
-                name="key"
-                value={option}
-                id={option}
-                onChange={handleAccountChange}
-              />
-            </StyledLabel>
-          ))}
+                <StyledInput
+                  type="radio"
+                  name="key"
+                  value={option}
+                  id={option}
+                  onChange={handleAccountChange}
+                />
+              </StyledLabel>
+            ))}
         </StyledExpandedSelect>
       )}
     </StyledSelectWrapper>

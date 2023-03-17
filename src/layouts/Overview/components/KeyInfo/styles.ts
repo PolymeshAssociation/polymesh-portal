@@ -42,12 +42,13 @@ export const KeyInfoWrapper = styled.div`
   gap: 8px;
 `;
 
-export const StyledPrimaryLabel = styled.div`
+export const StyledLabel = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 66px;
+  min-width: 66px;
   height: 32px;
+  padding: 0 12px;
   border: 1px solid #fad1dc;
   border-radius: 100px;
   font-weight: 500;

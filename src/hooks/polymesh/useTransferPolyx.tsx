@@ -3,7 +3,7 @@ import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useTransactionStatus } from '~/hooks/polymesh';
-import { notifyError } from '~/helpers/notifications';
+import { notifyError, notifyWarning } from '~/helpers/notifications';
 
 interface ITransfer {
   amount: string;
@@ -52,6 +52,18 @@ const useTransferPolyx = () => {
     memo,
   }) => {
     setTransactionInProcess(true);
+
+    // Check permissions
+    const isAuthorized = await sdk.network.transferPolyx.checkAuthorization({
+      amount,
+      to,
+      memo,
+    });
+    if (!isAuthorized) {
+      return notifyWarning(
+        "Selected key doesn't have permission to sign the transaction",
+      );
+    }
 
     let unsubCb: UnsubCallback | null = null;
 

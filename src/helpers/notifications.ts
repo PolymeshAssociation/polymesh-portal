@@ -9,3 +9,6 @@ const toastConfig = {
 
 export const notifyError = (message: string) =>
   toast.error(message, { ...toastConfig, toastId: message });
+
+export const notifyWarning = (message: string) =>
+  toast.warning(message, { ...toastConfig, toastId: message });
