@@ -8,10 +8,10 @@ import {
 import { useState } from 'react';
 import {
   HISTORICAL_COLUMNS,
-  TOKEN_COLUMNS,
   EActivityTableTabs,
   IHistoricalItem,
   ITokenItem,
+  TOKEN_COLUMNS,
 } from './constants';
 import { StatusLabel, IdCellWrapper, IconWrapper } from './styles';
 import { Icon } from '~/components';
@@ -57,12 +57,27 @@ const columns = {
   ),
   [EActivityTableTabs.TOKEN_ACTIVITY]: TOKEN_COLUMNS.map(
     ({ header, accessor }) => {
-      const key = accessor as keyof ITokenItem;
+      const key = accessor as keyof IHistoricalItem;
       const columnHelper = createColumnHelper<ITokenItem>();
       return columnHelper.accessor(key, {
         header: () => header,
         cell: (info) => {
-          return info.getValue();
+          const data = info.getValue();
+          if (key !== 'id') return data;
+
+          const handleClick = () =>
+            window.open(
+              `${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${data}`,
+              '_blank',
+            );
+          return (
+            <IdCellWrapper onClick={handleClick}>
+              <IconWrapper>
+                <Icon name="ArrowTopRight" />
+              </IconWrapper>
+              {data}
+            </IdCellWrapper>
+          );
         },
       });
     },

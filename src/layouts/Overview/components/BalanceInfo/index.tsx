@@ -4,6 +4,7 @@ import { useBalance } from '~/hooks/polymesh';
 import { Icon } from '~/components';
 import { Text, Heading, Button } from '~/components/UiKit';
 import { TransferPolyx } from './components/TransferPolyx';
+import { ReceivePolyx } from './components/ReceivePolyx';
 import {
   StyledWrapper,
   StyledAsset,
@@ -14,12 +15,14 @@ import { formatBalance } from '~/helpers/formatters';
 
 export const BalanceInfo = () => {
   const {
-    state: { connecting },
+    state: { connecting, selectedAccount },
   } = useContext(PolymeshContext);
   const { balance, balanceIsLoading } = useBalance();
   const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [receiveModalOpen, setReceiveModalOpen] = useState(false);
 
   const toggleTransferModal = () => setTransferModalOpen((prev) => !prev);
+  const toggleReceiveModal = () => setReceiveModalOpen((prev) => !prev);
 
   return (
     <>
@@ -59,13 +62,19 @@ export const BalanceInfo = () => {
             <Icon name="ArrowTopRight" />
             Send
           </Button>
-          <Button variant="secondary">
+          <Button variant="secondary" onClick={toggleReceiveModal}>
             <Icon name="ArrowBottomLeft" />
             Receive
           </Button>
         </StyledButtonGroup>
       </StyledWrapper>
       {transferModalOpen && <TransferPolyx toggleModal={toggleTransferModal} />}
+      {receiveModalOpen && (
+        <ReceivePolyx
+          toggleModal={toggleReceiveModal}
+          account={selectedAccount}
+        />
+      )}
     </>
   );
 };

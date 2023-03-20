@@ -5,10 +5,10 @@ import {
   AuthorizationRequest,
   UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { Id, toast } from 'react-toastify';
+// import { Id, toast } from 'react-toastify';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { useTransactionStatus } from '~/hooks/polymesh';
-import { PendingJoinIdentityRequest } from '~/components/NotificationToasts';
+// import { useTransactionStatus } from '~/hooks/polymesh';
+// import { PendingJoinIdentityRequest } from '~/components/NotificationToasts';
 import { notifyError } from '~/helpers/notifications';
 
 const useAccountIdentity = () => {
@@ -23,7 +23,7 @@ const useAccountIdentity = () => {
   const [joinIdentityRequest, setJoinIdentityRequest] =
     useState<AuthorizationRequest | null>(null);
   const [identityLoading, setIdentityLoading] = useState(false);
-  const { handleStatusChange } = useTransactionStatus();
+  // const { handleStatusChange } = useTransactionStatus();
 
   // Get identity data when sdk is initialized
   useEffect(() => {
@@ -96,62 +96,62 @@ const useAccountIdentity = () => {
   }, [identity]);
 
   // Show notification if account has pending Join Identity request
-  useEffect(() => {
-    if (!joinIdentityRequest) return;
+  // useEffect(() => {
+  //   if (!joinIdentityRequest) return;
 
-    let toastId: Id;
+  //   let toastId: Id;
 
-    const approveRequest = async () => {
-      let unsubCb: UnsubCallback | null = null;
+  //   const approveRequest = async () => {
+  //     let unsubCb: UnsubCallback | null = null;
 
-      try {
-        const acceptTx = await joinIdentityRequest.accept();
+  //     try {
+  //       const acceptTx = await joinIdentityRequest.accept();
 
-        unsubCb = acceptTx.onStatusChange(handleStatusChange);
+  //       unsubCb = acceptTx.onStatusChange(handleStatusChange);
 
-        await acceptTx.run();
-      } catch (error) {
-        notifyError(error.message);
-      } finally {
-        toast.dismiss(toastId);
-      }
+  //       await acceptTx.run();
+  //     } catch (error) {
+  //       notifyError(error.message);
+  //     } finally {
+  //       toast.dismiss(toastId);
+  //     }
 
-      return () => (unsubCb ? unsubCb() : undefined);
-    };
+  //     return () => (unsubCb ? unsubCb() : undefined);
+  //   };
 
-    const rejectRequest = async () => {
-      let unsubCb: UnsubCallback | null = null;
+  //   const rejectRequest = async () => {
+  //     let unsubCb: UnsubCallback | null = null;
 
-      try {
-        const rejectTx = await joinIdentityRequest.remove();
+  //     try {
+  //       const rejectTx = await joinIdentityRequest.remove();
 
-        unsubCb = rejectTx.onStatusChange(handleStatusChange);
+  //       unsubCb = rejectTx.onStatusChange(handleStatusChange);
 
-        await rejectTx.run();
-      } catch (error) {
-        notifyError(error.message);
-      } finally {
-        toast.dismiss(toastId);
-      }
+  //       await rejectTx.run();
+  //     } catch (error) {
+  //       notifyError(error.message);
+  //     } finally {
+  //       toast.dismiss(toastId);
+  //     }
 
-      return () => (unsubCb ? unsubCb() : undefined);
-    };
+  //     return () => (unsubCb ? unsubCb() : undefined);
+  //   };
 
-    toastId = toast.warning(
-      <PendingJoinIdentityRequest
-        authorizationRequest={joinIdentityRequest}
-        id={toastId}
-        approveRequest={approveRequest}
-        rejectRequest={rejectRequest}
-      />,
-      {
-        autoClose: false,
-        toastId: joinIdentityRequest.uuid,
-        closeOnClick: false,
-        closeButton: true,
-      },
-    );
-  }, [handleStatusChange, joinIdentityRequest]);
+  //   toastId = toast.warning(
+  //     <PendingJoinIdentityRequest
+  //       authorizationRequest={joinIdentityRequest}
+  //       id={toastId}
+  //       approveRequest={approveRequest}
+  //       rejectRequest={rejectRequest}
+  //     />,
+  //     {
+  //       autoClose: false,
+  //       toastId: joinIdentityRequest.uuid,
+  //       closeOnClick: false,
+  //       closeButton: true,
+  //     },
+  //   );
+  // }, [handleStatusChange, joinIdentityRequest]);
 
   return {
     identity,

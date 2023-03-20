@@ -11,6 +11,7 @@ export const StyledText = styled.p`
     color,
     size,
     bold,
+    transform,
   }) => `
         ${width ? `width: ${width}px` : ''};
         ${centered ? 'text-align: center;' : ''}
@@ -28,5 +29,6 @@ export const StyledText = styled.p`
         }
         font-weight: ${bold ? '500' : '400'};
         font-size: ${theme.textSize[size]};
+        text-transform: ${transform || 'none'};
     `}
 `;

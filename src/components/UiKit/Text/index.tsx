@@ -9,6 +9,7 @@ const Text: React.FC<ITextProps> = ({
   color = ETextColor.PRIMARY,
   size = ETextSize.MEDIUM,
   bold,
+  transform,
   children,
 }) => {
   return (
@@ -20,6 +21,7 @@ const Text: React.FC<ITextProps> = ({
       color={color}
       size={size}
       bold={bold}
+      transform={transform}
     >
       {children}
     </StyledText>

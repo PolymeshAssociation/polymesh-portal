@@ -17,8 +17,8 @@ const handleStatusType = (status) => {
 
     case TransactionStatus.Running:
       return `
-        background-color: #F2EFFF;
-        color: #43195B;
+        background-color: #170087;
+        color: #ffffff;
         `;
 
     case TransactionStatus.Succeeded:

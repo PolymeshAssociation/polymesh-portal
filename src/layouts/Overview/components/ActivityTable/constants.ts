@@ -18,18 +18,26 @@ export const TOKEN_COLUMNS = [
     accessor: 'id',
   },
   {
-    header: 'Block',
-    accessor: 'blockNumber',
+    header: 'Date / Time',
+    accessor: 'dateTime',
   },
   {
-    header: 'Legs',
-    accessor: 'legs',
+    header: 'From',
+    accessor: 'from',
   },
-  {
-    header: 'Venue',
-    accessor: 'venueId',
-  },
+  { header: 'To', accessor: 'to' },
+  { header: 'Amount', accessor: 'amount' },
+  { header: 'Asset', accessor: 'asset' },
 ];
+
+export interface ITokenItem {
+  id: string;
+  dateTime: string;
+  from: string;
+  to: string;
+  amount: string;
+  asset: string;
+}
 
 export interface IHistoricalItem {
   extrinsicIdx: string;
@@ -37,13 +45,6 @@ export interface IHistoricalItem {
   module: string;
   call: string;
   success: boolean;
-}
-
-export interface ITokenItem {
-  id: string;
-  blockNumber: string;
-  legs: string;
-  venueId: string;
 }
 
 export enum EActivityTableTabs {

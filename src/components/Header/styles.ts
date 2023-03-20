@@ -16,18 +16,24 @@ export const StyledHeaderContainer = styled.div`
 export const StyledInfoList = styled.ul`
   display: flex;
   align-items: center;
-  gap: 16px;
 `;
 
 export const StyledInfoItem = styled.li`
   display: flex;
   align-items: center;
   gap: 16px;
+  &:not(:first-child) {
+    margin-left: 16px;
+  }
 
   &:not(:last-child)::after {
     content: '';
     width: 2px;
     height: 32px;
     background-color: #f0f0f0;
+  }
+
+  &:last-child {
+    margin-left: 4px;
   }
 `;

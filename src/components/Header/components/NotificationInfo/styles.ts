@@ -5,11 +5,21 @@ export const StyledWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
   cursor: pointer;
+  width: 40px;
+  height: 40px;
+
+  ${({ expanded, theme }) =>
+    expanded
+      ? `background-color: #FFEBF1; color: #FF2E72;`
+      : `background-color: transparent; color: ${theme.colors.textSecondary};`}
+
+  transition: color 250ms ease-out, background-color 250ms ease-out;
 
   & .notification {
     position: absolute;
-    top: -6px;
-    right: -6px;
+    top: 2px;
+    right: 2px;
   }
 `;
