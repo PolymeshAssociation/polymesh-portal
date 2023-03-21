@@ -23,6 +23,8 @@ interface IIdData {
 }
 
 const createTokenActivityLink = (data: IIdData) => {
+  if (!data) return '';
+
   if (!data.extrinsicIdx) {
     return `${import.meta.env.VITE_SUBSCAN_URL}block/${
       data.blockId
@@ -90,7 +92,7 @@ const columns = {
               <IconWrapper>
                 <Icon name="ArrowTopRight" />
               </IconWrapper>
-              {data.eventId}
+              {data?.eventId}
             </IdCellWrapper>
           );
         },
