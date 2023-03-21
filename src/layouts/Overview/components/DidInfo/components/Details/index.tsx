@@ -1,3 +1,5 @@
+import { useContext, useState, useEffect } from 'react';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import { Modal, Icon, CopyToClipboard } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
 import {
@@ -10,8 +12,14 @@ import {
   StyledVerifiedLabel,
   IconWrapper,
   StyledDidThumb,
+  StyledBalance,
+  StyledKeysList,
+  StyledKeyData,
+  StyledLabel,
+  KeyDetails,
+  StyledButtonsWrapper,
 } from './styles';
-import { formatDid } from '~/helpers/formatters';
+import { formatDid, formatBalance, formatKey } from '~/helpers/formatters';
 
 interface IDetailsProps {
   toggleModal: () => void;
@@ -29,9 +37,33 @@ export const Details: React.FC<IDetailsProps> = ({
   identity,
   expiry,
   issuer,
-  //   primaryKey,
-  //   secondaryKeys,
+  primaryKey,
+  secondaryKeys,
 }) => {
+  const [allKeyBalances, setAllKeyBalances] = useState([]);
+
+  const {
+    api: { sdk },
+  } = useContext(PolymeshContext);
+  // Get total balance for all keys associated with current DID
+  useEffect(() => {
+    if (!primaryKey) return;
+
+    (async () => {
+      const balancesByKey = await Promise.all(
+        [primaryKey, ...secondaryKeys].map(async (key) => ({
+          key,
+          totalBalance: (
+            await sdk.accountManagement.getAccountBalance({
+              account: key,
+            })
+          ).total?.toString(),
+        })),
+      );
+      setAllKeyBalances(balancesByKey);
+    })();
+  }, [primaryKey, sdk, secondaryKeys]);
+
   return (
     <Modal handleClose={toggleModal}>
       <Heading type="h4" marginBottom={24}>
@@ -65,9 +97,42 @@ export const Details: React.FC<IDetailsProps> = ({
           </StyledBottomData>
         </StyledBottomInfo>
       </StyledAccountWrapper>
-      <Button variant="modalSecondary" onClick={toggleModal} marginTop={24}>
-        Close
-      </Button>
+      <Text bold size="large" marginTop={36} marginBottom={22}>
+        Your keys
+      </Text>
+      {allKeyBalances.length ? (
+        <StyledKeysList>
+          {allKeyBalances.map(({ key, totalBalance }) => {
+            const isPrimaryKey = key === primaryKey;
+            return (
+              <StyledKeyData key={key}>
+                <KeyDetails>
+                  <StyledDidThumb className="key-wrapper">
+                    {formatKey(key)}
+                  </StyledDidThumb>
+                  <IconWrapper>
+                    <CopyToClipboard value={key} />
+                  </IconWrapper>
+                  <StyledBalance>
+                    {formatBalance(totalBalance)}
+                    <span> POLYX</span>
+                  </StyledBalance>
+                  <StyledLabel isPrimary={isPrimaryKey}>
+                    {isPrimaryKey ? 'Primary' : 'Secondary'}
+                  </StyledLabel>
+                </KeyDetails>
+              </StyledKeyData>
+            );
+          })}
+        </StyledKeysList>
+      ) : (
+        'Loading...'
+      )}
+      <StyledButtonsWrapper>
+        <Button variant="modalSecondary" onClick={toggleModal} marginTop={24}>
+          Close
+        </Button>
+      </StyledButtonsWrapper>
     </Modal>
   );
 };

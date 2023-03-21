@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useNetwork } from '~/hooks/polymesh';
+import { useNetwork, useNotifications } from '~/hooks/polymesh';
 import { Icon } from '~/components';
+import { NotificationCounter } from '../UiKit';
 import {
   StyledSidebar,
   MenuButton,
@@ -17,6 +18,7 @@ import { NAV_LINKS } from '~/constants/routes';
 
 const Sidebar = () => {
   const { networkName, networkLoading } = useNetwork();
+  const { count } = useNotifications();
   const [fullWidth, setFullWidth] = useState(true);
   const [linksExpanded, setLinksExpanded] = useState(false);
 
@@ -49,7 +51,7 @@ const Sidebar = () => {
               label,
               icon,
               expandable,
-              //   notifications,
+              notifications,
               disabled,
               nestedLinks,
             }) => (
@@ -67,6 +69,12 @@ const Sidebar = () => {
                 >
                   <Icon name={icon} className="link-icon" size="24px" />
                   <span>{label}</span>
+                  {count[notifications] ? (
+                    <NotificationCounter
+                      count={count[notifications]}
+                      className="notification"
+                    />
+                  ) : null}
                   {disabled && fullWidth && <SoonLabel>Soon</SoonLabel>}
                   {expandable && linksExpanded && (
                     <ExpandedLinks fullWidth={fullWidth}>

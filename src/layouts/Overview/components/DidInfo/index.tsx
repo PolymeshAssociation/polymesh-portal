@@ -19,13 +19,8 @@ export const DidInfo = () => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const {
-    identity,
-    identityLoading,
-    joinIdentityRequest,
-    primaryKey,
-    secondaryKeys,
-  } = useAccountIdentity();
+  const { identity, identityLoading, primaryKey, secondaryKeys } =
+    useAccountIdentity();
   const [isVerified, setIsVerified] = useState(false);
   const [expiry, setExpiry] = useState<null | Date>(null);
   const [issuer, setIssuer] = useState<string | null>(null);
@@ -119,7 +114,7 @@ export const DidInfo = () => {
             </>
           )}
         </StyledBottomInfo>
-        {joinIdentityRequest ? (
+        {!identityLoading && !identity ? (
           <StyledButtonWrapper>
             {/* todo: make url configutable */}
             <Button

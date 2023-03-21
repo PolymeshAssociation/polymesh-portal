@@ -1,17 +1,18 @@
 import styled from 'styled-components';
 
 export const StyledWrapper = styled.div`
-  position: fixed;
-  top: 80px;
-  right: 24px;
   width: 320px;
-  max-height: 720px;
-  overflow-y: scroll;
-  padding: 24px;
+  max-height: ${({ expanded }) => (expanded ? '720px' : 0)};
+  overflow-y: 'scroll';
+  padding: ${({ expanded }) => (expanded ? '24px' : 0)};
   background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
   border-radius: 24px;
-  z-index: 1;
+  opacity: ${({ expanded }) => (expanded ? 1 : 0)};
+  ${({ expanded }) => (expanded ? '' : 'transform: translateX(150%);')}
+
+  transition: transform ease-out 250ms,
+    opacity 250ms ease-out, max-height 250ms ease-out, padding 250ms ease-out;
 `;
 
 export const StyledCloseButton = styled.button`

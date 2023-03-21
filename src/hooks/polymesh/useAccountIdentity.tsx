@@ -1,8 +1,8 @@
 import { useState, useEffect, useContext } from 'react';
 import {
   Identity,
-  AuthorizationType,
-  AuthorizationRequest,
+  // AuthorizationType,
+  // AuthorizationRequest,
   UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
 // import { Id, toast } from 'react-toastify';
@@ -20,8 +20,8 @@ const useAccountIdentity = () => {
   const [allIdentities, setAllIdentities] = useState<Identity[]>([]);
   const [primaryKey, setPrimaryKey] = useState<string>('');
   const [secondaryKeys, setSecondaryKeys] = useState<string[]>([]);
-  const [joinIdentityRequest, setJoinIdentityRequest] =
-    useState<AuthorizationRequest | null>(null);
+  // const [joinIdentityRequest, setJoinIdentityRequest] =
+  //   useState<AuthorizationRequest | null>(null);
   const [identityLoading, setIdentityLoading] = useState(false);
   // const { handleStatusChange } = useTransactionStatus();
 
@@ -40,13 +40,13 @@ const useAccountIdentity = () => {
 
         const accIdentity = await account.getIdentity();
 
-        if (!accIdentity) {
-          const pendingAuthorizations =
-            await account.authorizations.getReceived({
-              type: AuthorizationType.JoinIdentity,
-            });
-          setJoinIdentityRequest(pendingAuthorizations[0]);
-        }
+        // if (!accIdentity) {
+        //   const pendingAuthorizations =
+        //     await account.authorizations.getReceived({
+        //       type: AuthorizationType.JoinIdentity,
+        //     });
+        //   setJoinIdentityRequest(pendingAuthorizations[0]);
+        // }
 
         const allAccIdentities = (
           await Promise.all(signingAccounts.map((acc) => acc.getIdentity()))
@@ -158,7 +158,7 @@ const useAccountIdentity = () => {
     allIdentities,
     primaryKey,
     secondaryKeys,
-    joinIdentityRequest,
+    // joinIdentityRequest,
     identityLoading,
   };
 };

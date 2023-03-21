@@ -91,6 +91,7 @@ const useTransferPolyx = () => {
     availableMinusGasFee,
     transferPolyx,
     transactionInProcess,
+    selectedAccount,
   };
 };
 

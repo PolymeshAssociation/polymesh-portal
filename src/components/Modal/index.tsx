@@ -10,6 +10,13 @@ interface IModalProps {
 const modalRoot = document.getElementById('modal-root');
 
 const Modal: React.FC<IModalProps> = ({ handleClose, children }) => {
+  // Disabling page scroll when modal is open
+  useEffect(() => {
+    document.body.classList.add('no-scroll');
+
+    return () => document.body.classList.remove('no-scroll');
+  }, []);
+
   const handleBackdropClick: React.ReactEventHandler = (event) => {
     if (event.target !== event.currentTarget) {
       return;

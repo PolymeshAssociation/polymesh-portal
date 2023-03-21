@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import { ToastContainer } from 'react-toastify';
 import { useNotifications } from '~/hooks/polymesh';
-import { StyledWrapper } from './styles';
+import { StyledWrapper, StyledNotificationCenter } from './styles';
 import { Icon, NotificationHistory } from '~/components';
-import { NotificationCounter } from '~/components/UiKit';
+import { NotificationCounter, ToastCloseButton } from '~/components/UiKit';
 
 export const NotificationInfo = () => {
   const { notificationsLoading, totalPending } = useNotifications();
@@ -12,18 +13,32 @@ export const NotificationInfo = () => {
   const toggleDropdown = () => setExpanded((prev) => !prev);
   const handleClose = () => setExpanded(false);
 
+  // Close dropdown when clicked outside of it
+  useEffect(() => {
+    const handleClickOutside: React.ReactEventHandler = (event) => {
+      if (ref?.current && !ref.current.contains(event.target)) {
+        setExpanded(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [ref]);
+
   return (
-    <>
-      <StyledWrapper
-        onClick={expanded ? null : toggleDropdown}
-        expanded={expanded}
-      >
+    <div ref={ref}>
+      <StyledWrapper onClick={toggleDropdown} expanded={expanded}>
         <Icon name="NotificationIcon" />
         {!notificationsLoading && totalPending ? (
           <NotificationCounter count={totalPending} className="notification" />
         ) : null}
       </StyledWrapper>
-      {expanded && <NotificationHistory handleClose={handleClose} ref={ref} />}
-    </>
+      <StyledNotificationCenter>
+        <NotificationHistory handleClose={handleClose} expanded={expanded} />
+        <ToastContainer closeButton={<ToastCloseButton />} />
+      </StyledNotificationCenter>
+    </div>
   );
 };

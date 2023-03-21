@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '~/hooks/polymesh';
 import { Icon } from '~/components';
@@ -12,13 +12,13 @@ import {
 
 interface INotificationHistoryProps {
   handleClose: () => void;
+  expanded: boolean;
 }
 
-const NotificationHistory = React.forwardRef(function NotificationHistoryPopup(
-  props: INotificationHistoryProps,
-  ref,
-) {
-  const { handleClose } = props;
+const NotificationHistory: React.FC<INotificationHistoryProps> = ({
+  handleClose,
+  expanded,
+}) => {
   const { pendingAuthorizations, pendingInstructions } = useNotifications();
   const navigate = useNavigate();
 
@@ -36,22 +36,8 @@ const NotificationHistory = React.forwardRef(function NotificationHistoryPopup(
     return notificationData;
   }, [pendingAuthorizations, pendingInstructions]);
 
-  // Close dropdown when clicked outside of it
-  useEffect(() => {
-    const handleClickOutside: React.ReactEventHandler = (event) => {
-      if (ref?.current && !ref.current.contains(event.target)) {
-        handleClose();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [handleClose, ref]);
-
   return (
-    <StyledWrapper ref={ref}>
+    <StyledWrapper expanded={expanded}>
       <StyledCloseButton onClick={handleClose}>
         <Icon name="CloseIcon" size="24px" />
       </StyledCloseButton>
@@ -73,6 +59,6 @@ const NotificationHistory = React.forwardRef(function NotificationHistoryPopup(
       )}
     </StyledWrapper>
   );
-});
+};
 
 export default NotificationHistory;

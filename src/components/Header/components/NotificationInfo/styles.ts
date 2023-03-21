@@ -23,3 +23,12 @@ export const StyledWrapper = styled.div`
     right: 2px;
   }
 `;
+
+export const StyledNotificationCenter = styled.div`
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+`;

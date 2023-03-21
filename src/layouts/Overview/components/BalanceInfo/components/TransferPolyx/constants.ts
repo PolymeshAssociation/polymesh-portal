@@ -28,7 +28,7 @@ export const TRANSFER_INPUTS = [
   },
 ];
 
-export const createFormConfig = ({ maxAmount }) => ({
+export const createFormConfig = ({ maxAmount, selectedAccount }) => ({
   mode: 'onTouched',
   defaultValues: {
     [INPUT_NAMES.AMOUNT]: '',
@@ -53,7 +53,14 @@ export const createFormConfig = ({ maxAmount }) => ({
             value ? /^-?\d+(\.\d{1,6})?$/.test(value.toString()) : true,
         ),
 
-      [INPUT_NAMES.TO]: yup.string().required('A valid address is required'),
+      [INPUT_NAMES.TO]: yup
+        .string()
+        .required('A valid address is required')
+        .test(
+          'is-equal-to-selected',
+          'Sender and receiver addresses must be different',
+          (value) => value !== selectedAccount,
+        ),
 
       [INPUT_NAMES.MEMO]: yup
         .string()

@@ -8,6 +8,7 @@ interface IParsedBalance {
   locked: string;
   total: string;
 }
+
 interface IUseBalance {
   balance: IParsedBalance;
   balanceError: string;

@@ -92,3 +92,69 @@ export const Separator = styled.div`
   height: 24px;
   background-color: #e6e6e6;
 `;
+
+export const StyledKeysList = styled.ul`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+export const StyledKeyData = styled.li`
+  position: relative;
+  padding: 24px;
+  background-color: ${({ theme }) => theme.colors.dashboardBackground};
+  border-radius: 24px;
+`;
+
+export const KeyDetails = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* margin-top: 10px; */
+
+  & .key-wrapper {
+    flex-grow: initial;
+    padding: 0 12px;
+  }
+`;
+
+export const StyledBalance = styled.p`
+  margin-left: auto;
+  font-weight: 500;
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.textPrimary};
+
+  & span {
+    font-weight: 400;
+    color: ${({ theme }) => theme.colors.textSecondary};
+  }
+`;
+
+export const StyledLabel = styled.div`
+  /* position: absolute;
+  top: 24px;
+  right: 24px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 100px;
+  font-weight: 500;
+  font-size: 12px;
+  ${({ isPrimary }) =>
+    isPrimary
+      ? `
+    border: 1px solid #FAD1DC;
+    color: #EC4673;
+  `
+      : `
+    border: 1px solid #DCD3FF;
+    color: #170087;
+  `}
+`;
+
+export const StyledButtonsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+`;

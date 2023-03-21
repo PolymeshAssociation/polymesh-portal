@@ -4,12 +4,14 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useContext, useState, useEffect } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { useAccountIdentity } from '~/hooks/polymesh';
 
 const useNotifications = () => {
   const {
     api: { sdk },
     state: { selectedAccount },
   } = useContext(PolymeshContext);
+  const { identity } = useAccountIdentity();
   const [pendingInstructions, setPendingInstructions] = useState<Instruction[]>(
     [],
   );
@@ -30,7 +32,6 @@ const useNotifications = () => {
           address: selectedAccount,
         });
         const authorizations = await account.authorizations.getReceived();
-        const identity = await account.getIdentity();
 
         const instructions = await identity?.getInstructions();
 
@@ -46,12 +47,16 @@ const useNotifications = () => {
         setNotificationsLoading(false);
       }
     })();
-  }, [sdk, selectedAccount]);
+  }, [identity, sdk, selectedAccount]);
 
   return {
     pendingInstructions,
     pendingAuthorizations,
     totalPending: pendingInstructions.length + pendingAuthorizations.length,
+    count: {
+      instructions: pendingInstructions.length,
+      authorizations: pendingAuthorizations.length,
+    },
     notificationsLoading,
     notificationsError,
   };

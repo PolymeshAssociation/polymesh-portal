@@ -141,6 +141,16 @@ export const StyledNavList = styled.nav`
     }
     `}
   }
+
+  & .notification {
+    position: absolute;
+    text-indent: 0px;
+    top: 0;
+    right: 0;
+    transform: ${({ fullWidth }) =>
+      fullWidth ? 'translate(-19px, 19px)' : 'translate(-8px, 8px)'};
+    transition: transform 250ms ease-out;
+  }
 `;
 
 export const StyledNavLink = styled(NavLink)`

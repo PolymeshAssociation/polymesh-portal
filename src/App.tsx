@@ -1,14 +1,13 @@
 import { createElement, Suspense, useContext } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
-import { ToastContainer } from 'react-toastify';
+
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { PolymeshProvider } from '~/context/PolymeshContext';
 import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
 import { ROUTES } from '~/constants/routes';
 import SharedLayout from '~/layouts/SharedLayout';
 import theme from '~/styles/theme';
-import { ToastCloseButton } from './components/UiKit';
 
 const gqlClient = new ApolloClient({
   uri: import.meta.env.VITE_GRAPHQL_ENDPIONT,
@@ -27,7 +26,6 @@ const App = () => {
           ))}
         </Routes>
       </SharedLayout>
-      <ToastContainer closeButton={<ToastCloseButton />} />
     </ThemeProvider>
   );
 };

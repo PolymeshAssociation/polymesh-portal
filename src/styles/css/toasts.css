@@ -1,7 +1,14 @@
+.Toastify__toast-container {
+    position: static;
+    padding: 0;
+}
+
 .Toastify__toast {
     padding: 16px;
     box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
-    border-radius: 12px;
+    border-radius: 24px;
+    margin-top: 16px;
+    margin-bottom: 0;
     overflow: visible;
     cursor: initial;
 }
