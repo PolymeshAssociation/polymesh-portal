@@ -43,7 +43,7 @@ export const ActivityTable = () => {
 
       case EActivityTableTabs.TOKEN_ACTIVITY: {
         const parsedData = data.events.nodes.map(
-          ({ blockId, extrinsicIdx, createdAt, attributes }) => {
+          ({ id, createdAt, attributes }) => {
             const [
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               { value: caller },
@@ -53,7 +53,7 @@ export const ActivityTable = () => {
               { value: amount },
             ] = attributes;
             return {
-              id: `${blockId}-${extrinsicIdx}`,
+              id: id.replace('/', '-'),
               dateTime: toParsedDateTime(createdAt),
               from: formatDid(from.did),
               to: formatDid(to.did),

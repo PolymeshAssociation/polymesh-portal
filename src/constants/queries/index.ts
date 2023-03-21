@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 export const getAssetTransferEvents = gql`
   query transferEvents($did: String!) {
     events(
-      orderBy: BLOCK_ID_ASC
+      orderBy: BLOCK_ID_DESC
       filter: {
         moduleId: { equalTo: asset }
         eventId: { equalTo: Transfer }
