@@ -16,6 +16,24 @@ import {
 import { StatusLabel, IdCellWrapper, IconWrapper } from './styles';
 import { Icon } from '~/components';
 
+interface IIdData {
+  eventId: string;
+  blockId: string;
+  extrinsicIdx: number | null;
+}
+
+const createTokenActivityLink = (data: IIdData) => {
+  if (!data.extrinsicIdx) {
+    return `${import.meta.env.VITE_SUBSCAN_URL}block/${
+      data.blockId
+    }?tab=event&&event=${data.eventId}`;
+  }
+
+  return `${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${data.blockId}-${
+    data.extrinsicIdx
+  }?event=${data.eventId}`;
+};
+
 const columns = {
   [EActivityTableTabs.HISTORICAL_ACTIVITY]: HISTORICAL_COLUMNS.map(
     ({ header, accessor }) => {
@@ -66,16 +84,13 @@ const columns = {
           if (key !== 'id') return data;
 
           const handleClick = () =>
-            window.open(
-              `${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${data}`,
-              '_blank',
-            );
+            window.open(createTokenActivityLink(data), '_blank');
           return (
             <IdCellWrapper onClick={handleClick}>
               <IconWrapper>
                 <Icon name="ArrowTopRight" />
               </IconWrapper>
-              {data}
+              {data.eventId}
             </IdCellWrapper>
           );
         },
