@@ -50,7 +50,8 @@ const NotificationHistory: React.FC<INotificationHistoryProps> = ({
             <Text bold size="large" marginBottom={8} transform="capitalize">
               {type}
             </Text>
-            {data.type || 'Instruction'} ID {id} needs to be approved / rejected
+            {data?.type || 'Instruction'} ID {id} needs to be approved /
+            rejected
             {/* <StyledTimestamp>22 min ago</StyledTimestamp> */}
           </StyledNotificationItem>
         ))
