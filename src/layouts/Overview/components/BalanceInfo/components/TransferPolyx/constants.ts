@@ -28,7 +28,11 @@ export const TRANSFER_INPUTS = [
   },
 ];
 
-export const createFormConfig = ({ maxAmount, selectedAccount }) => ({
+export const createFormConfig = ({
+  maxAmount,
+  selectedAccount,
+  checkAddressValidity,
+}) => ({
   mode: 'onTouched',
   defaultValues: {
     [INPUT_NAMES.AMOUNT]: '',
@@ -60,6 +64,14 @@ export const createFormConfig = ({ maxAmount, selectedAccount }) => ({
           'is-equal-to-selected',
           'Sender and receiver addresses must be different',
           (value) => value !== selectedAccount,
+        )
+        .test(
+          'is-valid-address',
+          'Address must be valid SS58 format',
+          async (value) => {
+            const result = await checkAddressValidity(value);
+            return result;
+          },
         ),
 
       [INPUT_NAMES.MEMO]: yup

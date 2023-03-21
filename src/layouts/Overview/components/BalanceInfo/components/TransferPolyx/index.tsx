@@ -22,6 +22,7 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
     transferPolyx,
     transactionInProcess,
     selectedAccount,
+    checkAddressValidity,
   } = useTransferPolyx();
   const {
     register,
@@ -30,7 +31,11 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
     reset,
     setValue,
   } = useForm(
-    createFormConfig({ maxAmount: availableMinusGasFee, selectedAccount }),
+    createFormConfig({
+      maxAmount: availableMinusGasFee,
+      selectedAccount,
+      checkAddressValidity,
+    }),
   );
 
   const handleUseMax = () => {

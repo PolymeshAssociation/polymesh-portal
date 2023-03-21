@@ -45,6 +45,15 @@ const useTransferPolyx = () => {
     return () => (unsubCb ? unsubCb() : undefined);
   }, [sdk, selectedAccount]);
 
+  const checkAddressValidity = async (address: string) => {
+    try {
+      await sdk.accountManagement.getAccount({ address });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
   // Emit transaction
   const transferPolyx: (options: ITransfer) => void = async ({
     amount,
@@ -92,6 +101,7 @@ const useTransferPolyx = () => {
     transferPolyx,
     transactionInProcess,
     selectedAccount,
+    checkAddressValidity,
   };
 };
 
