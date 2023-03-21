@@ -9,7 +9,7 @@ import { ROUTES } from '~/constants/routes';
 import SharedLayout from '~/layouts/SharedLayout';
 import theme from '~/styles/theme';
 
-const gqlClient = new ApolloClient({
+export const gqlClient = new ApolloClient({
   uri: import.meta.env.VITE_GRAPHQL_ENDPIONT,
   cache: new InMemoryCache(),
 });

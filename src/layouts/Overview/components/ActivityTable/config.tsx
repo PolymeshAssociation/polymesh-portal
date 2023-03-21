@@ -44,13 +44,11 @@ const columns = {
       return columnHelper.accessor(key, {
         header: () => header,
         cell: (info) => {
-          if (accessor === 'extrinsicIdx') {
-            const extrinsicIdx = info.getValue();
-            const blockNumber = info.row.getValue('blockNumber');
-            const computedId = `${blockNumber}-${extrinsicIdx}`;
+          if (accessor === 'extrinsicId') {
+            const id = info.getValue();
             const handleClick = () =>
               window.open(
-                `${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${computedId}`,
+                `${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${id}`,
                 '_blank',
               );
             return (
@@ -58,7 +56,7 @@ const columns = {
                 <IconWrapper>
                   <Icon name="ArrowTopRight" />
                 </IconWrapper>
-                {computedId}
+                {id}
               </IdCellWrapper>
             );
           }

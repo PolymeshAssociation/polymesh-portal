@@ -16,9 +16,23 @@ export const getAssetTransferEvents = gql`
         moduleId
         eventId
         attributes
-        createdAt
+        block {
+          datetime
+        }
         extrinsicIdx
         transferTo
+      }
+    }
+  }
+`;
+
+export const getExtrinsicTimestamp = gql`
+  query extrinsics($id: String!) {
+    extrinsics(filter: { id: { equalTo: $id } }) {
+      nodes {
+        block {
+          datetime
+        }
       }
     }
   }

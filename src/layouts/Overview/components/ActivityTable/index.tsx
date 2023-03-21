@@ -9,6 +9,7 @@ import { EActivityTableTabs } from './constants';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import { getAssetTransferEvents } from '~/constants/queries';
 import { formatDid } from '~/helpers/formatters';
+import { getExtrinsicTime } from '~/helpers/graphqlQueries';
 
 export const ActivityTable = () => {
   const [tab, setTab] = useState(EActivityTableTabs.HISTORICAL_ACTIVITY);
@@ -27,23 +28,27 @@ export const ActivityTable = () => {
 
     switch (tab) {
       case EActivityTableTabs.HISTORICAL_ACTIVITY: {
-        const parsedData = extrinsicHistory
-          .map(({ blockNumber, extrinsicIdx, success, txTag }) => ({
-            extrinsicIdx: extrinsicIdx.toString(),
-            blockNumber: blockNumber.toString(),
-            module: txTag.split('.')[0],
-            call: txTag.split('.')[1],
-            success,
-          }))
-          .reverse();
+        (async () => {
+          const parsedData = await Promise.all(
+            extrinsicHistory
+              .map(async ({ blockNumber, extrinsicIdx, success, txTag }) => ({
+                extrinsicId: `${blockNumber.toString()}-${extrinsicIdx.toString()}`,
+                dateTime: await getExtrinsicTime(blockNumber, extrinsicIdx),
+                module: txTag.split('.')[0],
+                call: txTag.split('.')[1],
+                success,
+              }))
+              .reverse(),
+          );
 
-        setTableData(parsedData);
+          setTableData(parsedData);
+        })();
         break;
       }
 
       case EActivityTableTabs.TOKEN_ACTIVITY: {
         const parsedData = data.events.nodes.map(
-          ({ id, blockId, extrinsicIdx, createdAt, attributes }) => {
+          ({ id, blockId, extrinsicIdx, block, attributes }) => {
             const [
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               { value: caller },
@@ -54,7 +59,7 @@ export const ActivityTable = () => {
             ] = attributes;
             return {
               id: { eventId: id.replace('/', '-'), blockId, extrinsicIdx },
-              dateTime: toParsedDateTime(createdAt),
+              dateTime: toParsedDateTime(block.datetime),
               from: formatDid(from.did),
               to: formatDid(to.did),
               amount: balanceToBigNumber(amount).toString(),

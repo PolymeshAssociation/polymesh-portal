@@ -1,11 +1,11 @@
 export const HISTORICAL_COLUMNS = [
   {
     header: 'ID',
-    accessor: 'extrinsicIdx',
+    accessor: 'extrinsicId',
   },
   {
-    header: 'Block',
-    accessor: 'blockNumber',
+    header: 'Date / Time',
+    accessor: 'dateTime',
   },
   { header: 'Module', accessor: 'module' },
   { header: 'Call', accessor: 'call' },
