@@ -7,7 +7,7 @@ export const getAssetTransferEvents = gql`
       filter: {
         moduleId: { equalTo: asset }
         eventId: { equalTo: Transfer }
-        attributes: { contains: [{ value: $did }] }
+        attributes: { contains: [{ value: { did: $did } }] }
       }
     ) {
       nodes {
