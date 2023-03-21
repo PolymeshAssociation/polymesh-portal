@@ -4,7 +4,7 @@ import { Icon } from '~/components';
 import { StyledCopyWrapper } from './styles';
 
 interface ICopyProps {
-  value: string | number;
+  value: string | number | undefined;
 }
 
 const CopyToClipboard: React.FC<ICopyProps> = ({ value }) => {

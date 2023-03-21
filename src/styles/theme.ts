@@ -1,3 +1,5 @@
+import { DefaultTheme } from 'styled-components';
+
 const common = {
   textSize: {
     large: '16px',
@@ -15,7 +17,7 @@ const light = {
     textPrimary: '#1E1E1E',
     textSecondary: '#727272',
   },
-};
+} as DefaultTheme;
 
 const dark = {
   ...common,
@@ -26,7 +28,7 @@ const dark = {
     textPrimary: '#1E1E1E',
     textSecondary: '#727272',
   },
-};
+} as DefaultTheme;
 
 const theme = {
   light,

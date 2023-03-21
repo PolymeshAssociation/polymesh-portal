@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const StyledWrapper = styled.div`
+export const StyledWrapper = styled.div<{ expanded: boolean }>`
   width: 320px;
   max-height: ${({ expanded }) => (expanded ? '720px' : 0)};
   overflow-y: 'scroll';

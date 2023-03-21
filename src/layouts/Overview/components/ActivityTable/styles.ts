@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const StatusLabel = styled.div`
+export const StatusLabel = styled.div<{ success: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;

@@ -8,10 +8,10 @@ export enum EButtonVariants {
 }
 
 export interface IButtonProps {
-  variant: EButtonVariants;
+  variant?: `${EButtonVariants}`;
   marginTop?: number;
   marginBottom?: number;
   children: React.ReactNode;
   onClick?: () => void;
-  disabled: boolean;
+  disabled?: boolean;
 }

@@ -1,7 +1,16 @@
 import styled from 'styled-components';
-import { ETextColor } from './types';
+import { ETextColor, ETextTransform, ETextSize } from './types';
 
-export const StyledText = styled.p`
+export const StyledText = styled.p<{
+  centered?: boolean;
+  marginTop?: number;
+  marginBottom?: number;
+  width?: number;
+  color?: `${ETextColor}`;
+  size?: `${ETextSize}`;
+  bold?: boolean;
+  transform?: `${ETextTransform}`;
+}>`
   ${({
     theme,
     centered,

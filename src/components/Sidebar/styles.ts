@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
-export const StyledSidebar = styled.aside`
+export const StyledSidebar = styled.aside<{ fullWidth: boolean }>`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -23,7 +23,7 @@ export const StyledSidebar = styled.aside`
   }
 `;
 
-export const MenuButton = styled.button`
+export const MenuButton = styled.button<{ fullWidth: boolean }>`
   position: absolute;
   display: flex;
   top: 40px;
@@ -35,7 +35,7 @@ export const MenuButton = styled.button`
   transition: transform 250ms ease-out;
 `;
 
-export const StyledNetworkWrapper = styled.div`
+export const StyledNetworkWrapper = styled.div<{ fullWidth: boolean }>`
   position: relative;
   width: ${({ fullWidth }) => (fullWidth ? '208px' : '100%')};
   height: 32px;
@@ -43,7 +43,7 @@ export const StyledNetworkWrapper = styled.div`
   border-radius: 100px;
   background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
 `;
-export const StyledNetworkStatus = styled.div`
+export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
   position: absolute;
   top: 50%;
   left: 50%;
@@ -76,7 +76,7 @@ export const StyledNetworkStatus = styled.div`
   `}
 `;
 
-export const StatusDot = styled.div`
+export const StatusDot = styled.div<{ fullWidth: boolean; isLoading: boolean }>`
   position: absolute;
   left: 0;
   ${({ fullWidth }) =>
@@ -125,7 +125,7 @@ export const StatusDot = styled.div`
   }
 `;
 
-export const StyledNavList = styled.nav`
+export const StyledNavList = styled.nav<{ fullWidth: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -153,7 +153,7 @@ export const StyledNavList = styled.nav`
   }
 `;
 
-export const StyledNavLink = styled(NavLink)`
+export const StyledNavLink = styled(NavLink)<{ disabled: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
@@ -208,7 +208,7 @@ export const ExpandedLinks = styled.ul`
   z-index: 1;
 `;
 
-export const StyledExpandedLink = styled.button`
+export const StyledExpandedLink = styled.button<{ disabled: boolean }>`
   display: flex;
   align-items: center;
   width: 100%;

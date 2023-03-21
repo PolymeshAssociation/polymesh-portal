@@ -18,7 +18,7 @@ export const StyledTableHeader = styled.div`
   height: 84px;
 `;
 
-export const StyledTableBody = styled.table`
+export const StyledTableBody = styled.table<{ colsNumber: number }>`
   flex-grow: 1;
   width: 100%;
   border-collapse: collapse;
@@ -82,7 +82,7 @@ export const StyledTabsWrapper = styled.div`
   border-radius: 60px;
 `;
 
-export const StyledTabItem = styled.div`
+export const StyledTabItem = styled.div<{ selected: boolean }>`
   display: flex;
   align-items: center;
   height: 100%;

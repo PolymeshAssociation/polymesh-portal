@@ -9,7 +9,7 @@ export const StyledSelectWrapper = styled.div`
   border-radius: 32px;
 `;
 
-export const StyledSelect = styled.div`
+export const StyledSelect = styled.div<{ expanded: boolean }>`
   font-weight: 500;
   font-size: 12px;
   color: ${({ theme }) => theme.colors.dashboardBackground};
@@ -55,7 +55,7 @@ export const StyledInput = styled.input`
   overflow: hidden;
 `;
 
-export const StyledLabel = styled.label`
+export const StyledLabel = styled.label<{ selected: boolean }>`
   padding: 12px 16px;
   border-radius: 62px;
   font-size: 14px;

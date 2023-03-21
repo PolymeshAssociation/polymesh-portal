@@ -1,7 +1,11 @@
 import styled from 'styled-components';
 import { EButtonVariants } from './types';
 
-export const StyledButton = styled.button`
+export const StyledButton = styled.button<{
+  variant: `${EButtonVariants}`;
+  marginTop: number;
+  marginBottom: number;
+}>`
   ${({ variant, marginTop, marginBottom }) => `
   display: inline-flex;
   align-items: center;

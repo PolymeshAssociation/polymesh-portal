@@ -1,5 +1,5 @@
 export const formatDid = (
-  did: string | undefined,
+  did: string | undefined | null,
   startChars = 4,
   endChars = 5,
 ) => {

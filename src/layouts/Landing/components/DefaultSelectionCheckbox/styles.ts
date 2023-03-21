@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const StyledLabel = styled.label`
+export const StyledLabel = styled.label<{ disabled: boolean }>`
   display: flex;
   align-items: center;
   gap: 19px;

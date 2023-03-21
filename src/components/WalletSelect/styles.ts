@@ -1,7 +1,9 @@
 import styled from 'styled-components';
 import { ESelectPlacements } from './types';
 
-export const StyledSelectWrapper = styled.div`
+export const StyledSelectWrapper = styled.div<{
+  placement: `${ESelectPlacements}`;
+}>`
   position: relative;
   cursor: pointer;
   ${({ placement }) =>
@@ -22,7 +24,10 @@ export const StyledSelectWrapper = styled.div`
       : ''}
 `;
 
-export const StyledSelect = styled.div`
+export const StyledSelect = styled.div<{
+  placement: `${ESelectPlacements}`;
+  expanded: boolean;
+}>`
   font-weight: 500;
   font-size: 12px;
 
@@ -57,7 +62,9 @@ export const StyledSelect = styled.div`
   }
 `;
 
-export const StyledExpandedSelect = styled.div`
+export const StyledExpandedSelect = styled.div<{
+  placement: `${ESelectPlacements}`;
+}>`
   position: absolute;
   z-index: 2;
   display: flex;
@@ -105,7 +112,10 @@ export const StyledInput = styled.input`
   overflow: hidden;
 `;
 
-export const StyledLabel = styled.label`
+export const StyledLabel = styled.label<{
+  placement: `${ESelectPlacements}`;
+  selected: boolean;
+}>`
   color: ${({ theme }) => theme.colors.textPrimary};
   display: flex;
   align-items: center;
@@ -144,7 +154,7 @@ export const IconWrapper = styled.div`
   justify-content: center;
 `;
 
-export const StyledKeyLabel = styled.div`
+export const StyledKeyLabel = styled.div<{ primary: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;

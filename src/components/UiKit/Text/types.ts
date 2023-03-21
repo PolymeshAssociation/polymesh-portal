@@ -20,9 +20,9 @@ export interface ITextProps {
   marginTop?: number;
   marginBottom?: number;
   width?: number;
-  color: ETextColor;
-  size: ETextSize;
+  color?: `${ETextColor}`;
+  size?: `${ETextSize}`;
   bold?: boolean;
-  transform?: ETextTransform;
+  transform?: `${ETextTransform}`;
   children: React.ReactNode;
 }

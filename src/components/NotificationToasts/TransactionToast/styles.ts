@@ -7,7 +7,7 @@ export const StyledStatusWrapper = styled.div`
   justify-content: space-between;
 `;
 
-const handleStatusType = (status) => {
+const handleStatusType = (status: `${TransactionStatus}`) => {
   switch (status) {
     case TransactionStatus.Unapproved:
       return `
@@ -50,7 +50,7 @@ const handleStatusType = (status) => {
   }
 };
 
-export const StyledStatusLabel = styled.div`
+export const StyledStatusLabel = styled.div<{ status: `${TransactionStatus}` }>`
   padding: 1px 8px;
   border-radius: 100px;
   font-weight: 500;
@@ -65,7 +65,7 @@ export const StyledDetailsWrapper = styled.div`
   gap: 8px;
 `;
 
-export const StyledDetail = styled.div`
+export const StyledDetail = styled.div<{ isIcon: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;

@@ -54,7 +54,7 @@ export const DidInfo = () => {
 
     if (expiryValue === null) return 'never';
 
-    return expiry;
+    return expiry?.toString();
   };
 
   const toggleModal = () => setDetailsExpanded((prev) => !prev);

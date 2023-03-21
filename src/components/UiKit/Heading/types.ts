@@ -15,10 +15,10 @@ export enum EHeadingCases {
 }
 
 export interface IHeadingProps {
-  type: EHeadingTypes;
+  type?: EHeadingTypes;
   centered?: boolean;
   marginTop?: number;
   marginBottom?: number;
-  transform: EHeadingCases;
+  transform?: EHeadingCases;
   children: React.ReactNode;
 }

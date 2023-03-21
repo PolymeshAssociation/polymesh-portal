@@ -5,7 +5,11 @@ import { useInjectedWeb3 } from '~/hooks/polymesh';
 import { Footer, Header, Sidebar } from '~/components';
 import { StyledMain, StyledPageWrapper } from './styles';
 
-const SharedLayout = ({ children }) => {
+interface ILayoutProps {
+  children: React.ReactNode;
+}
+
+const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
   const {
     state: { connecting, initialized },
   } = useContext(PolymeshContext);

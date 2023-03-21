@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const IconWrapper = styled.div`
+export const IconWrapper = styled.div<{ size: string }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
