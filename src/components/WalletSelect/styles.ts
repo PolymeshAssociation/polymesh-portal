@@ -114,7 +114,7 @@ export const StyledInput = styled.input`
 
 export const StyledLabel = styled.label<{
   placement: `${ESelectPlacements}`;
-  selected: boolean;
+  selected?: boolean;
 }>`
   color: ${({ theme }) => theme.colors.textPrimary};
   display: flex;
@@ -154,7 +154,7 @@ export const IconWrapper = styled.div`
   justify-content: center;
 `;
 
-export const StyledKeyLabel = styled.div<{ primary: boolean }>`
+export const StyledKeyLabel = styled.div<{ primary?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;

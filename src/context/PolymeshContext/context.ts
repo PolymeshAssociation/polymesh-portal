@@ -1,6 +1,6 @@
 import { createContext } from 'react';
-import { IPolymeshContext } from './constants';
+import { IPolymeshContext, initialState } from './constants';
 
-const PolymeshContext = createContext<IPolymeshContext>('');
+const PolymeshContext = createContext<IPolymeshContext>(initialState);
 
 export default PolymeshContext;

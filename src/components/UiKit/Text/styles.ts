@@ -18,7 +18,7 @@ export const StyledText = styled.p<{
     marginBottom,
     width,
     color,
-    size,
+    size = ETextSize.MEDIUM,
     bold,
     transform,
   }) => `

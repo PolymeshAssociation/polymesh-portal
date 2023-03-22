@@ -17,7 +17,7 @@ const useAccountIdentity = () => {
     api: { sdk },
   } = useContext(PolymeshContext);
   const [identity, setIdentity] = useState<Identity | null>(null);
-  const [allIdentities, setAllIdentities] = useState<Identity[]>([]);
+  const [allIdentities, setAllIdentities] = useState<(Identity | null)[]>([]);
   const [primaryKey, setPrimaryKey] = useState<string>('');
   const [secondaryKeys, setSecondaryKeys] = useState<string[]>([]);
   // const [joinIdentityRequest, setJoinIdentityRequest] =
@@ -27,7 +27,7 @@ const useAccountIdentity = () => {
 
   // Get identity data when sdk is initialized
   useEffect(() => {
-    if (!initialized || !selectedAccount) return;
+    if (!initialized || !selectedAccount || !sdk) return;
 
     (async () => {
       try {
@@ -53,9 +53,10 @@ const useAccountIdentity = () => {
         ).filter((option) => option !== null);
 
         setIdentity(accIdentity);
+
         setAllIdentities(allAccIdentities);
       } catch (error) {
-        notifyError(error.message);
+        notifyError((error as Error).message);
       } finally {
         setIdentityLoading(false);
       }

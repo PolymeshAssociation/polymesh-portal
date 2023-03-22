@@ -1,11 +1,14 @@
 import { useContext, useState, useEffect } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  BalancesTx,
+  UnsubCallback,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import { notifyError, notifyWarning } from '~/helpers/notifications';
 
-interface ITransfer {
+export interface ITransfer {
   amount: string;
   to: string;
   memo: string;
@@ -33,11 +36,11 @@ const useTransferPolyx = () => {
           setAvailableBalance(balance.free.toNumber());
 
           const gasFees = await sdk.network.getProtocolFees({
-            tags: ['balances'],
+            tags: [BalancesTx.Transfer, BalancesTx.TransferWithMemo],
           });
           const fee = gasFees[0].fees.toNumber();
 
-          setAvailableMinusGasFee(balance.free - fee * 1.5);
+          setAvailableMinusGasFee(balance.free.toNumber() - fee * 1.5);
         },
       );
     })();
@@ -46,6 +49,8 @@ const useTransferPolyx = () => {
   }, [sdk, selectedAccount]);
 
   const checkAddressValidity = async (address: string) => {
+    if (!sdk) return false;
+
     try {
       await sdk.accountManagement.getAccount({ address });
       return true;
@@ -60,11 +65,13 @@ const useTransferPolyx = () => {
     to,
     memo,
   }) => {
+    if (!sdk) return undefined;
+
     setTransactionInProcess(true);
 
     // Check permissions
     const isAuthorized = await sdk.network.transferPolyx.checkAuthorization({
-      amount,
+      amount: new BigNumber(amount),
       to,
       memo,
     });
@@ -87,7 +94,7 @@ const useTransferPolyx = () => {
 
       await transferPolyxTx.run();
     } catch (error) {
-      notifyError(error.message);
+      notifyError((error as Error).message);
     } finally {
       setTransactionInProcess(false);
     }

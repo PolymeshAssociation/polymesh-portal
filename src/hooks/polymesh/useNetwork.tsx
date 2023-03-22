@@ -1,5 +1,6 @@
 import { useContext, useState, useEffect } from 'react';
-import { NetworkProperties } from '@polymeshassociation/browser-extension-signing-manager/types';
+import { NetworkProperties } from '@polymeshassociation/polymesh-sdk/types';
+import { NetworkInfo } from '@polymeshassociation/browser-extension-signing-manager/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 
 const useNetwork = () => {
@@ -7,13 +8,13 @@ const useNetwork = () => {
     state: { connecting },
     api: { sdk, signingManager },
   } = useContext(PolymeshContext);
-  const [network, setNetwork] = useState<NetworkProperties>();
+  const [network, setNetwork] = useState<NetworkProperties | NetworkInfo>();
   const [networkName, setNetworkName] = useState('');
   const [networkLoading, setNetworkLoading] = useState(true);
   const [networkError, setNetworkError] = useState('');
 
   useEffect(() => {
-    if (connecting || !sdk) return undefined;
+    if (connecting || !sdk || !signingManager) return undefined;
 
     (async () => {
       try {
@@ -21,16 +22,18 @@ const useNetwork = () => {
 
         setNetwork(networkInfo);
         setNetworkName(networkInfo.name.replace('Polymesh', '').trim());
-      } catch (error: Error) {
-        setNetworkError(error.message);
+      } catch (error) {
+        setNetworkError((error as Error).message);
       } finally {
         setNetworkLoading(false);
       }
     })();
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     if (signingManager.extension.name !== 'polywallet') return undefined;
 
-    const unsubCb = signingManager.onNetworkChange(() => {
+    const unsubCb = signingManager.onNetworkChange((newNetwork) => {
       setNetwork(newNetwork);
     });
 

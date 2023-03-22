@@ -1,9 +1,12 @@
 import { Icon } from '~/components';
 import { StyledButton } from './styles';
 
-const ToastCloseButton = ({ closeToast }) => {
+interface IToastCloseProps {
+  closeToast?: () => void;
+}
+
+const ToastCloseButton: React.FC<IToastCloseProps> = ({ closeToast }) => {
   return (
-    // eslint-disable-next-line react/jsx-props-no-spreading
     <StyledButton onClick={closeToast} className="toast-close">
       <Icon name="CloseIcon" />
     </StyledButton>

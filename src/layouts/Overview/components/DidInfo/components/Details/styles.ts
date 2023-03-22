@@ -9,7 +9,7 @@ export const StyledAccountWrapper = styled.div`
   border-radius: 24px;
 `;
 
-export const IconWrapper = styled.div<{ size: string }>`
+export const IconWrapper = styled.div<{ size?: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -129,7 +129,7 @@ export const StyledBalance = styled.p`
   }
 `;
 
-export const StyledLabel = styled.div<{ isPrimary: boolean }>`
+export const StyledLabel = styled.div<{ isPrimary?: boolean }>`
   /* position: absolute;
   top: 24px;
   right: 24px; */

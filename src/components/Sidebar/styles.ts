@@ -153,7 +153,7 @@ export const StyledNavList = styled.nav<{ fullWidth: boolean }>`
   }
 `;
 
-export const StyledNavLink = styled(NavLink)<{ disabled: boolean }>`
+export const StyledNavLink = styled(NavLink)<{ disabled?: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
@@ -208,7 +208,7 @@ export const ExpandedLinks = styled.ul`
   z-index: 1;
 `;
 
-export const StyledExpandedLink = styled.button<{ disabled: boolean }>`
+export const StyledExpandedLink = styled.button<{ disabled?: boolean }>`
   display: flex;
   align-items: center;
   width: 100%;

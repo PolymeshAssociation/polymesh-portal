@@ -12,10 +12,14 @@ const getInitialTheme = () => {
     return isDarkTheme ? Themes.Dark : Themes.Light;
   }
 
-  return themeFromLs;
+  return Themes.Light;
 };
 
-const AppThemeProvider = ({ children }) => {
+interface IAppThemeProps {
+  children: React.ReactNode;
+}
+
+const AppThemeProvider = ({ children }: IAppThemeProps) => {
   const [currentTheme, setCurrentTheme] = useState(getInitialTheme);
 
   useEffect(() => {

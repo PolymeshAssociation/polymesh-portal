@@ -41,8 +41,8 @@ const useNotifications = () => {
         if (authorizations) {
           setPendingAuthorizations(authorizations);
         }
-      } catch (error: Error) {
-        setNotificationsError(error.message);
+      } catch (error) {
+        setNotificationsError((error as Error).message);
       } finally {
         setNotificationsLoading(false);
       }

@@ -1,4 +1,5 @@
 import { Table as ReactTable, flexRender } from '@tanstack/react-table';
+import { Dispatch, SetStateAction } from 'react';
 import { Icon, Pagination } from '~/components';
 import { Heading } from '../UiKit';
 import {
@@ -13,26 +14,27 @@ import {
   StyledPerPageSelect,
 } from './styles';
 
-interface ITableProps<T> {
+interface ITableProps<T, S> {
   data: {
     tab: string;
     table: ReactTable<T>;
   };
   title: string;
   tabs: string[];
-  setTab: () => void;
+  setTab: Dispatch<SetStateAction<S>>;
   loading: boolean;
 }
 
 const perPageOptions = [3, 5, 10, 20, 50];
 
-const Table: React.FC<ITableProps<T>> = ({
-  data: { table, tab },
-  title,
-  tabs,
-  setTab,
-  loading,
-}) => {
+const Table = <T, S>(props: ITableProps<T, S>) => {
+  const {
+    data: { table, tab },
+    title,
+    tabs,
+    setTab,
+    loading,
+  } = props;
   const colsNumber = table.getAllColumns().length;
   const rowsNumber = table.getExpandedRowModel().rows.length;
   const {
@@ -57,7 +59,7 @@ const Table: React.FC<ITableProps<T>> = ({
               <StyledTabItem
                 key={tabItem}
                 selected={tabItem === tab}
-                onClick={() => setTab(tabItem)}
+                onClick={() => setTab(tabItem as S)}
               >
                 {tabItem}
               </StyledTabItem>
@@ -94,8 +96,11 @@ const Table: React.FC<ITableProps<T>> = ({
                   return (
                     <td key={cell.id}>
                       {flexRender(
-                        cell.column.columnDef.cell(cell),
-                        // ||  cell.getContext().getValue(),
+                        cell.column.columnDef.cell &&
+                          (cell.column.columnDef.cell as CallableFunction)(
+                            cell,
+                          ),
+                        {},
                       )}
                     </td>
                   );
@@ -113,7 +118,7 @@ const Table: React.FC<ITableProps<T>> = ({
               <StyledPerPageSelect>
                 <select
                   onChange={({ target }) => {
-                    table.setPageSize(target.value);
+                    table.setPageSize(Number(target.value));
                   }}
                   value={pageSize}
                 >

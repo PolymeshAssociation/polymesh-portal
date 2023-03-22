@@ -12,12 +12,12 @@ import {
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
 
-const DidSelect: React.FC<ISelectProps> = () => {
+const DidSelect = () => {
   const { setSelectedAccount } = useAccounts();
   const { identity, allIdentities } = useAccountIdentity();
   const [expanded, setExpanded] = useState(false);
-  const [selected, setSelected] = useState<Identity>(null);
-  const ref = useRef<JSX.Element | null>();
+  const [selected, setSelected] = useState<Identity | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!identity) return;
@@ -27,8 +27,8 @@ const DidSelect: React.FC<ISelectProps> = () => {
 
   // Close dropdown when clicked outside of it
   useEffect(() => {
-    const handleClickOutside: React.ReactEventHandler = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
+    const handleClickOutside: EventListenerOrEventListenerObject = (event) => {
+      if (ref.current && !ref.current.contains(event.target as Node | null)) {
         setExpanded(false);
       }
     };
@@ -42,13 +42,13 @@ const DidSelect: React.FC<ISelectProps> = () => {
   const uniqueSortedIdentities = allIdentities
     .filter(
       (value, idx, array) =>
-        idx === array.findIndex(({ did }) => did === value.did),
+        idx === array.findIndex((item) => item?.did === value?.did),
     )
-    .sort((identityItem) => (identityItem.did === identity?.did ? -1 : 1));
+    .sort((identityItem) => (identityItem?.did === identity?.did ? -1 : 1));
 
   const handleDidChange: React.ReactEventHandler = async ({ target }) => {
     const selectedIdentity = allIdentities.find(
-      ({ did }) => did === target.value,
+      (item) => item?.did === (target as HTMLInputElement).value,
     );
     if (!selectedIdentity) {
       setSelected(null);
@@ -66,11 +66,11 @@ const DidSelect: React.FC<ISelectProps> = () => {
   };
 
   return (
-    <StyledSelectWrapper ref={ref} expanded={expanded}>
+    <StyledSelectWrapper ref={ref}>
       <StyledSelect onClick={handleDropdownToggle} expanded={expanded}>
         {selected ? (
           <>
-            {formatDid(selected.did, 10, 13)}
+            {formatDid(selected?.did, 10, 13)}
             <IconWrapper>
               <Icon name="DropdownIcon" />
             </IconWrapper>
@@ -83,16 +83,16 @@ const DidSelect: React.FC<ISelectProps> = () => {
         <StyledExpandedSelect>
           {uniqueSortedIdentities.map((option) => (
             <StyledLabel
-              key={option.did}
-              htmlFor={option.did}
-              selected={selected.did === option.did}
+              key={option?.did}
+              htmlFor={option?.did}
+              selected={selected?.did === option?.did}
             >
-              {formatDid(option.did, 10, 13)}
+              {formatDid(option?.did, 10, 13)}
               <StyledInput
                 type="radio"
                 name="key"
-                value={option.did}
-                id={option.did}
+                value={option?.did}
+                id={option?.did}
                 onChange={handleDidChange}
               />
             </StyledLabel>

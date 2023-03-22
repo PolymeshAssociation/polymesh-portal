@@ -31,6 +31,7 @@ const NotificationHistory: React.FC<INotificationHistoryProps> = ({
       ...pendingInstructions.map((instruction) => ({
         id: instruction.toHuman(),
         type: 'transfers',
+        data: null,
       })),
     ];
     return notificationData;
@@ -56,7 +57,7 @@ const NotificationHistory: React.FC<INotificationHistoryProps> = ({
           </StyledNotificationItem>
         ))
       ) : (
-        <Text variant="secondary">No new notifications</Text>
+        <Text color="secondary">No new notifications</Text>
       )}
     </StyledWrapper>
   );

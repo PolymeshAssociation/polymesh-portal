@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import { TIcons } from '~/assets/icons/types';
 
 const NotFound = lazy(() => import('~/layouts/NotFound'));
 const Landing = lazy(() => import('~/layouts/Landing'));
@@ -13,14 +14,14 @@ interface IRoute {
 interface INavLink {
   path: string;
   label: string;
-  icon: string;
-  notifications?: boolean;
+  icon: TIcons;
+  notifications?: 'instructions' | 'authorizations';
   expandable?: boolean;
   disabled?: boolean;
   nestedLinks?: {
     nestedPath: string;
     nestedLabel: string;
-    nestedIcon: string;
+    nestedIcon: TIcons;
   }[];
 }
 

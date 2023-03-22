@@ -10,7 +10,7 @@ const useAccounts = () => {
 
   // Get list of connected accounts when sdk is initialized with signing manager
   useEffect(() => {
-    if (!initialized || !sdk) return;
+    if (!initialized || !sdk || !signingManager) return;
 
     (async () => {
       const connectedAccounts = await signingManager.getAccounts();
@@ -20,7 +20,7 @@ const useAccounts = () => {
 
   // Perform actions when account change occurs in extension
   useEffect(() => {
-    if (!initialized) return undefined;
+    if (!initialized || !signingManager) return undefined;
 
     const unsubCb = signingManager.onAccountChange(async (newAccounts) => {
       setAllAccounts(newAccounts);
@@ -39,7 +39,8 @@ const useAccounts = () => {
   // Set signer account when manually changing account in app
   useEffect(() => {
     // eslint-disable-next-line no-underscore-dangle
-    if (!selectedAccount || sdk._signingAddress === selectedAccount) return;
+    if (!selectedAccount || !sdk || sdk._signingAddress === selectedAccount)
+      return;
 
     (async () => {
       await sdk.setSigningAccount(selectedAccount);

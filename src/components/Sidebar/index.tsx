@@ -64,12 +64,20 @@ const Sidebar = () => {
                     e.preventDefault();
                     expandPopup();
                   }}
-                  onMouseEnter={expandable ? expandPopup : null}
-                  onMouseLeave={expandable ? collapsePopup : null}
+                  onMouseEnter={
+                    expandable
+                      ? (expandPopup as React.MouseEventHandler<HTMLAnchorElement>)
+                      : undefined
+                  }
+                  onMouseLeave={
+                    expandable
+                      ? (collapsePopup as React.MouseEventHandler<HTMLAnchorElement>)
+                      : undefined
+                  }
                 >
                   <Icon name={icon} className="link-icon" size="24px" />
                   <span>{label}</span>
-                  {count[notifications] ? (
+                  {notifications && count[notifications] ? (
                     <NotificationCounter
                       count={count[notifications]}
                       className="notification"
@@ -77,7 +85,7 @@ const Sidebar = () => {
                   ) : null}
                   {disabled && fullWidth && <SoonLabel>Soon</SoonLabel>}
                   {expandable && linksExpanded && (
-                    <ExpandedLinks fullWidth={fullWidth}>
+                    <ExpandedLinks>
                       {nestedLinks?.map(
                         ({ nestedPath, nestedLabel, nestedIcon }) => (
                           <li key={nestedLabel}>

@@ -19,7 +19,7 @@ const useHistoricData = () => {
 
   // Get all extrinsics and instructions history for current account
   useEffect(() => {
-    if (!selectedAccount) return;
+    if (!sdk || !selectedAccount) return;
 
     (async () => {
       try {
@@ -39,8 +39,8 @@ const useHistoricData = () => {
         const instructions = await identity.getHistoricalInstructions();
 
         setInstructionsHistory(instructions);
-      } catch (error: Error) {
-        setDataError(error.message);
+      } catch (error) {
+        setDataError((error as Error).message);
       } finally {
         setDataLoading(false);
       }

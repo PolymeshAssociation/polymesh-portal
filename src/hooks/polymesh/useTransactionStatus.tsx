@@ -1,21 +1,25 @@
 import { useRef } from 'react';
 import {
+  GenericPolymeshTransaction,
   PolymeshTransaction,
   TransactionStatus,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { toast } from 'react-toastify';
+import { Id, toast } from 'react-toastify';
 import { TransactionToast } from '~/components/NotificationToasts';
 
 const useTransactionStatus = () => {
-  const idRef = useRef();
+  const idRef = useRef<Id>(0);
 
-  const handleStatusChange = (transaction: PolymeshTransaction) => {
+  const handleStatusChange = (
+    transaction: GenericPolymeshTransaction<void, void>,
+  ) => {
     switch (transaction.status) {
       case TransactionStatus.Unapproved:
         idRef.current = toast.info(
           <TransactionToast
             message="Please sign transaction in your wallet"
-            tag={transaction.tag}
+            tag={(transaction as PolymeshTransaction).tag}
+            status={transaction.status}
             timestamp={Date.now()}
           />,
           {
@@ -32,7 +36,7 @@ const useTransactionStatus = () => {
             <TransactionToast
               txHash={transaction.txHash}
               status={transaction.status}
-              tag={transaction.tag}
+              tag={(transaction as PolymeshTransaction).tag}
               timestamp={Date.now()}
             />
           ),
@@ -47,7 +51,7 @@ const useTransactionStatus = () => {
             <TransactionToast
               txHash={transaction.txHash}
               status={transaction.status}
-              tag={transaction.tag}
+              tag={(transaction as PolymeshTransaction).tag}
               timestamp={Date.now()}
             />
           ),
@@ -62,7 +66,7 @@ const useTransactionStatus = () => {
           render: (
             <TransactionToast
               status={transaction.status}
-              tag={transaction.tag}
+              tag={(transaction as PolymeshTransaction).tag}
               error="Transaction was rejected"
               timestamp={Date.now()}
             />
@@ -80,7 +84,7 @@ const useTransactionStatus = () => {
             <TransactionToast
               txHash={transaction.txHash}
               status={transaction.status}
-              tag={transaction.tag}
+              tag={(transaction as PolymeshTransaction).tag}
               error={transaction.error?.message}
               timestamp={Date.now()}
             />
@@ -97,7 +101,7 @@ const useTransactionStatus = () => {
           render: (
             <TransactionToast
               status={transaction.status}
-              tag={transaction.tag}
+              tag={(transaction as PolymeshTransaction).tag}
               error={transaction.error?.message}
               timestamp={Date.now()}
             />

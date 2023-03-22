@@ -11,7 +11,7 @@ const CopyToClipboard: React.FC<ICopyProps> = ({ value }) => {
   const [success, setSuccess] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
 
-  const handleCopy = (_, result: boolean) => {
+  const handleCopy = (_: unknown, result: boolean) => {
     setSuccess(result);
   };
 
@@ -31,7 +31,7 @@ const CopyToClipboard: React.FC<ICopyProps> = ({ value }) => {
   }, [showNotification, success]);
 
   return (
-    <BaseCopyToClipboard text={value} onCopy={handleCopy}>
+    <BaseCopyToClipboard text={value as string} onCopy={handleCopy}>
       <StyledCopyWrapper>
         {showNotification ? (
           <Icon name="Check" className="check-icon" size="16px" />

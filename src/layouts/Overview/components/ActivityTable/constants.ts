@@ -30,8 +30,14 @@ export const TOKEN_COLUMNS = [
   { header: 'Asset', accessor: 'asset' },
 ];
 
+export interface IIdData {
+  eventId: string;
+  blockId: string;
+  extrinsicIdx: number | null;
+}
+
 export interface ITokenItem {
-  id: string;
+  id: IIdData;
   dateTime: string;
   from: string;
   to: string;
@@ -40,8 +46,8 @@ export interface ITokenItem {
 }
 
 export interface IHistoricalItem {
-  extrinsicIdx: string;
-  blockNumber: string;
+  extrinsicId: string;
+  dateTime: string;
   module: string;
   call: string;
   success: boolean;

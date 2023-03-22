@@ -28,56 +28,61 @@ export const TRANSFER_INPUTS = [
   },
 ];
 
-export const createFormConfig = ({
-  maxAmount,
-  selectedAccount,
-  checkAddressValidity,
-}) => ({
-  mode: 'onTouched',
-  defaultValues: {
-    [INPUT_NAMES.AMOUNT]: '',
-    [INPUT_NAMES.TO]: '',
-    [INPUT_NAMES.MEMO]: '',
-  },
-  resolver: yupResolver(
-    yup.object().shape({
-      [INPUT_NAMES.AMOUNT]: yup
-        .number()
-        .typeError('Amount must be a number')
-        .required('Amount is required')
-        .positive()
-        .lessThan(maxAmount, 'Insufficient balance')
-        .transform((value, originalValue) =>
-          originalValue.trim() === '' ? undefined : Number(value),
-        )
-        .test(
-          'is-decimal',
-          'Amount must have at most 6 decimal places',
-          (value) =>
-            value ? /^-?\d+(\.\d{1,6})?$/.test(value.toString()) : true,
-        ),
+interface IFormConfigData {
+  maxAmount: number;
+  selectedAccount: string;
+  checkAddressValidity: (address: string) => Promise<boolean>;
+}
 
-      [INPUT_NAMES.TO]: yup
-        .string()
-        .required('A valid address is required')
-        .test(
-          'is-equal-to-selected',
-          'Sender and receiver addresses must be different',
-          (value) => value !== selectedAccount,
-        )
-        .test(
-          'is-valid-address',
-          'Address must be valid SS58 format',
-          async (value) => {
-            const result = await checkAddressValidity(value);
-            return result;
-          },
-        ),
+export const createFormConfig = (configData: IFormConfigData) => {
+  const { maxAmount, selectedAccount, checkAddressValidity } = configData;
+  return {
+    mode: 'onTouched',
+    defaultValues: {
+      [INPUT_NAMES.AMOUNT]: '',
+      [INPUT_NAMES.TO]: '',
+      [INPUT_NAMES.MEMO]: '',
+    },
+    resolver: yupResolver(
+      yup.object().shape({
+        [INPUT_NAMES.AMOUNT]: yup
+          .number()
+          .typeError('Amount must be a number')
+          .required('Amount is required')
+          .positive()
+          .lessThan(maxAmount, 'Insufficient balance')
+          .transform((value, originalValue) =>
+            originalValue.trim() === '' ? undefined : Number(value),
+          )
+          .test(
+            'is-decimal',
+            'Amount must have at most 6 decimal places',
+            (value) =>
+              value ? /^-?\d+(\.\d{1,6})?$/.test(value.toString()) : true,
+          ),
 
-      [INPUT_NAMES.MEMO]: yup
-        .string()
-        .max(32, 'Memo must be 32 characters or less')
-        .nullable(),
-    }),
-  ),
-});
+        [INPUT_NAMES.TO]: yup
+          .string()
+          .required('A valid address is required')
+          .test(
+            'is-equal-to-selected',
+            'Sender and receiver addresses must be different',
+            (value) => value !== selectedAccount,
+          )
+          .test(
+            'is-valid-address',
+            'Address must be valid SS58 format',
+            async (value) => {
+              const result = await checkAddressValidity(value);
+              return result;
+            },
+          ),
+
+        [INPUT_NAMES.MEMO]: yup
+          .string()
+          .max(32, 'Memo must be 32 characters or less')
+          .nullable(),
+      }),
+    ),
+  } as const;
+};

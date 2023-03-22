@@ -3,8 +3,8 @@ import { EButtonVariants } from './types';
 
 export const StyledButton = styled.button<{
   variant: `${EButtonVariants}`;
-  marginTop: number;
-  marginBottom: number;
+  marginTop?: number;
+  marginBottom?: number;
 }>`
   ${({ variant, marginTop, marginBottom }) => `
   display: inline-flex;

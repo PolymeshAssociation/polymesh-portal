@@ -31,7 +31,7 @@ const useBalance = (): IUseBalance => {
 
   // Get balance data when accounts are set
   useEffect(() => {
-    if (!selectedAccount) return undefined;
+    if (!sdk || !selectedAccount) return undefined;
 
     let unsubCb: UnsubCallback | null = null;
     (async () => {

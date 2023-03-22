@@ -37,7 +37,7 @@ const PendingJoinIdentityRequest: React.FC<IJoinIdentityProps> = ({
       </StyledDataWrapper>{' '}
       has requested to assign your key{' '}
       <StyledDataWrapper>
-        ({formatKey(target.value)} <CopyToClipboard value={target} />)
+        ({formatKey(target.value)} <CopyToClipboard value={target.value} />)
       </StyledDataWrapper>{' '}
       to their Polymesh Account. Please accept if you wish to sign on their
       behalf.

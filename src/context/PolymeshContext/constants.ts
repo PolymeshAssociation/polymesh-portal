@@ -1,6 +1,10 @@
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { Wallet } from '~/constants/wallets';
+
+export interface IConnectOptions {
+  extensionName: string;
+  isDefault: boolean;
+}
 
 export interface IPolymeshContext {
   state: {
@@ -8,16 +12,26 @@ export interface IPolymeshContext {
     initialized: boolean;
     walletError: string;
     selectedAccount: string;
-    setSelectedAccount: () => void;
+    setSelectedAccount: (account: string) => void;
   };
   api: {
-    sdk: Polymesh;
-    signingManager: BrowserExtensionSigningManager;
+    sdk: Polymesh | null;
+    signingManager: BrowserExtensionSigningManager | null;
   };
-  connectWallet: () => Promise<void>;
+  connectWallet: (data: IConnectOptions) => Promise<void>;
 }
 
-export interface IConnectOptions {
-  extensionName: Wallet;
-  isDefault: boolean;
-}
+export const initialState = {
+  state: {
+    connecting: false,
+    initialized: false,
+    walletError: '',
+    selectedAccount: '',
+    setSelectedAccount: () => {},
+  },
+  api: {
+    sdk: null,
+    signingManager: null,
+  },
+  connectWallet: async () => {},
+} as const;

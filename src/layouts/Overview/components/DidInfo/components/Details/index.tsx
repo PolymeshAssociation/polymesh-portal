@@ -31,6 +31,11 @@ interface IDetailsProps {
   secondaryKeys: string[];
 }
 
+interface IBalanceByKey {
+  key: string;
+  totalBalance: string;
+}
+
 export const Details: React.FC<IDetailsProps> = ({
   toggleModal,
   isVerified,
@@ -40,14 +45,14 @@ export const Details: React.FC<IDetailsProps> = ({
   primaryKey,
   secondaryKeys,
 }) => {
-  const [allKeyBalances, setAllKeyBalances] = useState([]);
+  const [allKeyBalances, setAllKeyBalances] = useState<IBalanceByKey[]>([]);
 
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
   // Get total balance for all keys associated with current DID
   useEffect(() => {
-    if (!primaryKey) return;
+    if (!sdk || !primaryKey) return;
 
     (async () => {
       const balancesByKey = await Promise.all(

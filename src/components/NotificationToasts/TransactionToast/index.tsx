@@ -17,7 +17,7 @@ import { toRelativeTime } from '~/helpers/dateTime';
 interface ITxToastProps {
   txHash?: string;
   message?: string;
-  status: TransactionStatus;
+  status: `${TransactionStatus}`;
   tag: string;
   error?: string;
   timestamp: number;

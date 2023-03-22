@@ -4,6 +4,6 @@ export enum ESelectPlacements {
 }
 
 export interface ISelectProps {
-  placement: `${ESelectPlacements}`;
-  trimValue: boolean;
+  placement?: `${ESelectPlacements}`;
+  trimValue?: boolean;
 }

@@ -8,11 +8,14 @@ import { useActivityTable } from './config';
 import { EActivityTableTabs } from './constants';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import { getAssetTransferEvents } from '~/constants/queries';
+import { IAddress, ITransferEvent } from '~/constants/queries/types';
 import { formatDid } from '~/helpers/formatters';
 import { getExtrinsicTime } from '~/helpers/graphqlQueries';
 
 export const ActivityTable = () => {
-  const [tab, setTab] = useState(EActivityTableTabs.HISTORICAL_ACTIVITY);
+  const [tab, setTab] = useState<`${EActivityTableTabs}`>(
+    EActivityTableTabs.HISTORICAL_ACTIVITY,
+  );
   const { table, setTableData } = useActivityTable(tab);
   const {
     state: { connecting, selectedAccount },
@@ -27,6 +30,9 @@ export const ActivityTable = () => {
     if (connecting || dataLoading || loading || error) return;
 
     switch (tab) {
+      /* 
+          Should be implemented more efficiently in the future 
+      */
       case EActivityTableTabs.HISTORICAL_ACTIVITY: {
         (async () => {
           const parsedData = await Promise.all(
@@ -46,9 +52,18 @@ export const ActivityTable = () => {
         break;
       }
 
+      /* 
+          Should be implemented more efficiently in the future 
+      */
       case EActivityTableTabs.TOKEN_ACTIVITY: {
         const parsedData = data.events.nodes.map(
-          ({ id, blockId, extrinsicIdx, block, attributes }) => {
+          ({
+            id,
+            blockId,
+            extrinsicIdx,
+            block,
+            attributes,
+          }: ITransferEvent) => {
             const [
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               { value: caller },
@@ -60,9 +75,11 @@ export const ActivityTable = () => {
             return {
               id: { eventId: id.replace('/', '-'), blockId, extrinsicIdx },
               dateTime: toParsedDateTime(block.datetime),
-              from: formatDid(from.did),
-              to: formatDid(to.did),
-              amount: balanceToBigNumber(amount).toString(),
+              from: formatDid((from as IAddress).did),
+              to: formatDid((to as IAddress).did),
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              amount: balanceToBigNumber(amount as number).toString(),
               asset,
             };
           },

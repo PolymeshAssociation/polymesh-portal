@@ -8,15 +8,15 @@ import { NotificationCounter, ToastCloseButton } from '~/components/UiKit';
 export const NotificationInfo = () => {
   const { notificationsLoading, totalPending } = useNotifications();
   const [expanded, setExpanded] = useState(false);
-  const ref = useRef<JSX.Element | null>();
+  const ref = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => setExpanded((prev) => !prev);
   const handleClose = () => setExpanded(false);
 
   // Close dropdown when clicked outside of it
   useEffect(() => {
-    const handleClickOutside: React.ReactEventHandler = (event) => {
-      if (ref?.current && !ref.current.contains(event.target)) {
+    const handleClickOutside: EventListenerOrEventListenerObject = (event) => {
+      if (ref.current && !ref.current.contains(event.target as Node | null)) {
         setExpanded(false);
       }
     };

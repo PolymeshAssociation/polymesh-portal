@@ -1,9 +1,10 @@
 import { createElement } from 'react';
 import { IconWrapper } from './styles';
 import * as icons from '~/assets/icons';
+import { TIcons } from '~/assets/icons/types';
 
 interface IIconProps {
-  name: string;
+  name: TIcons;
   size?: string;
   className?: string;
 }

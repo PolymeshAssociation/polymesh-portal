@@ -8,7 +8,13 @@ import { WalletOptionGroup } from '../WalletOptionGroup';
 import { DefaultSelectionCheckbox } from '../DefaultSelectionCheckbox';
 import { StyledButtonWrapper } from './styles';
 
-export const ConnectWalletPopup = ({ handleClose }) => {
+interface IConnectWalletPopupProps {
+  handleClose: () => void | React.ReactEventHandler | React.ChangeEventHandler;
+}
+
+export const ConnectWalletPopup: React.FC<IConnectWalletPopupProps> = ({
+  handleClose,
+}) => {
   const { connectWallet } = useContext(PolymeshContext);
   const { injectedExtensions } = useInjectedWeb3();
   const [selectedWallet, setSelectedWallet] = useState('');
@@ -22,12 +28,12 @@ export const ConnectWalletPopup = ({ handleClose }) => {
     return { ...option, isInstalled: false };
   });
 
-  const handleWalletSelect: React.ReactEventHandler = ({ target }) => {
-    setSelectedWallet(target.value);
+  const handleWalletSelect: React.ChangeEventHandler = ({ target }) => {
+    setSelectedWallet((target as HTMLInputElement).value);
   };
 
-  const handleDefaultSelect: React.ReactEventHandler = ({ target }) => {
-    setIsDefault(target.checked);
+  const handleDefaultSelect: React.ChangeEventHandler = ({ target }) => {
+    setIsDefault((target as HTMLInputElement).checked);
   };
 
   const handleCancel = () => {

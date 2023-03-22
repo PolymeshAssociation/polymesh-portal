@@ -4,6 +4,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   getFilteredRowModel,
+  ColumnDef,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 import {
@@ -11,18 +12,13 @@ import {
   EActivityTableTabs,
   IHistoricalItem,
   ITokenItem,
+  IIdData,
   TOKEN_COLUMNS,
 } from './constants';
 import { StatusLabel, IdCellWrapper, IconWrapper } from './styles';
 import { Icon } from '~/components';
 
-interface IIdData {
-  eventId: string;
-  blockId: string;
-  extrinsicIdx: number | null;
-}
-
-const createTokenActivityLink = (data: IIdData) => {
+const createTokenActivityLink = (data: IIdData | undefined) => {
   if (!data) return '';
 
   if (!data.extrinsicIdx) {
@@ -75,7 +71,7 @@ const columns = {
   ),
   [EActivityTableTabs.TOKEN_ACTIVITY]: TOKEN_COLUMNS.map(
     ({ header, accessor }) => {
-      const key = accessor as keyof IHistoricalItem;
+      const key = accessor as keyof ITokenItem;
       const columnHelper = createColumnHelper<ITokenItem>();
       return columnHelper.accessor(key, {
         header: () => header,
@@ -84,13 +80,13 @@ const columns = {
           if (key !== 'id') return data;
 
           const handleClick = () =>
-            window.open(createTokenActivityLink(data), '_blank');
+            window.open(createTokenActivityLink(data as IIdData), '_blank');
           return (
             <IdCellWrapper onClick={handleClick}>
               <IconWrapper>
                 <Icon name="ArrowTopRight" />
               </IconWrapper>
-              {data?.eventId}
+              {(data as IIdData)?.eventId}
             </IdCellWrapper>
           );
         },
@@ -99,12 +95,14 @@ const columns = {
   ),
 };
 
-export const useActivityTable = (currentTab: EActivityTableTabs) => {
-  const [tableData, setTableData] = useState<ITableItem[]>([]);
+export const useActivityTable = <T extends IHistoricalItem | ITokenItem>(
+  currentTab: `${EActivityTableTabs}`,
+) => {
+  const [tableData, setTableData] = useState<T[]>([]);
   return {
-    table: useReactTable({
+    table: useReactTable<T>({
       data: tableData,
-      columns: columns[currentTab],
+      columns: columns[currentTab] as ColumnDef<T>[],
       initialState: {
         pagination: {
           pageSize: 10,

@@ -65,7 +65,7 @@ export const StyledDetailsWrapper = styled.div`
   gap: 8px;
 `;
 
-export const StyledDetail = styled.div<{ isIcon: boolean }>`
+export const StyledDetail = styled.div<{ isIcon?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;

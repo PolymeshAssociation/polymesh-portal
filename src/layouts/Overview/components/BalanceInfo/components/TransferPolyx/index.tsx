@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import { useTransferPolyx } from '~/hooks/polymesh';
 import { Modal } from '~/components';
 import { Heading, Button } from '~/components/UiKit';
@@ -12,6 +12,7 @@ import {
 } from './styles';
 import { formatBalance } from '~/helpers/formatters';
 import { TRANSFER_INPUTS, createFormConfig } from './constants';
+import { ITransfer } from '~/hooks/polymesh/useTransferPolyx';
 
 export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
   toggleModal,
@@ -42,8 +43,8 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
     setValue('amount', availableMinusGasFee);
   };
 
-  const onSubmit = (data) => {
-    transferPolyx(data);
+  const onSubmit: SubmitHandler<FieldValues> = (data) => {
+    transferPolyx(data as ITransfer);
     reset();
     toggleModal();
   };
@@ -58,7 +59,9 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
               <StyledLabel htmlFor={id}>
                 {label}
                 {errors[id] ? (
-                  <span style={{ color: 'red' }}>{errors[id]?.message}</span>
+                  <span style={{ color: 'red' }}>
+                    {(errors[id]?.message as string) || ''}
+                  </span>
                 ) : null}
                 <StyledInput
                   // eslint-disable-next-line react/jsx-props-no-spreading

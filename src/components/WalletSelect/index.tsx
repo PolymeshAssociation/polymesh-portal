@@ -21,7 +21,7 @@ const WalletSelect: React.FC<ISelectProps> = ({
   const { primaryKey, secondaryKeys } = useAccountIdentity();
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState('');
-  const ref = useRef<JSX.Element | null>();
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!selectedAccount) return;
@@ -31,8 +31,8 @@ const WalletSelect: React.FC<ISelectProps> = ({
 
   // Close dropdown when clicked outside of it
   useEffect(() => {
-    const handleClickOutside: React.ReactEventHandler = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
+    const handleClickOutside: EventListenerOrEventListenerObject = (event) => {
+      if (ref.current && !ref.current.contains(event.target as Node | null)) {
         setExpanded(false);
       }
     };
@@ -44,8 +44,8 @@ const WalletSelect: React.FC<ISelectProps> = ({
   }, [ref]);
 
   const handleAccountChange: React.ReactEventHandler = ({ target }) => {
-    setSelectedAccount(target.value);
-    setSelected(target.value);
+    setSelectedAccount((target as HTMLInputElement).value);
+    setSelected((target as HTMLInputElement).value);
     setExpanded(false);
   };
 
@@ -54,7 +54,7 @@ const WalletSelect: React.FC<ISelectProps> = ({
   };
 
   return (
-    <StyledSelectWrapper ref={ref} placement={placement} expanded={expanded}>
+    <StyledSelectWrapper ref={ref} placement={placement}>
       <StyledSelect
         onClick={handleDropdownToggle}
         expanded={expanded}

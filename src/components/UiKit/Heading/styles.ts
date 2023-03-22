@@ -2,10 +2,10 @@ import styled from 'styled-components';
 import { EHeadingCases } from './types';
 
 export const StyledHeading = styled.h1<{
-  centered: boolean;
-  marginTop: number;
-  marginBottom: number;
-  transform: `${EHeadingCases}`;
+  centered?: boolean;
+  marginTop?: number;
+  marginBottom?: number;
+  transform?: `${EHeadingCases}`;
 }>`
   ${({ centered, marginTop, marginBottom, transform }) => `
       ${centered ? 'text-align: center;' : ''}

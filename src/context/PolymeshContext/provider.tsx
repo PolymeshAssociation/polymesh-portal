@@ -5,21 +5,27 @@ import PolymeshContext from './context';
 import { IConnectOptions } from './constants';
 import { useInjectedWeb3 } from '~/hooks/polymesh';
 
-const PolymeshProvider = ({ children }) => {
-  const [sdk, setSdk] = useState<Polymesh>(null);
+interface IProviderProps {
+  children: React.ReactNode;
+}
+
+const PolymeshProvider = ({ children }: IProviderProps) => {
+  const [sdk, setSdk] = useState<Polymesh | null>(null);
   const [signingManager, setSigningManager] =
-    useState<BrowserExtensionSigningManager>(null);
+    useState<BrowserExtensionSigningManager | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [walletError, setWalletError] = useState('');
   const { connectExtension, defaultExtension } = useInjectedWeb3();
-  const [connectOptions, setConnectOptions] = useState<IConnectOptions>(() => {
-    if (defaultExtension) {
-      const { extensionName, isDefault } = defaultExtension;
-      return { extensionName, isDefault };
-    }
-    return null;
-  });
+  const [connectOptions, setConnectOptions] = useState<IConnectOptions | null>(
+    () => {
+      if (defaultExtension) {
+        const { extensionName, isDefault } = defaultExtension;
+        return { extensionName, isDefault };
+      }
+      return null;
+    },
+  );
   /*
       selectedAccount and setSelectedAccount are being used by useAccounts hook,
       which exposes them to rest of the app. They are here for global sync between helper hooks
@@ -76,7 +82,10 @@ const PolymeshProvider = ({ children }) => {
 
         setSdk(sdkInstance);
         setInitialized(true);
-        connectExtension(...Object.values(connectOptions));
+        connectExtension(
+          (connectOptions as IConnectOptions).extensionName as string,
+          (connectOptions as IConnectOptions).isDefault as boolean,
+        );
       } catch (error) {
         if (error instanceof Error) {
           setWalletError(error.message);
