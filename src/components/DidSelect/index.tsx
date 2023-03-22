@@ -70,7 +70,7 @@ const DidSelect = () => {
       <StyledSelect onClick={handleDropdownToggle} expanded={expanded}>
         {selected ? (
           <>
-            {formatDid(selected?.did, 10, 13)}
+            {formatDid(selected?.did, 20, 20)}
             <IconWrapper>
               <Icon name="DropdownIcon" />
             </IconWrapper>
@@ -87,7 +87,7 @@ const DidSelect = () => {
               htmlFor={option?.did}
               selected={selected?.did === option?.did}
             >
-              {formatDid(option?.did, 10, 13)}
+              {formatDid(option?.did, 20, 20)}
               <StyledInput
                 type="radio"
                 name="key"

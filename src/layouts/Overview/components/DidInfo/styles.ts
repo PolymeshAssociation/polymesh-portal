@@ -71,14 +71,15 @@ export const StyledDidWrapper = styled.div`
 
 export const StyledBottomInfo = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 16px;
 
   & div {
     display: flex;
     align-items: center;
+    gap: 6px;
     font-size: 14px;
-    color: #ffffff;
+    color: rgba(255, 255, 255, 0.82);
   }
 
   & p {
@@ -91,7 +92,15 @@ export const StyledBottomInfo = styled.div`
     gap: 4px;
     margin-left: auto;
     font-weight: 500;
+    color: #ffffff;
+    text-transform: capitalize;
   }
+`;
+
+export const Separator = styled.div`
+  width: 1px;
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.12);
 `;
 
 export const StyledButtonWrapper = styled.div`

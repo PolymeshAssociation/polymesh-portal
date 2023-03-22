@@ -42,3 +42,17 @@ export const IconWrapper = styled.div`
   background-color: #fbfbfb;
   color: #727272;
 `;
+
+export const StyledTime = styled.span`
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+export const AddressCellWrapper = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  & div {
+    color: ${({ theme }) => theme.colors.textSecondary};
+  }
+`;

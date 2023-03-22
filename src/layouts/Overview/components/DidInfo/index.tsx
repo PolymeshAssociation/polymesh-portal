@@ -11,6 +11,7 @@ import {
   StyledDidWrapper,
   StyledBottomInfo,
   StyledButtonWrapper,
+  Separator,
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
 import { Details } from './components/Details';
@@ -97,11 +98,12 @@ export const DidInfo = () => {
           ) : (
             <>
               <div>
-                Expires on
+                Expires on:
                 <span>{identityLoading ? '...' : parseExpiry(expiry)}</span>
               </div>
+              <Separator />
               <div>
-                Verified by{' '}
+                Verified by:
                 <span>
                   {identityLoading ? '...' : formatDid(issuer)}
                   {!!issuer && (

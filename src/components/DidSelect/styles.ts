@@ -10,6 +10,11 @@ export const StyledSelectWrapper = styled.div`
 `;
 
 export const StyledSelect = styled.div<{ expanded: boolean }>`
+  max-width: 95%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
   font-weight: 500;
   font-size: 12px;
   color: ${({ theme }) => theme.colors.dashboardBackground};
@@ -40,6 +45,7 @@ export const StyledExpandedSelect = styled.div`
     0px 5px 10px rgba(30, 30, 30, 0.05);
   border-radius: 12px;
   text-align: center;
+  z-index: 1;
 `;
 
 export const StyledInput = styled.input`
@@ -56,6 +62,10 @@ export const StyledInput = styled.input`
 `;
 
 export const StyledLabel = styled.label<{ selected: boolean }>`
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   padding: 12px 16px;
   border-radius: 62px;
   font-size: 14px;

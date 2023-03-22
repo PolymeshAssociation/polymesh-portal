@@ -15,8 +15,15 @@ import {
   IIdData,
   TOKEN_COLUMNS,
 } from './constants';
-import { StatusLabel, IdCellWrapper, IconWrapper } from './styles';
-import { Icon } from '~/components';
+import {
+  StatusLabel,
+  IdCellWrapper,
+  IconWrapper,
+  StyledTime,
+  AddressCellWrapper,
+} from './styles';
+import { CopyToClipboard, Icon } from '~/components';
+import { formatDid } from '~/helpers/formatters';
 
 const createTokenActivityLink = (data: IIdData | undefined) => {
   if (!data) return '';
@@ -40,11 +47,12 @@ const columns = {
       return columnHelper.accessor(key, {
         header: () => header,
         cell: (info) => {
-          if (accessor === 'extrinsicId') {
-            const id = info.getValue();
+          const data = info.getValue();
+
+          if (key === 'extrinsicId') {
             const handleClick = () =>
               window.open(
-                `${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${id}`,
+                `${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${data}`,
                 '_blank',
               );
             return (
@@ -52,19 +60,31 @@ const columns = {
                 <IconWrapper>
                   <Icon name="ArrowTopRight" />
                 </IconWrapper>
-                {id}
+                {data}
               </IdCellWrapper>
             );
           }
 
-          if (accessor === 'success') {
-            return accessor ? (
+          if (key === 'success') {
+            return data ? (
               <StatusLabel success>Success</StatusLabel>
             ) : (
               <StatusLabel>Failure</StatusLabel>
             );
           }
-          return info.getValue();
+
+          if (key === 'dateTime') {
+            if (!data) return '';
+            const [date, time] = (data as string).split(' ');
+
+            return (
+              <span>
+                {date} / <StyledTime>{time}</StyledTime>
+              </span>
+            );
+          }
+
+          return data;
         },
       });
     },
@@ -77,18 +97,41 @@ const columns = {
         header: () => header,
         cell: (info) => {
           const data = info.getValue();
-          if (key !== 'id') return data;
 
-          const handleClick = () =>
-            window.open(createTokenActivityLink(data as IIdData), '_blank');
-          return (
-            <IdCellWrapper onClick={handleClick}>
-              <IconWrapper>
-                <Icon name="ArrowTopRight" />
-              </IconWrapper>
-              {(data as IIdData)?.eventId}
-            </IdCellWrapper>
-          );
+          if (key === 'id') {
+            const handleClick = () =>
+              window.open(createTokenActivityLink(data as IIdData), '_blank');
+            return (
+              <IdCellWrapper onClick={handleClick}>
+                <IconWrapper>
+                  <Icon name="ArrowTopRight" />
+                </IconWrapper>
+                {(data as IIdData)?.eventId}
+              </IdCellWrapper>
+            );
+          }
+
+          if (key === 'dateTime') {
+            if (!data) return '';
+            const [date, time] = (data as string).split(' ');
+
+            return (
+              <span>
+                {date} / <StyledTime>{time}</StyledTime>
+              </span>
+            );
+          }
+
+          if (key === 'to' || key === 'from') {
+            return (
+              <AddressCellWrapper>
+                {formatDid(data as string, 6, 6)}
+                <CopyToClipboard value={data as string} />
+              </AddressCellWrapper>
+            );
+          }
+
+          return data;
         },
       });
     },

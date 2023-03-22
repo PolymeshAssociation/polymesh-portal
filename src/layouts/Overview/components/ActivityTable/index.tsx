@@ -9,7 +9,6 @@ import { EActivityTableTabs } from './constants';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import { getAssetTransferEvents } from '~/constants/queries';
 import { IAddress, ITransferEvent } from '~/constants/queries/types';
-import { formatDid } from '~/helpers/formatters';
 import { getExtrinsicTime } from '~/helpers/graphqlQueries';
 
 export const ActivityTable = () => {
@@ -75,8 +74,8 @@ export const ActivityTable = () => {
             return {
               id: { eventId: id.replace('/', '-'), blockId, extrinsicIdx },
               dateTime: toParsedDateTime(block.datetime),
-              from: formatDid((from as IAddress).did),
-              to: formatDid((to as IAddress).did),
+              from: (from as IAddress).did,
+              to: (to as IAddress).did,
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               amount: balanceToBigNumber(amount as number).toString(),
