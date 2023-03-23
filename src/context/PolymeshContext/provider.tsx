@@ -26,11 +26,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       return null;
     },
   );
-  /*
-      selectedAccount and setSelectedAccount are being used by useAccounts hook,
-      which exposes them to rest of the app. They are here for global sync between helper hooks
-    */
-  const [selectedAccount, setSelectedAccount] = useState('');
 
   // Create the browser extension signing manager.
   const connectWallet = useCallback(
@@ -104,22 +99,11 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         connecting,
         initialized,
         walletError,
-        selectedAccount,
-        setSelectedAccount,
       },
       api: { sdk, signingManager },
       connectWallet,
     }),
-    [
-      connecting,
-      initialized,
-      walletError,
-      sdk,
-      signingManager,
-      selectedAccount,
-      setSelectedAccount,
-      connectWallet,
-    ],
+    [connecting, initialized, walletError, sdk, signingManager, connectWallet],
   );
 
   return (

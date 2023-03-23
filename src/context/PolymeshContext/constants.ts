@@ -11,8 +11,6 @@ export interface IPolymeshContext {
     connecting: boolean;
     initialized: boolean;
     walletError: string;
-    selectedAccount: string;
-    setSelectedAccount: (account: string) => void;
   };
   api: {
     sdk: Polymesh | null;
@@ -26,12 +24,10 @@ export const initialState = {
     connecting: false,
     initialized: false,
     walletError: '',
-    selectedAccount: '',
-    setSelectedAccount: () => {},
   },
   api: {
     sdk: null,
     signingManager: null,
   },
   connectWallet: async () => {},
-} as const;
+};

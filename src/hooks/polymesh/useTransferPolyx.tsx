@@ -5,6 +5,7 @@ import {
   UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { AccountContext } from '~/context/AccountContext';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import { notifyError, notifyWarning } from '~/helpers/notifications';
 
@@ -16,9 +17,9 @@ export interface ITransfer {
 
 const useTransferPolyx = () => {
   const {
-    state: { selectedAccount },
     api: { sdk },
   } = useContext(PolymeshContext);
+  const { selectedAccount } = useContext(AccountContext);
   const [availableBalance, setAvailableBalance] = useState(0);
   const [availableMinusGasFee, setAvailableMinusGasFee] = useState(0);
   const [transactionInProcess, setTransactionInProcess] = useState(false);

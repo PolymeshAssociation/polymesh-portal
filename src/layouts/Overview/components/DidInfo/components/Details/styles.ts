@@ -78,6 +78,7 @@ export const StyledBottomData = styled.p`
   & span {
     font-weight: 500;
     color: ${({ theme }) => theme.colors.textPrimary};
+    text-transform: capitalize;
   }
 `;
 
@@ -100,6 +101,9 @@ export const StyledKeysList = styled.ul`
 `;
 export const StyledKeyData = styled.li`
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   padding: 24px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   border-radius: 24px;
@@ -129,13 +133,17 @@ export const StyledBalance = styled.p`
   }
 `;
 
-export const StyledLabel = styled.div<{ isPrimary?: boolean }>`
+export const StyledLabel = styled.div<{
+  isPrimary?: boolean;
+  available?: boolean;
+}>`
   /* position: absolute;
   top: 24px;
   right: 24px; */
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   height: 24px;
   padding: 0 8px;
   border-radius: 100px;
@@ -151,6 +159,15 @@ export const StyledLabel = styled.div<{ isPrimary?: boolean }>`
     border: 1px solid #DCD3FF;
     color: #170087;
   `}
+  ${({ available }) =>
+    available
+      ? `
+    place-self: flex-end;
+    border: 1px solid #D4F7E7;
+    background-color: #D4F7E7;
+    color: #00AA5E;
+  `
+      : ''}
 `;
 
 export const StyledButtonsWrapper = styled.div`

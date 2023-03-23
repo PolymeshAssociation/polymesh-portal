@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import { Identity } from '@polymeshassociation/polymesh-sdk/types';
-import { useAccounts, useAccountIdentity } from '~/hooks/polymesh';
+import { AccountContext } from '~/context/AccountContext';
 import { Icon } from '~/components';
 import {
   StyledSelectWrapper,
@@ -11,10 +11,11 @@ import {
   IconWrapper,
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
+import { notifyError } from '~/helpers/notifications';
 
 const DidSelect = () => {
-  const { setSelectedAccount } = useAccounts();
-  const { identity, allIdentities } = useAccountIdentity();
+  const { setSelectedAccount, allAccounts, identity, allIdentities } =
+    useContext(AccountContext);
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState<Identity | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -55,10 +56,30 @@ const DidSelect = () => {
       setExpanded(false);
       return;
     }
-    const { account } = await selectedIdentity.getPrimaryAccount();
-    setSelectedAccount(account.address);
-    setSelected(selectedIdentity);
-    setExpanded(false);
+
+    // Set key of selected identity if it exists in extension
+    try {
+      const { account } = await selectedIdentity.getPrimaryAccount();
+
+      if (allAccounts.includes(account.address)) {
+        setSelectedAccount(account.address);
+        return;
+      }
+
+      const { data } = await selectedIdentity.getSecondaryAccounts();
+      const connectedAccount = data.find((accInstance) =>
+        allAccounts.includes(accInstance.account.toHuman()),
+      );
+
+      if (connectedAccount) {
+        setSelectedAccount(connectedAccount.account.address);
+      }
+    } catch (error) {
+      notifyError((error as Error).message);
+    } finally {
+      setSelected(selectedIdentity);
+      setExpanded(false);
+    }
   };
 
   const handleDropdownToggle = () => {

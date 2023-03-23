@@ -1,5 +1,5 @@
-import { useContext, useState, useEffect } from 'react';
-import { PolymeshContext } from '~/context/PolymeshContext';
+import { useContext } from 'react';
+import { AccountContext } from '~/context/AccountContext';
 import { Modal, Icon, CopyToClipboard } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
 import {
@@ -24,50 +24,19 @@ import { formatDid, formatBalance, formatKey } from '~/helpers/formatters';
 interface IDetailsProps {
   toggleModal: () => void;
   isVerified: boolean;
-  identity?: string;
+  did?: string;
   expiry?: string;
   issuer: string | null;
-  primaryKey: string;
-  secondaryKeys: string[];
-}
-
-interface IBalanceByKey {
-  key: string;
-  totalBalance: string;
 }
 
 export const Details: React.FC<IDetailsProps> = ({
   toggleModal,
   isVerified,
-  identity,
+  did,
   expiry,
   issuer,
-  primaryKey,
-  secondaryKeys,
 }) => {
-  const [allKeyBalances, setAllKeyBalances] = useState<IBalanceByKey[]>([]);
-
-  const {
-    api: { sdk },
-  } = useContext(PolymeshContext);
-  // Get total balance for all keys associated with current DID
-  useEffect(() => {
-    if (!sdk || !primaryKey) return;
-
-    (async () => {
-      const balancesByKey = await Promise.all(
-        [primaryKey, ...secondaryKeys].map(async (key) => ({
-          key,
-          totalBalance: (
-            await sdk.accountManagement.getAccountBalance({
-              account: key,
-            })
-          ).total?.toString(),
-        })),
-      );
-      setAllKeyBalances(balancesByKey);
-    })();
-  }, [primaryKey, sdk, secondaryKeys]);
+  const { allKeyBalances, primaryKey } = useContext(AccountContext);
 
   return (
     <Modal handleClose={toggleModal}>
@@ -84,9 +53,9 @@ export const Details: React.FC<IDetailsProps> = ({
               Your DID
             </Text>
             <StyledDidWrapper>
-              <StyledDidThumb>{formatDid(identity, 7, 8)}</StyledDidThumb>
+              <StyledDidThumb>{formatDid(did, 7, 8)}</StyledDidThumb>
               <IconWrapper className="copy-icon">
-                <CopyToClipboard value={identity} />
+                <CopyToClipboard value={did} />
               </IconWrapper>
             </StyledDidWrapper>
           </div>
@@ -107,10 +76,16 @@ export const Details: React.FC<IDetailsProps> = ({
       </Text>
       {allKeyBalances.length ? (
         <StyledKeysList>
-          {allKeyBalances.map(({ key, totalBalance }) => {
+          {allKeyBalances.map(({ key, totalBalance, available }) => {
             const isPrimaryKey = key === primaryKey;
             return (
               <StyledKeyData key={key}>
+                {available && (
+                  <StyledLabel available>
+                    <Icon name="Check" size="16px" />
+                    Available
+                  </StyledLabel>
+                )}
                 <KeyDetails>
                   <StyledDidThumb className="key-wrapper">
                     {formatKey(key)}

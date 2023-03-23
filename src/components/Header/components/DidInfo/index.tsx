@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { useAccountIdentity } from '~/hooks/polymesh';
+import { AccountContext } from '~/context/AccountContext';
 import { StyledWrapper } from './styles';
 import { Icon, CopyToClipboard } from '~/components';
 import { Text } from '~/components/UiKit';
@@ -10,7 +10,7 @@ export const DidInfo = () => {
   const {
     state: { connecting },
   } = useContext(PolymeshContext);
-  const { identity, identityLoading } = useAccountIdentity();
+  const { identity, identityLoading } = useContext(AccountContext);
 
   return (
     <StyledWrapper>

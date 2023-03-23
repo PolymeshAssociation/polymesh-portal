@@ -15,7 +15,7 @@ import { formatBalance } from '~/helpers/formatters';
 
 export const BalanceInfo = () => {
   const {
-    state: { connecting, selectedAccount },
+    state: { connecting },
   } = useContext(PolymeshContext);
   const { balance, balanceIsLoading } = useBalance();
   const [transferModalOpen, setTransferModalOpen] = useState(false);
@@ -69,12 +69,7 @@ export const BalanceInfo = () => {
         </StyledButtonGroup>
       </StyledWrapper>
       {transferModalOpen && <TransferPolyx toggleModal={toggleTransferModal} />}
-      {receiveModalOpen && (
-        <ReceivePolyx
-          toggleModal={toggleReceiveModal}
-          account={selectedAccount}
-        />
-      )}
+      {receiveModalOpen && <ReceivePolyx toggleModal={toggleReceiveModal} />}
     </>
   );
 };

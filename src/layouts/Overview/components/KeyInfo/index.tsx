@@ -1,4 +1,5 @@
-import { useAccounts, useAccountIdentity } from '~/hooks/polymesh';
+import { useContext } from 'react';
+import { AccountContext } from '~/context/AccountContext';
 import { Icon, CopyToClipboard, WalletSelect } from '~/components';
 import { Text } from '~/components/UiKit';
 import {
@@ -9,8 +10,8 @@ import {
 } from './styles';
 
 export const KeyInfo = () => {
-  const { selectedAccount } = useAccounts();
-  const { primaryKey, secondaryKeys } = useAccountIdentity();
+  const { selectedAccount, primaryKey, secondaryKeys } =
+    useContext(AccountContext);
 
   return (
     <StyledWrapper>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
 
+// Currently not in use
 const useAccounts = () => {
   const {
     state: { initialized, selectedAccount, setSelectedAccount },

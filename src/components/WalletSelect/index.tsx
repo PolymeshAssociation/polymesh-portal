@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { useAccounts, useAccountIdentity } from '~/hooks/polymesh';
+import { useState, useRef, useEffect, useContext } from 'react';
+import { AccountContext } from '~/context/AccountContext';
 import { Icon } from '~/components';
 import {
   StyledSelectWrapper,
@@ -17,8 +17,13 @@ const WalletSelect: React.FC<ISelectProps> = ({
   placement = 'header',
   trimValue = true,
 }) => {
-  const { selectedAccount, setSelectedAccount, allAccounts } = useAccounts();
-  const { primaryKey, secondaryKeys } = useAccountIdentity();
+  const {
+    selectedAccount,
+    setSelectedAccount,
+    allAccounts,
+    primaryKey,
+    secondaryKeys,
+  } = useContext(AccountContext);
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState('');
   const ref = useRef<HTMLDivElement>(null);

@@ -2,7 +2,8 @@ import { useContext, useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { balanceToBigNumber } from '@polymeshassociation/polymesh-sdk/utils/conversion';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { useHistoricData, useAccountIdentity } from '~/hooks/polymesh';
+import { AccountContext } from '~/context/AccountContext';
+import { useHistoricData } from '~/hooks/polymesh';
 import { Table } from '~/components';
 import { useActivityTable } from './config';
 import { EActivityTableTabs } from './constants';
@@ -17,16 +18,18 @@ export const ActivityTable = () => {
   );
   const { table, setTableData } = useActivityTable(tab);
   const {
-    state: { connecting, selectedAccount },
+    state: { connecting },
   } = useContext(PolymeshContext);
+  const { selectedAccount, identity } = useContext(AccountContext);
   const { extrinsicHistory, dataLoading } = useHistoricData();
-  const { identity } = useAccountIdentity();
   const { loading, error, data } = useQuery(getAssetTransferEvents, {
     variables: { did: identity?.did || '' },
   });
 
   useEffect(() => {
-    if (connecting || dataLoading || loading || error) return;
+    if (!identity || connecting || dataLoading || loading || error) {
+      return setTableData([]);
+    }
 
     switch (tab) {
       /* 
@@ -91,7 +94,10 @@ export const ActivityTable = () => {
       default:
         break;
     }
+
+    return undefined;
   }, [
+    identity,
     connecting,
     data,
     dataLoading,

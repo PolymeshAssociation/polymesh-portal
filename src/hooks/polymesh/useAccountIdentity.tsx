@@ -7,15 +7,18 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 // import { Id, toast } from 'react-toastify';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { AccountContext } from '~/context/AccountContext';
 // import { useTransactionStatus } from '~/hooks/polymesh';
 // import { PendingJoinIdentityRequest } from '~/components/NotificationToasts';
 import { notifyError } from '~/helpers/notifications';
 
+// Currently not in use
 const useAccountIdentity = () => {
   const {
-    state: { initialized, selectedAccount },
+    state: { initialized },
     api: { sdk },
   } = useContext(PolymeshContext);
+  const { account, selectedAccount } = useContext(AccountContext);
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [allIdentities, setAllIdentities] = useState<(Identity | null)[]>([]);
   const [primaryKey, setPrimaryKey] = useState<string>('');
@@ -27,14 +30,12 @@ const useAccountIdentity = () => {
 
   // Get identity data when sdk is initialized
   useEffect(() => {
-    if (!initialized || !selectedAccount || !sdk) return;
+    if (!initialized || !account || !selectedAccount || !sdk) return;
 
     (async () => {
       try {
         setIdentityLoading(true);
-        const account = await sdk.accountManagement.getAccount({
-          address: selectedAccount,
-        });
+
         const signingAccounts =
           await sdk.accountManagement.getSigningAccounts();
 
@@ -47,7 +48,6 @@ const useAccountIdentity = () => {
         //     });
         //   setJoinIdentityRequest(pendingAuthorizations[0]);
         // }
-
         const allAccIdentities = (
           await Promise.all(signingAccounts.map((acc) => acc.getIdentity()))
         ).filter((option) => option !== null);
@@ -61,7 +61,7 @@ const useAccountIdentity = () => {
         setIdentityLoading(false);
       }
     })();
-  }, [initialized, sdk, selectedAccount]);
+  }, [initialized, sdk, account, selectedAccount]);
 
   // Subscribe to primary identity keys
   useEffect(() => {

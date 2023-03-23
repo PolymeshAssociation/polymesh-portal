@@ -3,13 +3,10 @@ import {
   ExtrinsicData,
   HistoricInstruction,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { PolymeshContext } from '~/context/PolymeshContext';
+import { AccountContext } from '~/context/AccountContext';
 
 const useHistoricData = () => {
-  const {
-    api: { sdk },
-    state: { selectedAccount },
-  } = useContext(PolymeshContext);
+  const { account, selectedAccount } = useContext(AccountContext);
   const [extrinsicHistory, setExtrisicHistory] = useState<ExtrinsicData[]>([]);
   const [instructionsHistory, setInstructionsHistory] = useState<
     HistoricInstruction[]
@@ -19,15 +16,11 @@ const useHistoricData = () => {
 
   // Get all extrinsics and instructions history for current account
   useEffect(() => {
-    if (!sdk || !selectedAccount) return;
+    if (!account || !selectedAccount) return;
 
     (async () => {
       try {
         setDataLoading(true);
-        const account = await sdk.accountManagement.getAccount({
-          address: selectedAccount,
-        });
-        if (!account) return;
 
         const { data } = await account.getTransactionHistoryV2();
 
@@ -45,7 +38,7 @@ const useHistoricData = () => {
         setDataLoading(false);
       }
     })();
-  }, [sdk, selectedAccount]);
+  }, [account, selectedAccount]);
 
   return { extrinsicHistory, instructionsHistory, dataLoading, dataError };
 };

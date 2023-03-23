@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { useAccountIdentity } from '~/hooks/polymesh';
+import { AccountContext } from '~/context/AccountContext';
 import { Icon, CopyToClipboard, DidSelect } from '~/components';
 import { Text, Button } from '~/components/UiKit';
 import {
@@ -20,8 +20,7 @@ export const DidInfo = () => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identity, identityLoading, primaryKey, secondaryKeys } =
-    useAccountIdentity();
+  const { identity, identityLoading } = useContext(AccountContext);
   const [isVerified, setIsVerified] = useState(false);
   const [expiry, setExpiry] = useState<null | Date>(null);
   const [issuer, setIssuer] = useState<string | null>(null);
@@ -151,11 +150,9 @@ export const DidInfo = () => {
         <Details
           toggleModal={toggleModal}
           isVerified={isVerified}
-          identity={identity?.did}
+          did={identity?.did}
           expiry={parseExpiry(expiry)}
           issuer={issuer}
-          primaryKey={primaryKey}
-          secondaryKeys={secondaryKeys}
         />
       )}
     </>

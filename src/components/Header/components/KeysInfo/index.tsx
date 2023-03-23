@@ -1,20 +1,10 @@
-// import { useEffect, useState } from 'react';
-import { useAccounts } from '~/hooks/polymesh';
+import { useContext } from 'react';
+import { AccountContext } from '~/context/AccountContext';
 import { Icon, CopyToClipboard, WalletSelect } from '~/components';
 import { StyledWrapper } from './styles';
 
 export const KeysInfo = () => {
-  const { selectedAccount } = useAccounts();
-  // const { identity } = useAccountIdentity();
-  // const [isPrimary, setIsPrimary] = useState(false);
-
-  // useEffect(() => {
-  //   if (!selectedAccount || !identity) return;
-
-  //   identity.getPrimaryAccount(({ account }) => {
-  //     setIsPrimary(account.address === selectedAccount);
-  //   });
-  // }, [identity, selectedAccount]);
+  const { selectedAccount } = useContext(AccountContext);
 
   return (
     <StyledWrapper>

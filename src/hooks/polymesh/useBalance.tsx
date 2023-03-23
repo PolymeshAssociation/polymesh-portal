@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import useAccounts from './useAccounts';
+import { AccountContext } from '~/context/AccountContext';
 
 interface IParsedBalance {
   free: string;
@@ -18,9 +18,8 @@ interface IUseBalance {
 const useBalance = (): IUseBalance => {
   const {
     api: { sdk },
-    // accounts: { selectedAccount },
   } = useContext(PolymeshContext);
-  const { selectedAccount } = useAccounts();
+  const { selectedAccount } = useContext(AccountContext);
   const [balance, setBalance] = useState<IParsedBalance>({
     free: '',
     locked: '',
