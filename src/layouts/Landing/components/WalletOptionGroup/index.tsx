@@ -2,11 +2,12 @@ import { Text } from '~/components/UiKit';
 import { Wallet } from '~/constants/wallets';
 import { WalletOption } from '../WalletOption';
 import { StyledInput, StyledWrapper } from './styles';
+import { TIcons } from '~/assets/icons/types';
 
 interface IWalletOption {
   walletName: string;
   extensionName: Wallet;
-  iconName: string;
+  iconName: TIcons;
   isInstalled: boolean;
   recommended: boolean;
   downloadUrl: string;
@@ -14,7 +15,7 @@ interface IWalletOption {
 
 interface IWalletOptGroupProps {
   options: IWalletOption[];
-  onChange: () => void;
+  onChange: React.ChangeEventHandler;
 }
 
 export const WalletOptionGroup: React.FC<IWalletOptGroupProps> = ({
@@ -31,7 +32,8 @@ export const WalletOptionGroup: React.FC<IWalletOptGroupProps> = ({
 
   // Open extension downloading link on extension card click if it's not installed
   const openDownloadLink = (url: string) => {
-    window.open(url, '_blank').focus();
+    const newTab = window.open(url, '_blank') as Window;
+    newTab.focus();
   };
 
   return (

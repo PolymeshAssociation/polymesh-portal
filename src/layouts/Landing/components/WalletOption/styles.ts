@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const StyledWrapper = styled.label`
+export const StyledWrapper = styled.label<{ installed?: boolean }>`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -18,7 +18,7 @@ export const StyledWrapper = styled.label`
   transition: border 250ms ease-out;
 `;
 
-export const StyledWalletIconBox = styled.div`
+export const StyledWalletIconBox = styled.div<{ installed?: boolean }>`
   & svg {
     opacity: ${({ installed }) => (installed ? 1 : 0.6)};
   }
@@ -36,6 +36,6 @@ export const StyledSelectedIconBox = styled.div`
   right: 14px;
 `;
 
-export const StyledCaption = styled.span`
+export const StyledCaption = styled.span<{ installed?: boolean }>`
   color: ${({ installed }) => (installed ? '#000000' : '#C7C7C7')};
 `;

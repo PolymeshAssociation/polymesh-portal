@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const StyledFooter = styled.footer`
+export const StyledFooter = styled.footer<{ isLandingPage: boolean }>`
   border-top: 2px solid #f0f0f0;
   color: #727272;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
@@ -15,7 +15,7 @@ export const StyledFooter = styled.footer`
   `}
 `;
 
-export const StyledContainer = styled.div`
+export const StyledContainer = styled.div<{ isLandingPage: boolean }>`
   display: flex;
   align-items: center;
   padding: ${({ isLandingPage }) => (isLandingPage ? '0 64px' : '0 48px')};

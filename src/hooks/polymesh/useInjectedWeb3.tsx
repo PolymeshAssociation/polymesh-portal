@@ -18,11 +18,8 @@ const useInjectedWeb3 = () => {
   const [injectedExtensions, setInjectedExtensions] = useState<string[]>([]);
 
   const extensionsInstalled = !!injectedExtensions.length;
-  const defaultAuthorizedExtension = useMemo(
-    () =>
-      persistedExtensions.find(
-        (extension) => extension?.isDefault && extension?.authorized,
-      ),
+  const defaultExtension = useMemo(
+    () => persistedExtensions.find((extension) => extension?.isDefault),
     [persistedExtensions],
   );
 
@@ -36,7 +33,7 @@ const useInjectedWeb3 = () => {
   const connectExtension = (extensionName: string, isDefault: boolean) => {
     // Case 1: There are no previously authorized extensions
     if (!persistedExtensions.length) {
-      setPersistedExtensions([{ extensionName, isDefault, authorized: true }]);
+      setPersistedExtensions([{ extensionName, isDefault }]);
       return;
     }
 
@@ -48,7 +45,7 @@ const useInjectedWeb3 = () => {
     ) {
       setPersistedExtensions([
         ...persistedExtensions,
-        { extensionName, isDefault, authorized: true },
+        { extensionName, isDefault },
       ]);
       return;
     }
@@ -57,7 +54,7 @@ const useInjectedWeb3 = () => {
     setPersistedExtensions(
       persistedExtensions.map((extension) => {
         if (extension.extensionName === extensionName) {
-          return { extensionName, isDefault, authorized: true };
+          return { extensionName, isDefault };
         }
         return extension;
       }),
@@ -68,7 +65,7 @@ const useInjectedWeb3 = () => {
     connectExtension,
     extensionsInstalled,
     injectedExtensions,
-    defaultAuthorizedExtension,
+    defaultExtension,
   };
 };
 

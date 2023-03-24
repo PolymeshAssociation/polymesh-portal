@@ -6,11 +6,12 @@ import {
   StyledCaption,
 } from './styles';
 import { Icon } from '~/components';
+import { TIcons } from '~/assets/icons/types';
 
 interface IWalletOptionProps {
   htmlFor: string;
   walletName: string;
-  iconName: string;
+  iconName: TIcons;
   isInstalled: boolean;
   onClick?: () => void;
 }
