@@ -30,10 +30,19 @@ button {
 
 button:disabled {
   cursor: initial;
+  pointer-events: none;
 }
 
 ul {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+li {
+  list-style: none;
+}
+
+.no-scroll {
+  overflow: hidden;
 }

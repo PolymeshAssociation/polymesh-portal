@@ -1,57 +1,31 @@
-import {
-  useState,
-  useEffect,
-  createContext,
-  useMemo,
-  useCallback,
-} from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import PolymeshContext from './context';
+import { IConnectOptions } from './constants';
 import { useInjectedWeb3 } from '~/hooks/polymesh';
-import { Wallet } from '~/constants/wallets';
 
-interface IPolymeshContext {
-  state: {
-    connecting: boolean;
-    initialized: boolean;
-    walletError: string;
-    selectedAccount: string;
-    setSelectedAccount: () => void;
-  };
-  api: {
-    sdk: Polymesh;
-    signingManager: BrowserExtensionSigningManager;
-  };
-  connectWallet: () => Promise<void>;
+interface IProviderProps {
+  children: React.ReactNode;
 }
 
-interface IConnectOptions {
-  extensionName: Wallet;
-  isDefault: boolean;
-}
-
-export const PolymeshContext = createContext<IPolymeshContext>();
-
-export const PolymeshProvider = ({ children }) => {
-  const [sdk, setSdk] = useState<Polymesh>(null);
+const PolymeshProvider = ({ children }: IProviderProps) => {
+  const [sdk, setSdk] = useState<Polymesh | null>(null);
   const [signingManager, setSigningManager] =
-    useState<BrowserExtensionSigningManager>(null);
+    useState<BrowserExtensionSigningManager | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [walletError, setWalletError] = useState('');
-  const { connectExtension, defaultAuthorizedExtension } = useInjectedWeb3();
-  const [connectOptions, setConnectOptions] = useState<IConnectOptions>(() => {
-    if (defaultAuthorizedExtension) {
-      const { extensionName, isDefault } = defaultAuthorizedExtension;
-      return { extensionName, isDefault };
-    }
-    return null;
-  });
-  /*
-    selectedAccount and setSelectedAccount are being used by useAccounts hook,
-    which exposes them to rest of the app. They are here for global sync between helper hooks
-  */
-  const [selectedAccount, setSelectedAccount] = useState('');
+  const { connectExtension, defaultExtension } = useInjectedWeb3();
+  const [connectOptions, setConnectOptions] = useState<IConnectOptions | null>(
+    () => {
+      if (defaultExtension) {
+        const { extensionName, isDefault } = defaultExtension;
+        return { extensionName, isDefault };
+      }
+      return null;
+    },
+  );
 
   // Create the browser extension signing manager.
   const connectWallet = useCallback(
@@ -78,14 +52,14 @@ export const PolymeshProvider = ({ children }) => {
 
   // Trigger signing manager initialization automatically when recent used extension data exists
   useEffect(() => {
-    if (!defaultAuthorizedExtension || initialized) return;
+    if (!defaultExtension || initialized) return;
 
-    const { extensionName, isDefault } = defaultAuthorizedExtension;
+    const { extensionName, isDefault } = defaultExtension;
     connectWallet({
       extensionName,
       isDefault,
     });
-  }, [connectWallet, initialized, defaultAuthorizedExtension]);
+  }, [connectWallet, initialized, defaultExtension]);
 
   // Connect to the Polymesh SDK once signing manager is created
   useEffect(() => {
@@ -95,11 +69,18 @@ export const PolymeshProvider = ({ children }) => {
         const sdkInstance = await Polymesh.connect({
           nodeUrl: import.meta.env.VITE_NODE_URL,
           signingManager,
+          middlewareV2: {
+            link: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL,
+            key: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
+          },
         });
 
         setSdk(sdkInstance);
         setInitialized(true);
-        connectExtension(...Object.values(connectOptions));
+        connectExtension(
+          (connectOptions as IConnectOptions).extensionName as string,
+          (connectOptions as IConnectOptions).isDefault as boolean,
+        );
       } catch (error) {
         if (error instanceof Error) {
           setWalletError(error.message);
@@ -118,22 +99,11 @@ export const PolymeshProvider = ({ children }) => {
         connecting,
         initialized,
         walletError,
-        selectedAccount,
-        setSelectedAccount,
       },
       api: { sdk, signingManager },
       connectWallet,
     }),
-    [
-      connecting,
-      initialized,
-      walletError,
-      sdk,
-      signingManager,
-      selectedAccount,
-      setSelectedAccount,
-      connectWallet,
-    ],
+    [connecting, initialized, walletError, sdk, signingManager, connectWallet],
   );
 
   return (
@@ -142,3 +112,5 @@ export const PolymeshProvider = ({ children }) => {
     </PolymeshContext.Provider>
   );
 };
+
+export default PolymeshProvider;

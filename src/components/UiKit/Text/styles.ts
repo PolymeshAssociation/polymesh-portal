@@ -1,7 +1,16 @@
 import styled from 'styled-components';
-import { ETextColor } from './types';
+import { ETextColor, ETextTransform, ETextSize } from './types';
 
-export const StyledText = styled.p`
+export const StyledText = styled.p<{
+  centered?: boolean;
+  marginTop?: number;
+  marginBottom?: number;
+  width?: number;
+  color?: `${ETextColor}`;
+  size?: `${ETextSize}`;
+  bold?: boolean;
+  transform?: `${ETextTransform}`;
+}>`
   ${({
     theme,
     centered,
@@ -9,8 +18,9 @@ export const StyledText = styled.p`
     marginBottom,
     width,
     color,
-    size,
+    size = ETextSize.MEDIUM,
     bold,
+    transform,
   }) => `
         ${width ? `width: ${width}px` : ''};
         ${centered ? 'text-align: center;' : ''}
@@ -28,5 +38,6 @@ export const StyledText = styled.p`
         }
         font-weight: ${bold ? '500' : '400'};
         font-size: ${theme.textSize[size]};
+        text-transform: ${transform || 'none'};
     `}
 `;

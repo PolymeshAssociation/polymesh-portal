@@ -27,8 +27,7 @@ const Landing = () => {
         <Heading marginBottom={16}>Welcome to the Polymesh Dashboard</Heading>
         <Text>
           The Polymesh Dashboard is where you can access Polymesh supported
-          dApps and manage your Polymesh Account, your regulated assets and
-          POLYX.
+          dApps and manage your account, assets, and POLYX.
         </Text>
         <Button onClick={toggleModal} variant="accent" marginTop={48}>
           <Icon name="Wallet" />

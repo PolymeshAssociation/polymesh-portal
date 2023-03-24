@@ -1,0 +1,21 @@
+import { toast } from 'react-toastify';
+
+const toastConfig = {
+  autoClose: 3000,
+  hideProgressBar: true,
+  pauseOnHover: true,
+};
+
+export const notifyError = (message: string) =>
+  toast.error(message, { ...toastConfig, toastId: message });
+
+export const notifyWarning = (message: string) =>
+  toast.warning(message, { ...toastConfig, toastId: message });
+
+export const notifyGlobalError = (message: string) =>
+  toast.error(message, {
+    ...toastConfig,
+    containerId: 'globalToast',
+    toastId: message,
+    autoClose: 5000,
+  });

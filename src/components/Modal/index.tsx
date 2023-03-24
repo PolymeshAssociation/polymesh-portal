@@ -2,14 +2,25 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { StyledBackdrop, StyledModal } from './styles';
 
+interface KeyboardEvent {
+  key: string;
+}
+
 interface IModalProps {
-  handleClose: () => void;
+  handleClose: () => void | React.ReactEventHandler | React.ChangeEventHandler;
   children: React.ReactNode;
 }
 
-const modalRoot = document.getElementById('modal-root');
+const modalRoot = document.getElementById('modal-root') as Element;
 
 const Modal: React.FC<IModalProps> = ({ handleClose, children }) => {
+  // Disabling page scroll when modal is open
+  useEffect(() => {
+    document.body.classList.add('no-scroll');
+
+    return () => document.body.classList.remove('no-scroll');
+  }, []);
+
   const handleBackdropClick: React.ReactEventHandler = (event) => {
     if (event.target !== event.currentTarget) {
       return;
@@ -18,8 +29,8 @@ const Modal: React.FC<IModalProps> = ({ handleClose, children }) => {
   };
 
   useEffect(() => {
-    const handleCloseOnEsc = (event: React.KeyboardEvent) => {
-      if (event.code !== 'Escape') {
+    const handleCloseOnEsc = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') {
         return;
       }
       handleClose();

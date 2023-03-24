@@ -2,7 +2,7 @@ import { Text } from '~/components/UiKit';
 import { StyledLabel, StyledInput, CheckboxFrame } from './styles';
 
 interface IDefaultCheckboxProps {
-  onChange: () => void;
+  onChange: React.ChangeEventHandler;
   disabled: boolean;
 }
 

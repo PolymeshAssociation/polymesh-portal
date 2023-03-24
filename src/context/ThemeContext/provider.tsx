@@ -1,14 +1,6 @@
-import { createContext, useEffect, useState } from 'react';
-
-export enum Themes {
-  Light = 'light',
-  Dark = 'dark',
-}
-
-interface IThemeContext {
-  currentTheme: Themes.Light | Themes.Dark;
-  toggleTheme: () => void;
-}
+import { useEffect, useState } from 'react';
+import ThemeContext from './context';
+import { Themes } from './constants';
 
 const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
 
@@ -20,12 +12,14 @@ const getInitialTheme = () => {
     return isDarkTheme ? Themes.Dark : Themes.Light;
   }
 
-  return themeFromLs;
+  return Themes.Light;
 };
 
-export const ThemeContext = createContext<IThemeContext>();
+interface IAppThemeProps {
+  children: React.ReactNode;
+}
 
-export const AppThemeProvider = ({ children }) => {
+const AppThemeProvider = ({ children }: IAppThemeProps) => {
   const [currentTheme, setCurrentTheme] = useState(getInitialTheme);
 
   useEffect(() => {
@@ -54,3 +48,5 @@ export const AppThemeProvider = ({ children }) => {
     </ThemeContext.Provider>
   );
 };
+
+export default AppThemeProvider;
