@@ -2,6 +2,7 @@ import { createElement, Suspense, useContext } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { ToastContainer } from 'react-toastify';
 import { PolymeshProvider } from '~/context/PolymeshContext';
 import { AccountProvider } from '~/context/AccountContext';
 import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
@@ -26,6 +27,11 @@ const App = () => {
           ))}
         </Routes>
       </SharedLayout>
+      <ToastContainer
+        enableMultiContainer
+        containerId="globalToast"
+        position="top-center"
+      />
     </ThemeProvider>
   );
 };

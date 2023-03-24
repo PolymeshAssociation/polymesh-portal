@@ -8,6 +8,7 @@ import {
 import { PolymeshContext } from '../PolymeshContext';
 import AccountContext from './context';
 import { notifyError } from '~/helpers/notifications';
+import { IBalanceByKey } from './constants';
 
 interface IProviderProps {
   children: React.ReactNode;

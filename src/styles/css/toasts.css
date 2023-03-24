@@ -1,3 +1,10 @@
+#globalToast {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+}
+
 .Toastify__toast-container {
     position: static;
     padding: 0;
