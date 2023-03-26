@@ -54,25 +54,13 @@ const AccountProvider = ({ children }: IProviderProps) => {
     return () => unsubCb();
   }, [initialized, signingManager]);
 
-  // Set selected account and account instance when account array changes
+  // Set selected account when account array changes
   useEffect(() => {
-    if (!sdk || !allAccounts.length) return;
-
-    (async () => {
-      try {
-        const accountInstance = await sdk.accountManagement.getAccount({
-          address: allAccounts[0],
-        });
-
-        setAccount(accountInstance);
+    if (!allAccounts.length) return;
         setSelectedAccount(allAccounts[0]);
-      } catch (error) {
-        notifyError((error as Error).message);
-      }
-    })();
-  }, [allAccounts, sdk]);
+  }, [allAccounts]);
 
-  // Set account instance when manually changing account in app
+  // Set account instance when selected account changes
   useEffect(() => {
     if (!selectedAccount || !sdk) return;
 
@@ -83,6 +71,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
         });
 
         setAccount(accountInstance);
+        await sdk.setSigningAccount(accountInstance);
       } catch (error) {
         notifyError((error as Error).message);
       }
@@ -108,12 +97,6 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
         setIdentity(accIdentity);
         setAllIdentities(allAccIdentities);
-
-        // Set signer if selected key has assigned identity
-        // eslint-disable-next-line no-underscore-dangle
-        if (accIdentity && sdk._signingAddress === account.address) {
-          await sdk.setSigningAccount(account.address);
-        }
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
