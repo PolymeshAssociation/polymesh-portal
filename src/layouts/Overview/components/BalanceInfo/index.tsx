@@ -18,7 +18,8 @@ export const BalanceInfo = () => {
   const {
     state: { connecting },
   } = useContext(PolymeshContext);
-  const { identityHasValidCdd } = useContext(AccountContext);
+  const { identityHasValidCdd, accountIsMultisigSigner } =
+    useContext(AccountContext);
   const { balance, balanceIsLoading } = useBalance();
   const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [receiveModalOpen, setReceiveModalOpen] = useState(false);
@@ -60,14 +61,17 @@ export const BalanceInfo = () => {
           <Text size="large">Locked</Text>
         </div>
         <StyledButtonGroup>
-          <Button onClick={toggleTransferModal} disabled={!identityHasValidCdd}>
+          <Button
+            onClick={toggleTransferModal}
+            disabled={!identityHasValidCdd || accountIsMultisigSigner}
+          >
             <Icon name="ArrowTopRight" />
             Send
           </Button>
           <Button
             variant="secondary"
             onClick={toggleReceiveModal}
-            disabled={!identityHasValidCdd}
+            disabled={!identityHasValidCdd || accountIsMultisigSigner}
           >
             <Icon name="ArrowBottomLeft" />
             Receive
