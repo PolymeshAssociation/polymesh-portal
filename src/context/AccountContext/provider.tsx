@@ -90,13 +90,25 @@ const AccountProvider = ({ children }: IProviderProps) => {
           await sdk.accountManagement.getSigningAccounts();
 
         const accIdentity = await account.getIdentity();
+        const allAccIdentities = await Promise.all(
+          signingAccounts.map((acc) => acc.getIdentity()),
+        );
 
-        const allAccIdentities = (
-          await Promise.all(signingAccounts.map((acc) => acc.getIdentity()))
-        ).filter((option) => option !== null);
+        // Place the selected account's identity at the first index of the array
+        if (accIdentity !== null) {
+          allAccIdentities.unshift(accIdentity);
+        }
+        // Filter out duplicate or null identities
+        const uniqueIdentities = allAccIdentities.filter((id, index, self) => {
+          return (
+            id !== null &&
+            index ===
+              self.findIndex((otherId) => otherId && otherId.did === id.did)
+          );
+        });
 
         setIdentity(accIdentity);
-        setAllIdentities(allAccIdentities);
+        setAllIdentities(uniqueIdentities);
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
