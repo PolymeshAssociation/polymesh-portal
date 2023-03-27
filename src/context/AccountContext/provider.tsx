@@ -28,6 +28,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [secondaryKeys, setSecondaryKeys] = useState<string[]>([]);
   const [identityLoading, setIdentityLoading] = useState(false);
   const [allKeyBalances, setAllKeyBalances] = useState<IBalanceByKey[]>([]);
+  const [identityHasValidCdd, setIdentityHasValidCdd] =
+    useState<boolean>(false);
 
   // Get list of connected accounts when sdk is initialized with signing manager
   useEffect(() => {
@@ -154,6 +156,20 @@ const AccountProvider = ({ children }: IProviderProps) => {
     return () => (unsubCb ? unsubCb() : undefined);
   }, [identity]);
 
+  // Check identity CDD status
+  useEffect(() => {
+      if (!identity) {
+        setIdentityHasValidCdd(false);
+        return;
+      }
+
+    const fetchCddStatus = async () => {
+      setIdentityHasValidCdd(await identity.hasValidCdd());
+    };
+
+    fetchCddStatus();
+  }, [identity]);
+
   // Get total balance for all keys associated with current DID
   useEffect(() => {
     if (!sdk || !primaryKey) return;
@@ -188,6 +204,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       secondaryKeys,
       identityLoading,
       allKeyBalances,
+      identityHasValidCdd,
     }),
     [
       account,
@@ -199,6 +216,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       secondaryKeys,
       identityLoading,
       allKeyBalances,
+      identityHasValidCdd,
     ],
   );
 

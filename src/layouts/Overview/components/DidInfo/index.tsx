@@ -20,8 +20,8 @@ export const DidInfo = () => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identity, identityLoading } = useContext(AccountContext);
-  const [isVerified, setIsVerified] = useState(false);
+  const { identity, identityLoading, identityHasValidCdd } =
+    useContext(AccountContext);
   const [expiry, setExpiry] = useState<null | Date>(null);
   const [issuer, setIssuer] = useState<string | null>(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
@@ -30,10 +30,7 @@ export const DidInfo = () => {
     if (!identity || !sdk) return undefined;
 
     (async () => {
-      const hasValidCdd = await identity.hasValidCdd();
-      setIsVerified(hasValidCdd);
-
-      if (!hasValidCdd) return;
+      if (!identityHasValidCdd) return;
 
       const claims = await sdk.claims.getCddClaims();
       if (!claims.length) return;
@@ -47,7 +44,7 @@ export const DidInfo = () => {
       setExpiry(null);
       setIssuer(null);
     };
-  }, [identity, sdk]);
+  }, [identity, identityHasValidCdd, sdk]);
 
   const parseExpiry = (expiryValue: null | Date | undefined) => {
     if (typeof expiryValue === 'undefined') return 'unknown';
@@ -73,7 +70,7 @@ export const DidInfo = () => {
               </Text>
             ) : (
               <>
-                {isVerified && (
+                {identityHasValidCdd && (
                   <StyledVerifiedLabel>Verified</StyledVerifiedLabel>
                 )}
                 <Text marginBottom={4}>Your DID</Text>
@@ -149,7 +146,7 @@ export const DidInfo = () => {
       {detailsExpanded && (
         <Details
           toggleModal={toggleModal}
-          isVerified={isVerified}
+          isVerified={identityHasValidCdd}
           did={identity?.did}
           expiry={parseExpiry(expiry)}
           issuer={issuer}
