@@ -15,6 +15,7 @@ import {
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
 import { Details } from './components/Details';
+import { systematicCddProviders } from './constants';
 
 export const DidInfo = () => {
   const {
@@ -22,36 +23,57 @@ export const DidInfo = () => {
   } = useContext(PolymeshContext);
   const { identity, identityLoading, identityHasValidCdd } =
     useContext(AccountContext);
-  const [expiry, setExpiry] = useState<null | Date>(null);
+  const [expiry, setExpiry] = useState<null | Date | undefined>(undefined);
   const [issuer, setIssuer] = useState<string | null>(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
   useEffect(() => {
-    if (!identity || !sdk) return undefined;
+    if (!identity || !sdk) {
+      setExpiry(undefined);
+      setIssuer(null);
+      return undefined;
+    }
 
     (async () => {
-      if (!identityHasValidCdd) return;
+      const claims = await sdk.claims.getCddClaims({ target: identity });
+      if (!claims.length) {
+        setExpiry(undefined);
+        setIssuer(null);
+        return;
+      }
+      // Filter to claims from the current CDD providers only.
+      const filteredClaims = await Promise.all(
+        claims.filter(async (claim) => {
+          const issuerIsCddProvider =
+            (await claim.issuer.isCddProvider()) ||
+            systematicCddProviders.includes(claim.issuer.did);
 
-      const claims = await sdk.claims.getCddClaims();
-      if (!claims.length) return;
+          return issuerIsCddProvider;
+        }),
+      );
+      // Sort claims latest expiry first, null (= never) is sorted first
+      const sortedClaims = filteredClaims.sort((a, b) => {
+        if (!a.expiry) return -1;
+        if (!b.expiry) return 1;
+        return b.expiry.getTime() - a.expiry.getTime();
+      });
 
-      setExpiry(claims[0].expiry);
-      setIssuer(claims[0].issuer.did);
+      setExpiry(sortedClaims[0].expiry);
+      setIssuer(sortedClaims[0].issuer.did);
     })();
 
     return () => {
-      setIsVerified(false);
-      setExpiry(null);
+      setExpiry(undefined);
       setIssuer(null);
     };
-  }, [identity, identityHasValidCdd, sdk]);
+  }, [identity, sdk]);
 
   const parseExpiry = (expiryValue: null | Date | undefined) => {
     if (typeof expiryValue === 'undefined') return 'unknown';
 
     if (expiryValue === null) return 'never';
 
-    return expiry?.toString();
+    return expiryValue.toString();
   };
 
   const toggleModal = () => setDetailsExpanded((prev) => !prev);
