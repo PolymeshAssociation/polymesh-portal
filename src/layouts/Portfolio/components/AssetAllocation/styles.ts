@@ -3,6 +3,7 @@ import styled from 'styled-components';
 export const StyledWrapper = styled.div`
   grid-area: assets;
   padding: 24px;
+  height: 196px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
   border-radius: 24px;
@@ -52,4 +53,16 @@ export const StyledLegendItem = styled.li`
     border-radius: 50%;
     background-color: ${({ color }) => color};
   }
+`;
+
+export const StyledPlaceholder = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 56px;
+  margin-top: 22px;
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.colors.dashboardBackground};
+  color: ${({ theme }) => theme.colors.textSecondary};
 `;

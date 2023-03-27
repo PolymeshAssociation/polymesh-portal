@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { NavLink } from 'react-router-dom';
 
 export const StyledNavBar = styled.div`
   grid-area: nav;
@@ -10,9 +9,10 @@ export const StyledNavBar = styled.div`
 export const StyledNavList = styled.ul`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 `;
 
-export const StyledNavLink = styled(NavLink)`
+export const StyledNavLink = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,13 +22,14 @@ export const StyledNavLink = styled(NavLink)`
   border-radius: 12px 12px 0 0;
   font-weight: 500;
   font-size: 14px;
+  border: 1px solid transparent;
   color: ${({ theme }) => theme.colors.textSecondary};
+  text-transform: capitalize;
   transition: color 250ms ease-out, border 250ms ease-out;
 
   &.active {
-    border-top: 1px solid #c7c7c7;
-    border-left: 1px solid #c7c7c7;
-    border-right: 1px solid #c7c7c7;
+    border: 1px solid #c7c7c7;
+    border-bottom: 1px solid transparent;
     color: #000000;
   }
 `;

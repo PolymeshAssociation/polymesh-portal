@@ -64,12 +64,15 @@ export const StyledTableFooter = styled.div`
 export const StyledTablePlaceholder = styled.div`
   flex-grow: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 14px;
   width: 100%;
   min-height: 108px;
   border-top: 1px solid rgba(0, 0, 0, 0.12);
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 export const StyledTabsWrapper = styled.div`

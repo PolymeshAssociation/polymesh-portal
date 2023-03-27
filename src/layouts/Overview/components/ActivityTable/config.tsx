@@ -154,6 +154,7 @@ export const useActivityTable = <T extends IHistoricalItem | ITokenItem>(
       getCoreRowModel: getCoreRowModel(),
       getPaginationRowModel: getPaginationRowModel(),
       enableColumnFilters: true,
+      enableSorting: false,
       getFilteredRowModel: getFilteredRowModel(),
     }),
     setTableData,

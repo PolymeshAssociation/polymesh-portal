@@ -1,65 +1,81 @@
+import { NumberedPortfolio as NumberedPortfolioClass } from '@polymeshassociation/polymesh-sdk/internal';
 import {
   DefaultPortfolio,
   NumberedPortfolio,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
+import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { notifyError, notifyWarning } from '~/helpers/notifications';
+import { useTransactionStatus } from '~/hooks/polymesh';
 
-const usePortfolio = () => {
+const usePortfolio = (
+  portfolio: DefaultPortfolio | NumberedPortfolio | undefined,
+) => {
   const {
-    state: { initialized },
     api: { sdk },
   } = useContext(PolymeshContext);
+  const { identity } = useContext(AccountContext);
+  const { handleStatusChange } = useTransactionStatus();
+  const [actionInProgress, setActionInProgress] = useState(false);
 
-  const [defaultPortfolio, setDefaultPortfolio] =
-    useState<DefaultPortfolio>(null);
-  const [numberedPortfolios, setNumberedPortfolios] = useState<
-    NumberedPortfolio[]
-  >([]);
-  const [portfolioLoading, setPortfolioLoading] = useState(true);
-  const [portfolioError, setPortfolioError] = useState('');
+  const createPortfolio = async (name: string) => {
+    if (!sdk) return;
 
-  useEffect(() => {
-    if (!initialized || !sdk) return;
-
-    (async () => {
-      setPortfolioLoading(true);
-      setPortfolioError('');
-      try {
-        const account = await sdk.accountManagement.getSigningAccount();
-        const identity = await account.getIdentity();
-        const portfolios = await identity.portfolios.getPortfolios();
-        // const assets = await portfolios[0].getAssetBalances();
-        // const meta = await assets[0].asset.documents.get();
-
-        setDefaultPortfolio(portfolios[0]);
-        setNumberedPortfolios(portfolios.filter((_, idx) => idx !== 0));
-
-        // const tabs = await Promise.all([
-        //   ...portfolios.map(async (portfolio, idx) => {
-        //     if (idx === 0) return { name: 'Default', id: 'default' };
-
-        //     return {
-        //       name: await (portfolio as NumberedPortfolio).getName(),
-        //       id: portfolio.toHuman().id,
-        //     };
-        //   }),
-        // ]);
-        // console.log(tabs);
-      } catch (error) {
-        setPortfolioError(error.message);
-      } finally {
-        setPortfolioLoading(false);
-      }
-    })();
-  }, [initialized, sdk]);
-
-  return {
-    defaultPortfolio,
-    numberedPortfolios,
-    portfolioLoading,
-    portfolioError,
+    setActionInProgress(true);
+    try {
+      const createQ = await sdk.identities.createPortfolio({ name });
+      createQ.onStatusChange(handleStatusChange);
+      await createQ.run();
+    } catch (error) {
+      notifyError((error as Error).message);
+    } finally {
+      setActionInProgress(false);
+    }
   };
+
+  const editPortfolio = async (newName: string) => {
+    if (!identity || !portfolio) return;
+
+    if (portfolio instanceof NumberedPortfolioClass) {
+      setActionInProgress(true);
+      try {
+        const editQ = await portfolio.modifyName({
+          name: newName,
+        });
+        editQ.onStatusChange(handleStatusChange);
+        await editQ.run();
+      } catch (error) {
+        notifyError((error as Error).message);
+      } finally {
+        setActionInProgress(false);
+      }
+    } else {
+      notifyWarning('You cannot edit this portfolio');
+    }
+  };
+
+  const deletePortfolio = async () => {
+    if (!identity || !portfolio) return;
+
+    if (portfolio instanceof NumberedPortfolioClass) {
+      setActionInProgress(true);
+      try {
+        const deleteQ = await identity.portfolios.delete({
+          portfolio,
+        });
+        deleteQ.onStatusChange(handleStatusChange);
+        await deleteQ.run();
+      } catch (error) {
+        notifyError((error as Error).message);
+      } finally {
+        setActionInProgress(false);
+      }
+    } else {
+      notifyWarning('You cannot delete this portfolio');
+    }
+  };
+  return { createPortfolio, editPortfolio, deletePortfolio, actionInProgress };
 };
 
 export default usePortfolio;

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const PortfolioGrid = styled.div`
+export const PortfolioGrid = styled.div<{ allAssets?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -53,7 +53,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
     <StyledTableWrapper>
       <StyledTableHeader>
         <Heading type="h3">{title}</Heading>
-        {tabs.length > 1 && (
+        {tabs?.length > 1 && (
           <StyledTabsWrapper>
             {tabs.map((tabItem) => (
               <StyledTabItem
@@ -71,7 +71,10 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
         <StyledTablePlaceholder>Loading...</StyledTablePlaceholder>
       ) : null}
       {!loading && !rowsNumber && (
-        <StyledTablePlaceholder>No data available</StyledTablePlaceholder>
+        <StyledTablePlaceholder>
+          <Icon name="Coins" />
+          No data available
+        </StyledTablePlaceholder>
       )}
       {!loading && !!rowsNumber && (
         <StyledTableBody colsNumber={colsNumber}>

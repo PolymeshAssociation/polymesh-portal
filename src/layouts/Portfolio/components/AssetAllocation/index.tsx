@@ -1,68 +1,115 @@
+import { useContext, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Asset } from '@polymeshassociation/polymesh-sdk/types';
 import { Text } from '~/components/UiKit';
+import { PortfolioContext } from '~/context/PortfolioContext';
 import {
   StyledWrapper,
   StyledPercentageBar,
   StyledFraction,
   StyledLegendList,
   StyledLegendItem,
+  StyledPlaceholder,
 } from './styles';
+import { formatBalance, stringToColor } from '~/helpers/formatters';
 
-const options = [
-  {
-    ticker: 'BTC',
-    percentage: 75,
-  },
-  {
-    ticker: 'ETH',
-    percentage: 20,
-  },
-  {
-    ticker: 'DOT',
-    percentage: 3,
-  },
-  {
-    ticker: 'USDT',
-    percentage: 2,
-  },
-];
-
-const stringToColor = (str) => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i += 1) {
-    // eslint-disable-next-line no-bitwise
-    hash = str.charCodeAt(i) + ((hash << 4) - hash);
-  }
-  let color = '#';
-  for (let i = 0; i < 3; i += 1) {
-    // eslint-disable-next-line no-bitwise
-    const value = (hash >> (i * 2)) & 0xff;
-    color += `00${value.toString(16)}`.substr(-2);
-  }
-  return color;
-};
+interface IAssetOption {
+  ticker: string;
+  amount: number;
+  color: string;
+  asset: Asset;
+}
 
 export const AssetAllocation = () => {
+  const [assetOptions, setAssetOptions] = useState<IAssetOption[]>([]);
+  const { allPortfolios, totalAssetsAmount, portfolioLoading } =
+    useContext(PortfolioContext);
+  const [searchParams] = useSearchParams();
+  const portfolioId = searchParams.get('id');
+
+  useEffect(() => {
+    if (!allPortfolios) return;
+
+    setAssetOptions([]);
+
+    if (!portfolioId) {
+      const reducedPortfolios = allPortfolios
+        .flatMap(({ assets }) =>
+          assets.map(({ asset, total }) => ({
+            ticker: asset.toHuman(),
+            amount: total.toNumber(),
+            asset,
+            color: stringToColor(asset.toHuman()),
+          })),
+        )
+        .reduce((acc, asset) => {
+          if (acc.find(({ ticker }) => ticker === asset.ticker)) {
+            return acc.map((accAsset) => {
+              if (accAsset.ticker === asset.ticker) {
+                return { ...accAsset, amount: accAsset.amount + asset.amount };
+              }
+              return accAsset;
+            });
+          }
+          return [...acc, asset];
+        }, []);
+      setAssetOptions(reducedPortfolios);
+      return;
+    }
+
+    const selectedPortfolio = allPortfolios.find(
+      ({ id }) => id === portfolioId,
+    );
+
+    if (selectedPortfolio) {
+      selectedPortfolio.assets.map(({ asset, total }) =>
+        setAssetOptions((prev) => [
+          ...prev,
+          {
+            ticker: asset.toHuman(),
+            amount: total.toNumber(),
+            asset,
+            color: stringToColor(asset.toHuman()),
+          },
+        ]),
+      );
+    }
+  }, [portfolioId, allPortfolios]);
+
   return (
     <StyledWrapper>
       <Text size="large" bold>
         Asset allocation
       </Text>
-      <StyledPercentageBar>
-        {options.map(({ ticker, percentage }) => (
-          <StyledFraction
-            key={ticker}
-            percentage={percentage}
-            color={stringToColor(ticker)}
-          />
-        ))}
-      </StyledPercentageBar>
+      {!assetOptions.length || portfolioLoading ? (
+        <StyledPlaceholder>
+          {!portfolioLoading && !assetOptions.length && 'No assets available'}
+        </StyledPlaceholder>
+      ) : (
+        <StyledPercentageBar>
+          {assetOptions.map(({ ticker, amount, color }) => {
+            const percentage = (amount / totalAssetsAmount) * 100;
+            return (
+              <StyledFraction
+                key={ticker}
+                percentage={percentage}
+                color={color}
+              />
+            );
+          })}
+        </StyledPercentageBar>
+      )}
       <StyledLegendList>
-        {options.map(({ ticker, percentage }) => (
-          <StyledLegendItem key={ticker} color={stringToColor(ticker)}>
-            {ticker}
-            <span>{percentage}%</span>
-          </StyledLegendItem>
-        ))}
+        {assetOptions.map(({ ticker, amount, color }) => {
+          const percentage = (amount / totalAssetsAmount) * 100;
+
+          return (
+            <StyledLegendItem key={ticker} color={color}>
+              {ticker}
+              <span>{formatBalance(percentage)}%</span>
+            </StyledLegendItem>
+          );
+        })}
       </StyledLegendList>
     </StyledWrapper>
   );

@@ -4,6 +4,7 @@ import { TIcons } from '~/assets/icons/types';
 const NotFound = lazy(() => import('~/layouts/NotFound'));
 const Landing = lazy(() => import('~/layouts/Landing'));
 const Overview = lazy(() => import('~/layouts/Overview'));
+const Portfolio = lazy(() => import('~/layouts/Portfolio'));
 
 interface IRoute {
   path: string;
@@ -46,6 +47,11 @@ export const ROUTES = [
     path: PATHS.OVERVIEW,
     label: 'Overview',
     component: Overview,
+  },
+  {
+    path: PATHS.PORTFOLIO,
+    label: 'Portfolio',
+    component: Portfolio,
   },
   {
     path: PATHS.NOT_FOUND,
