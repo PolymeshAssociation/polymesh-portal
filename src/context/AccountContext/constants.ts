@@ -22,6 +22,7 @@ export interface IAccountContext {
   identityLoading: boolean;
   allKeyBalances: IBalanceByKey[];
   identityHasValidCdd: boolean;
+  accountIsMultisigSigner: boolean;
 }
 
 export const initialState = {
@@ -36,4 +37,5 @@ export const initialState = {
   identityLoading: false,
   allKeyBalances: [],
   identityHasValidCdd: false,
+  accountIsMultisigSigner: false,
 };

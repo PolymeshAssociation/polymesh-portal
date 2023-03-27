@@ -30,6 +30,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [allKeyBalances, setAllKeyBalances] = useState<IBalanceByKey[]>([]);
   const [identityHasValidCdd, setIdentityHasValidCdd] =
     useState<boolean>(false);
+  const [accountIsMultisigSigner, setAccountIsMultisigSigner] =
+    useState<boolean>(false);
 
   // Get list of connected accounts when sdk is initialized with signing manager
   useEffect(() => {
@@ -74,6 +76,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
         setAccount(accountInstance);
         await sdk.setSigningAccount(accountInstance);
+
+        const multiSig = await accountInstance.getMultiSig();
+        setAccountIsMultisigSigner(!!multiSig);
+
       } catch (error) {
         notifyError((error as Error).message);
       }
@@ -205,6 +211,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       identityLoading,
       allKeyBalances,
       identityHasValidCdd,
+      accountIsMultisigSigner,
     }),
     [
       account,
@@ -217,6 +224,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       identityLoading,
       allKeyBalances,
       identityHasValidCdd,
+      accountIsMultisigSigner,
     ],
   );
 
