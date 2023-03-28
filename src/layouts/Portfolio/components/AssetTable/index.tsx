@@ -3,11 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import { Table } from '~/components';
 import { PortfolioContext } from '~/context/PortfolioContext';
 import { useAssetTable } from './config';
+import { ITokenItem } from './constants';
 
 export const AssetTable = () => {
   const [searchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
-  const { allPortfolios, totalAssetsAmount } = useContext(PortfolioContext);
+  const { allPortfolios, totalAssetsAmount, portfolioLoading } =
+    useContext(PortfolioContext);
   const { table, setTableData } = useAssetTable();
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export const AssetTable = () => {
             });
           }
           return [...acc, asset];
-        }, []);
+        }, [] as ITokenItem[]);
       setTableData(reducedPortfolios);
       return;
     }
@@ -70,5 +72,5 @@ export const AssetTable = () => {
     }
   }, [portfolioId, allPortfolios, totalAssetsAmount, setTableData]);
 
-  return <Table title="Assets" data={{ table }} />;
+  return <Table title="Assets" data={{ table }} loading={portfolioLoading} />;
 };

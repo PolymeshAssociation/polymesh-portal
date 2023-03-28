@@ -71,7 +71,7 @@ export const PortfolioInfo = () => {
             </Button>
             <Button
               variant="secondary"
-              disabled={selectedPortfolio.assets.length || actionInProgress}
+              disabled={!!selectedPortfolio.assets.length || actionInProgress}
               onClick={deletePortfolio}
             >
               Delete

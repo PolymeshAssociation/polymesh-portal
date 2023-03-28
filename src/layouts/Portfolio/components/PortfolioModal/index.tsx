@@ -57,7 +57,9 @@ export const PortfolioModal: React.FC<IPortfolioModalProps> = ({
       <Heading type="h4" marginBottom={32}>
         {modalConfig[type].title}
       </Heading>
-      {errors.name?.message ? <span>{errors.name?.message}</span> : null}
+      {errors.name?.message ? (
+        <span>{errors.name.message as string}</span>
+      ) : null}
       <StyledInput
         placeholder={modalConfig[type].placeholder}
         // eslint-disable-next-line react/jsx-props-no-spreading

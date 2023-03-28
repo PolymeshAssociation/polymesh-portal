@@ -10,7 +10,7 @@ import {
   AddPortfolioButton,
 } from './styles';
 
-export const PortfolioNavigation: React.FC<IPortfolioNavigationProps> = () => {
+export const PortfolioNavigation = () => {
   const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
   const [addExpanded, setAddExpanded] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,7 +44,7 @@ export const PortfolioNavigation: React.FC<IPortfolioNavigationProps> = () => {
           <li key={id}>
             <StyledNavLink
               className={portfolioId === id ? 'active' : ''}
-              onClick={() => setSearchParams({ id })}
+              onClick={() => setSearchParams({ id: id as string })}
             >
               {id}
             </StyledNavLink>

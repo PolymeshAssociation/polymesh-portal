@@ -16,12 +16,12 @@ import {
 
 interface ITableProps<T, S> {
   data: {
-    tab: string;
+    tab?: string;
     table: ReactTable<T>;
   };
   title: string;
-  tabs: string[];
-  setTab: Dispatch<SetStateAction<S>>;
+  tabs?: string[];
+  setTab?: Dispatch<SetStateAction<S>>;
   loading: boolean;
 }
 
@@ -53,13 +53,15 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
     <StyledTableWrapper>
       <StyledTableHeader>
         <Heading type="h3">{title}</Heading>
-        {tabs?.length > 1 && (
+        {tabs && tabs?.length > 1 && (
           <StyledTabsWrapper>
             {tabs.map((tabItem) => (
               <StyledTabItem
                 key={tabItem}
                 selected={tabItem === tab}
-                onClick={() => setTab(tabItem as S)}
+                onClick={() =>
+                  (setTab as Dispatch<SetStateAction<S>>)(tabItem as S)
+                }
               >
                 {tabItem}
               </StyledTabItem>
@@ -151,6 +153,11 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
       </StyledTableFooter>
     </StyledTableWrapper>
   );
+};
+
+Table.defaultProps = {
+  tabs: [],
+  setTab: () => {},
 };
 
 export default Table;

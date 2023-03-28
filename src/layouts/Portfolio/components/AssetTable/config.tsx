@@ -4,6 +4,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  ColumnDef,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 import { formatBalance } from '~/helpers/formatters';
@@ -42,7 +43,7 @@ export const useAssetTable = <T extends ITokenItem>() => {
   return {
     table: useReactTable<T>({
       data: tableData,
-      columns,
+      columns: columns as ColumnDef<T>[],
       initialState: {
         pagination: {
           pageSize: 10,

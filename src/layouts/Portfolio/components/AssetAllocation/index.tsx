@@ -52,7 +52,7 @@ export const AssetAllocation = () => {
             });
           }
           return [...acc, asset];
-        }, []);
+        }, [] as IAssetOption[]);
       setAssetOptions(reducedPortfolios);
       return;
     }

@@ -6,6 +6,8 @@ import {
 import { PolymeshContext } from '../PolymeshContext';
 import { AccountContext } from '../AccountContext';
 import PortfolioContext from './context';
+import { IPortfolioData } from './constants';
+import { notifyGlobalError } from '~/helpers/notifications';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -19,7 +21,7 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
   const { identity } = useContext(AccountContext);
 
   const [defaultPortfolio, setDefaultPortfolio] =
-    useState<DefaultPortfolio>(null);
+    useState<DefaultPortfolio | null>(null);
   const [numberedPortfolios, setNumberedPortfolios] = useState<
     NumberedPortfolio[]
   >([]);
@@ -29,11 +31,15 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
   const [portfolioError, setPortfolioError] = useState('');
 
   const getPortfoliosData = useCallback(async () => {
+    if (!identity) return;
+
     try {
       const portfolios = await identity.portfolios.getPortfolios();
 
       setDefaultPortfolio(portfolios[0]);
-      setNumberedPortfolios(portfolios.filter((_, idx) => idx !== 0));
+      setNumberedPortfolios(
+        portfolios.filter((_, idx) => idx !== 0) as NumberedPortfolio[],
+      );
 
       const parsedPortfolios = await Promise.all([
         ...portfolios.map(async (portfolio, idx) => {
@@ -66,7 +72,7 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
       }, 0);
       setTotalAssetsAmount(totalBalance);
     } catch (error) {
-      setPortfolioError(error.message);
+      notifyGlobalError((error as Error).message);
     } finally {
       setPortfolioLoading(false);
     }
@@ -78,7 +84,7 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
     setPortfolioLoading(true);
     setPortfolioError('');
 
-    if (!identity || !initialized || !sdk) return;
+    if (!initialized || !sdk) return;
 
     (async () => {
       await getPortfoliosData();

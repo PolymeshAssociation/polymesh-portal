@@ -33,5 +33,5 @@ export const createFormConfig = (nameValue: string) => {
           .max(32, 'Name must be 32 characters or less'),
       }),
     ),
-  };
+  } as const;
 };

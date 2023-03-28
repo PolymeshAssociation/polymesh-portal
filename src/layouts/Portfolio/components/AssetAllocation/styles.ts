@@ -19,7 +19,7 @@ export const StyledPercentageBar = styled.div`
   overflow: hidden;
 `;
 
-export const StyledFraction = styled.div`
+export const StyledFraction = styled.div<{ percentage: number }>`
   height: 100%;
   width: ${({ percentage }) => percentage}%;
   background-color: ${({ color }) => color};
@@ -32,7 +32,7 @@ export const StyledLegendList = styled.ul`
   margin-top: 25px;
 `;
 
-export const StyledLegendItem = styled.li`
+export const StyledLegendItem = styled.li<{ color: string }>`
   display: flex;
   align-items: center;
   font-weight: 500;
