@@ -34,7 +34,7 @@ export const initialState = {
   allIdentities: [],
   primaryKey: '',
   secondaryKeys: [],
-  identityLoading: false,
+  identityLoading: true,
   allKeyBalances: [],
   identityHasValidCdd: false,
   accountIsMultisigSigner: false,

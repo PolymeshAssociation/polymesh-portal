@@ -26,7 +26,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [allIdentities, setAllIdentities] = useState<(Identity | null)[]>([]);
   const [primaryKey, setPrimaryKey] = useState<string>('');
   const [secondaryKeys, setSecondaryKeys] = useState<string[]>([]);
-  const [identityLoading, setIdentityLoading] = useState(false);
+  const [identityLoading, setIdentityLoading] = useState(true);
   const [allKeyBalances, setAllKeyBalances] = useState<IBalanceByKey[]>([]);
   const [identityHasValidCdd, setIdentityHasValidCdd] =
     useState<boolean>(false);
