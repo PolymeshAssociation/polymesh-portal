@@ -69,11 +69,23 @@ export const DidInfo = () => {
   }, [identity, sdk]);
 
   const parseExpiry = (expiryValue: null | Date | undefined) => {
-    if (typeof expiryValue === 'undefined') return 'unknown';
+    if (typeof expiryValue === 'undefined') return 'CDD claim missing';
 
-    if (expiryValue === null) return 'never';
+    if (expiryValue === null) return 'Never';
 
-    return expiryValue.toString();
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric' as const,
+      month: '2-digit' as const,
+      day: '2-digit' as const,
+      hour: '2-digit' as const,
+      minute: '2-digit' as const,
+      hour12: false,
+    };
+
+    const localDateString = expiryValue
+      .toLocaleString('en-CA', options) // locale 'en-CA' returns format YYYY-MM-DD h:mm:ss
+      .replace(',', '');
+    return localDateString;
   };
 
   const toggleModal = () => setDetailsExpanded((prev) => !prev);
