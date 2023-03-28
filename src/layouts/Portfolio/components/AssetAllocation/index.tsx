@@ -18,6 +18,7 @@ interface IAssetOption {
   amount: number;
   color: string;
   asset: Asset;
+  percentage: number;
 }
 
 export const AssetAllocation = () => {
@@ -40,13 +41,18 @@ export const AssetAllocation = () => {
             amount: total.toNumber(),
             asset,
             color: stringToColor(asset.toHuman()),
+            percentage: (total.toNumber() / totalAssetsAmount) * 100,
           })),
         )
         .reduce((acc, asset) => {
           if (acc.find(({ ticker }) => ticker === asset.ticker)) {
             return acc.map((accAsset) => {
               if (accAsset.ticker === asset.ticker) {
-                return { ...accAsset, amount: accAsset.amount + asset.amount };
+                return {
+                  ...accAsset,
+                  amount: accAsset.amount + asset.amount,
+                  percentage: accAsset.percentage + asset.percentage,
+                };
               }
               return accAsset;
             });
@@ -62,6 +68,10 @@ export const AssetAllocation = () => {
     );
 
     if (selectedPortfolio) {
+      const totalAmount = selectedPortfolio.assets.reduce(
+        (acc, { total }) => acc + total.toNumber(),
+        0,
+      );
       selectedPortfolio.assets.map(({ asset, total }) =>
         setAssetOptions((prev) => [
           ...prev,
@@ -70,11 +80,12 @@ export const AssetAllocation = () => {
             amount: total.toNumber(),
             asset,
             color: stringToColor(asset.toHuman()),
+            percentage: (total.toNumber() / totalAmount) * 100,
           },
         ]),
       );
     }
-  }, [portfolioId, allPortfolios]);
+  }, [portfolioId, allPortfolios, totalAssetsAmount]);
 
   return (
     <StyledWrapper>
@@ -87,8 +98,7 @@ export const AssetAllocation = () => {
         </StyledPlaceholder>
       ) : (
         <StyledPercentageBar>
-          {assetOptions.map(({ ticker, amount, color }) => {
-            const percentage = (amount / totalAssetsAmount) * 100;
+          {assetOptions.map(({ ticker, color, percentage }) => {
             return (
               <StyledFraction
                 key={ticker}
@@ -100,9 +110,7 @@ export const AssetAllocation = () => {
         </StyledPercentageBar>
       )}
       <StyledLegendList>
-        {assetOptions.map(({ ticker, amount, color }) => {
-          const percentage = (amount / totalAssetsAmount) * 100;
-
+        {assetOptions.map(({ ticker, color, percentage }) => {
           return (
             <StyledLegendItem key={ticker} color={color}>
               {ticker}

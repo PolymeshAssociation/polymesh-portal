@@ -1,6 +1,4 @@
-import { useContext } from 'react';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
-import { PortfolioContext } from '~/context/PortfolioContext';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 import { usePortfolio } from '~/hooks/polymesh';
 import { Modal } from '~/components';
@@ -28,7 +26,6 @@ export const PortfolioModal: React.FC<IPortfolioModalProps> = ({
       type === EModalType.EDIT ? (portfolio as IPortfolioData).name : '',
     ),
   );
-  const { getPortfoliosData } = useContext(PortfolioContext);
   const { createPortfolio, editPortfolio } = usePortfolio(portfolio?.portfolio);
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
@@ -48,8 +45,6 @@ export const PortfolioModal: React.FC<IPortfolioModalProps> = ({
       default:
         break;
     }
-
-    await getPortfoliosData();
   };
 
   return (

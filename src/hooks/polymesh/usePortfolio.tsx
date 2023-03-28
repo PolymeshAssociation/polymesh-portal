@@ -1,11 +1,13 @@
 import { NumberedPortfolio as NumberedPortfolioClass } from '@polymeshassociation/polymesh-sdk/internal';
 import {
   DefaultPortfolio,
+  MoveFundsParams,
   NumberedPortfolio,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useContext, useState } from 'react';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { PortfolioContext } from '~/context/PortfolioContext';
 import { notifyError, notifyWarning } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
 
@@ -16,8 +18,24 @@ const usePortfolio = (
     api: { sdk },
   } = useContext(PolymeshContext);
   const { identity } = useContext(AccountContext);
+  const { getPortfoliosData } = useContext(PortfolioContext);
   const { handleStatusChange } = useTransactionStatus();
   const [actionInProgress, setActionInProgress] = useState(false);
+
+  const moveAssets = async (data: MoveFundsParams) => {
+    if (!identity || !portfolio) return;
+
+    try {
+      const moveQ = await portfolio.moveFunds(data);
+      moveQ.onStatusChange(handleStatusChange);
+      await moveQ.run();
+      await getPortfoliosData();
+    } catch (error) {
+      notifyError((error as Error).message);
+    } finally {
+      setActionInProgress(false);
+    }
+  };
 
   const createPortfolio = async (name: string) => {
     if (!sdk) return;
@@ -27,6 +45,7 @@ const usePortfolio = (
       const createQ = await sdk.identities.createPortfolio({ name });
       createQ.onStatusChange(handleStatusChange);
       await createQ.run();
+      await getPortfoliosData();
     } catch (error) {
       notifyError((error as Error).message);
     } finally {
@@ -45,6 +64,7 @@ const usePortfolio = (
         });
         editQ.onStatusChange(handleStatusChange);
         await editQ.run();
+        await getPortfoliosData();
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
@@ -66,6 +86,7 @@ const usePortfolio = (
         });
         deleteQ.onStatusChange(handleStatusChange);
         await deleteQ.run();
+        await getPortfoliosData();
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
@@ -75,7 +96,13 @@ const usePortfolio = (
       notifyWarning('You cannot delete this portfolio');
     }
   };
-  return { createPortfolio, editPortfolio, deletePortfolio, actionInProgress };
+  return {
+    moveAssets,
+    createPortfolio,
+    editPortfolio,
+    deletePortfolio,
+    actionInProgress,
+  };
 };
 
 export default usePortfolio;

@@ -15,6 +15,7 @@ import {
   StyledButtonWrapper,
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
+import { MoveAssets } from '../MoveAssets';
 
 export const PortfolioInfo = () => {
   const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolioData>();
@@ -23,6 +24,7 @@ export const PortfolioInfo = () => {
     selectedPortfolio?.portfolio,
   );
   const [editExpanded, setEditExpanded] = useState(false);
+  const [moveExpanded, setMoveExpanded] = useState(false);
   const [searchParams] = useSearchParams();
   const id = searchParams.get('id');
   const notDefaultPortfolio = !!id && id !== 'default';
@@ -37,6 +39,7 @@ export const PortfolioInfo = () => {
   }, [id, allPortfolios]);
 
   const toggleEditModal = () => setEditExpanded((prev) => !prev);
+  const toggleMoveModal = () => setMoveExpanded((prev) => !prev);
 
   return selectedPortfolio ? (
     <StyledWrapper>
@@ -59,7 +62,9 @@ export const PortfolioInfo = () => {
         </div>
       </StyledTopInfo>
       <StyledButtonWrapper>
-        <Button variant="primary">Move</Button>
+        <Button variant="primary" onClick={toggleMoveModal}>
+          Move
+        </Button>
         {notDefaultPortfolio && (
           <>
             <Button
@@ -84,6 +89,12 @@ export const PortfolioInfo = () => {
           type="edit"
           portfolio={selectedPortfolio}
           toggleModal={toggleEditModal}
+        />
+      )}
+      {moveExpanded && (
+        <MoveAssets
+          portfolio={selectedPortfolio}
+          toggleModal={toggleMoveModal}
         />
       )}
     </StyledWrapper>

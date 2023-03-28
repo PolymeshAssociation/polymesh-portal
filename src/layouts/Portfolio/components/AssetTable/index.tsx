@@ -56,12 +56,16 @@ export const AssetTable = () => {
     );
 
     if (selectedPortfolio) {
+      const totalAmount = selectedPortfolio.assets.reduce(
+        (acc, { total }) => acc + total.toNumber(),
+        0,
+      );
       selectedPortfolio.assets.map(({ asset, total }) =>
         setTableData((prev) => [
           ...prev,
           {
             ticker: asset.toHuman(),
-            percentage: (total.toNumber() / totalAssetsAmount) * 100,
+            percentage: (total.toNumber() / totalAmount) * 100,
             balance: {
               ticker: asset.toHuman(),
               amount: total.toNumber(),

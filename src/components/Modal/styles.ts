@@ -18,7 +18,9 @@ export const StyledBackdrop = styled.div`
 export const StyledModal = styled.div`
   padding: 24px;
   max-width: 504px;
+  max-height: 80vh;
   background-color: ${({ theme }) => theme.colors.modalBackground};
   box-shadow: 0px 20px 40px rgba(21, 41, 53, 0.1);
   border-radius: 8px;
+  overflow-y: scroll;
 `;
