@@ -41,7 +41,10 @@ export const AssetAllocation = () => {
             amount: total.toNumber(),
             asset,
             color: stringToColor(asset.toHuman()),
-            percentage: (total.toNumber() / totalAssetsAmount) * 100,
+            percentage:
+              total.toNumber() > 0
+                ? (total.toNumber() / totalAssetsAmount) * 100
+                : 0,
           })),
         )
         .reduce((acc, asset) => {
@@ -80,7 +83,8 @@ export const AssetAllocation = () => {
             amount: total.toNumber(),
             asset,
             color: stringToColor(asset.toHuman()),
-            percentage: (total.toNumber() / totalAmount) * 100,
+            percentage:
+              total.toNumber() > 0 ? (total.toNumber() / totalAmount) * 100 : 0,
           },
         ]),
       );

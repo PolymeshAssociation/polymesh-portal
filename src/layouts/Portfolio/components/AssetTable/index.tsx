@@ -122,7 +122,10 @@ export const AssetTable = () => {
           const parsedData = selectedPortfolio.assets.map(
             ({ asset, total }) => ({
               ticker: asset.toHuman(),
-              percentage: (total.toNumber() / totalAmount) * 100,
+              percentage:
+                total.toNumber() > 0
+                  ? (total.toNumber() / totalAmount) * 100
+                  : 0,
               balance: {
                 ticker: asset.toHuman(),
                 amount: total.toNumber(),

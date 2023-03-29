@@ -84,11 +84,15 @@ export const IconWrapper = styled.div<{ background: string }>`
   color: #ffffff;
 `;
 
+export const InputWrapper = styled.div`
+  position: relative;
+`;
+
 export const StyledAmountInput = styled.input`
   outline: none;
   width: 100%;
   height: 36px;
-  padding: 9px 16px;
+  padding: 9px 80px 9px 16px;
   border: 1px solid #8f8f8f;
   border-radius: 8px;
 
@@ -117,4 +121,16 @@ export const CloseButton = styled.button`
   right: 12px;
   padding: 0;
   background-color: transparent;
+`;
+
+export const UseMaxButton = styled.button`
+  position: absolute;
+  top: 0;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background-color: transparent;
+  color: #170087;
 `;

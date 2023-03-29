@@ -6,6 +6,7 @@ import { Icon } from '~/components';
 import { Text } from '~/components/UiKit';
 import {
   StyledAmountInput,
+  InputWrapper,
   StyledAssetSelect,
   StyledPlaceholder,
   StyledWrapper,
@@ -18,6 +19,7 @@ import {
   StyledAvailableBalance,
   StyledError,
   CloseButton,
+  UseMaxButton,
 } from './styles';
 import { formatBalance, stringToColor } from '~/helpers/formatters';
 
@@ -105,7 +107,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
       }
       return;
     }
-    if (Number(inputValue) >= availableBalance) {
+    if (Number(inputValue) > availableBalance) {
       setValidationError('Insufficient balance');
       if (assetItem) {
         setAssetItem({
@@ -142,6 +144,14 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
   }) => {
     setSelectedAmount(target.value);
     validateInput(target.value);
+  };
+
+  const handleUseMax = () => {
+    setSelectedAmount(availableBalance.toString());
+    setAssetItem({
+      asset: (selectedAsset as Asset).toHuman(),
+      amount: new BigNumber(availableBalance),
+    });
   };
   return (
     <StyledWrapper>
@@ -198,13 +208,18 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
           <Text size="medium" bold marginBottom={3}>
             Amount
           </Text>
-          <StyledAmountInput
-            name="amount"
-            placeholder="Enter Amount"
-            value={selectedAmount}
-            onChange={handleAmountChange}
-            disabled={!selectedAsset || !availableBalance}
-          />
+          <InputWrapper>
+            <StyledAmountInput
+              name="amount"
+              placeholder="Enter Amount"
+              value={selectedAmount}
+              onChange={handleAmountChange}
+              disabled={!selectedAsset || !availableBalance}
+            />
+            {!!availableBalance && (
+              <UseMaxButton onClick={handleUseMax}>Use max</UseMaxButton>
+            )}
+          </InputWrapper>
         </div>
       </AssetWrapper>
       {!!validationError && <StyledError>{validationError}</StyledError>}
