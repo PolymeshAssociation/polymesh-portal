@@ -5,11 +5,11 @@ import { stringToColor } from '~/helpers/formatters';
 import { Icon } from '~/components';
 
 interface ICellProps {
-  info: CellContext<ITokenItem, string>;
+  info: CellContext<ITokenItem, string> | undefined;
 }
 
 export const TickerCell: React.FC<ICellProps> = ({ info }) => {
-  const ticker = info.getValue();
+  const ticker = info?.getValue() || '';
   return (
     <StyledCell>
       <StyledIconWrapper background={stringToColor(ticker)}>

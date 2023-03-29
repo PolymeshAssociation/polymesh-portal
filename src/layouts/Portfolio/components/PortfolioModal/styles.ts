@@ -21,3 +21,9 @@ export const StyledButtonWrapper = styled.div`
   gap: 16px;
   margin-top: 32px;
 `;
+
+export const StyledError = styled.p`
+  font-size: 12px;
+  font-weight: 500;
+  color: #db2c3e;
+`;

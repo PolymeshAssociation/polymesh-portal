@@ -107,7 +107,11 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
         </Button>
         <Button
           variant="modalPrimary"
-          disabled={!assetItems.length || !selectedPortfolio}
+          disabled={
+            !assetItems.length ||
+            assetItems.some(({ amount }) => amount.toNumber() <= 0) ||
+            !selectedPortfolio
+          }
           onClick={handleMoveAssets}
         >
           Apply

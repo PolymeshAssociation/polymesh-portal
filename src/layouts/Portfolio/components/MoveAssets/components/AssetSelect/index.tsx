@@ -77,18 +77,42 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
 
     if (Number.isNaN(Number(inputValue))) {
       setValidationError('Amount must be a number');
+      if (assetItem) {
+        setAssetItem({
+          asset: (selectedAsset as Asset).toHuman(),
+          amount: new BigNumber(0),
+        });
+      }
       return;
     }
     if (!inputValue) {
       setValidationError('Amount is required');
+      if (assetItem) {
+        setAssetItem({
+          asset: (selectedAsset as Asset).toHuman(),
+          amount: new BigNumber(0),
+        });
+      }
       return;
     }
     if (Number(inputValue) <= 0) {
       setValidationError('Amount must be greater than zero');
+      if (assetItem) {
+        setAssetItem({
+          asset: (selectedAsset as Asset).toHuman(),
+          amount: new BigNumber(0),
+        });
+      }
       return;
     }
     if (Number(inputValue) >= availableBalance) {
       setValidationError('Insufficient balance');
+      if (assetItem) {
+        setAssetItem({
+          asset: (selectedAsset as Asset).toHuman(),
+          amount: new BigNumber(0),
+        });
+      }
       return;
     }
 

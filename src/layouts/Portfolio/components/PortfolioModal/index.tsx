@@ -3,7 +3,7 @@ import { IPortfolioData } from '~/context/PortfolioContext/constants';
 import { usePortfolio } from '~/hooks/polymesh';
 import { Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
-import { StyledInput, StyledButtonWrapper } from './styles';
+import { StyledInput, StyledButtonWrapper, StyledError } from './styles';
 import { EModalType, modalConfig, createFormConfig } from './constants';
 
 interface IPortfolioModalProps {
@@ -52,14 +52,14 @@ export const PortfolioModal: React.FC<IPortfolioModalProps> = ({
       <Heading type="h4" marginBottom={32}>
         {modalConfig[type].title}
       </Heading>
-      {errors.name?.message ? (
-        <span>{errors.name.message as string}</span>
-      ) : null}
       <StyledInput
         placeholder={modalConfig[type].placeholder}
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...register('name')}
       />
+      {errors.name?.message ? (
+        <StyledError>{errors.name.message as string}</StyledError>
+      ) : null}
       <StyledButtonWrapper>
         <Button variant="modalSecondary" onClick={toggleModal}>
           Cancel
