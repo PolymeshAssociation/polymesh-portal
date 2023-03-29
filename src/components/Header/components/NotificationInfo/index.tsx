@@ -37,7 +37,11 @@ export const NotificationInfo = () => {
       </StyledWrapper>
       <StyledNotificationCenter>
         <NotificationHistory handleClose={handleClose} expanded={expanded} />
-        <ToastContainer closeButton={<ToastCloseButton />} />
+        <ToastContainer
+          closeButton={<ToastCloseButton />}
+          enableMultiContainer
+          containerId="notification-center"
+        />
       </StyledNotificationCenter>
     </div>
   );

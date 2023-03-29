@@ -26,6 +26,7 @@ const useTransactionStatus = () => {
           {
             autoClose: false,
             closeOnClick: false,
+            containerId: 'notification-center',
           },
         );
 
@@ -44,6 +45,7 @@ const useTransactionStatus = () => {
           isLoading: true,
           autoClose: false,
           closeOnClick: false,
+          containerId: 'notification-center',
         });
         break;
       case TransactionStatus.Succeeded:
@@ -60,6 +62,7 @@ const useTransactionStatus = () => {
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
+          containerId: 'notification-center',
         });
         break;
       case TransactionStatus.Rejected:
@@ -76,6 +79,7 @@ const useTransactionStatus = () => {
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
+          containerId: 'notification-center',
         });
         break;
 
@@ -94,6 +98,7 @@ const useTransactionStatus = () => {
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
+          containerId: 'notification-center',
         });
         break;
 
@@ -111,6 +116,7 @@ const useTransactionStatus = () => {
           isLoading: false,
           autoClose: false,
           closeOnClick: true,
+          containerId: 'notification-center',
         });
         break;
 

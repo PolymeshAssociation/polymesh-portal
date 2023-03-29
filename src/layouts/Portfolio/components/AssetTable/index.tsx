@@ -86,7 +86,11 @@ export const AssetTable = () => {
                   })),
               );
 
-              setTableData(parsedHistory);
+              setTableData(
+                parsedHistory.sort((a, b) => {
+                  return Number(b.id) - Number(a.id);
+                }),
+              );
             } catch (error) {
               notifyError((error as Error).message);
             } finally {
@@ -148,7 +152,11 @@ export const AssetTable = () => {
                 ),
               );
 
-              setTableData(parsedHistory);
+              setTableData(
+                parsedHistory.sort((a, b) => {
+                  return Number(b.id) - Number(a.id);
+                }),
+              );
             } catch (error) {
               notifyError((error as Error).message);
             } finally {
