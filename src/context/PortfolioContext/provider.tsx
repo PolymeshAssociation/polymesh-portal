@@ -36,13 +36,20 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
     try {
       const portfolios = await identity.portfolios.getPortfolios();
 
-      setDefaultPortfolio(portfolios[0]);
-      setNumberedPortfolios(
-        portfolios.filter((_, idx) => idx !== 0) as NumberedPortfolio[],
-      );
+      const defaultP = portfolios[0];
+      const numberedP = portfolios
+        .filter((_, idx) => idx !== 0)
+        .sort((a, b) => {
+          const first = (a as NumberedPortfolio).toHuman().id as string;
+          const second = (b as NumberedPortfolio).toHuman().id as string;
+          return first.localeCompare(second);
+        }) as NumberedPortfolio[];
 
-      const parsedPortfolios = await Promise.all([
-        ...portfolios.map(async (portfolio, idx) => {
+      setDefaultPortfolio(defaultP);
+      setNumberedPortfolios(numberedP);
+
+      const parsedPortfolios = await Promise.all(
+        [defaultP, ...numberedP].map(async (portfolio, idx) => {
           const data = {
             assets: await portfolio.getAssetBalances(),
             custodian: await portfolio.getCustodian(),
@@ -61,8 +68,14 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
             ...data,
           };
         }),
-      ]);
-      setAllPortfolios(parsedPortfolios);
+      );
+
+      const portfoliosWithNoZeroBalances = parsedPortfolios.map((item) => ({
+        ...item,
+        assets: item.assets.filter(({ total }) => total.toNumber() > 0),
+      }));
+
+      setAllPortfolios(portfoliosWithNoZeroBalances);
 
       const totalBalance = parsedPortfolios.reduce((prevValue, { assets }) => {
         if (!assets.length) return prevValue;
