@@ -12,7 +12,8 @@ export const StyledButton = styled.button<{
   justify-content: center;
   gap: 10px;
   min-width: 128px;
-  padding: 12px 16px;
+  height: 48px;
+  padding: 0 16px;
   border-radius: 100px;
   ${
     variant === EButtonVariants.PRIMARY
@@ -128,6 +129,24 @@ export const StyledButton = styled.button<{
     &:active {
     }
     &:disabled {
+      color: #8F8F8F;
+    }
+    `
+      : ''
+  }
+  ${
+    variant === EButtonVariants.SUCCESS
+      ? `
+    color: #00AA5E;
+    background: #D4F7E7;
+
+    &:hover, &:focus {
+      color: #D4F7E7;
+      background: #00AA5E;
+    }
+  
+    &:disabled {
+      background: #F0F0F0;
       color: #8F8F8F;
     }
     `

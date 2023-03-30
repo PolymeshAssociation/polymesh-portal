@@ -5,6 +5,7 @@ export enum EButtonVariants {
   SECONDARY = 'secondary',
   MODAL_PRIMARY = 'modalPrimary',
   MODAL_SECONDARY = 'modalSecondary',
+  SUCCESS = 'success',
 }
 
 export interface IButtonProps {
