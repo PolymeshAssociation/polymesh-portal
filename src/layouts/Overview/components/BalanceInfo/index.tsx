@@ -12,11 +12,14 @@ import {
   StyledTotalBalance,
 } from './styles';
 import { formatBalance } from '~/helpers/formatters';
+import { AccountContext } from '~/context/AccountContext';
 
 export const BalanceInfo = () => {
   const {
     state: { connecting },
   } = useContext(PolymeshContext);
+  const { identityHasValidCdd, accountIsMultisigSigner } =
+    useContext(AccountContext);
   const { balance, balanceIsLoading } = useBalance();
   const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [receiveModalOpen, setReceiveModalOpen] = useState(false);
@@ -58,11 +61,18 @@ export const BalanceInfo = () => {
           <Text size="large">Locked</Text>
         </div>
         <StyledButtonGroup>
-          <Button onClick={toggleTransferModal}>
+          <Button
+            onClick={toggleTransferModal}
+            disabled={!identityHasValidCdd || accountIsMultisigSigner}
+          >
             <Icon name="ArrowTopRight" />
             Send
           </Button>
-          <Button variant="secondary" onClick={toggleReceiveModal}>
+          <Button
+            variant="secondary"
+            onClick={toggleReceiveModal}
+            disabled={!identityHasValidCdd || accountIsMultisigSigner}
+          >
             <Icon name="ArrowBottomLeft" />
             Receive
           </Button>

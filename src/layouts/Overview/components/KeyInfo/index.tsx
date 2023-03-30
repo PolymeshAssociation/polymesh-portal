@@ -10,8 +10,12 @@ import {
 } from './styles';
 
 export const KeyInfo = () => {
-  const { selectedAccount, primaryKey, secondaryKeys } =
-    useContext(AccountContext);
+  const {
+    selectedAccount,
+    primaryKey,
+    secondaryKeys,
+    accountIsMultisigSigner,
+  } = useContext(AccountContext);
 
   return (
     <StyledWrapper>
@@ -21,12 +25,19 @@ export const KeyInfo = () => {
       <div className="info-wrapper">
         <Text marginBottom={4}>Selected key</Text>
         <KeyInfoWrapper>
-          {selectedAccount === primaryKey ? (
+          {selectedAccount && selectedAccount === primaryKey && (
             <StyledLabel>Primary</StyledLabel>
-          ) : null}
-          {secondaryKeys.includes(selectedAccount) ? (
+          )}
+          {secondaryKeys.includes(selectedAccount) && (
             <StyledLabel>Secondary</StyledLabel>
-          ) : null}
+          )}
+          {accountIsMultisigSigner && (
+            <StyledLabel>MultiSig Signer</StyledLabel>
+          )}
+          {selectedAccount &&
+            selectedAccount !== primaryKey &&
+            !secondaryKeys.includes(selectedAccount) &&
+            !accountIsMultisigSigner && <StyledLabel>Unassigned</StyledLabel>}
           <WalletSelect placement="widget" trimValue={false} />
           <IconWrapper>
             <CopyToClipboard value={selectedAccount} />
