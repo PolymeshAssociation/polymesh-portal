@@ -87,3 +87,12 @@ export const StyledLabel = styled.div`
   font-weight: 500;
   font-size: 12px;
 `;
+
+export const StyledTextWithCopy = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: ${({ theme }) => theme.colors.textPrimary};
+  font-weight: 500;
+  font-size: 16px;
+`;

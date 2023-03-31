@@ -7,3 +7,4 @@ export { default as useNotifications } from './useNotifications';
 export { default as useNetwork } from './useNetwork';
 export { default as useTransferPolyx } from './useTransferPolyx';
 export { default as useTransactionStatus } from './useTransactionStatus';
+export { default as useAuthorizations } from './useAuthorizations';

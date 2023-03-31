@@ -8,7 +8,16 @@ import {
 } from './styles';
 import { TABS } from './constants';
 
-export const AuthorizationsNavigation = () => {
+interface IAuthorizationsNavigationProps {
+  notificationsCount: {
+    incoming: number;
+    outgoing: number;
+  };
+}
+
+export const AuthorizationsNavigation: React.FC<
+  IAuthorizationsNavigationProps
+> = ({ notificationsCount }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const direction = searchParams.get('direction');
 
@@ -22,7 +31,9 @@ export const AuthorizationsNavigation = () => {
               onClick={() => setSearchParams(searchParam)}
             >
               {label}
-              <NotificationCounter count={2} />
+              {!!notificationsCount[label] && (
+                <NotificationCounter count={notificationsCount[label]} />
+              )}
             </StyledNavLink>
           </li>
         ))}
