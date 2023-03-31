@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
+import { Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { Icon, CopyToClipboard, DidSelect } from '~/components';
@@ -15,49 +16,144 @@ import {
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
 import { Details } from './components/Details';
+import { systematicCddProviders } from './constants';
 
 export const DidInfo = () => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identity, identityLoading } = useContext(AccountContext);
-  const [isVerified, setIsVerified] = useState(false);
-  const [expiry, setExpiry] = useState<null | Date>(null);
+  const { identity, identityLoading, identityHasValidCdd } =
+    useContext(AccountContext);
+  const [expiry, setExpiry] = useState<null | Date | undefined>(undefined);
   const [issuer, setIssuer] = useState<string | null>(null);
+  const [claimDetailsLoading, setClaimDetailsLoading] = useState(true);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
   useEffect(() => {
-    if (!identity || !sdk) return undefined;
+    setClaimDetailsLoading(true);
+    if (identityLoading || !sdk) return undefined;
+    if (!identity) {
+      setExpiry(undefined);
+      setIssuer(null);
+      setClaimDetailsLoading(false);
+      return undefined;
+    }
 
     (async () => {
-      const hasValidCdd = await identity.hasValidCdd();
-      setIsVerified(hasValidCdd);
+      const claims = await sdk.claims.getCddClaims({ target: identity });
+      if (!claims.length) {
+        setExpiry(undefined);
+        setIssuer(null);
+        setClaimDetailsLoading(false);
+        return;
+      }
+      // Filter to claims from the current CDD providers only.
+      const filteredClaims = await Promise.all(
+        claims.filter(async (claim) => {
+          const issuerIsCddProvider =
+            (await claim.issuer.isCddProvider()) ||
+            systematicCddProviders.includes(claim.issuer.did);
 
-      if (!hasValidCdd) return;
+          return issuerIsCddProvider;
+        }),
+      );
+      // Sort claims latest expiry first, null (= never) is sorted first
+      const sortedClaims = filteredClaims.sort((a, b) => {
+        if (!a.expiry) return -1;
+        if (!b.expiry) return 1;
+        return b.expiry.getTime() - a.expiry.getTime();
+      });
 
-      const claims = await sdk.claims.getCddClaims();
-      if (!claims.length) return;
-
-      setExpiry(claims[0].expiry);
-      setIssuer(claims[0].issuer.did);
+      setExpiry(sortedClaims[0].expiry);
+      setIssuer(sortedClaims[0].issuer.did);
+      setClaimDetailsLoading(false);
     })();
 
     return () => {
-      setIsVerified(false);
-      setExpiry(null);
+      setExpiry(undefined);
       setIssuer(null);
+      setClaimDetailsLoading(false);
     };
-  }, [identity, sdk]);
+  }, [identity, identityLoading, sdk]);
 
   const parseExpiry = (expiryValue: null | Date | undefined) => {
-    if (typeof expiryValue === 'undefined') return 'unknown';
+    if (typeof expiryValue === 'undefined') return 'CDD claim missing';
 
-    if (expiryValue === null) return 'never';
+    if (expiryValue === null) return 'Never';
 
-    return expiry?.toString();
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric' as const,
+      month: '2-digit' as const,
+      day: '2-digit' as const,
+      hour: '2-digit' as const,
+      minute: '2-digit' as const,
+      hour12: false,
+    };
+
+    const localDateString = expiryValue
+      .toLocaleString('en-CA', options) // locale 'en-CA' returns format YYYY-MM-DD h:mm:ss
+      .replace(',', '');
+    return localDateString;
   };
 
   const toggleModal = () => setDetailsExpanded((prev) => !prev);
+
+  const renderBottomInfo = (
+    activeIdentity: Identity | null,
+    expiryDate: Date | null | undefined,
+    issuerDid: string | null,
+  ) => {
+    const date = parseExpiry(expiryDate);
+    if (!activeIdentity) {
+      return (
+        <Text size="small">
+          The selected key is not linked to a Polymesh Account. To use this key,
+          you can either onboard it through a Polymesh Customer Due Diligence
+          Provider to create a new Polymesh Account, or have the key assigned to
+          an existing Polymesh Account.
+        </Text>
+      );
+    }
+    if (expiryDate === undefined) {
+      return (
+        <Text size="small">
+          The selected identity is missing a valid customer due diligence claim.
+          To use this identity, complete the onboarding process with a Polymesh
+          customer due diligence provider to receive a valid CDD claim.
+        </Text>
+      );
+    }
+    if (expiryDate && expiryDate <= new Date()) {
+      return (
+        <Text size="small">
+          The previous identity claim associated with this account has expired
+          as of <span>{date}</span>. Please renew your identity verification by
+          completing the onboarding process with a Polymesh customer due
+          diligence provider.
+        </Text>
+      );
+    }
+    return (
+      <>
+        <div>
+          Expires on:
+          <span>{date}</span>
+        </div>
+        <Separator />
+        <div>
+          Verified by:
+          <span>
+            {formatDid(issuerDid)}
+            {!!issuerDid && (
+              <IconWrapper>
+                <CopyToClipboard value={issuerDid} />
+              </IconWrapper>
+            )}
+          </span>
+        </div>
+      </>
+    );
+  };
 
   return (
     <>
@@ -73,7 +169,7 @@ export const DidInfo = () => {
               </Text>
             ) : (
               <>
-                {isVerified && (
+                {identityHasValidCdd && (
                   <StyledVerifiedLabel>Verified</StyledVerifiedLabel>
                 )}
                 <Text marginBottom={4}>Your DID</Text>
@@ -88,32 +184,9 @@ export const DidInfo = () => {
           </div>
         </StyledTopInfo>
         <StyledBottomInfo>
-          {!identityLoading && !identity ? (
-            <Text size="small">
-              The selected key is not associated with a Polymesh Account. In
-              order to use this key, either create a Polymesh Account, or have
-              the key assigned to another Polymesh Account.
-            </Text>
-          ) : (
-            <>
-              <div>
-                Expires on:
-                <span>{identityLoading ? '...' : parseExpiry(expiry)}</span>
-              </div>
-              <Separator />
-              <div>
-                Verified by:
-                <span>
-                  {identityLoading ? '...' : formatDid(issuer)}
-                  {!!issuer && (
-                    <IconWrapper>
-                      <CopyToClipboard value={issuer} />
-                    </IconWrapper>
-                  )}
-                </span>
-              </div>
-            </>
-          )}
+          {!identityLoading &&
+            !claimDetailsLoading &&
+            renderBottomInfo(identity, expiry, issuer)}
         </StyledBottomInfo>
         {!identityLoading && !identity ? (
           <StyledButtonWrapper>
@@ -149,7 +222,7 @@ export const DidInfo = () => {
       {detailsExpanded && (
         <Details
           toggleModal={toggleModal}
-          isVerified={isVerified}
+          isVerified={identityHasValidCdd}
           did={identity?.did}
           expiry={parseExpiry(expiry)}
           issuer={issuer}

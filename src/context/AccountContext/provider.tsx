@@ -26,8 +26,12 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [allIdentities, setAllIdentities] = useState<(Identity | null)[]>([]);
   const [primaryKey, setPrimaryKey] = useState<string>('');
   const [secondaryKeys, setSecondaryKeys] = useState<string[]>([]);
-  const [identityLoading, setIdentityLoading] = useState(false);
+  const [identityLoading, setIdentityLoading] = useState(true);
   const [allKeyBalances, setAllKeyBalances] = useState<IBalanceByKey[]>([]);
+  const [identityHasValidCdd, setIdentityHasValidCdd] =
+    useState<boolean>(false);
+  const [accountIsMultisigSigner, setAccountIsMultisigSigner] =
+    useState<boolean>(false);
 
   // Get list of connected accounts when sdk is initialized with signing manager
   useEffect(() => {
@@ -54,25 +58,13 @@ const AccountProvider = ({ children }: IProviderProps) => {
     return () => unsubCb();
   }, [initialized, signingManager]);
 
-  // Set selected account and account instance when account array changes
+  // Set selected account when account array changes
   useEffect(() => {
-    if (!sdk || !allAccounts.length) return;
-
-    (async () => {
-      try {
-        const accountInstance = await sdk.accountManagement.getAccount({
-          address: allAccounts[0],
-        });
-
-        setAccount(accountInstance);
+    if (!allAccounts.length) return;
         setSelectedAccount(allAccounts[0]);
-      } catch (error) {
-        notifyError((error as Error).message);
-      }
-    })();
-  }, [allAccounts, sdk]);
+  }, [allAccounts]);
 
-  // Set account instance when manually changing account in app
+  // Set account instance when selected account changes
   useEffect(() => {
     if (!selectedAccount || !sdk) return;
 
@@ -83,6 +75,11 @@ const AccountProvider = ({ children }: IProviderProps) => {
         });
 
         setAccount(accountInstance);
+        await sdk.setSigningAccount(accountInstance);
+
+        const multiSig = await accountInstance.getMultiSig();
+        setAccountIsMultisigSigner(!!multiSig);
+
       } catch (error) {
         notifyError((error as Error).message);
       }
@@ -101,19 +98,25 @@ const AccountProvider = ({ children }: IProviderProps) => {
           await sdk.accountManagement.getSigningAccounts();
 
         const accIdentity = await account.getIdentity();
+        const allAccIdentities = await Promise.all(
+          signingAccounts.map((acc) => acc.getIdentity()),
+        );
 
-        const allAccIdentities = (
-          await Promise.all(signingAccounts.map((acc) => acc.getIdentity()))
-        ).filter((option) => option !== null);
+        // Place the selected account's identity at the first index of the array
+        if (accIdentity !== null) {
+          allAccIdentities.unshift(accIdentity);
+        }
+        // Filter out duplicate or null identities
+        const uniqueIdentities = allAccIdentities.filter((id, index, self) => {
+          return (
+            id !== null &&
+            index ===
+              self.findIndex((otherId) => otherId && otherId.did === id.did)
+          );
+        });
 
         setIdentity(accIdentity);
-        setAllIdentities(allAccIdentities);
-
-        // Set signer if selected key has assigned identity
-        // eslint-disable-next-line no-underscore-dangle
-        if (accIdentity && sdk._signingAddress === account.address) {
-          await sdk.setSigningAccount(account.address);
-        }
+        setAllIdentities(uniqueIdentities);
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
@@ -159,6 +162,20 @@ const AccountProvider = ({ children }: IProviderProps) => {
     return () => (unsubCb ? unsubCb() : undefined);
   }, [identity]);
 
+  // Check identity CDD status
+  useEffect(() => {
+      if (!identity) {
+        setIdentityHasValidCdd(false);
+        return;
+      }
+
+    const fetchCddStatus = async () => {
+      setIdentityHasValidCdd(await identity.hasValidCdd());
+    };
+
+    fetchCddStatus();
+  }, [identity]);
+
   // Get total balance for all keys associated with current DID
   useEffect(() => {
     if (!sdk || !primaryKey) return;
@@ -193,6 +210,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
       secondaryKeys,
       identityLoading,
       allKeyBalances,
+      identityHasValidCdd,
+      accountIsMultisigSigner,
     }),
     [
       account,
@@ -204,6 +223,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
       secondaryKeys,
       identityLoading,
       allKeyBalances,
+      identityHasValidCdd,
+      accountIsMultisigSigner,
     ],
   );
 

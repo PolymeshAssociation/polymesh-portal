@@ -25,7 +25,7 @@ interface IDetailsProps {
   toggleModal: () => void;
   isVerified: boolean;
   did?: string;
-  expiry?: string;
+  expiry: string;
   issuer: string | null;
 }
 

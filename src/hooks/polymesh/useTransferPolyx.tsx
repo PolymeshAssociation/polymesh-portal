@@ -70,18 +70,6 @@ const useTransferPolyx = () => {
 
     setTransactionInProcess(true);
 
-    // Check permissions
-    const isAuthorized = await sdk.network.transferPolyx.checkAuthorization({
-      amount: new BigNumber(amount),
-      to,
-      memo,
-    });
-    if (!isAuthorized) {
-      return notifyWarning(
-        "Selected key doesn't have permission to sign the transaction",
-      );
-    }
-
     let unsubCb: UnsubCallback | null = null;
 
     try {
