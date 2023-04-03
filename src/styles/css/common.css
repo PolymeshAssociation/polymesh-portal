@@ -29,8 +29,7 @@ button {
 }
 
 button:disabled {
-  cursor: initial;
-  pointer-events: none;
+  cursor: not-allowed;
 }
 
 ul {

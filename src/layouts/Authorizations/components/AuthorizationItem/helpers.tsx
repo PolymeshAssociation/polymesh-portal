@@ -1,5 +1,6 @@
 import { HumanReadable } from '@polymeshassociation/polymesh-sdk/api/entities/AuthorizationRequest';
 import { AuthorizationType } from '@polymeshassociation/polymesh-sdk/types';
+import { CopyToClipboard } from '~/components';
 import {
   StyledDetailsWrapper,
   StyledDetailItem,
@@ -109,6 +110,25 @@ const parseDetails = (staticData: HumanReadable) => {
         },
       ];
 
+    case AuthorizationType.AddRelayerPayingKey:
+      return [
+        {
+          permission: details.value.allowance ? 'Allowance' : null,
+          type: null,
+          details: [details.value.allowance],
+        },
+        {
+          permission: details.value.beneficiary ? 'Beneficiary' : null,
+          type: null,
+          details: [details.value.beneficiary],
+        },
+        {
+          permission: details.value.subsidizer ? 'Subsidizer' : null,
+          type: null,
+          details: [details.value.subsidizer],
+        },
+      ];
+
     default:
       return [];
   }
@@ -116,6 +136,14 @@ const parseDetails = (staticData: HumanReadable) => {
 
 export const renderDetails = (staticData: HumanReadable) => {
   const parsedDetails = parseDetails(staticData);
+
+  if (
+    parsedDetails.every(
+      ({ permission, type }) => permission === null && type === null,
+    )
+  ) {
+    return null;
+  }
 
   return parsedDetails.length ? (
     <StyledDetailsWrapper>
@@ -126,7 +154,14 @@ export const renderDetails = (staticData: HumanReadable) => {
             {details.length ? (
               details.map((detail) => (
                 <StyledDetailValue key={detail}>
-                  {detail.length === 66 ? formatDid(detail) : detail}
+                  {detail.length === 66 || detail.length === 48 ? (
+                    <>
+                      {formatDid(detail, 6, 7)}
+                      <CopyToClipboard value={detail} />
+                    </>
+                  ) : (
+                    detail
+                  )}
                 </StyledDetailValue>
               ))
             ) : (

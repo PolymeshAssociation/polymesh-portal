@@ -18,6 +18,7 @@ import {
 } from './styles';
 import { renderDetails } from './helpers';
 import { formatDid } from '~/helpers/formatters';
+import { toParsedDateTime } from '~/helpers/dateTime';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
 
@@ -71,6 +72,8 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
     }
   };
 
+  const details = renderDetails(data);
+
   return (
     <StyledItemWrapper>
       <StyledInfoWrapper>
@@ -96,14 +99,14 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
         <StyledInfoItem>
           Expiry Date
           <Text size="large" bold>
-            {data.expiry || 'Never'}
+            {data.expiry ? toParsedDateTime(data.expiry) : 'Never'}
           </Text>
         </StyledInfoItem>
         {direction === EAuthorizationDirections.OUTGOING && (
           <StyledLabel>Pending</StyledLabel>
         )}
       </StyledInfoWrapper>
-      {detailsExpanded && renderDetails(data)}
+      {detailsExpanded && details ? details : null}
       <StyledButtonsWrapper expanded={detailsExpanded}>
         {direction === EAuthorizationDirections.INCOMING ? (
           <>
@@ -128,7 +131,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
             Cancel
           </Button>
         )}
-        <Button variant="secondary" onClick={toggleDetails}>
+        <Button variant="secondary" onClick={toggleDetails} disabled={!details}>
           Details
         </Button>
       </StyledButtonsWrapper>

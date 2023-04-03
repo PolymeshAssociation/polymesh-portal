@@ -4,7 +4,7 @@ import { AccountContext } from '~/context/AccountContext';
 import { notifyError } from '~/helpers/notifications';
 
 const useAuthorizations = () => {
-  const { account, identity } = useContext(AccountContext);
+  const { account, identity, identityLoading } = useContext(AccountContext);
   const [incomingAuthorizations, setIncomingAuthorizations] = useState<
     AuthorizationRequest[]
   >([]);
@@ -14,20 +14,33 @@ const useAuthorizations = () => {
   const [authorizationsLoading, setAuthorizationsLoading] = useState(true);
 
   useEffect(() => {
-    if (!account) return;
+    if (!account || identityLoading) return;
 
     (async () => {
       try {
         setAuthorizationsLoading(true);
 
-        const incoming = await account.authorizations.getReceived();
-        const outgoing = await identity?.authorizations.getSent();
-
-        setIncomingAuthorizations(incoming);
-        if (outgoing) {
-          setOutgoingAuthorizations(outgoing.data);
-        } else {
+        if (!identity) {
+          const incoming = await account.authorizations.getReceived();
+          setIncomingAuthorizations(
+            incoming.sort((a, b) => a.authId.toNumber() - b.authId.toNumber()),
+          );
           setOutgoingAuthorizations([]);
+        } else {
+          const identityIncoming = await identity.authorizations.getReceived();
+          const outgoing = await identity.authorizations.getSent();
+
+          setIncomingAuthorizations(
+            identityIncoming.sort(
+              (a, b) => a.authId.toNumber() - b.authId.toNumber(),
+            ),
+          );
+
+          setOutgoingAuthorizations(
+            outgoing.data.sort(
+              (a, b) => a.authId.toNumber() - b.authId.toNumber(),
+            ),
+          );
         }
       } catch (error) {
         notifyError((error as Error).message);
@@ -35,7 +48,7 @@ const useAuthorizations = () => {
         setAuthorizationsLoading(false);
       }
     })();
-  }, [account, identity]);
+  }, [account, identity, identityLoading]);
 
   return {
     incomingAuthorizations,

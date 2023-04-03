@@ -6,7 +6,7 @@ import { useContext, useState, useEffect } from 'react';
 import { AccountContext } from '~/context/AccountContext';
 
 const useNotifications = () => {
-  const { account, identity } = useContext(AccountContext);
+  const { account, identity, identityLoading } = useContext(AccountContext);
   const [pendingInstructions, setPendingInstructions] = useState<Instruction[]>(
     [],
   );
@@ -18,21 +18,31 @@ const useNotifications = () => {
 
   //   Get all pending instructions and authorizations for current account
   useEffect(() => {
-    if (!account) return;
+    if (!account || identityLoading) return;
 
     (async () => {
       try {
         setNotificationsLoading(true);
 
-        const authorizations = await account.authorizations.getReceived();
+        if (!identity) {
+          const authorizations = await account.authorizations.getReceived();
+          setPendingInstructions([]);
+          setPendingAuthorizations(
+            authorizations.sort(
+              (a, b) => a.authId.toNumber() - b.authId.toNumber(),
+            ),
+          );
+        } else {
+          const instructions = await identity.getInstructions();
+          const identityAuthorizations =
+            await identity.authorizations.getReceived();
 
-        const instructions = await identity?.getInstructions();
-
-        if (instructions) {
+          setPendingAuthorizations(
+            identityAuthorizations.sort(
+              (a, b) => a.authId.toNumber() - b.authId.toNumber(),
+            ),
+          );
           setPendingInstructions(instructions.pending);
-        }
-        if (authorizations) {
-          setPendingAuthorizations(authorizations);
         }
       } catch (error) {
         setNotificationsError((error as Error).message);
@@ -40,7 +50,7 @@ const useNotifications = () => {
         setNotificationsLoading(false);
       }
     })();
-  }, [identity, account]);
+  }, [identity, account, identityLoading]);
 
   return {
     pendingInstructions,

@@ -23,6 +23,7 @@ export const StyledInfoItem = styled.div`
 
 export const StyledDetailsWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   padding: 24px;
   margin-bottom: 24px;
@@ -37,12 +38,12 @@ export const StyledDetailItem = styled.div`
   font-size: 14px;
   color: ${({ theme }) => theme.colors.textSecondary};
 
-  &:not(:first-child)::before {
+  &:not(:last-child)::after {
     content: '';
     display: block;
     width: 1px;
     height: 32px;
-    margin-right: 8px;
+    margin-left: 8px;
     background-color: #e6e6e6;
   }
 `;
