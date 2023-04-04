@@ -145,8 +145,8 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
       {!!selectedAuthType && (
         <StyledInputGroup>
           {inputs.map(({ id, label, type, placeholder, values }) => (
-            <InputWrapper key={id}>
-              {type === 'radio' ? (
+            <InputWrapper key={id} isSelect={type === 'select'}>
+              {type === 'select' ? (
                 <StyledSelectWrapper ref={selectRef}>
                   <StyledLabel htmlFor={id}>{label}</StyledLabel>
                   <StyledSelect
@@ -160,22 +160,28 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
                         name={id}
                         render={({ field: { onChange } }) => (
                           <StyledExpandedTypeSelect>
-                            {values.map((option) => (
+                            {values.map((value) => (
                               <StyledTypeOption
-                                key={option}
+                                key={value.authType}
                                 onClick={() => {
-                                  onChange(option);
+                                  onChange(value.authType);
                                   trigger('permissions');
                                 }}
                               >
-                                {option}
+                                {value.name}
                               </StyledTypeOption>
                             ))}
                           </StyledExpandedTypeSelect>
                         )}
                       />
                     )}
-                    <span>{watch('permissions') || 'Select...'}</span>
+                    <span>
+                      {watch('permissions')
+                        ? values.find(
+                            ({ authType }) => authType === watch('permissions'),
+                          ).name
+                        : 'Select...'}
+                    </span>
                     <Icon name="DropdownIcon" className="icon" />
                   </StyledSelect>
                 </StyledSelectWrapper>

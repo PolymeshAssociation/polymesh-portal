@@ -97,8 +97,26 @@ export const configureInputs = (type: `${AuthorizationType}` | null) => {
         {
           id: INPUT_NAMES.PERMISSIONS,
           label: 'Permissions',
-          type: 'radio',
-          values: [...Object.values(PermissionGroupType)],
+          type: 'select',
+          values: [
+            { authType: PermissionGroupType.Full, name: 'Full Permissions' },
+            {
+              authType: PermissionGroupType.ExceptMeta,
+              name: 'Full without Agent Permissions',
+            },
+            {
+              authType: PermissionGroupType.PolymeshV1Caa,
+              name: 'Corporate Action Agent',
+            },
+            {
+              authType: PermissionGroupType.PolymeshV1Pia,
+              name: 'Primary Issuance Agent',
+            },
+            {
+              authType: 'Custom',
+              name: 'Custom Permissions',
+            },
+          ],
         },
       ];
     case AuthorizationType.AddRelayerPayingKey:

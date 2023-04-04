@@ -88,9 +88,10 @@ export const StyledInputGroup = styled.div`
   margin-top: 16px;
 `;
 
-export const InputWrapper = styled.div`
+export const InputWrapper = styled.div<{ isSelect: boolean }>`
+  ${({ isSelect }) => (isSelect ? `grid-column: 1 / 3;` : '')}
   position: relative;
-  width: 216px;
+  /* width: 216px; */
 `;
 
 export const StyledInput = styled.input`
