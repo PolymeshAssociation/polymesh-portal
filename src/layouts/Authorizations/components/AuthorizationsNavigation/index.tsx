@@ -1,6 +1,7 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AccountContext } from '~/context/AccountContext';
+import { AddNewAuth } from '../AddNewAuth';
 import { Button, NotificationCounter } from '~/components/UiKit';
 import {
   StyledNavBar,
@@ -21,6 +22,7 @@ export const AuthorizationsNavigation: React.FC<
   IAuthorizationsNavigationProps
 > = ({ notificationsCount }) => {
   const { identity } = useContext(AccountContext);
+  const [addNewAuthExpanded, setAddNewAuthExpanded] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const direction = searchParams.get('direction');
 
@@ -29,6 +31,8 @@ export const AuthorizationsNavigation: React.FC<
 
     setSearchParams({ direction: 'incoming' });
   }, [identity, setSearchParams]);
+
+  const toggleModal = () => setAddNewAuthExpanded((prev) => !prev);
 
   return (
     <StyledNavBar>
@@ -49,10 +53,15 @@ export const AuthorizationsNavigation: React.FC<
         ))}
       </StyledNavList>
       <StyledActionsWrapper>
-        <Button variant="modalPrimary" disabled={!identity}>
+        <Button
+          variant="modalPrimary"
+          disabled={!identity}
+          onClick={toggleModal}
+        >
           Create New Auth
         </Button>
       </StyledActionsWrapper>
+      {addNewAuthExpanded && <AddNewAuth toggleModal={toggleModal} />}
     </StyledNavBar>
   );
 };
