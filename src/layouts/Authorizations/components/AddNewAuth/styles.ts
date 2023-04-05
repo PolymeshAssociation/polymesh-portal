@@ -45,7 +45,7 @@ export const StyledExpandedTypeSelect = styled.div`
   z-index: 1;
 `;
 
-export const StyledTypeOption = styled.button<{ isSelected: boolean }>`
+export const StyledTypeOption = styled.button<{ isSelected?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -150,6 +150,9 @@ export const StyledLabel = styled.label`
 `;
 
 export const StyledErrorMessage = styled.span`
+  position: absolute;
+  top: 100%;
+  left: 0;
   font-size: 12px;
   font-weight: 500;
   color: #db2c3e;

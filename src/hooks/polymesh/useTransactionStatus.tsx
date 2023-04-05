@@ -11,7 +11,8 @@ const useTransactionStatus = () => {
   const idRef = useRef<Id>(0);
 
   const handleStatusChange = (
-    transaction: GenericPolymeshTransaction<void, void>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    transaction: GenericPolymeshTransaction<any, any>,
   ) => {
     switch (transaction.status) {
       case TransactionStatus.Unapproved:

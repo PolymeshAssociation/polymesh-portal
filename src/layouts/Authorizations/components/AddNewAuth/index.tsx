@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { AuthorizationType } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  Asset,
+  AuthorizationType,
+  TickerReservation,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { FieldValues, SubmitHandler, Controller } from 'react-hook-form';
 import { Icon, Modal } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
@@ -18,15 +22,27 @@ import {
   StyledErrorMessage,
   SoonLabel,
 } from './styles';
-import { disabledAuthTypes, configureInputs, useCustomForm } from './helpers';
+import {
+  disabledAuthTypes,
+  configureInputs,
+  useCustomForm,
+  useSubmitHandler,
+  renderParsedSelectedValue,
+  selectInputsDefaultValue,
+  IFieldValues,
+} from './helpers';
 
 interface IAddNewAuthProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
 }
 
+const selectRefs: Node[] = [];
+
 export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
   const [typeDropdownExpanded, setTypeDropdownExpanded] = useState(false);
-  const [selectExpanded, setSelectExpanded] = useState(false);
+  const [selectExpanded, setSelectExpanded] = useState<{
+    [x: string]: boolean;
+  }>(selectInputsDefaultValue);
   const [selectedAuthType, setSelectedAuthType] = useState<
     `${AuthorizationType}` | null
   >(null);
@@ -38,8 +54,16 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
     trigger,
     formState: { errors, isValid },
   } = useCustomForm(selectedAuthType);
+  const { submitHandler, entityData, typesWithRequiredEntityData } =
+    useSubmitHandler();
   const typeRef = useRef<HTMLDivElement>(null);
-  const selectRef = useRef<HTMLDivElement>(null);
+
+  const addRef = (element: Node | null) => {
+    if (!element) return;
+    if (selectRefs.includes(element)) return;
+
+    selectRefs.push(element);
+  };
 
   useEffect(() => {
     const handleClickOutside: EventListenerOrEventListenerObject = (event) => {
@@ -60,10 +84,11 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
   useEffect(() => {
     const handleClickOutside: EventListenerOrEventListenerObject = (event) => {
       if (
-        selectRef.current &&
-        !selectRef.current.contains(event.target as Node | null)
+        !selectRefs.some((element) =>
+          element.contains(event.target as Node | null),
+        )
       ) {
-        setSelectExpanded(false);
+        setSelectExpanded(selectInputsDefaultValue);
       }
     };
 
@@ -71,28 +96,38 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [selectRef, trigger]);
+  }, []);
 
   const handleTypeDropdownToggle = () =>
     setTypeDropdownExpanded((prev) => !prev);
-  const handleSelectToggle = () => {
+  const handleSelectToggle = (id: string) => {
     setSelectExpanded((prev) => {
-      if (!prev) {
+      if (!prev[id]) {
         trigger('permissions');
       }
-      return !prev;
+      return { ...prev, [id]: !prev[id] };
     });
   };
 
   const handleAuthTypeSelect: React.ReactEventHandler = ({ target }) => {
-    setSelectedAuthType((target as HTMLButtonElement).textContent);
+    setSelectedAuthType(
+      (target as HTMLButtonElement).textContent as
+        | `${AuthorizationType}`
+        | null,
+    );
     handleTypeDropdownToggle();
   };
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
-    console.log(
-      data.expiry ? { ...data, expiry: new Date(data.expiry) } : data,
-    );
+    submitHandler[
+      selectedAuthType as
+        | 'TransferTicker'
+        | 'TransferAssetOwnership'
+        | 'JoinIdentity'
+        | 'PortfolioCustody'
+        | 'BecomeAgent'
+        | 'AddRelayerPayingKey'
+    ](data);
     toggleModal();
   };
 
@@ -144,71 +179,137 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
       </StyledTypeSelectWrapper>
       {!!selectedAuthType && (
         <StyledInputGroup>
-          {inputs.map(({ id, label, type, placeholder, values }) => (
-            <InputWrapper key={id} isSelect={type === 'select'}>
-              {type === 'select' ? (
-                <StyledSelectWrapper ref={selectRef}>
-                  <StyledLabel htmlFor={id}>{label}</StyledLabel>
-                  <StyledSelect
-                    expanded={selectExpanded}
-                    isSelected={!watch('permissions')}
-                    onClick={handleSelectToggle}
-                  >
-                    {selectExpanded && (
-                      <Controller
-                        control={control}
-                        name={id}
-                        render={({ field: { onChange } }) => (
-                          <StyledExpandedTypeSelect>
-                            {values.map((value) => (
-                              <StyledTypeOption
-                                key={value.authType}
-                                onClick={() => {
-                                  onChange(value.authType);
-                                  trigger('permissions');
-                                }}
-                              >
-                                {value.name}
-                              </StyledTypeOption>
-                            ))}
-                          </StyledExpandedTypeSelect>
-                        )}
-                      />
-                    )}
-                    <span>
-                      {watch('permissions')
-                        ? values.find(
-                            ({ authType }) => authType === watch('permissions'),
-                          ).name
-                        : 'Select...'}
-                    </span>
-                    <Icon name="DropdownIcon" className="icon" />
-                  </StyledSelect>
-                </StyledSelectWrapper>
-              ) : (
-                <>
+          {inputs.map(({ id, label, type, placeholder, values }) => {
+            if (id === 'groupId' && watch('permissions') !== 'Custom') {
+              return null;
+            }
+            if (id === 'groupId' && watch('permissions') === 'Custom') {
+              return (
+                <InputWrapper key={id} isSelect={type === 'select'}>
                   <StyledLabel htmlFor={id}>{label}</StyledLabel>
                   <StyledInput
                     // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...register(id)}
+                    {...register(id as keyof IFieldValues)}
                     id={id}
                     placeholder={placeholder}
                     type={type}
-                    min={
-                      type === 'date'
-                        ? new Date().toISOString().split('T')[0]
-                        : undefined
-                    }
                   />
-                </>
-              )}
-              {!!errors[id] && (
-                <StyledErrorMessage>
-                  {errors[id].message as string}
-                </StyledErrorMessage>
-              )}
-            </InputWrapper>
-          ))}
+                  {!!errors[id] && (
+                    <StyledErrorMessage>
+                      {errors[id as keyof IFieldValues]?.message as string}
+                    </StyledErrorMessage>
+                  )}
+                </InputWrapper>
+              );
+            }
+
+            return (
+              <InputWrapper key={id} isSelect={type === 'select'}>
+                {type === 'select' ? (
+                  <StyledSelectWrapper ref={addRef}>
+                    <StyledLabel htmlFor={id}>{label}</StyledLabel>
+                    <StyledSelect
+                      expanded={selectExpanded[id]}
+                      isSelected={!watch(id as keyof IFieldValues)}
+                      onClick={() => handleSelectToggle(id)}
+                    >
+                      {selectExpanded[id] && (
+                        <Controller
+                          control={control}
+                          name={id as keyof IFieldValues}
+                          render={({ field: { onChange } }) => {
+                            if (
+                              id !== 'permissions' &&
+                              typesWithRequiredEntityData.includes(
+                                selectedAuthType as
+                                  | AuthorizationType.TransferTicker
+                                  | AuthorizationType.BecomeAgent
+                                  | AuthorizationType.TransferAssetOwnership,
+                              ) &&
+                              !entityData[
+                                selectedAuthType as
+                                  | AuthorizationType.TransferTicker
+                                  | AuthorizationType.BecomeAgent
+                                  | AuthorizationType.TransferAssetOwnership
+                              ].length
+                            ) {
+                              return (
+                                <StyledExpandedTypeSelect>
+                                  <Text>No {id}s available</Text>
+                                </StyledExpandedTypeSelect>
+                              );
+                            }
+                            return (
+                              <StyledExpandedTypeSelect>
+                                {values
+                                  ? values.map((value) => (
+                                      <StyledTypeOption
+                                        key={value.authType}
+                                        onClick={() => {
+                                          onChange(value.authType);
+                                          trigger(id as keyof IFieldValues);
+                                        }}
+                                      >
+                                        {value.name}
+                                      </StyledTypeOption>
+                                    ))
+                                  : (
+                                      entityData[
+                                        selectedAuthType as
+                                          | AuthorizationType.TransferTicker
+                                          | AuthorizationType.BecomeAgent
+                                          | AuthorizationType.TransferAssetOwnership
+                                      ] as Asset[] | TickerReservation[]
+                                    ).map(({ ticker }) => (
+                                      <StyledTypeOption
+                                        key={ticker}
+                                        onClick={() => {
+                                          onChange(ticker);
+                                          trigger(id as keyof IFieldValues);
+                                        }}
+                                      >
+                                        {ticker}
+                                      </StyledTypeOption>
+                                    ))}
+                              </StyledExpandedTypeSelect>
+                            );
+                          }}
+                        />
+                      )}
+                      <span>
+                        {renderParsedSelectedValue(
+                          watch(id as keyof IFieldValues),
+                          values,
+                        )}
+                      </span>
+                      <Icon name="DropdownIcon" className="icon" />
+                    </StyledSelect>
+                  </StyledSelectWrapper>
+                ) : (
+                  <>
+                    <StyledLabel htmlFor={id}>{label}</StyledLabel>
+                    <StyledInput
+                      // eslint-disable-next-line react/jsx-props-no-spreading
+                      {...register(id as keyof IFieldValues)}
+                      id={id}
+                      placeholder={placeholder}
+                      type={type}
+                      min={
+                        type === 'date'
+                          ? new Date().toISOString().split('T')[0]
+                          : undefined
+                      }
+                    />
+                  </>
+                )}
+                {!!errors[id as keyof IFieldValues] && (
+                  <StyledErrorMessage>
+                    {errors[id as keyof IFieldValues]?.message as string}
+                  </StyledErrorMessage>
+                )}
+              </InputWrapper>
+            );
+          })}
         </StyledInputGroup>
       )}
       <StyledButtonsWrapper>

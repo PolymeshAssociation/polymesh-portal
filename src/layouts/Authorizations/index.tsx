@@ -40,7 +40,7 @@ const Authorizations = () => {
       )}
       {!identityLoading &&
         !authorizationsLoading &&
-        !notificationsCount[direction] && (
+        !notificationsCount[direction as `${EAuthorizationDirections}`] && (
           <AuthorizationPlaceholder>
             No {direction} authorizations
           </AuthorizationPlaceholder>

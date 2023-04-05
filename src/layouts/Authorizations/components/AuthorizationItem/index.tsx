@@ -44,7 +44,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
   const handleAccept = async () => {
     if (!accept) return;
 
-    let unsubCb: UnsubCallback;
+    let unsubCb: UnsubCallback | undefined;
     try {
       setAcceptInProgress(true);
       const acceptTx = await (accept as NoArgsProcedureMethod<void, void>)();
@@ -54,11 +54,13 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
       notifyError((error as Error).message);
     } finally {
       setAcceptInProgress(false);
-      unsubCb();
+      if (unsubCb) {
+        unsubCb();
+      }
     }
   };
   const handleReject = async () => {
-    let unsubCb: UnsubCallback;
+    let unsubCb: UnsubCallback | undefined;
     try {
       setRejectInProgress(true);
       const rejectTx = await reject();
@@ -68,7 +70,9 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
       notifyError((error as Error).message);
     } finally {
       setRejectInProgress(false);
-      unsubCb();
+      if (unsubCb) {
+        unsubCb();
+      }
     }
   };
 
