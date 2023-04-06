@@ -37,3 +37,13 @@ export const getExtrinsicTimestamp = gql`
     }
   }
 `;
+
+export const getTimestampByBlockHash = gql`
+  query getTimestamp($hash: String!) {
+    blocks(filter: { hash: { equalTo: $hash } }) {
+      nodes {
+        datetime
+      }
+    }
+  }
+`;

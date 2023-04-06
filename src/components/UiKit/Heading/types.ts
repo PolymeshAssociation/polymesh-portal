@@ -19,6 +19,6 @@ export interface IHeadingProps {
   centered?: boolean;
   marginTop?: number;
   marginBottom?: number;
-  transform?: EHeadingCases;
+  transform?: `${EHeadingCases}`;
   children: React.ReactNode;
 }

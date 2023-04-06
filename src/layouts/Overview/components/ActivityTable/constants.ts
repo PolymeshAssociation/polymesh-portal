@@ -26,8 +26,8 @@ export const TOKEN_COLUMNS = [
     accessor: 'from',
   },
   { header: 'To', accessor: 'to' },
-  { header: 'Amount', accessor: 'amount' },
   { header: 'Asset', accessor: 'asset' },
+  { header: 'Amount', accessor: 'amount' },
 ];
 
 export interface IIdData {
