@@ -1,9 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import {
-  Asset,
-  AuthorizationType,
-  TickerReservation,
-} from '@polymeshassociation/polymesh-sdk/types';
+import { AuthorizationType } from '@polymeshassociation/polymesh-sdk/types';
 import { FieldValues, SubmitHandler, Controller } from 'react-hook-form';
 import { Icon, Modal } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
@@ -23,14 +19,19 @@ import {
   SoonLabel,
 } from './styles';
 import {
-  disabledAuthTypes,
   configureInputs,
-  useCustomForm,
-  useSubmitHandler,
   renderParsedSelectedValue,
+  isPortfolioData,
+} from './helpers';
+import { useCustomForm, useSubmitHandler } from './hooks';
+import {
+  disabledAuthTypes,
   selectInputsDefaultValue,
   IFieldValues,
-} from './helpers';
+  AllowedAuthTypes,
+  AuthTypesWithRequiredEntity,
+  EntityDataOptions,
+} from './constants';
 
 interface IAddNewAuthProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -58,6 +59,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
     useSubmitHandler();
   const typeRef = useRef<HTMLDivElement>(null);
 
+  // Adds one or more select dropdown containers to ref array
   const addRef = (element: Node | null) => {
     if (!element) return;
     if (selectRefs.includes(element)) return;
@@ -65,6 +67,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
     selectRefs.push(element);
   };
 
+  // Handling click outside select boxes
   useEffect(() => {
     const handleClickOutside: EventListenerOrEventListenerObject = (event) => {
       if (
@@ -80,7 +83,6 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [typeRef]);
-
   useEffect(() => {
     const handleClickOutside: EventListenerOrEventListenerObject = (event) => {
       if (
@@ -98,8 +100,11 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
     };
   }, []);
 
+  // Toggling main auth type select
   const handleTypeDropdownToggle = () =>
     setTypeDropdownExpanded((prev) => !prev);
+
+  // Toggling one or more select dropdowns
   const handleSelectToggle = (id: string) => {
     setSelectExpanded((prev) => {
       if (!prev[id]) {
@@ -119,15 +124,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
   };
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
-    submitHandler[
-      selectedAuthType as
-        | 'TransferTicker'
-        | 'TransferAssetOwnership'
-        | 'JoinIdentity'
-        | 'PortfolioCustody'
-        | 'BecomeAgent'
-        | 'AddRelayerPayingKey'
-    ](data);
+    submitHandler[selectedAuthType as AllowedAuthTypes](data);
     toggleModal();
   };
 
@@ -221,16 +218,10 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
                             if (
                               id !== 'permissions' &&
                               typesWithRequiredEntityData.includes(
-                                selectedAuthType as
-                                  | AuthorizationType.TransferTicker
-                                  | AuthorizationType.BecomeAgent
-                                  | AuthorizationType.TransferAssetOwnership,
+                                selectedAuthType as AuthTypesWithRequiredEntity,
                               ) &&
                               !entityData[
-                                selectedAuthType as
-                                  | AuthorizationType.TransferTicker
-                                  | AuthorizationType.BecomeAgent
-                                  | AuthorizationType.TransferAssetOwnership
+                                selectedAuthType as AuthTypesWithRequiredEntity
                               ].length
                             ) {
                               return (
@@ -255,22 +246,31 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
                                     ))
                                   : (
                                       entityData[
-                                        selectedAuthType as
-                                          | AuthorizationType.TransferTicker
-                                          | AuthorizationType.BecomeAgent
-                                          | AuthorizationType.TransferAssetOwnership
-                                      ] as Asset[] | TickerReservation[]
-                                    ).map(({ ticker }) => (
-                                      <StyledTypeOption
-                                        key={ticker}
-                                        onClick={() => {
-                                          onChange(ticker);
-                                          trigger(id as keyof IFieldValues);
-                                        }}
-                                      >
-                                        {ticker}
-                                      </StyledTypeOption>
-                                    ))}
+                                        selectedAuthType as AuthTypesWithRequiredEntity
+                                      ] as EntityDataOptions
+                                    ).map((entity) =>
+                                      isPortfolioData(entity) ? (
+                                        <StyledTypeOption
+                                          key={entity.name}
+                                          onClick={() => {
+                                            onChange(entity.name);
+                                            trigger(id as keyof IFieldValues);
+                                          }}
+                                        >
+                                          {entity.name}
+                                        </StyledTypeOption>
+                                      ) : (
+                                        <StyledTypeOption
+                                          key={entity.ticker}
+                                          onClick={() => {
+                                            onChange(entity.ticker);
+                                            trigger(id as keyof IFieldValues);
+                                          }}
+                                        >
+                                          {entity.ticker}
+                                        </StyledTypeOption>
+                                      ),
+                                    )}
                               </StyledExpandedTypeSelect>
                             );
                           }}

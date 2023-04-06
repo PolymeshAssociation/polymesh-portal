@@ -5,6 +5,7 @@ import {
   StyledDetailsWrapper,
   StyledDetailItem,
   StyledDetailValue,
+  StyledExpiryTime,
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
 
@@ -172,4 +173,14 @@ export const renderDetails = (staticData: HumanReadable) => {
       )}
     </StyledDetailsWrapper>
   ) : null;
+};
+
+export const formatExpiry = (expiry: string) => {
+  const [date, time] = expiry.split(' ');
+  return (
+    <>
+      {date} /{' '}
+      <StyledExpiryTime className="expiry-time">{time}</StyledExpiryTime>
+    </>
+  );
 };

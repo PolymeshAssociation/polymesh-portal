@@ -97,3 +97,8 @@ export const StyledTextWithCopy = styled.div`
   font-weight: 500;
   font-size: 16px;
 `;
+
+export const StyledExpiryTime = styled.span`
+  font-weight: 400;
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;

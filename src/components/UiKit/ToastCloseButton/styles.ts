@@ -15,4 +15,9 @@ export const StyledButton = styled.button`
     0px 1px 2px rgba(30, 30, 30, 0.24);
   border-radius: 50%;
   z-index: 1;
+
+  & svg {
+    width: 14px;
+    height: 14px;
+  }
 `;

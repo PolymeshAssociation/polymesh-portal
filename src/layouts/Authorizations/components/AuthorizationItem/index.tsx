@@ -3,7 +3,7 @@ import {
   NoArgsProcedureMethod,
   UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CopyToClipboard, Icon } from '~/components';
 import { Button, Text } from '~/components/UiKit';
@@ -16,11 +16,12 @@ import {
   StyledLabel,
   StyledTextWithCopy,
 } from './styles';
-import { renderDetails } from './helpers';
+import { formatExpiry, renderDetails } from './helpers';
 import { formatDid } from '~/helpers/formatters';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
+import { AuthorizationsContext } from '~/context/AuthorizationsContext';
 
 interface IAuthorizationItemProps {
   data: HumanReadable;
@@ -37,6 +38,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
   const [acceptInProgress, setAcceptInProgress] = useState(false);
   const [rejectInProgress, setRejectInProgress] = useState(false);
   const { handleStatusChange } = useTransactionStatus();
+  const { refreshAuthorizations } = useContext(AuthorizationsContext);
   const [searchParams] = useSearchParams();
   const direction = searchParams.get('direction');
 
@@ -50,6 +52,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
       const acceptTx = await (accept as NoArgsProcedureMethod<void, void>)();
       unsubCb = await acceptTx.onStatusChange(handleStatusChange);
       await acceptTx.run();
+      refreshAuthorizations();
     } catch (error) {
       notifyError((error as Error).message);
     } finally {
@@ -66,6 +69,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
       const rejectTx = await reject();
       unsubCb = await rejectTx.onStatusChange(handleStatusChange);
       await rejectTx.run();
+      refreshAuthorizations();
     } catch (error) {
       notifyError((error as Error).message);
     } finally {
@@ -103,7 +107,9 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
         <StyledInfoItem>
           Expiry Date
           <Text size="large" bold>
-            {data.expiry ? toParsedDateTime(data.expiry) : 'Never'}
+            {data.expiry
+              ? formatExpiry(toParsedDateTime(data.expiry))
+              : 'Never'}
           </Text>
         </StyledInfoItem>
         {direction === EAuthorizationDirections.OUTGOING && (

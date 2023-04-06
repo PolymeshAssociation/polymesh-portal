@@ -1,11 +1,11 @@
 import { useContext, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAuthorizations } from '~/hooks/polymesh';
 import { AuthorizationsNavigation } from './components/AuthorizationsNavigation';
 import { AuthorizationItem } from './components/AuthorizationItem';
 import { StyledAuthorizationsList, AuthorizationPlaceholder } from './styles';
 import { EAuthorizationDirections } from './constants';
 import { AccountContext } from '~/context/AccountContext';
+import { AuthorizationsContext } from '~/context/AuthorizationsContext';
 
 const Authorizations = () => {
   const { identityLoading } = useContext(AccountContext);
@@ -13,7 +13,7 @@ const Authorizations = () => {
     incomingAuthorizations,
     outgoingAuthorizations,
     authorizationsLoading,
-  } = useAuthorizations();
+  } = useContext(AuthorizationsContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const direction = searchParams.get('direction');
 

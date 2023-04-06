@@ -1,9 +1,14 @@
-import { useState, useEffect, useContext } from 'react';
+import { useContext, useState, useEffect, useMemo } from 'react';
 import { AuthorizationRequest } from '@polymeshassociation/polymesh-sdk/types';
-import { AccountContext } from '~/context/AccountContext';
+import { AccountContext } from '../AccountContext';
+import AuthorizationsContext from './context';
 import { notifyError } from '~/helpers/notifications';
 
-const useAuthorizations = () => {
+interface IAuthorizationsProviderProps {
+  children: React.ReactNode;
+}
+
+const AuthorizationsProvider = ({ children }: IAuthorizationsProviderProps) => {
   const { account, identity, identityLoading } = useContext(AccountContext);
   const [incomingAuthorizations, setIncomingAuthorizations] = useState<
     AuthorizationRequest[]
@@ -12,10 +17,10 @@ const useAuthorizations = () => {
     AuthorizationRequest[]
   >([]);
   const [authorizationsLoading, setAuthorizationsLoading] = useState(true);
+  const [shouldRefreshData, setShouldRefreshData] = useState(true);
 
   useEffect(() => {
-    if (!account || identityLoading) return;
-
+    if (!account || identityLoading || !shouldRefreshData) return;
     (async () => {
       try {
         setAuthorizationsLoading(true);
@@ -46,15 +51,30 @@ const useAuthorizations = () => {
         notifyError((error as Error).message);
       } finally {
         setAuthorizationsLoading(false);
+        setShouldRefreshData(false);
       }
     })();
-  }, [account, identity, identityLoading]);
+  }, [account, identity, identityLoading, shouldRefreshData]);
 
-  return {
-    incomingAuthorizations,
-    outgoingAuthorizations,
-    authorizationsLoading,
+  const refreshAuthorizations = () => {
+    setShouldRefreshData(true);
   };
+
+  const contextValues = useMemo(
+    () => ({
+      incomingAuthorizations,
+      outgoingAuthorizations,
+      authorizationsLoading,
+      refreshAuthorizations,
+    }),
+    [authorizationsLoading, incomingAuthorizations, outgoingAuthorizations],
+  );
+
+  return (
+    <AuthorizationsContext.Provider value={contextValues}>
+      {children}
+    </AuthorizationsContext.Provider>
+  );
 };
 
-export default useAuthorizations;
+export default AuthorizationsProvider;
