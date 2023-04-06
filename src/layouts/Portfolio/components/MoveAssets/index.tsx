@@ -6,28 +6,25 @@ import {
 import { useState } from 'react';
 import { Icon, Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
-import { IPortfolioData } from '~/context/PortfolioContext/constants';
 import { usePortfolio } from '~/hooks/polymesh';
 import { AssetSelect } from './components/AssetSelect';
 import { PortfolioSelect } from './components/PortfolioSelect';
 import { StyledAddButton, StyledButtonsWrapper } from './styles';
+import { IMoveAssetsProps, IAssetItem, ISelectedAsset } from './types';
 
-interface IMoveAssetsProps {
-  portfolio: IPortfolioData;
-  toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
-}
-
-export interface IAssetItem {
-  asset: string;
-  amount: BigNumber;
-}
+const parseSelectedAssets = (assets: ISelectedAsset[]): IAssetItem[] => {
+  return assets.map(({ asset, amount }) => ({
+    asset,
+    amount: new BigNumber(amount),
+  }));
+};
 
 export const MoveAssets: React.FC<IMoveAssetsProps> = ({
   portfolio,
   toggleModal,
 }) => {
   const [assetIndexes, setAssetIndexes] = useState<number[]>([0]);
-  const [assetItems, setAssetItems] = useState<IAssetItem[]>([]);
+  const [selectedAssets, setSelectedAssets] = useState<ISelectedAsset[]>([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState<
     DefaultPortfolio | NumberedPortfolio | null
   >(null);
@@ -36,29 +33,42 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
   const handleAddAssetField = () => {
     setAssetIndexes((prev) => [...prev, prev[prev.length - 1] + 1]);
   };
-  const handleAddAssetItem = (item: IAssetItem) => {
-    if (
-      assetItems.find(
-        ({ asset, amount }) => asset === item.asset && amount === item.amount,
-      )
-    )
-      return;
 
-    const newItems = assetItems.find(({ asset }) => asset === item.asset)
-      ? assetItems.map((assetItem) => {
-          if (assetItem.asset === item.asset) {
-            return { ...assetItem, amount: item.amount };
-          }
-          return assetItem;
-        })
-      : [...assetItems, item];
-    setAssetItems(newItems);
-  };
-  const handleDeleteAsset = (index: number, asset?: string) => {
-    setAssetIndexes((prev) => prev.filter((prevIndex) => prevIndex !== index));
-    if (asset) {
-      setAssetItems((prev) => prev.filter((item) => item.asset !== asset));
+  const addAssetItem = (item: ISelectedAsset) => {
+    if (
+      !selectedAssets.some(({ index }) => index === item.index) &&
+      !selectedAssets.some(({ asset }) => asset === item.asset)
+    ) {
+      setSelectedAssets((prev) => [...prev, item]);
+    } else {
+      const updatedAssets = selectedAssets.reduce((acc, assetItem) => {
+        if (assetItem.asset === item.asset && assetItem.index !== item.index) {
+          return [...acc, { ...assetItem, amount: item.amount }];
+        }
+
+        if (assetItem.index === item.index) {
+          const updatedAcc = acc.filter(({ index }) => index !== item.index);
+
+          return [
+            ...updatedAcc,
+            { ...assetItem, asset: item.asset, amount: item.amount },
+          ];
+        }
+
+        return [...acc, assetItem];
+      }, [] as ISelectedAsset[]);
+
+      setSelectedAssets(updatedAssets);
     }
+  };
+
+  const deleteAsset = (index: number) => {
+    setAssetIndexes((prev) => prev.filter((prevIndex) => prevIndex !== index));
+
+    const updatedAssets = selectedAssets.filter(
+      (selectedAsset) => selectedAsset.index !== index,
+    );
+    setSelectedAssets(updatedAssets);
   };
 
   const handleSelectPortfolio = (
@@ -68,12 +78,15 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
   };
 
   const handleMoveAssets = () => {
+    if (!selectedPortfolio) return;
+
     moveAssets({
-      to: selectedPortfolio as DefaultPortfolio | NumberedPortfolio,
-      items: assetItems,
+      to: selectedPortfolio,
+      items: parseSelectedAssets(selectedAssets),
     });
     toggleModal();
   };
+
   return (
     <Modal handleClose={toggleModal}>
       <Heading type="h4" marginBottom={32}>
@@ -89,9 +102,9 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
           key={index}
           portfolio={portfolio}
           index={index}
-          handleAdd={handleAddAssetItem}
-          handleDelete={handleDeleteAsset}
-          selectedAssets={assetItems.map(({ asset }) => asset)}
+          handleAdd={addAssetItem}
+          handleDelete={deleteAsset}
+          selectedAssets={selectedAssets}
         />
       ))}
       <StyledAddButton
@@ -108,8 +121,8 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
         <Button
           variant="modalPrimary"
           disabled={
-            !assetItems.length ||
-            assetItems.some(({ amount }) => amount.toNumber() <= 0) ||
+            !selectedAssets.length ||
+            selectedAssets.some(({ amount }) => amount <= 0) ||
             !selectedPortfolio
           }
           onClick={handleMoveAssets}

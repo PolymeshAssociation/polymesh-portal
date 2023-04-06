@@ -22,18 +22,14 @@ import {
   UseMaxButton,
 } from './styles';
 import { formatBalance, stringToColor } from '~/helpers/formatters';
-
-interface IAssetItem {
-  asset: string;
-  amount: BigNumber;
-}
+import { ISelectedAsset } from '../../types';
 
 interface IAssetSelectProps {
   portfolio: IPortfolioData;
   index: number;
-  handleAdd: (item: IAssetItem) => void;
-  handleDelete: (index: number, asset?: string) => void;
-  selectedAssets: string[];
+  handleAdd: (item: ISelectedAsset) => void;
+  handleDelete: (index: number) => void;
+  selectedAssets: ISelectedAsset[];
 }
 
 export const AssetSelect: React.FC<IAssetSelectProps> = ({
@@ -47,15 +43,8 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
   const [availableBalance, setAvailableBalance] = useState(0);
   const [selectedAmount, setSelectedAmount] = useState('');
   const [validationError, setValidationError] = useState('');
-  const [assetItem, setAssetItem] = useState<IAssetItem | null>(null);
   const [assetSelectExpanded, setAssetSelectExpanded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!assetItem) return;
-
-    handleAdd(assetItem);
-  }, [assetItem, handleAdd, selectedAmount]);
 
   useEffect(() => {
     const handleClickOutside: EventListenerOrEventListenerObject = (event) => {
@@ -70,72 +59,46 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
     };
   }, [ref]);
 
-  const filteredAssets = portfolio.assets.filter(
-    ({ asset }) => !selectedAssets.includes(asset.toHuman()),
-  );
-
   const validateInput = (inputValue: string) => {
-    setAssetItem(null);
+    handleAdd({
+      asset: (selectedAsset as Asset).toHuman(),
+      amount: 0,
+      index,
+    });
 
     if (Number.isNaN(Number(inputValue))) {
       setValidationError('Amount must be a number');
-      if (assetItem) {
-        setAssetItem({
-          asset: (selectedAsset as Asset).toHuman(),
-          amount: new BigNumber(0),
-        });
-      }
       return;
     }
     if (!inputValue) {
       setValidationError('Amount is required');
-      if (assetItem) {
-        setAssetItem({
-          asset: (selectedAsset as Asset).toHuman(),
-          amount: new BigNumber(0),
-        });
-      }
       return;
     }
     if (Number(inputValue) <= 0) {
       setValidationError('Amount must be greater than zero');
-      if (assetItem) {
-        setAssetItem({
-          asset: (selectedAsset as Asset).toHuman(),
-          amount: new BigNumber(0),
-        });
-      }
       return;
     }
     if (Number(inputValue) > availableBalance) {
       setValidationError('Insufficient balance');
-      if (assetItem) {
-        setAssetItem({
-          asset: (selectedAsset as Asset).toHuman(),
-          amount: new BigNumber(0),
-        });
-      }
       return;
     }
 
     setValidationError('');
-
-    if (!assetItem || assetItem.amount.toString() !== inputValue) {
-      setAssetItem({
-        asset: (selectedAsset as Asset).toHuman(),
-        amount: new BigNumber(Number(inputValue)),
-      });
-    }
+    handleAdd({
+      asset: (selectedAsset as Asset).toHuman(),
+      amount: Number(inputValue),
+      index,
+    });
   };
 
   const toggleAssetSelectDropdown = () =>
     setAssetSelectExpanded((prev) => !prev);
 
   const handleAssetSelect = (asset: Asset, balance: BigNumber) => {
-    if (selectedAssets.includes(asset.toHuman())) return;
-
     setSelectedAsset(asset);
     setAvailableBalance(balance.toNumber());
+    setSelectedAmount('');
+    handleAdd({ asset: asset.toHuman(), amount: 0, index });
     toggleAssetSelectDropdown();
   };
 
@@ -148,17 +111,18 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
 
   const handleUseMax = () => {
     setSelectedAmount(availableBalance.toString());
-    setAssetItem({
-      asset: (selectedAsset as Asset).toHuman(),
-      amount: new BigNumber(availableBalance),
-    });
+    validateInput(availableBalance.toString());
   };
+
+  const filteredAssets = portfolio.assets.filter(
+    ({ asset }) =>
+      !selectedAssets.some((selected) => selected.asset === asset.toHuman()),
+  );
+
   return (
     <StyledWrapper>
       {!!index && (
-        <CloseButton
-          onClick={() => handleDelete(index, selectedAsset?.toHuman())}
-        >
+        <CloseButton onClick={() => handleDelete(index)}>
           <Icon name="CloseIcon" />
         </CloseButton>
       )}
@@ -185,7 +149,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
             </StyledAssetSelect>
             {assetSelectExpanded && (
               <StyledExpandedSelect>
-                {portfolio.assets.length ? (
+                {portfolio.assets.length && !!filteredAssets.length ? (
                   filteredAssets.map(({ asset, free }) => (
                     <StyledSelectOption
                       key={asset.toHuman()}
@@ -223,7 +187,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
         </div>
       </AssetWrapper>
       {!!validationError && <StyledError>{validationError}</StyledError>}
-      {!!portfolio.assets.length && !!availableBalance && (
+      {!!portfolio.assets.length && !!selectedAsset && (
         <StyledAvailableBalance>
           <Text>Available balance:</Text>
           <Text>{formatBalance(availableBalance)}</Text>
