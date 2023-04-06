@@ -115,6 +115,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
         {direction === EAuthorizationDirections.INCOMING ? (
           <>
             <Button onClick={handleReject} disabled={rejectInProgress}>
+              <Icon name="CloseIcon" size="24px" />
               Reject
             </Button>
             <Button
@@ -136,6 +137,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
           </Button>
         )}
         <Button variant="secondary" onClick={toggleDetails} disabled={!details}>
+          <Icon name="ExpandIcon" size="24px" className="expand-icon" />
           Details
         </Button>
       </StyledButtonsWrapper>

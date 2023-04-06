@@ -71,13 +71,16 @@ export const PortfolioSelect: React.FC<IPortfolioSelectProps> = ({
         Move to
       </Text>
       <PortfolioSelectWrapper ref={ref}>
-        <StyledPortfolioSelect onClick={togglePortfolioSelectDropdown}>
+        <StyledPortfolioSelect
+          onClick={togglePortfolioSelectDropdown}
+          expanded={portfolioSelectExpanded}
+        >
           {selectedPortfolio ? (
             selectedPortfolioName
           ) : (
             <StyledPlaceholder>Select portfolio</StyledPlaceholder>
           )}
-          <Icon name="ExpandIcon" />
+          <Icon name="ExpandIcon" size="18px" className="expand-icon" />
         </StyledPortfolioSelect>
         {portfolioSelectExpanded && (
           <StyledExpandedSelect>

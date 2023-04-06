@@ -10,6 +10,7 @@ import {
   StyledActionsWrapper,
 } from './styles';
 import { TABS } from './constants';
+import { Icon } from '~/components';
 
 interface IAuthorizationsNavigationProps {
   notificationsCount: {
@@ -58,6 +59,7 @@ export const AuthorizationsNavigation: React.FC<
           disabled={!identity}
           onClick={toggleModal}
         >
+          <Icon name="Plus" />
           Create New Auth
         </Button>
       </StyledActionsWrapper>

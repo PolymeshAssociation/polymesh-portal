@@ -37,12 +37,13 @@ export const StyledExpandedTypeSelect = styled.div`
   left: 0;
   width: 100%;
   padding: 8px;
-  max-height: 280px;
+  max-height: 200px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
   border: 1px solid #8f8f8f;
   border-radius: 8px;
   overflow-y: scroll;
   z-index: 1;
+  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
 `;
 
 export const StyledTypeOption = styled.button<{ isSelected?: boolean }>`

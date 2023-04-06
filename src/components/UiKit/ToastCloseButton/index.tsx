@@ -8,7 +8,7 @@ interface IToastCloseProps {
 const ToastCloseButton: React.FC<IToastCloseProps> = ({ closeToast }) => {
   return (
     <StyledButton onClick={closeToast} className="toast-close">
-      <Icon name="CloseIcon" />
+      <Icon name="CloseIcon" size="16px" />
     </StyledButton>
   );
 };

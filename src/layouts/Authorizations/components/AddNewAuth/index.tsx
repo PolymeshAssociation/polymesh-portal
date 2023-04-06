@@ -134,7 +134,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
   const inputs = configureInputs(selectedAuthType);
 
   return (
-    <Modal handleClose={toggleModal}>
+    <Modal handleClose={toggleModal} disableOverflow>
       <Heading type="h4" marginBottom={32}>
         Create New Authorization
       </Heading>
@@ -149,7 +149,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
         >
           <span>{selectedAuthType || 'Select Authorization Type'}</span>
 
-          <Icon name="DropdownIcon" />
+          <Icon name="ExpandIcon" size="18px" />
         </StyledTypeSelect>
         {typeDropdownExpanded && (
           <StyledExpandedTypeSelect>
@@ -282,7 +282,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
                           values,
                         )}
                       </span>
-                      <Icon name="DropdownIcon" className="icon" />
+                      <Icon name="ExpandIcon" size="18px" className="icon" />
                     </StyledSelect>
                   </StyledSelectWrapper>
                 ) : (
