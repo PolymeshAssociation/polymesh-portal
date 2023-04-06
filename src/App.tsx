@@ -5,6 +5,7 @@ import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { ToastContainer } from 'react-toastify';
 import { PolymeshProvider } from '~/context/PolymeshContext';
 import { AccountProvider } from '~/context/AccountContext';
+import { PortfolioProvider } from '~/context/PortfolioContext';
 import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
 import { ROUTES } from '~/constants/routes';
 import SharedLayout from '~/layouts/SharedLayout';
@@ -40,15 +41,17 @@ const WrappedApp = () => {
   return (
     <PolymeshProvider>
       <AccountProvider>
-        <AppThemeProvider>
-          <ApolloProvider client={gqlClient}>
-            <Suspense fallback="loading...">
-              <BrowserRouter>
-                <App />
-              </BrowserRouter>
-            </Suspense>
-          </ApolloProvider>
-        </AppThemeProvider>
+        <PortfolioProvider>
+          <AppThemeProvider>
+            <ApolloProvider client={gqlClient}>
+              <Suspense fallback="loading...">
+                <BrowserRouter>
+                  <App />
+                </BrowserRouter>
+              </Suspense>
+            </ApolloProvider>
+          </AppThemeProvider>
+        </PortfolioProvider>
       </AccountProvider>
     </PolymeshProvider>
   );

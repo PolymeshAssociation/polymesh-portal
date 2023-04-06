@@ -11,7 +11,8 @@ const useTransactionStatus = () => {
   const idRef = useRef<Id>(0);
 
   const handleStatusChange = (
-    transaction: GenericPolymeshTransaction<void, void>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    transaction: GenericPolymeshTransaction<any, any>,
   ) => {
     switch (transaction.status) {
       case TransactionStatus.Unapproved:
@@ -25,6 +26,7 @@ const useTransactionStatus = () => {
           {
             autoClose: false,
             closeOnClick: false,
+            containerId: 'notification-center',
           },
         );
 
@@ -43,6 +45,7 @@ const useTransactionStatus = () => {
           isLoading: true,
           autoClose: false,
           closeOnClick: false,
+          containerId: 'notification-center',
         });
         break;
       case TransactionStatus.Succeeded:
@@ -59,6 +62,7 @@ const useTransactionStatus = () => {
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
+          containerId: 'notification-center',
         });
         break;
       case TransactionStatus.Rejected:
@@ -75,6 +79,7 @@ const useTransactionStatus = () => {
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
+          containerId: 'notification-center',
         });
         break;
 
@@ -93,6 +98,7 @@ const useTransactionStatus = () => {
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
+          containerId: 'notification-center',
         });
         break;
 
@@ -110,6 +116,7 @@ const useTransactionStatus = () => {
           isLoading: false,
           autoClose: false,
           closeOnClick: true,
+          containerId: 'notification-center',
         });
         break;
 
