@@ -23,6 +23,12 @@ export const IconWrapper = styled.div`
   color: #727272;
 `;
 
+export const StyledDateTimeCell = styled.span`
+  display: inline-flex;
+  gap: 4px;
+  width: 200px;
+`;
+
 export const StyledTime = styled.span`
   color: ${({ theme }) => theme.colors.textSecondary};
 `;

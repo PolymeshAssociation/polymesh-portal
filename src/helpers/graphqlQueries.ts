@@ -1,5 +1,5 @@
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { gqlClient } from '~/App';
+import { gqlClient } from '~/config/graphql';
 import {
   getExtrinsicTimestamp,
   getTimestampByBlockHash,
