@@ -44,7 +44,20 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
   const [selectedAmount, setSelectedAmount] = useState('');
   const [validationError, setValidationError] = useState('');
   const [assetSelectExpanded, setAssetSelectExpanded] = useState(false);
+  const [selectedAssetIsDivisible, setSelectedAssetIsDivisible] =
+    useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!selectedAsset) return;
+
+    const getAssetDetails = async () => {
+      const assetDetails = await selectedAsset.details();
+      setSelectedAssetIsDivisible(assetDetails.isDivisible);
+    };
+
+    getAssetDetails();
+  }, [selectedAsset]);
 
   useEffect(() => {
     const handleClickOutside: EventListenerOrEventListenerObject = (event) => {
@@ -60,33 +73,31 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
   }, [ref]);
 
   const validateInput = (inputValue: string) => {
-    handleAdd({
-      asset: (selectedAsset as Asset).toHuman(),
-      amount: 0,
-      index,
-    });
+    const amount = Number(inputValue);
+    let error = '';
 
-    if (Number.isNaN(Number(inputValue))) {
-      setValidationError('Amount must be a number');
-      return;
-    }
-    if (!inputValue) {
-      setValidationError('Amount is required');
-      return;
-    }
-    if (Number(inputValue) <= 0) {
-      setValidationError('Amount must be greater than zero');
-      return;
-    }
-    if (Number(inputValue) > availableBalance) {
-      setValidationError('Insufficient balance');
-      return;
+    if (Number.isNaN(amount)) {
+      error = 'Amount must be a number';
+    } else if (!inputValue) {
+      error = 'Amount is required';
+    } else if (amount <= 0) {
+      error = 'Amount must be greater than zero';
+    } else if (amount > availableBalance) {
+      error = 'Insufficient balance';
+    } else if (!selectedAssetIsDivisible && inputValue.indexOf('.') !== -1) {
+      error = 'Asset does not allow decimal places';
+    } else if (
+      inputValue.indexOf('.') !== -1 &&
+      inputValue.substring(inputValue.indexOf('.') + 1).length > 6
+    ) {
+      error = 'Amount must have at most 6 decimal places';
     }
 
-    setValidationError('');
+    setValidationError(error);
+
     handleAdd({
       asset: (selectedAsset as Asset).toHuman(),
-      amount: Number(inputValue),
+      amount: error ? 0 : amount,
       index,
     });
   };
