@@ -1,3 +1,11 @@
+import { ITransferEvent } from '~/constants/queries/types';
+
+export interface IIdData {
+  eventId: string;
+  blockId: string;
+  extrinsicIdx: number | null;
+}
+
 export interface ITokenItem {
   ticker: string;
   percentage: number;
@@ -8,17 +16,16 @@ export interface ITokenItem {
 }
 
 export interface ITransactionItem {
-  id: string;
+  id: IIdData;
   dateTime: string;
   from: string;
   to: string;
-  direction: string;
   amount: string;
   asset: string;
 }
 
 export interface IMovementItem {
-  id: string;
+  movementId: string;
   dateTime: string;
   from: string;
   to: string;
@@ -55,6 +62,15 @@ interface IPortfolioMovements {
   totalCount: number;
 }
 
+interface ITransferEvents {
+  nodes: ITransferEvent[];
+  totalCount: number;
+}
+
 export interface IMovementQueryResponse {
   portfolioMovements: IPortfolioMovements;
+}
+
+export interface ITransferQueryResponse {
+  events: ITransferEvents;
 }

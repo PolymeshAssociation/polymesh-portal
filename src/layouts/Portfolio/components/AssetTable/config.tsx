@@ -10,10 +10,18 @@ import {
   AddressCellWrapper,
   StyledDateTimeCell,
 } from './styles';
-import { EAssetsTableTabs, ITokenItem, ITransactionItem } from './constants';
+import {
+  EAssetsTableTabs,
+  IMovementItem,
+  ITokenItem,
+  ITransactionItem,
+  IIdData,
+} from './constants';
+import { createTokenActivityLink } from './helpers';
 
 const tokenColumnHelper = createColumnHelper<ITokenItem>();
 const transactionColumnHelper = createColumnHelper<ITransactionItem>();
+const movementColumnHelper = createColumnHelper<IMovementItem>();
 
 export const columns = {
   [EAssetsTableTabs.TOKENS]: [
@@ -46,88 +54,13 @@ export const columns = {
       cell: (info) => {
         const data = info.getValue();
         const handleClick = () =>
-          window.open(
-            `${import.meta.env.VITE_SUBSCAN_URL}block/${data}`,
-            '_blank',
-          );
+          window.open(createTokenActivityLink(data as IIdData), '_blank');
         return (
           <IdCellWrapper onClick={handleClick}>
             <IconWrapper>
               <Icon name="ArrowTopRight" />
             </IconWrapper>
-            {data}
-          </IdCellWrapper>
-        );
-      },
-    }),
-    transactionColumnHelper.accessor('dateTime', {
-      header: 'Date / Time',
-      cell: (info) => {
-        const data = info.getValue();
-        if (!data) return '';
-        const [date, time] = data.split(' ');
-
-        return (
-          <span>
-            {date} / <StyledTime>{time}</StyledTime>
-          </span>
-        );
-      },
-    }),
-    transactionColumnHelper.accessor('from', {
-      header: 'From',
-      cell: (info) => {
-        const data = info.getValue();
-        return (
-          <AddressCellWrapper>
-            {formatDid(data)}
-            <CopyToClipboard value={data} />
-          </AddressCellWrapper>
-        );
-      },
-    }),
-    transactionColumnHelper.accessor('to', {
-      header: 'To',
-      cell: (info) => {
-        const data = info.getValue();
-        return (
-          <AddressCellWrapper>
-            {formatDid(data)}
-            <CopyToClipboard value={data} />
-          </AddressCellWrapper>
-        );
-      },
-    }),
-    transactionColumnHelper.accessor('direction', {
-      header: 'Direction',
-      cell: (info) => info.getValue(),
-    }),
-    transactionColumnHelper.accessor('asset', {
-      header: 'Asset',
-      cell: (info) => info.getValue(),
-    }),
-    transactionColumnHelper.accessor('amount', {
-      header: 'Amount',
-      cell: (info) => info.getValue(),
-    }),
-  ],
-  [EAssetsTableTabs.MOVEMENTS]: [
-    transactionColumnHelper.accessor('id', {
-      header: 'Id',
-      enableSorting: false,
-      cell: (info) => {
-        const data = info.getValue();
-        const handleClick = () =>
-          window.open(
-            `${import.meta.env.VITE_SUBSCAN_URL}block/${data.split('/')[0]}`,
-            '_blank',
-          );
-        return (
-          <IdCellWrapper onClick={handleClick}>
-            <IconWrapper>
-              <Icon name="ArrowTopRight" />
-            </IconWrapper>
-            {data}
+            {data?.eventId}
           </IdCellWrapper>
         );
       },
@@ -141,24 +74,93 @@ export const columns = {
 
         return (
           <StyledDateTimeCell>
-            {date} /<StyledTime>{time}</StyledTime>
+            {date} / <StyledTime>{time}</StyledTime>
           </StyledDateTimeCell>
         );
       },
     }),
     transactionColumnHelper.accessor('from', {
       header: 'From',
-      cell: (info) => info.getValue(),
+      cell: (info) => {
+        const data = info.getValue();
+        return (
+          <AddressCellWrapper>
+            {formatDid(data)}
+            <CopyToClipboard value={data} />
+          </AddressCellWrapper>
+        );
+      },
     }),
     transactionColumnHelper.accessor('to', {
       header: 'To',
-      cell: (info) => info.getValue(),
+      cell: (info) => {
+        const data = info.getValue();
+        return (
+          <AddressCellWrapper>
+            {formatDid(data)}
+            <CopyToClipboard value={data} />
+          </AddressCellWrapper>
+        );
+      },
     }),
     transactionColumnHelper.accessor('asset', {
       header: 'Asset',
       cell: (info) => info.getValue(),
     }),
     transactionColumnHelper.accessor('amount', {
+      header: 'Amount',
+      cell: (info) => info.getValue(),
+    }),
+  ],
+  [EAssetsTableTabs.MOVEMENTS]: [
+    movementColumnHelper.accessor('movementId', {
+      header: 'Id',
+      enableSorting: false,
+      cell: (info) => {
+        const data = info.getValue();
+
+        const handleClick = () =>
+          window.open(
+            `${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${data}`,
+            '_blank',
+          );
+        return (
+          <IdCellWrapper onClick={handleClick}>
+            <IconWrapper>
+              <Icon name="ArrowTopRight" />
+            </IconWrapper>
+            {data}
+          </IdCellWrapper>
+        );
+      },
+    }),
+    movementColumnHelper.accessor('dateTime', {
+      header: 'Date / Time',
+      cell: (info) => {
+        const data = info.getValue();
+        if (!data) return '';
+        const [date, time] = data.split(' ');
+
+        return (
+          <StyledDateTimeCell>
+            {date} /<StyledTime>{time}</StyledTime>
+          </StyledDateTimeCell>
+        );
+      },
+    }),
+    movementColumnHelper.accessor('from', {
+      header: 'From',
+      cell: (info) => info.getValue(),
+    }),
+    movementColumnHelper.accessor('to', {
+      header: 'To',
+      cell: (info) => info.getValue(),
+    }),
+    movementColumnHelper.accessor('asset', {
+      header: 'Asset',
+      cell: (info) => info.getValue(),
+    }),
+    movementColumnHelper.accessor('amount', {
       header: 'Amount',
       cell: (info) => info.getValue(),
     }),

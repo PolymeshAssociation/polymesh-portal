@@ -9,179 +9,172 @@ import {
   ColumnDef,
   PaginationState,
 } from '@tanstack/react-table';
-import { balanceToBigNumber } from '@polymeshassociation/polymesh-sdk/utils/conversion';
 import { PortfolioContext } from '~/context/PortfolioContext';
 import { AccountContext } from '~/context/AccountContext';
-import { getTimeByBlockHash } from '~/helpers/graphqlQueries';
 import {
   ITokenItem,
   AssetTableItem,
   IMovementQueryResponse,
   EAssetsTableTabs,
+  ITransferQueryResponse,
 } from './constants';
 import { columns } from './config';
+import { getPortfolioNumber, parseMovements, parseTransfers } from './helpers';
 import { notifyError } from '~/helpers/notifications';
-import { getPortfolioMovements } from '~/constants/queries';
-import { getPortfolioNumber } from './helpers';
-import { toParsedDateTime } from '~/helpers/dateTime';
+import {
+  getPaginatedAssetTransferEvents,
+  getPortfolioMovements,
+} from '~/constants/queries';
+
+const initialPaginationState = { pageIndex: 0, pageSize: 3 };
 
 export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
-  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 3,
-  });
-  // const [totalCount, setTotalCount] = useState(0);
+  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>(
+    initialPaginationState,
+  );
+  const offset = pageIndex * pageSize;
   const [totalPages, setTotalPages] = useState(-1);
+  const [totalItems, setTotalItems] = useState(0);
   const [tableData, setTableData] = useState<AssetTableItem[]>([]);
   const [searchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
   const { allPortfolios, totalAssetsAmount, portfolioLoading } =
     useContext(PortfolioContext);
   const { identity } = useContext(AccountContext);
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/naming-convention
-  const [_, { data, loading, error: moError, fetchMore: fetchMoreMovements }] =
-    useLazyQuery<IMovementQueryResponse>(getPortfolioMovements, {
-      variables: {
-        pageSize,
-        offset: pageIndex * pageSize,
-        portfolioNumber: getPortfolioNumber(identity?.did, portfolioId),
-      },
-      notifyOnNetworkStatusChange: true,
-    });
+  const [
+    fetchMovements,
+    { fetchMore: moreMovements, called: movementsCalled },
+  ] = useLazyQuery<IMovementQueryResponse>(getPortfolioMovements);
+  const [
+    fetchTransfers,
+    { fetchMore: moreTransfers, called: transfersCalled },
+  ] = useLazyQuery<ITransferQueryResponse>(getPaginatedAssetTransferEvents);
   const [tableDataLoading, setTableDataLoading] = useState(false);
 
-  // Fetch portfolio movements
+  // Get portfolio movements or asset transfers
   useEffect(() => {
-    if (
-      currentTab !== EAssetsTableTabs.MOVEMENTS ||
-      !identity ||
-      portfolioLoading
-    )
+    if (currentTab === EAssetsTableTabs.TOKENS || !identity || portfolioLoading)
       return;
 
     (async () => {
-      await fetchMoreMovements({
-        variables: {
-          offset: pageIndex * pageSize,
-        },
-      });
-      if (data) {
-        setTableData(
-          data.portfolioMovements.nodes.map(
-            ({ id, amount, assetId, from, to, createdBlock }) => ({
-              id,
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              amount: balanceToBigNumber(amount).toString(),
-              asset: assetId,
-              dateTime: toParsedDateTime(createdBlock.datetime),
-              from: from.name || 'Default',
-              to: to.name || 'Default',
-            }),
-          ) || [],
-        );
-        setTotalPages(Math.ceil(data.portfolioMovements.totalCount / pageSize));
+      setTableData([]);
+      setTableDataLoading(true);
+
+      try {
+        switch (currentTab) {
+          case EAssetsTableTabs.MOVEMENTS:
+            // eslint-disable-next-line no-case-declarations
+            const { data: movements } = movementsCalled
+              ? await moreMovements({
+                  variables: { offset },
+                })
+              : await fetchMovements({
+                  variables: {
+                    pageSize,
+                    offset,
+                    portfolioNumber: getPortfolioNumber(
+                      identity.did,
+                      portfolioId,
+                    ),
+                  },
+                  notifyOnNetworkStatusChange: true,
+                });
+            if (movements) {
+              const parsedMovements = parseMovements(movements);
+              setTableData(parsedMovements);
+              setTotalPages(
+                Math.ceil(movements.portfolioMovements.totalCount / pageSize),
+              );
+              setTotalItems(movements.portfolioMovements.totalCount);
+            }
+            break;
+
+          case EAssetsTableTabs.TRANSACTIONS:
+            // eslint-disable-next-line no-case-declarations
+            const { data: transfers } = transfersCalled
+              ? await moreTransfers({
+                  variables: { offset },
+                })
+              : await fetchTransfers({
+                  variables: {
+                    pageSize,
+                    offset,
+                    did: identity.did,
+                  },
+                  notifyOnNetworkStatusChange: true,
+                });
+            if (transfers) {
+              const parsedTransfers = parseTransfers(transfers);
+              setTableData(parsedTransfers);
+              setTotalPages(Math.ceil(transfers.events.totalCount / pageSize));
+              setTotalItems(transfers.events.totalCount);
+            }
+            break;
+
+          default:
+            break;
+        }
+      } catch (error) {
+        notifyError((error as Error).message);
+      } finally {
+        setTableDataLoading(false);
       }
     })();
   }, [
     currentTab,
-    pageIndex,
-    fetchMoreMovements,
-    pageSize,
-    data,
     identity,
-    portfolioLoading,
     portfolioId,
+    portfolioLoading,
+    transfersCalled,
+    movementsCalled,
+    fetchMovements,
+    fetchTransfers,
+    moreMovements,
+    moreTransfers,
+    offset,
+    pageSize,
   ]);
 
+  // Get token table data
   useEffect(() => {
-    if (
-      !allPortfolios ||
-      !identity ||
-      currentTab === EAssetsTableTabs.MOVEMENTS
-    ) {
+    if (currentTab !== EAssetsTableTabs.TOKENS || !allPortfolios || !identity) {
       return undefined;
     }
 
     setTableData([]);
 
     if (!portfolioId) {
-      switch (currentTab) {
-        case EAssetsTableTabs.TOKENS:
-          // eslint-disable-next-line no-case-declarations
-          const reducedPortfolios = allPortfolios
-            .flatMap(({ assets }) =>
-              assets.map(({ asset, total }) => ({
-                ticker: asset.toHuman(),
-                percentage: (total.toNumber() / totalAssetsAmount) * 100,
-                balance: {
-                  ticker: asset.toHuman(),
-                  amount: total.toNumber(),
-                },
-              })),
-            )
-            .reduce((acc, asset) => {
-              if (acc.find(({ ticker }) => ticker === asset.ticker)) {
-                return acc.map((accAsset) => {
-                  if (accAsset.ticker === asset.ticker) {
-                    return {
-                      ...accAsset,
-                      percentage: accAsset.percentage + asset.percentage,
-                      balance: {
-                        ...accAsset.balance,
-                        amount: accAsset.balance.amount + asset.balance.amount,
-                      },
-                    };
-                  }
-                  return accAsset;
-                });
+      const reducedPortfolios = allPortfolios
+        .flatMap(({ assets }) =>
+          assets.map(({ asset, total }) => ({
+            ticker: asset.toHuman(),
+            percentage: (total.toNumber() / totalAssetsAmount) * 100,
+            balance: {
+              ticker: asset.toHuman(),
+              amount: total.toNumber(),
+            },
+          })),
+        )
+        .reduce((acc, asset) => {
+          if (acc.find(({ ticker }) => ticker === asset.ticker)) {
+            return acc.map((accAsset) => {
+              if (accAsset.ticker === asset.ticker) {
+                return {
+                  ...accAsset,
+                  percentage: accAsset.percentage + asset.percentage,
+                  balance: {
+                    ...accAsset.balance,
+                    amount: accAsset.balance.amount + asset.balance.amount,
+                  },
+                };
               }
-              return [...acc, asset];
-            }, [] as ITokenItem[]);
-          setTableData(reducedPortfolios);
-          break;
-
-        case EAssetsTableTabs.TRANSACTIONS:
-          (async () => {
-            setTableDataLoading(true);
-            try {
-              const transactionHistory = await Promise.all(
-                allPortfolios.map((item) =>
-                  item.portfolio.getTransactionHistoryV2(),
-                ),
-              );
-              const parsedHistory = await Promise.all(
-                transactionHistory
-                  .flat()
-                  .map(async ({ blockHash, blockNumber, legs }) => ({
-                    id: blockNumber.toString(),
-                    dateTime: await getTimeByBlockHash(blockHash),
-                    from: legs[0].from.toHuman().did,
-                    to: legs[0].to.toHuman().did,
-                    direction: legs[0].direction,
-                    amount: legs[0].amount.toString(),
-                    asset: legs[0].asset.toHuman(),
-                  })),
-              );
-
-              setTableData(
-                parsedHistory.sort((a, b) => {
-                  return Number(b.id) - Number(a.id);
-                }),
-              );
-            } catch (error) {
-              notifyError((error as Error).message);
-            } finally {
-              setTableDataLoading(false);
-            }
-          })();
-
-          break;
-
-        default:
-          break;
-      }
+              return accAsset;
+            });
+          }
+          return [...acc, asset];
+        }, [] as ITokenItem[]);
+      setTableData(reducedPortfolios);
+      setTotalItems(reducedPortfolios.length);
       return undefined;
     }
 
@@ -190,66 +183,21 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
     );
 
     if (selectedPortfolio) {
-      switch (currentTab) {
-        case EAssetsTableTabs.TOKENS:
-          // eslint-disable-next-line no-case-declarations
-          const totalAmount = selectedPortfolio.assets.reduce(
-            (acc, { total }) => acc + total.toNumber(),
-            0,
-          );
-          // eslint-disable-next-line no-case-declarations
-          const parsedData = selectedPortfolio.assets.map(
-            ({ asset, total }) => ({
-              ticker: asset.toHuman(),
-              percentage:
-                total.toNumber() > 0
-                  ? (total.toNumber() / totalAmount) * 100
-                  : 0,
-              balance: {
-                ticker: asset.toHuman(),
-                amount: total.toNumber(),
-              },
-            }),
-          );
-          setTableData(parsedData);
-          break;
-
-        case EAssetsTableTabs.TRANSACTIONS:
-          (async () => {
-            setTableDataLoading(true);
-            try {
-              const transactionHistory =
-                await selectedPortfolio.portfolio.getTransactionHistoryV2();
-              const parsedHistory = await Promise.all(
-                transactionHistory.map(
-                  async ({ blockHash, blockNumber, legs }) => ({
-                    id: blockNumber.toString(),
-                    dateTime: await getTimeByBlockHash(blockHash),
-                    from: legs[0].from.toHuman().did,
-                    to: legs[0].to.toHuman().did,
-                    direction: legs[0].direction,
-                    amount: legs[0].amount.toString(),
-                    asset: legs[0].asset.toHuman(),
-                  }),
-                ),
-              );
-
-              setTableData(
-                parsedHistory.sort((a, b) => {
-                  return Number(b.id) - Number(a.id);
-                }),
-              );
-            } catch (error) {
-              notifyError((error as Error).message);
-            } finally {
-              setTableDataLoading(false);
-            }
-          })();
-          break;
-
-        default:
-          break;
-      }
+      const totalAmount = selectedPortfolio.assets.reduce(
+        (acc, { total }) => acc + total.toNumber(),
+        0,
+      );
+      const parsedData = selectedPortfolio.assets.map(({ asset, total }) => ({
+        ticker: asset.toHuman(),
+        percentage:
+          total.toNumber() > 0 ? (total.toNumber() / totalAmount) * 100 : 0,
+        balance: {
+          ticker: asset.toHuman(),
+          amount: total.toNumber(),
+        },
+      }));
+      setTableData(parsedData);
+      setTotalItems(parsedData.length);
     }
 
     return undefined;
@@ -265,16 +213,12 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
 
   return {
     table: useReactTable<AssetTableItem>({
-      // data: tableData.slice(
-      //   pageIndex * pageSize,
-      //   pageIndex * pageSize + pageSize,
-      // ),
       data: tableData,
       columns: columns[currentTab] as ColumnDef<AssetTableItem>[],
       state: { pagination },
-      manualPagination: currentTab === EAssetsTableTabs.MOVEMENTS,
+      manualPagination: currentTab !== EAssetsTableTabs.TOKENS,
       pageCount:
-        currentTab === EAssetsTableTabs.MOVEMENTS
+        currentTab !== EAssetsTableTabs.TOKENS
           ? totalPages
           : Math.ceil(tableData.length ? tableData.length / pageSize : 1),
       onPaginationChange: setPagination,
@@ -283,6 +227,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
       getSortedRowModel: getSortedRowModel(),
     }),
     setTableData: () => {},
-    tableDataLoading: loading || portfolioLoading || tableDataLoading,
+    tableDataLoading: tableDataLoading || portfolioLoading,
+    totalItems,
   };
 };

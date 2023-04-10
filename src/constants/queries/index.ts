@@ -26,6 +26,41 @@ export const getAssetTransferEvents = gql`
   }
 `;
 
+export const getPaginatedAssetTransferEvents = gql`
+  query transferEvents($did: String!, $offset: Int!, $pageSize: Int!) {
+    events(
+      first: $pageSize
+      offset: $offset
+      orderBy: BLOCK_ID_DESC
+      filter: {
+        moduleId: { equalTo: asset }
+        eventId: { equalTo: Transfer }
+        attributes: { contains: [{ value: { did: $did } }] }
+      }
+    ) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      nodes {
+        id
+        blockId
+        moduleId
+        eventId
+        attributes
+        block {
+          datetime
+        }
+        extrinsicIdx
+        transferTo
+      }
+    }
+  }
+`;
+
 export const getExtrinsicTimestamp = gql`
   query extrinsics($id: String!) {
     extrinsics(filter: { id: { equalTo: $id } }) {
