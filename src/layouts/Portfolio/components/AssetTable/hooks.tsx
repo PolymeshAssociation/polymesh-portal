@@ -26,7 +26,7 @@ import {
   getPortfolioMovements,
 } from '~/constants/queries';
 
-const initialPaginationState = { pageIndex: 0, pageSize: 3 };
+const initialPaginationState = { pageIndex: 0, pageSize: 10 };
 
 export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>(
@@ -66,7 +66,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
             // eslint-disable-next-line no-case-declarations
             const { data: movements } = movementsCalled
               ? await moreMovements({
-                  variables: { offset },
+                  variables: { offset, pageSize },
                 })
               : await fetchMovements({
                   variables: {
@@ -93,7 +93,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
             // eslint-disable-next-line no-case-declarations
             const { data: transfers } = transfersCalled
               ? await moreTransfers({
-                  variables: { offset },
+                  variables: { offset, pageSize },
                 })
               : await fetchTransfers({
                   variables: {
