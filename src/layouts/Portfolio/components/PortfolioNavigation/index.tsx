@@ -40,13 +40,13 @@ export const PortfolioNavigation = () => {
             All assets
           </StyledNavLink>
         </li>
-        {allPortfolios.map(({ id }) => (
+        {allPortfolios.map(({ id, name }) => (
           <li key={id}>
             <StyledNavLink
               className={portfolioId === id ? 'active' : ''}
               onClick={() => setSearchParams({ id: id as string })}
             >
-              {id}
+              {name}
             </StyledNavLink>
           </li>
         ))}
