@@ -12,14 +12,19 @@ import {
 import { PortfolioContext } from '~/context/PortfolioContext';
 import { AccountContext } from '~/context/AccountContext';
 import {
-  ITokenItem,
   AssetTableItem,
   IMovementQueryResponse,
   EAssetsTableTabs,
   ITransferQueryResponse,
 } from './constants';
 import { columns } from './config';
-import { getPortfolioNumber, parseMovements, parseTransfers } from './helpers';
+import {
+  getPortfolioNumber,
+  parseAssetsFromPortfolios,
+  parseAssetsFromSelectedPortfolio,
+  parseMovements,
+  parseTransfers,
+} from './helpers';
 import { notifyError } from '~/helpers/notifications';
 import {
   getPaginatedAssetTransferEvents,
@@ -144,37 +149,12 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
     setTableData([]);
 
     if (!portfolioId) {
-      const reducedPortfolios = allPortfolios
-        .flatMap(({ assets }) =>
-          assets.map(({ asset, total }) => ({
-            ticker: asset.toHuman(),
-            percentage: (total.toNumber() / totalAssetsAmount) * 100,
-            balance: {
-              ticker: asset.toHuman(),
-              amount: total.toNumber(),
-            },
-          })),
-        )
-        .reduce((acc, asset) => {
-          if (acc.find(({ ticker }) => ticker === asset.ticker)) {
-            return acc.map((accAsset) => {
-              if (accAsset.ticker === asset.ticker) {
-                return {
-                  ...accAsset,
-                  percentage: accAsset.percentage + asset.percentage,
-                  balance: {
-                    ...accAsset.balance,
-                    amount: accAsset.balance.amount + asset.balance.amount,
-                  },
-                };
-              }
-              return accAsset;
-            });
-          }
-          return [...acc, asset];
-        }, [] as ITokenItem[]);
-      setTableData(reducedPortfolios);
-      setTotalItems(reducedPortfolios.length);
+      const parsedAssets = parseAssetsFromPortfolios(
+        allPortfolios,
+        totalAssetsAmount,
+      );
+      setTableData(parsedAssets);
+      setTotalItems(parsedAssets.length);
       return undefined;
     }
 
@@ -183,19 +163,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
     );
 
     if (selectedPortfolio) {
-      const totalAmount = selectedPortfolio.assets.reduce(
-        (acc, { total }) => acc + total.toNumber(),
-        0,
-      );
-      const parsedData = selectedPortfolio.assets.map(({ asset, total }) => ({
-        ticker: asset.toHuman(),
-        percentage:
-          total.toNumber() > 0 ? (total.toNumber() / totalAmount) * 100 : 0,
-        balance: {
-          ticker: asset.toHuman(),
-          amount: total.toNumber(),
-        },
-      }));
+      const parsedData = parseAssetsFromSelectedPortfolio(selectedPortfolio);
       setTableData(parsedData);
       setTotalItems(parsedData.length);
     }
@@ -226,7 +194,6 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
       getPaginationRowModel: getPaginationRowModel(),
       getSortedRowModel: getSortedRowModel(),
     }),
-    setTableData: () => {},
     tableDataLoading: tableDataLoading || portfolioLoading,
     totalItems,
   };

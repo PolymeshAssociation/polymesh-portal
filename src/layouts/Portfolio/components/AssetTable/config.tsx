@@ -39,11 +39,19 @@ export const columns = {
       },
     }),
     tokenColumnHelper.accessor('balance', {
-      header: 'Balance',
+      header: 'Total Balance',
       enableSorting: false,
       cell: (info) => {
         const balance = info.getValue();
         return `${balance?.amount} ${balance?.ticker}`;
+      },
+    }),
+    tokenColumnHelper.accessor('locked', {
+      header: 'Locked',
+      enableSorting: false,
+      cell: (info) => {
+        const locked = info.getValue();
+        return locked?.amount ? `${locked?.amount} ${locked?.ticker}` : '-';
       },
     }),
   ],

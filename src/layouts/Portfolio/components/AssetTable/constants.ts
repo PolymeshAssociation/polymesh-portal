@@ -13,6 +13,10 @@ export interface ITokenItem {
     amount: number;
     ticker: string;
   };
+  locked: {
+    amount: number;
+    ticker: string;
+  };
 }
 
 export interface ITransactionItem {
