@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { AccountContext } from '~/context/AccountContext';
 import { PortfolioContext } from '~/context/PortfolioContext';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 import { usePortfolio } from '~/hooks/polymesh';
@@ -19,6 +20,7 @@ import { MoveAssets } from '../MoveAssets';
 
 export const PortfolioInfo = () => {
   const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolioData>();
+  const { identity, identityHasValidCdd } = useContext(AccountContext);
   const { allPortfolios } = useContext(PortfolioContext);
   const { deletePortfolio, actionInProgress } = usePortfolio(
     selectedPortfolio?.portfolio,
@@ -62,21 +64,33 @@ export const PortfolioInfo = () => {
         </div>
       </StyledTopInfo>
       <StyledButtonWrapper>
-        <Button variant="primary" onClick={toggleMoveModal}>
+        <Button
+          variant="primary"
+          onClick={toggleMoveModal}
+          disabled={
+            !identityHasValidCdd ||
+            selectedPortfolio.custodian.did !== identity?.did
+          }
+        >
           Move
         </Button>
         {notDefaultPortfolio && (
           <>
             <Button
               variant="secondary"
-              disabled={actionInProgress}
+              disabled={actionInProgress || !identityHasValidCdd}
               onClick={toggleEditModal}
             >
               Rename
             </Button>
             <Button
               variant="secondary"
-              disabled={!!selectedPortfolio.assets.length || actionInProgress}
+              disabled={
+                !!selectedPortfolio.assets.length ||
+                actionInProgress ||
+                !identityHasValidCdd ||
+                selectedPortfolio.custodian.did !== identity?.did
+              }
               onClick={deletePortfolio}
             >
               Delete

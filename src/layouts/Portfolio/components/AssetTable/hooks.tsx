@@ -45,7 +45,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
   const portfolioId = searchParams.get('id');
   const { allPortfolios, totalAssetsAmount, portfolioLoading } =
     useContext(PortfolioContext);
-  const { identity } = useContext(AccountContext);
+  const { identity, identityLoading } = useContext(AccountContext);
   const [
     fetchMovements,
     { fetchMore: moreMovements, called: movementsCalled },
@@ -58,11 +58,11 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
 
   // Get portfolio movements or asset transfers
   useEffect(() => {
+    setTableData([]);
     if (currentTab === EAssetsTableTabs.TOKENS || !identity || portfolioLoading)
       return;
 
     (async () => {
-      setTableData([]);
       setTableDataLoading(true);
 
       try {
@@ -194,7 +194,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
       getPaginationRowModel: getPaginationRowModel(),
       getSortedRowModel: getSortedRowModel(),
     }),
-    tableDataLoading: tableDataLoading || portfolioLoading,
+    tableDataLoading: identityLoading || tableDataLoading || portfolioLoading,
     totalItems,
   };
 };

@@ -13,6 +13,7 @@ import {
   StyledExpandedOtherAssets,
 } from './styles';
 import { formatBalance, stringToColor } from '~/helpers/formatters';
+import { AccountContext } from '~/context/AccountContext';
 
 interface IAssetOption {
   ticker: string;
@@ -35,6 +36,7 @@ export const AssetAllocation = () => {
   const [assetOptions, setAssetOptions] = useState<IAssetOption[]>([]);
   const [reducedOptions, setReducedOptions] = useState<IReducedOption[]>([]);
   const [otherAssetsExpanded, setOtherAssetsExpanded] = useState(false);
+  const { identityLoading } = useContext(AccountContext);
   const { allPortfolios, totalAssetsAmount, portfolioLoading } =
     useContext(PortfolioContext);
   const [searchParams] = useSearchParams();
@@ -145,7 +147,7 @@ export const AssetAllocation = () => {
       <Text size="large" bold>
         Asset allocation
       </Text>
-      {!assetOptions.length || portfolioLoading ? (
+      {identityLoading || !assetOptions.length || portfolioLoading ? (
         <StyledPlaceholder>
           {!portfolioLoading && !reducedOptions.length && 'No assets available'}
         </StyledPlaceholder>

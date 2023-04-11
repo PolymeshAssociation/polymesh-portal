@@ -45,4 +45,8 @@ export const AddPortfolioButton = styled.button`
   font-weight: 500;
   font-size: 14px;
   color: #ff2e72;
+
+  &:disabled {
+    color: #8f8f8f;
+  }
 `;
