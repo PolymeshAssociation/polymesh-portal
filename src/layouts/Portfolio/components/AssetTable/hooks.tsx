@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLazyQuery } from '@apollo/client';
 import {
@@ -37,7 +37,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>(
     initialPaginationState,
   );
-  const offset = pageIndex * pageSize;
+
   const [totalPages, setTotalPages] = useState(-1);
   const [totalItems, setTotalItems] = useState(0);
   const [tableData, setTableData] = useState<AssetTableItem[]>([]);
@@ -55,6 +55,16 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
     { fetchMore: moreTransfers, called: transfersCalled },
   ] = useLazyQuery<ITransferQueryResponse>(getPaginatedAssetTransferEvents);
   const [tableDataLoading, setTableDataLoading] = useState(false);
+  const tabRef = useRef<string>('');
+
+  // Reset page index when tabs are switched
+  useEffect(() => {
+    if (tableDataLoading) return;
+
+    if (currentTab !== tabRef.current) {
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    }
+  }, [currentTab, pageSize, tableDataLoading]);
 
   // Get portfolio movements or asset transfers
   useEffect(() => {
@@ -62,8 +72,11 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
     if (currentTab === EAssetsTableTabs.TOKENS || !identity || portfolioLoading)
       return;
 
+    if (currentTab !== tabRef.current && pageIndex !== 0) return;
+
     (async () => {
       setTableDataLoading(true);
+      const offset = pageIndex * pageSize;
 
       try {
         switch (currentTab) {
@@ -122,6 +135,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
+        tabRef.current = currentTab;
         setTableDataLoading(false);
       }
     })();
@@ -136,8 +150,8 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
     fetchTransfers,
     moreMovements,
     moreTransfers,
-    offset,
     pageSize,
+    pageIndex,
   ]);
 
   // Get token table data
@@ -145,7 +159,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
     if (currentTab !== EAssetsTableTabs.TOKENS || !allPortfolios || !identity) {
       return undefined;
     }
-
+    tabRef.current = currentTab;
     setTableData([]);
 
     if (!portfolioId) {
