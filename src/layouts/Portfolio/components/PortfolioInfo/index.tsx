@@ -12,7 +12,7 @@ import {
   StyledTopInfo,
   IconWrapper,
   StyledPortfolioInfo,
-  StyledCustody,
+  StyledDetails,
   StyledButtonWrapper,
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
@@ -50,16 +50,22 @@ export const PortfolioInfo = () => {
           <Icon name="PortfolioIcon" size="32px" />
         </IconWrapper>
         <div className="info">
-          <Heading type="h3" transform="capitalize">
-            {selectedPortfolio.name}
-          </Heading>
+          <StyledPortfolioInfo>
+            <Heading type="h3" transform="capitalize">
+              {selectedPortfolio.name}
+            </Heading>
+            <StyledDetails>
+              Portfolio ID:
+              <span>{selectedPortfolio.id?.replace('default', '0') || 0}</span>
+            </StyledDetails>
+          </StyledPortfolioInfo>
           <StyledPortfolioInfo>
             {selectedPortfolio.assets.length} token(s)
-            <StyledCustody>
+            <StyledDetails>
               Custody by:
               <span>{formatDid(selectedPortfolio.custodian.did, 7, 8)}</span>
               <CopyToClipboard value={selectedPortfolio.custodian.did} />
-            </StyledCustody>
+            </StyledDetails>
           </StyledPortfolioInfo>
         </div>
       </StyledTopInfo>
