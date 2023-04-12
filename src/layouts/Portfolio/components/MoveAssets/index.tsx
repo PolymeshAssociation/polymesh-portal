@@ -5,18 +5,26 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useState } from 'react';
 import { Icon, Modal } from '~/components';
-import { Button, Heading, Text } from '~/components/UiKit';
+import { Button, Heading } from '~/components/UiKit';
 import { usePortfolio } from '~/hooks/polymesh';
 import { AssetSelect } from './components/AssetSelect';
 import { PortfolioSelect } from './components/PortfolioSelect';
-import { StyledAddButton, StyledButtonsWrapper, StyledInput } from './styles';
+import { StyledAddButton, StyledButtonsWrapper } from './styles';
 import { IMoveAssetsProps, IAssetItem, ISelectedAsset } from './types';
 
 const parseSelectedAssets = (assets: ISelectedAsset[]): IAssetItem[] => {
-  return assets.map(({ asset, amount }) => ({
-    asset,
-    amount: new BigNumber(amount),
-  }));
+  return assets.map(({ asset, amount, memo }) => {
+    return memo
+      ? {
+          asset,
+          amount: new BigNumber(amount),
+          memo,
+        }
+      : {
+          asset,
+          amount: new BigNumber(amount),
+        };
+  });
 };
 
 export const MoveAssets: React.FC<IMoveAssetsProps> = ({
@@ -28,7 +36,6 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
   const [selectedPortfolio, setSelectedPortfolio] = useState<
     DefaultPortfolio | NumberedPortfolio | null
   >(null);
-  const [memo, setMemo] = useState('');
   const { moveAssets } = usePortfolio(portfolio.portfolio);
 
   const handleAddAssetField = () => {
@@ -52,7 +59,12 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
 
           return [
             ...updatedAcc,
-            { ...assetItem, asset: item.asset, amount: item.amount },
+            {
+              ...assetItem,
+              asset: item.asset,
+              amount: item.amount,
+              memo: item.memo,
+            },
           ];
         }
 
@@ -78,20 +90,12 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
     setSelectedPortfolio(option);
   };
 
-  const handleMemoChange: React.ChangeEventHandler<HTMLInputElement> = ({
-    target,
-  }) => {
-    setMemo(target.value);
-  };
-
   const handleMoveAssets = () => {
     if (!selectedPortfolio) return;
 
     moveAssets({
       to: selectedPortfolio,
       items: parseSelectedAssets(selectedAssets),
-      // Currently not supported
-      // memo,
     });
     toggleModal();
   };
@@ -105,16 +109,6 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
         portfolio={portfolio}
         handleSelect={handleSelectPortfolio}
         selectedPortfolio={selectedPortfolio}
-      />
-      <Text size="medium" bold marginBottom={3} marginTop={24}>
-        Memo (Optional)
-      </Text>
-      <StyledInput
-        type="text"
-        value={memo}
-        onChange={handleMemoChange}
-        placeholder="Enter movement memo"
-        maxLength="32"
       />
       {assetIndexes.map((index) => (
         <AssetSelect

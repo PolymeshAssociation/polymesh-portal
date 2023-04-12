@@ -93,18 +93,23 @@ export const InputWrapper = styled.div`
   position: relative;
 `;
 
-export const StyledAmountInput = styled.input`
+export const StyledInput = styled.input`
   outline: none;
   width: 100%;
+  padding: 9px 16px;
   height: 36px;
-  padding: 9px 80px 9px 16px;
   border: 1px solid #8f8f8f;
   border-radius: 8px;
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.textPrimary};
 
   &::placeholder {
     color: ${({ theme }) => theme.colors.textSecondary};
-    font-size: 14px;
   }
+`;
+
+export const StyledAmountInput = styled(StyledInput)`
+  padding: 9px 80px 9px 16px;
 `;
 
 export const StyledAvailableBalance = styled.div`
@@ -138,4 +143,17 @@ export const UseMaxButton = styled.button`
   padding: 8px;
   background-color: transparent;
   color: #170087;
+`;
+
+export const StyledMemoLabel = styled.div<{ expanded: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: ${({ expanded }) => (expanded ? '3px' : 0)};
+  cursor: pointer;
+
+  & .icon {
+    transform: ${({ expanded }) => (expanded ? 'rotate(180deg)' : 'rotate(0)')};
+  }
 `;

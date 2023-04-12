@@ -20,6 +20,8 @@ import {
   StyledError,
   CloseButton,
   UseMaxButton,
+  StyledMemoLabel,
+  StyledInput,
 } from './styles';
 import { formatBalance, stringToColor } from '~/helpers/formatters';
 import { ISelectedAsset } from '../../types';
@@ -43,6 +45,8 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
   const [availableBalance, setAvailableBalance] = useState(0);
   const [selectedAmount, setSelectedAmount] = useState('');
   const [validationError, setValidationError] = useState('');
+  const [memo, setMemo] = useState('');
+  const [memoExpanded, setMemoExpanded] = useState(false);
   const [assetSelectExpanded, setAssetSelectExpanded] = useState(false);
   const [selectedAssetIsDivisible, setSelectedAssetIsDivisible] =
     useState(false);
@@ -72,7 +76,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
     };
   }, [ref]);
 
-  const validateInput = (inputValue: string) => {
+  const validateInput = (inputValue: string, optionalMemo?: string) => {
     const amount = Number(inputValue);
     let error = '';
 
@@ -99,6 +103,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
       asset: (selectedAsset as Asset).toHuman(),
       amount: error ? 0 : amount,
       index,
+      memo: optionalMemo || memo,
     });
   };
 
@@ -109,6 +114,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
     setSelectedAsset(asset);
     setAvailableBalance(balance.toNumber());
     setSelectedAmount('');
+    setMemo('');
     handleAdd({ asset: asset.toHuman(), amount: 0, index });
     toggleAssetSelectDropdown();
   };
@@ -123,6 +129,13 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
   const handleUseMax = () => {
     setSelectedAmount(availableBalance.toString());
     validateInput(availableBalance.toString());
+  };
+
+  const handleMemoChange: React.ChangeEventHandler<HTMLInputElement> = ({
+    target,
+  }) => {
+    setMemo(target.value);
+    validateInput(selectedAmount, target.value);
   };
 
   const filteredAssets = portfolio.assets.filter(
@@ -206,6 +219,24 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
           <Text>Available balance:</Text>
           <Text>{formatBalance(availableBalance)}</Text>
         </StyledAvailableBalance>
+      )}
+      <StyledMemoLabel
+        onClick={() => setMemoExpanded((prev) => !prev)}
+        expanded={memoExpanded}
+      >
+        <Text size="medium" bold>
+          Memo (Optional)
+        </Text>
+        <Icon name="ExpandIcon" className="icon" size="18px" />
+      </StyledMemoLabel>
+      {memoExpanded && (
+        <StyledInput
+          type="text"
+          value={memo}
+          onChange={handleMemoChange}
+          placeholder="Enter movement memo"
+          maxLength={32}
+        />
       )}
     </StyledWrapper>
   );

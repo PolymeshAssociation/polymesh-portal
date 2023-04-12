@@ -9,10 +9,12 @@ export interface IMoveAssetsProps {
 export interface IAssetItem {
   asset: string;
   amount: BigNumber;
+  memo?: string;
 }
 
 export interface ISelectedAsset {
   index: number;
   asset: string;
   amount: number;
+  memo?: string;
 }
