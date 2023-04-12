@@ -9,11 +9,16 @@ interface KeyboardEvent {
 interface IModalProps {
   handleClose: () => void | React.ReactEventHandler | React.ChangeEventHandler;
   children: React.ReactNode;
+  disableOverflow?: boolean;
 }
 
 const modalRoot = document.getElementById('modal-root') as Element;
 
-const Modal: React.FC<IModalProps> = ({ handleClose, children }) => {
+const Modal: React.FC<IModalProps> = ({
+  handleClose,
+  children,
+  disableOverflow,
+}) => {
   // Disabling page scroll when modal is open
   useEffect(() => {
     document.body.classList.add('no-scroll');
@@ -45,7 +50,7 @@ const Modal: React.FC<IModalProps> = ({ handleClose, children }) => {
 
   return createPortal(
     <StyledBackdrop onClick={handleBackdropClick}>
-      <StyledModal>{children}</StyledModal>
+      <StyledModal disableOverflow={disableOverflow}>{children}</StyledModal>
     </StyledBackdrop>,
     modalRoot,
   );

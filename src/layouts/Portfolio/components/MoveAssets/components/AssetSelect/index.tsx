@@ -159,7 +159,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
         <CloseButton
           onClick={() => handleDelete(index, selectedAsset?.toHuman())}
         >
-          <Icon name="CloseIcon" />
+          <Icon name="CloseIcon" size="16px" />
         </CloseButton>
       )}
       <AssetWrapper>
@@ -168,7 +168,10 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
             Asset
           </Text>
           <AssetSelectWrapper ref={ref}>
-            <StyledAssetSelect onClick={toggleAssetSelectDropdown}>
+            <StyledAssetSelect
+              onClick={toggleAssetSelectDropdown}
+              expanded={assetSelectExpanded}
+            >
               {portfolio.assets.length && selectedAsset ? (
                 <SelectedOption>
                   <IconWrapper
@@ -181,7 +184,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
               ) : (
                 <StyledPlaceholder>Select Asset</StyledPlaceholder>
               )}
-              <Icon name="ExpandIcon" className="expand-icon" />
+              <Icon name="ExpandIcon" className="expand-icon" size="18px" />
             </StyledAssetSelect>
             {assetSelectExpanded && (
               <StyledExpandedSelect>
