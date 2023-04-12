@@ -2,8 +2,8 @@ import styled from 'styled-components';
 
 export const StyledWrapper = styled.div<{ expanded: boolean }>`
   width: 320px;
-  max-height: ${({ expanded }) => (expanded ? '720px' : 0)};
-  overflow-y: 'scroll';
+  max-height: ${({ expanded }) => (expanded ? '70vh' : 0)};
+  overflow-y: scroll;
   padding: ${({ expanded }) => (expanded ? '24px' : 0)};
   background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
@@ -35,6 +35,10 @@ export const StyledNotificationItem = styled.div`
   cursor: pointer;
 
   transition: background-color 250ms ease-out;
+
+  &:not(:first-child) {
+    margin-top: 16px;
+  }
 
   &:hover {
     background-color: #ffebf1;

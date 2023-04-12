@@ -12,7 +12,8 @@ export const StyledButton = styled.button<{
   justify-content: center;
   gap: 10px;
   min-width: 128px;
-  padding: 12px 16px;
+  height: 48px;
+  padding: 0 16px;
   border-radius: 100px;
   ${
     variant === EButtonVariants.PRIMARY
@@ -20,11 +21,11 @@ export const StyledButton = styled.button<{
     color: #FF2E72;
     background: #FFEBF1;  
 
-    &:hover, &:focus {
+    &:hover:enabled, &:focus:enabled {
       background: #FF2E72;
       color: #FFEBF1;
     }
-    &:active {
+    &:active:enabled {
 
     }
     &:disabled {
@@ -41,10 +42,10 @@ export const StyledButton = styled.button<{
     color: #727272;
     background: #F5F5F5;
 
-    &:hover, &:focus {
+    &:hover:enabled, &:focus:enabled {
       background: #F2EFFF;
     }
-    &:active {
+    &:active:enabled {
       background: #DCD3FF;
     }
     &:disabled {
@@ -60,10 +61,10 @@ export const StyledButton = styled.button<{
     background: #170087;  
     box-shadow: 0px 24px 24px rgba(23, 0, 135, 0.12);
 
-    &:hover, &:focus {
+    &:hover:enabled, &:focus:enabled {
       background: #100255;
     }
-    &:active {
+    &:active:enabled {
       box-shadow: 0px 12px 24px transparent;
     }
     &:disabled {
@@ -82,10 +83,10 @@ export const StyledButton = styled.button<{
     background: #FFFFFF;
     border: 1px solid #170087;
 
-    &:hover, &:focus {
+    &:hover:enabled, &:focus:enabled {
       background: #F2EFFF;
     }
-    &:active {
+    &:active:enabled {
       background: #DCD3FF;
     }
     &:disabled {
@@ -102,10 +103,10 @@ export const StyledButton = styled.button<{
     background: linear-gradient(248.54deg, #FF2E72 0%, #4A125E 156.07%);
     box-shadow: 0px 12px 24px rgba(240, 44, 113, 0.24);
 
-    &:hover {
+    &:hover:enabled {
       background-position: 166px;
     }
-    &:active {
+    &:active:enabled {
       box-shadow: 0px 12px 24px transparent;
     }
     &:disabled {
@@ -122,12 +123,30 @@ export const StyledButton = styled.button<{
     color: #ffffff;
     background: rgba(255, 255, 255, 0.24);
 
-    &:hover, &:focus {
+    &:hover:enabled, &:focus:enabled {
       background: rgba(255, 255, 255, 0.34);
     }
-    &:active {
+    &:active:enabled {
     }
     &:disabled {
+      color: #8F8F8F;
+    }
+    `
+      : ''
+  }
+  ${
+    variant === EButtonVariants.SUCCESS
+      ? `
+    color: #00AA5E;
+    background: #D4F7E7;
+
+    &:hover:enabled, &:focus:enabled {
+      color: #D4F7E7;
+      background: #00AA5E;
+    }
+  
+    &:disabled {
+      background: #F0F0F0;
       color: #8F8F8F;
     }
     `

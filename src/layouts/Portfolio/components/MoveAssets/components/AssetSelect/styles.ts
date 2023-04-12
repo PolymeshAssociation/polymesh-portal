@@ -28,7 +28,7 @@ export const AssetSelectWrapper = styled.div`
   position: relative;
 `;
 
-export const StyledAssetSelect = styled.div`
+export const StyledAssetSelect = styled.div<{ expanded: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -38,6 +38,10 @@ export const StyledAssetSelect = styled.div`
   border: 1px solid #8f8f8f;
   border-radius: 8px;
   cursor: pointer;
+
+  & .expand-icon {
+    transform: ${({ expanded }) => (expanded ? `rotate(180deg)` : `rotate(0)`)};
+  }
 `;
 
 export const StyledExpandedSelect = styled.div`
@@ -50,6 +54,7 @@ export const StyledExpandedSelect = styled.div`
   border: 1px solid #8f8f8f;
   border-radius: 8px;
   z-index: 1;
+  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
 `;
 
 export const SelectedOption = styled.div`
