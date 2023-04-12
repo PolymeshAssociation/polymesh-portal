@@ -84,7 +84,14 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
             // eslint-disable-next-line no-case-declarations
             const { data: movements } = movementsCalled
               ? await moreMovements({
-                  variables: { offset, pageSize },
+                  variables: {
+                    offset,
+                    pageSize,
+                    portfolioNumber: getPortfolioNumber(
+                      identity.did,
+                      portfolioId,
+                    ),
+                  },
                 })
               : await fetchMovements({
                   variables: {
