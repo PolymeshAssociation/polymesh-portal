@@ -52,6 +52,7 @@ const Authorizations = () => {
                 <AuthorizationItem
                   key={authorization.uuid}
                   data={authorization.toHuman()}
+                  rawData={authorization}
                   accept={authorization.accept}
                   reject={authorization.remove}
                 />
@@ -60,6 +61,7 @@ const Authorizations = () => {
                 <AuthorizationItem
                   key={authorization.uuid}
                   data={authorization.toHuman()}
+                  rawData={authorization}
                   reject={authorization.remove}
                 />
               ))}

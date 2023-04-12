@@ -1,9 +1,10 @@
 import { HumanReadable } from '@polymeshassociation/polymesh-sdk/api/entities/AuthorizationRequest';
 import {
+  AuthorizationRequest,
   NoArgsProcedureMethod,
   UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CopyToClipboard, Icon } from '~/components';
 import { Button, Text } from '~/components/UiKit';
@@ -25,15 +26,18 @@ import { AuthorizationsContext } from '~/context/AuthorizationsContext';
 
 interface IAuthorizationItemProps {
   data: HumanReadable;
+  rawData: AuthorizationRequest;
   accept?: NoArgsProcedureMethod<void, void>;
   reject: NoArgsProcedureMethod<void, void>;
 }
 
 export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
   data,
+  rawData,
   accept,
   reject,
 }) => {
+  const [details, setDetails] = useState<JSX.Element | null>(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [acceptInProgress, setAcceptInProgress] = useState(false);
   const [rejectInProgress, setRejectInProgress] = useState(false);
@@ -41,6 +45,15 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
   const { refreshAuthorizations } = useContext(AuthorizationsContext);
   const [searchParams] = useSearchParams();
   const direction = searchParams.get('direction');
+
+  // Async render details for getting portfolio name
+  useEffect(() => {
+    if (!data || !rawData) return;
+    (async () => {
+      const detailsMarkup = await renderDetails(data, rawData);
+      setDetails(detailsMarkup);
+    })();
+  }, [data, rawData]);
 
   const toggleDetails = () => setDetailsExpanded((prev) => !prev);
   const handleAccept = async () => {
@@ -79,8 +92,6 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
       }
     }
   };
-
-  const details = renderDetails(data);
 
   return (
     <StyledItemWrapper>

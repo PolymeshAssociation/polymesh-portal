@@ -20,7 +20,15 @@ const AuthorizationsProvider = ({ children }: IAuthorizationsProviderProps) => {
   const [shouldRefreshData, setShouldRefreshData] = useState(true);
 
   useEffect(() => {
-    if (!account || identityLoading || !shouldRefreshData) return;
+    if (!account || identityLoading) {
+      setShouldRefreshData(true);
+      return;
+    }
+
+    if (!shouldRefreshData) {
+      return;
+    }
+
     (async () => {
       try {
         setAuthorizationsLoading(true);

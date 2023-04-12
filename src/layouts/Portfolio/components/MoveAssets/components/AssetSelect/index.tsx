@@ -133,9 +133,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
   return (
     <StyledWrapper>
       {!!index && (
-        <CloseButton
-          onClick={() => handleDelete(index, selectedAsset?.toHuman())}
-        >
+        <CloseButton onClick={() => handleDelete(index)}>
           <Icon name="CloseIcon" size="16px" />
         </CloseButton>
       )}
