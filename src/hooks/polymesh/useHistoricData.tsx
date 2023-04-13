@@ -1,13 +1,21 @@
 import { useContext, useState, useEffect } from 'react';
 import {
   ExtrinsicData,
+  ExtrinsicsOrderBy,
   HistoricInstruction,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { AccountContext } from '~/context/AccountContext';
 
-const useHistoricData = () => {
+interface IPaginationState {
+  pageIndex: number;
+  pageSize: number;
+}
+
+const useHistoricData = ({ pageIndex, pageSize }: IPaginationState) => {
   const { account, selectedAccount } = useContext(AccountContext);
   const [extrinsicHistory, setExtrisicHistory] = useState<ExtrinsicData[]>([]);
+  const [extrinsicCount, setExtrinsicCount] = useState(0);
   const [instructionsHistory, setInstructionsHistory] = useState<
     HistoricInstruction[]
   >([]);
@@ -22,9 +30,16 @@ const useHistoricData = () => {
       try {
         setDataLoading(true);
 
-        const { data } = await account.getTransactionHistoryV2();
+        const { data, count } = await account.getTransactionHistoryV2({
+          orderBy: ExtrinsicsOrderBy.BlockIdDesc,
+          size: new BigNumber(pageSize),
+          start: new BigNumber(pageIndex * pageSize),
+        });
 
         setExtrisicHistory(data);
+        if (count) {
+          setExtrinsicCount(count.toNumber());
+        }
 
         const identity = await account.getIdentity();
         if (!identity) return;
@@ -38,9 +53,15 @@ const useHistoricData = () => {
         setDataLoading(false);
       }
     })();
-  }, [account, selectedAccount]);
+  }, [account, selectedAccount, pageIndex, pageSize]);
 
-  return { extrinsicHistory, instructionsHistory, dataLoading, dataError };
+  return {
+    extrinsicHistory,
+    extrinsicCount,
+    instructionsHistory,
+    dataLoading,
+    dataError,
+  };
 };
 
 export default useHistoricData;
