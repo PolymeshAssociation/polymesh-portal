@@ -110,3 +110,62 @@ export const transferEventsQuery = ({
 
   return query;
 };
+
+export const portfolioMovementsQuery = ({
+  offset,
+  pageSize,
+  portfolioNumber,
+}: {
+  offset: number;
+  pageSize: number;
+  portfolioNumber: string;
+}) => {
+  const query = gql`
+    query {
+      portfolioMovements(
+        first: ${pageSize}
+        offset: ${offset}
+        orderBy: CREATED_AT_DESC
+        filter: {
+          or: [
+            { fromId: { startsWith: "${portfolioNumber}" } }
+            { toId: { startsWith: "${portfolioNumber}" } }
+          ]
+        }
+      ) {
+        totalCount
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+          startCursor
+          endCursor
+        }
+        nodes {
+          id
+          fromId
+          from {
+            identityId
+            number
+            name
+          }
+          toId
+          to {
+            identityId
+            number
+            name
+          }
+          assetId
+          amount
+          address
+          memo
+          createdBlock {
+            blockId
+            datetime
+          }
+        }
+      }
+    }
+  `;
+
+  return query;
+};

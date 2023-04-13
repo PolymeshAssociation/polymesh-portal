@@ -1,6 +1,5 @@
 import { useState, useEffect, useContext, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useLazyQuery } from '@apollo/client';
 import {
   useReactTable,
   getCoreRowModel,
@@ -26,8 +25,10 @@ import {
   parseTransfers,
 } from './helpers';
 import { notifyError } from '~/helpers/notifications';
-import { getPortfolioMovements } from '~/constants/queries';
-import { transferEventsQuery } from '~/helpers/graphqlQueries';
+import {
+  transferEventsQuery,
+  portfolioMovementsQuery,
+} from '~/helpers/graphqlQueries';
 import { gqlClient } from '~/config/graphql';
 
 const initialPaginationState = { pageIndex: 0, pageSize: 10 };
@@ -45,10 +46,6 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
   const { allPortfolios, totalAssetsAmount, portfolioLoading } =
     useContext(PortfolioContext);
   const { identity, identityLoading } = useContext(AccountContext);
-  const [
-    fetchMovements,
-    { fetchMore: moreMovements, called: movementsCalled },
-  ] = useLazyQuery<IMovementQueryResponse>(getPortfolioMovements);
   const [tableDataLoading, setTableDataLoading] = useState(false);
   const tabRef = useRef<string>('');
   const portfolioRef = useRef<string | null>(null);
@@ -78,28 +75,17 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
         switch (currentTab) {
           case EAssetsTableTabs.MOVEMENTS:
             // eslint-disable-next-line no-case-declarations
-            const { data: movements } = movementsCalled
-              ? await moreMovements({
-                  variables: {
-                    offset,
-                    pageSize,
-                    portfolioNumber: getPortfolioNumber(
-                      identity.did,
-                      portfolioId,
-                    ),
-                  },
-                })
-              : await fetchMovements({
-                  variables: {
-                    pageSize,
-                    offset,
-                    portfolioNumber: getPortfolioNumber(
-                      identity.did,
-                      portfolioId,
-                    ),
-                  },
-                  notifyOnNetworkStatusChange: true,
-                });
+            const { data: movements } =
+              await gqlClient.query<IMovementQueryResponse>({
+                query: portfolioMovementsQuery({
+                  offset,
+                  pageSize,
+                  portfolioNumber: getPortfolioNumber(
+                    identity.did,
+                    portfolioId,
+                  ),
+                }),
+              });
             if (movements) {
               const parsedMovements = parseMovements(movements);
               setTableData(parsedMovements);
@@ -145,9 +131,6 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
     identity,
     portfolioId,
     portfolioLoading,
-    movementsCalled,
-    fetchMovements,
-    moreMovements,
     pageSize,
     pageIndex,
   ]);
