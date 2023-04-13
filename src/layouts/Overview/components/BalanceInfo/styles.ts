@@ -2,10 +2,10 @@ import styled from 'styled-components';
 
 export const StyledWrapper = styled.div`
   grid-area: balance;
-  height: 392px;
+  min-height: 392px;
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  justify-content: space-between;
   padding: 24px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
