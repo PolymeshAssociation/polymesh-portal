@@ -26,10 +26,9 @@ import {
   parseTransfers,
 } from './helpers';
 import { notifyError } from '~/helpers/notifications';
-import {
-  getPaginatedAssetTransferEvents,
-  getPortfolioMovements,
-} from '~/constants/queries';
+import { getPortfolioMovements } from '~/constants/queries';
+import { transferEventsQuery } from '~/helpers/graphqlQueries';
+import { gqlClient } from '~/config/graphql';
 
 const initialPaginationState = { pageIndex: 0, pageSize: 10 };
 
@@ -50,21 +49,18 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
     fetchMovements,
     { fetchMore: moreMovements, called: movementsCalled },
   ] = useLazyQuery<IMovementQueryResponse>(getPortfolioMovements);
-  const [
-    fetchTransfers,
-    { fetchMore: moreTransfers, called: transfersCalled },
-  ] = useLazyQuery<ITransferQueryResponse>(getPaginatedAssetTransferEvents);
   const [tableDataLoading, setTableDataLoading] = useState(false);
   const tabRef = useRef<string>('');
+  const portfolioRef = useRef<string | null>(null);
 
   // Reset page index when tabs are switched
   useEffect(() => {
     if (tableDataLoading) return;
 
-    if (currentTab !== tabRef.current) {
+    if (currentTab !== tabRef.current || portfolioId !== portfolioRef.current) {
       setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     }
-  }, [currentTab, pageSize, tableDataLoading]);
+  }, [currentTab, portfolioId, pageSize, tableDataLoading]);
 
   // Get portfolio movements or asset transfers
   useEffect(() => {
@@ -116,18 +112,15 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
 
           case EAssetsTableTabs.TRANSACTIONS:
             // eslint-disable-next-line no-case-declarations
-            const { data: transfers } = transfersCalled
-              ? await moreTransfers({
-                  variables: { offset, pageSize },
-                })
-              : await fetchTransfers({
-                  variables: {
-                    pageSize,
-                    offset,
-                    did: identity.did,
-                  },
-                  notifyOnNetworkStatusChange: true,
-                });
+            const { data: transfers } =
+              await gqlClient.query<ITransferQueryResponse>({
+                query: transferEventsQuery({
+                  identityId: identity.did,
+                  portfolioId,
+                  offset,
+                  pageSize,
+                }),
+              });
             if (transfers) {
               const parsedTransfers = parseTransfers(transfers);
               setTableData(parsedTransfers);
@@ -143,6 +136,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
         notifyError((error as Error).message);
       } finally {
         tabRef.current = currentTab;
+        portfolioRef.current = portfolioId;
         setTableDataLoading(false);
       }
     })();
@@ -151,12 +145,9 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
     identity,
     portfolioId,
     portfolioLoading,
-    transfersCalled,
     movementsCalled,
     fetchMovements,
-    fetchTransfers,
     moreMovements,
-    moreTransfers,
     pageSize,
     pageIndex,
   ]);
@@ -167,6 +158,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
       return undefined;
     }
     tabRef.current = currentTab;
+    portfolioRef.current = portfolioId;
     setTableData([]);
 
     if (!portfolioId) {

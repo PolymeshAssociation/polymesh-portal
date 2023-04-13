@@ -1,4 +1,5 @@
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import { gql } from '@apollo/client';
 import { gqlClient } from '~/config/graphql';
 import {
   getExtrinsicTimestamp,
@@ -43,4 +44,69 @@ export const getTimeByBlockHash = async (hash: string) => {
   } catch (error) {
     return '';
   }
+};
+
+const getQueryFilter = (identityId: string, portfolioId: string | null) => {
+  if (!portfolioId) {
+    return `{ value: { did: "${identityId}" } }`;
+  }
+
+  if (portfolioId === 'default') {
+    return `{ value: { did: "${identityId}", kind: { Default: null } } }`;
+  }
+
+  return `{ value: { did: "${identityId}", kind: { User: ${Number(
+    portfolioId,
+  )} } } }`;
+};
+
+export const transferEventsQuery = ({
+  identityId,
+  portfolioId,
+  offset,
+  pageSize,
+}: {
+  identityId: string;
+  portfolioId: string | null;
+  offset: number;
+  pageSize: number;
+}) => {
+  const portfolioIdFilter = getQueryFilter(identityId, portfolioId);
+
+  const query = gql`
+    query {
+      events(
+        first: ${pageSize}
+        offset: ${offset}
+        orderBy: BLOCK_ID_DESC
+        filter: {
+          moduleId: { equalTo: asset }
+          eventId: { equalTo: Transfer }
+          attributes: { contains: [${portfolioIdFilter}] }
+        }
+      ) {
+        totalCount
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+          startCursor
+          endCursor
+        }
+        nodes {
+          id
+          blockId
+          moduleId
+          eventId
+          attributes
+          block {
+            datetime
+          }
+          extrinsicIdx
+          transferTo
+        }
+      }
+    }
+  `;
+
+  return query;
 };
