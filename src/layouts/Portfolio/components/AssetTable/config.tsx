@@ -1,12 +1,4 @@
-import {
-  createColumnHelper,
-  useReactTable,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  ColumnDef,
-} from '@tanstack/react-table';
-import { useState } from 'react';
+import { createColumnHelper } from '@tanstack/react-table';
 import { formatBalance, formatDid } from '~/helpers/formatters';
 import { Icon, CopyToClipboard } from '~/components';
 import { PercentageFilter } from './components/PercentageFilter';
@@ -16,13 +8,22 @@ import {
   IconWrapper,
   StyledTime,
   AddressCellWrapper,
+  StyledDateTimeCell,
 } from './styles';
-import { EAssetsTableTabs, ITokenItem, ITransactionItem } from './constants';
+import {
+  EAssetsTableTabs,
+  IMovementItem,
+  ITokenItem,
+  ITransactionItem,
+  IIdData,
+} from './constants';
+import { createTokenActivityLink } from './helpers';
 
 const tokenColumnHelper = createColumnHelper<ITokenItem>();
 const transactionColumnHelper = createColumnHelper<ITransactionItem>();
+const movementColumnHelper = createColumnHelper<IMovementItem>();
 
-const columns = {
+export const columns = {
   [EAssetsTableTabs.TOKENS]: [
     tokenColumnHelper.accessor('ticker', {
       header: 'Token',
@@ -38,11 +39,19 @@ const columns = {
       },
     }),
     tokenColumnHelper.accessor('balance', {
-      header: 'Balance',
+      header: 'Total Balance',
       enableSorting: false,
       cell: (info) => {
         const balance = info.getValue();
         return `${balance?.amount} ${balance?.ticker}`;
+      },
+    }),
+    tokenColumnHelper.accessor('locked', {
+      header: 'Locked',
+      enableSorting: false,
+      cell: (info) => {
+        const locked = info.getValue();
+        return locked?.amount ? `${locked?.amount} ${locked?.ticker}` : '-';
       },
     }),
   ],
@@ -53,16 +62,13 @@ const columns = {
       cell: (info) => {
         const data = info.getValue();
         const handleClick = () =>
-          window.open(
-            `${import.meta.env.VITE_SUBSCAN_URL}block/${data}`,
-            '_blank',
-          );
+          window.open(createTokenActivityLink(data as IIdData), '_blank');
         return (
           <IdCellWrapper onClick={handleClick}>
             <IconWrapper>
               <Icon name="ArrowTopRight" />
             </IconWrapper>
-            {data}
+            {data?.eventId}
           </IdCellWrapper>
         );
       },
@@ -75,9 +81,9 @@ const columns = {
         const [date, time] = data.split(' ');
 
         return (
-          <span>
+          <StyledDateTimeCell>
             {date} / <StyledTime>{time}</StyledTime>
-          </span>
+          </StyledDateTimeCell>
         );
       },
     }),
@@ -105,10 +111,6 @@ const columns = {
         );
       },
     }),
-    transactionColumnHelper.accessor('direction', {
-      header: 'Direction',
-      cell: (info) => info.getValue(),
-    }),
     transactionColumnHelper.accessor('asset', {
       header: 'Asset',
       cell: (info) => info.getValue(),
@@ -118,25 +120,57 @@ const columns = {
       cell: (info) => info.getValue(),
     }),
   ],
-};
+  [EAssetsTableTabs.MOVEMENTS]: [
+    movementColumnHelper.accessor('movementId', {
+      header: 'Id',
+      enableSorting: false,
+      cell: (info) => {
+        const data = info.getValue();
 
-export const useAssetTable = <T extends ITokenItem | ITransactionItem>(
-  currentTab: `${EAssetsTableTabs}`,
-) => {
-  const [tableData, setTableData] = useState<T[]>([]);
-  return {
-    table: useReactTable<T>({
-      data: tableData,
-      columns: columns[currentTab] as ColumnDef<T>[],
-      initialState: {
-        pagination: {
-          pageSize: 10,
-        },
+        const handleClick = () =>
+          window.open(
+            `${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${data}`,
+            '_blank',
+          );
+        return (
+          <IdCellWrapper onClick={handleClick}>
+            <IconWrapper>
+              <Icon name="ArrowTopRight" />
+            </IconWrapper>
+            {data}
+          </IdCellWrapper>
+        );
       },
-      getCoreRowModel: getCoreRowModel(),
-      getPaginationRowModel: getPaginationRowModel(),
-      getSortedRowModel: getSortedRowModel(),
     }),
-    setTableData,
-  };
+    movementColumnHelper.accessor('dateTime', {
+      header: 'Date / Time',
+      cell: (info) => {
+        const data = info.getValue();
+        if (!data) return '';
+        const [date, time] = data.split(' ');
+
+        return (
+          <StyledDateTimeCell>
+            {date} /<StyledTime>{time}</StyledTime>
+          </StyledDateTimeCell>
+        );
+      },
+    }),
+    movementColumnHelper.accessor('from', {
+      header: 'From',
+      cell: (info) => info.getValue(),
+    }),
+    movementColumnHelper.accessor('to', {
+      header: 'To',
+      cell: (info) => info.getValue(),
+    }),
+    movementColumnHelper.accessor('asset', {
+      header: 'Asset',
+      cell: (info) => info.getValue(),
+    }),
+    movementColumnHelper.accessor('amount', {
+      header: 'Amount',
+      cell: (info) => info.getValue(),
+    }),
+  ],
 };

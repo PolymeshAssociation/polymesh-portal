@@ -10,8 +10,10 @@ import {
   StyledLegendList,
   StyledLegendItem,
   StyledPlaceholder,
+  StyledExpandedOtherAssets,
 } from './styles';
 import { formatBalance, stringToColor } from '~/helpers/formatters';
+import { AccountContext } from '~/context/AccountContext';
 
 interface IAssetOption {
   ticker: string;
@@ -21,12 +23,61 @@ interface IAssetOption {
   percentage: number;
 }
 
+interface IReducedOption {
+  ticker: string;
+  percentage: number;
+  color: string;
+}
+
+let smallAmountAssets: IAssetOption[] = [];
+let normalAmountAssets: IAssetOption[] = [];
+
 export const AssetAllocation = () => {
   const [assetOptions, setAssetOptions] = useState<IAssetOption[]>([]);
+  const [reducedOptions, setReducedOptions] = useState<IReducedOption[]>([]);
+  const [otherAssetsExpanded, setOtherAssetsExpanded] = useState(false);
+  const { identityLoading } = useContext(AccountContext);
   const { allPortfolios, totalAssetsAmount, portfolioLoading } =
     useContext(PortfolioContext);
   const [searchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
+
+  useEffect(() => {
+    if (!assetOptions) return;
+
+    smallAmountAssets = [];
+    normalAmountAssets = [];
+
+    assetOptions.forEach((option) => {
+      if (option.percentage < 20) {
+        smallAmountAssets.push(option);
+      } else {
+        normalAmountAssets.push(option);
+      }
+    });
+
+    const normalOptions: IReducedOption[] = normalAmountAssets.map(
+      ({ ticker, percentage, color }) => ({
+        ticker,
+        percentage,
+        color,
+      }),
+    );
+
+    if (smallAmountAssets.length) {
+      const reducedOption = smallAmountAssets.reduce((acc, { percentage }) => {
+        return {
+          ...acc,
+          ticker: 'Other',
+          percentage: acc.percentage || 0 + percentage,
+          color: '#EC4673',
+        };
+      }, {} as IReducedOption);
+      setReducedOptions([...normalOptions, reducedOption]);
+    } else {
+      setReducedOptions(normalOptions);
+    }
+  }, [assetOptions]);
 
   useEffect(() => {
     if (!allPortfolios) return;
@@ -96,13 +147,13 @@ export const AssetAllocation = () => {
       <Text size="large" bold>
         Asset allocation
       </Text>
-      {!assetOptions.length || portfolioLoading ? (
+      {identityLoading || !assetOptions.length || portfolioLoading ? (
         <StyledPlaceholder>
-          {!portfolioLoading && !assetOptions.length && 'No assets available'}
+          {!portfolioLoading && !reducedOptions.length && 'No assets available'}
         </StyledPlaceholder>
       ) : (
         <StyledPercentageBar>
-          {assetOptions.map(({ ticker, color, percentage }) => {
+          {reducedOptions.map(({ ticker, color, percentage }) => {
             return (
               <StyledFraction
                 key={ticker}
@@ -114,8 +165,30 @@ export const AssetAllocation = () => {
         </StyledPercentageBar>
       )}
       <StyledLegendList>
-        {assetOptions.map(({ ticker, color, percentage }) => {
-          return (
+        {reducedOptions.map(({ ticker, color, percentage }) => {
+          const isOther = ticker === 'Other';
+          return isOther ? (
+            <StyledLegendItem
+              key={ticker}
+              color={color}
+              expandable
+              onMouseEnter={() => setOtherAssetsExpanded(true)}
+              onMouseLeave={() => setOtherAssetsExpanded(false)}
+            >
+              {ticker}
+              <span>{formatBalance(percentage)}%</span>
+              {otherAssetsExpanded && (
+                <StyledExpandedOtherAssets>
+                  {smallAmountAssets.map((option) => (
+                    <StyledLegendItem key={option.ticker} color={option.color}>
+                      {option.ticker}
+                      <span>{formatBalance(option.percentage)}%</span>
+                    </StyledLegendItem>
+                  ))}
+                </StyledExpandedOtherAssets>
+              )}
+            </StyledLegendItem>
+          ) : (
             <StyledLegendItem key={ticker} color={color}>
               {ticker}
               <span>{formatBalance(percentage)}%</span>

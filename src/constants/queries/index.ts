@@ -3,13 +3,48 @@ import { gql } from '@apollo/client';
 export const getAssetTransferEvents = gql`
   query transferEvents($did: String!) {
     events(
-      orderBy: BLOCK_ID_DESC
+      orderBy: CREATED_AT_DESC
       filter: {
         moduleId: { equalTo: asset }
         eventId: { equalTo: Transfer }
         attributes: { contains: [{ value: { did: $did } }] }
       }
     ) {
+      nodes {
+        id
+        blockId
+        moduleId
+        eventId
+        attributes
+        block {
+          datetime
+        }
+        extrinsicIdx
+        transferTo
+      }
+    }
+  }
+`;
+
+export const getPaginatedAssetTransferEvents = gql`
+  query transferEvents($did: String!, $offset: Int!, $pageSize: Int!) {
+    events(
+      first: $pageSize
+      offset: $offset
+      orderBy: CREATED_AT_DESC
+      filter: {
+        moduleId: { equalTo: asset }
+        eventId: { equalTo: Transfer }
+        attributes: { contains: [{ value: { did: $did } }] }
+      }
+    ) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
       nodes {
         id
         blockId
@@ -43,6 +78,57 @@ export const getTimestampByBlockHash = gql`
     blocks(filter: { hash: { equalTo: $hash } }) {
       nodes {
         datetime
+      }
+    }
+  }
+`;
+
+export const getPortfolioMovements = gql`
+  query portfolioMovementsQuery(
+    $offset: Int!
+    $pageSize: Int!
+    $portfolioNumber: String!
+  ) {
+    portfolioMovements(
+      first: $pageSize
+      offset: $offset
+      orderBy: CREATED_AT_DESC
+      filter: {
+        or: [
+          { fromId: { startsWith: $portfolioNumber } }
+          { toId: { startsWith: $portfolioNumber } }
+        ]
+      }
+    ) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      nodes {
+        id
+        fromId
+        from {
+          identityId
+          number
+          name
+        }
+        toId
+        to {
+          identityId
+          number
+          name
+        }
+        assetId
+        amount
+        address
+        memo
+        createdBlock {
+          blockId
+          datetime
+        }
       }
     }
   }

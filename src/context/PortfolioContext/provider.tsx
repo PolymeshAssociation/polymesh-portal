@@ -27,12 +27,12 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
   >([]);
   const [allPortfolios, setAllPortfolios] = useState<IPortfolioData[]>([]);
   const [totalAssetsAmount, setTotalAssetsAmount] = useState(0);
-  const [portfolioLoading, setPortfolioLoading] = useState(true);
+  const [portfolioLoading, setPortfolioLoading] = useState(false);
   const [portfolioError, setPortfolioError] = useState('');
 
   const getPortfoliosData = useCallback(async () => {
     if (!identity) return;
-
+    setPortfolioLoading(true);
     try {
       const portfolios = await identity.portfolios.getPortfolios();
 
@@ -94,11 +94,9 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
   useEffect(() => {
     setAllPortfolios([]);
     setTotalAssetsAmount(0);
-    setPortfolioLoading(true);
     setPortfolioError('');
 
     if (!initialized || !sdk) return;
-
     (async () => {
       await getPortfoliosData();
     })();

@@ -38,9 +38,18 @@ export const StyledPortfolioInfo = styled.div`
   align-items: center;
   justify-content: space-between;
   color: #ff2e72;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: initial;
+  }
 `;
 
-export const StyledCustody = styled.div`
+export const StyledDetails = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
