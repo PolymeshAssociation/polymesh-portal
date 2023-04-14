@@ -6,88 +6,109 @@ import {
   ColumnDef,
   PaginationState,
 } from '@tanstack/react-table';
-import { useQuery } from '@apollo/client';
-import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { useHistoricData } from '~/hooks/polymesh';
-import { getAssetTransferEvents } from '~/constants/queries';
 import { EActivityTableTabs, IHistoricalItem, ITokenItem } from './constants';
 import { columns } from './config';
 import { parseExtrinsicHistory, parseTokenActivity } from './helpers';
+import { gqlClient } from '~/config/graphql';
+import { transferEventsQuery } from '~/helpers/graphqlQueries';
+import { notifyError } from '~/helpers/notifications';
+import { ITransferQueryResponse } from '~/constants/queries/types';
 
 export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
+  const [totalPages, setTotalPages] = useState(-1);
+  const [totalItems, setTotalItems] = useState(0);
   const [tableData, setTableData] = useState<(IHistoricalItem | ITokenItem)[]>(
     [],
   );
-  const {
-    state: { connecting },
-  } = useContext(PolymeshContext);
-  const { selectedAccount, identity } = useContext(AccountContext);
+  const { identity, identityLoading } = useContext(AccountContext);
   const { extrinsicHistory, dataLoading, extrinsicCount } = useHistoricData({
     pageIndex,
     pageSize,
   });
-  const [dataParsing, setDataParsing] = useState(false);
-  const { loading, error, data } = useQuery(getAssetTransferEvents, {
-    variables: { did: identity?.did || '' },
-  });
+
+  const [tableLoading, setTableLoading] = useState(false);
   const tabRef = useRef<string>('');
+  const identityRef = useRef<string>('');
 
-  // Reset page index when tabs are switched
+  // Reset page index when tabs are switched or identity changes
   useEffect(() => {
-    if (dataLoading || loading) return;
+    if (dataLoading || tableLoading || !identity) return;
 
-    if (currentTab !== tabRef.current) {
+    if (currentTab !== tabRef.current || identity.did !== identityRef.current) {
       setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     }
-  }, [currentTab, pageSize, dataLoading, loading]);
+  }, [currentTab, pageSize, dataLoading, tableLoading, identity]);
 
   useEffect(() => {
-    if (!identity || connecting || dataLoading || loading || error) {
-      return setTableData([]);
+    if (!identity) {
+      return;
     }
 
-    switch (currentTab) {
-      case EActivityTableTabs.HISTORICAL_ACTIVITY: {
-        setDataParsing(true);
-        (async () => {
-          const parsedData = await parseExtrinsicHistory(extrinsicHistory);
+    if (currentTab === EActivityTableTabs.HISTORICAL_ACTIVITY && dataLoading) {
+      setTableLoading(true);
+      return;
+    }
 
-          setTableData(parsedData);
-          tabRef.current = currentTab;
-          setDataParsing(false);
-        })();
-        break;
-      }
+    if (currentTab !== tabRef.current && pageIndex !== 0) return;
 
-      case EActivityTableTabs.TOKEN_ACTIVITY: {
-        const parsedData = parseTokenActivity(data.events.nodes);
+    (async () => {
+      try {
+        setTableLoading(true);
+        setTableData([]);
+        switch (currentTab) {
+          case EActivityTableTabs.HISTORICAL_ACTIVITY: {
+            const parsedData = await parseExtrinsicHistory(extrinsicHistory);
 
-        setTableData(parsedData);
+            setTableData(parsedData);
+            setTotalItems(extrinsicCount);
+            setTotalPages(Math.ceil(extrinsicCount / pageSize));
+
+            break;
+          }
+
+          case EActivityTableTabs.TOKEN_ACTIVITY: {
+            const { data } = await gqlClient.query<ITransferQueryResponse>({
+              query: transferEventsQuery({
+                identityId: identity.did,
+                portfolioId: null,
+                offset: pageIndex * pageSize,
+                pageSize,
+              }),
+            });
+            const parsedData = parseTokenActivity(data.events.nodes);
+
+            setTableData(parsedData);
+            setTotalItems(data.events.totalCount);
+            setTotalPages(Math.ceil(data.events.totalCount / pageSize));
+
+            break;
+          }
+
+          default:
+            break;
+        }
+      } catch (error) {
+        notifyError((error as Error).message);
+      } finally {
         tabRef.current = currentTab;
-        break;
+        identityRef.current = identity.did;
+        setTableLoading(false);
       }
-
-      default:
-        break;
-    }
-
-    return undefined;
+    })();
   }, [
     identity,
-    connecting,
-    data,
     dataLoading,
-    error,
     extrinsicHistory,
-    loading,
-    selectedAccount,
-    setTableData,
     currentTab,
+    pageIndex,
+    pageSize,
+    extrinsicCount,
   ]);
 
   const pagination = useMemo(
@@ -104,16 +125,14 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
       columns: columns[currentTab] as ColumnDef<IHistoricalItem | ITokenItem>[],
       state: { pagination },
       manualPagination: true,
-      pageCount:
-        currentTab === EActivityTableTabs.HISTORICAL_ACTIVITY
-          ? Math.ceil(extrinsicCount / pageSize)
-          : -1,
+      pageCount: totalPages,
       onPaginationChange: setPagination,
       getCoreRowModel: getCoreRowModel(),
       getPaginationRowModel: getPaginationRowModel(),
       enableSorting: false,
     }),
     paginationState: pagination,
-    tableLoading: dataLoading || dataParsing || loading,
+    tableLoading: identityLoading || dataLoading || tableLoading,
+    totalItems,
   };
 };

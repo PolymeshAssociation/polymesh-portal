@@ -7,7 +7,7 @@ export const ActivityTable = () => {
   const [tab, setTab] = useState<`${EActivityTableTabs}`>(
     EActivityTableTabs.HISTORICAL_ACTIVITY,
   );
-  const { table, tableLoading } = useActivityTable(tab);
+  const { table, tableLoading, totalItems } = useActivityTable(tab);
 
   return (
     <Table
@@ -16,6 +16,7 @@ export const ActivityTable = () => {
       setTab={setTab}
       title="Activity"
       loading={tableLoading}
+      totalItems={totalItems}
     />
   );
 };
