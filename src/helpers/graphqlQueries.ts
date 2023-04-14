@@ -78,7 +78,7 @@ export const transferEventsQuery = ({
       events(
         first: ${pageSize}
         offset: ${offset}
-        orderBy: BLOCK_ID_DESC
+        orderBy: CREATED_AT_DESC
         filter: {
           moduleId: { equalTo: asset }
           eventId: { equalTo: Transfer }
