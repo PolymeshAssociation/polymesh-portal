@@ -32,12 +32,17 @@ export const StyledLegendList = styled.ul`
   margin-top: 25px;
 `;
 
-export const StyledLegendItem = styled.li<{ color: string }>`
+export const StyledLegendItem = styled.li<{
+  color: string;
+  expandable?: boolean;
+}>`
+  position: relative;
   display: flex;
   align-items: center;
   font-weight: 500;
   font-size: 12px;
   color: ${({ theme }) => theme.colors.textPrimary};
+  cursor: ${({ expandable }) => (expandable ? 'pointer' : 'initial')};
 
   & span {
     margin-left: 4px;
@@ -65,4 +70,22 @@ export const StyledPlaceholder = styled.div`
   border-radius: 8px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+export const StyledExpandedOtherAssets = styled.ul`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 160px;
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+  border-radius: 16px;
+  border: 1px solid ${({ theme }) => theme.colors.textSecondary};
+  background-color: ${({ theme }) => theme.colors.landingBackground};
+  overflow-y: scroll;
+  cursor: initial;
 `;

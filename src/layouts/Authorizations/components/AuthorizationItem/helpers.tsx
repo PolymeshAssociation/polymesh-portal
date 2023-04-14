@@ -1,5 +1,10 @@
 import { HumanReadable } from '@polymeshassociation/polymesh-sdk/api/entities/AuthorizationRequest';
-import { AuthorizationType } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  AuthorizationRequest,
+  AuthorizationType,
+  PortfolioCustodyAuthorizationData,
+} from '@polymeshassociation/polymesh-sdk/types';
+import { NumberedPortfolio } from '@polymeshassociation/polymesh-sdk/internal';
 import { CopyToClipboard } from '~/components';
 import {
   StyledDetailsWrapper,
@@ -9,7 +14,10 @@ import {
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
 
-const parseDetails = (staticData: HumanReadable) => {
+const parseDetails = async (
+  staticData: HumanReadable,
+  rawData: AuthorizationRequest,
+) => {
   const details = staticData.data;
 
   switch (details.type) {
@@ -67,11 +75,26 @@ const parseDetails = (staticData: HumanReadable) => {
       ];
 
     case AuthorizationType.PortfolioCustody:
+      // eslint-disable-next-line no-case-declarations
+      const targetPortfolio = (
+        rawData.data as PortfolioCustodyAuthorizationData
+      ).value;
+
       return [
         {
-          permission: 'Portfolio',
+          permission: 'Target Portfolio',
           type: null,
-          details: [details.value.did],
+          details:
+            targetPortfolio instanceof NumberedPortfolio
+              ? [
+                  `${await targetPortfolio.getName()} / ${targetPortfolio.id.toString()}`,
+                ]
+              : ['Default / 0'],
+        },
+        {
+          permission: 'Target DID',
+          type: null,
+          details: [staticData.target.value],
         },
       ];
 
@@ -135,8 +158,11 @@ const parseDetails = (staticData: HumanReadable) => {
   }
 };
 
-export const renderDetails = (staticData: HumanReadable) => {
-  const parsedDetails = parseDetails(staticData);
+export const renderDetails = async (
+  staticData: HumanReadable,
+  rawData: AuthorizationRequest,
+) => {
+  const parsedDetails = await parseDetails(staticData, rawData);
 
   if (
     parsedDetails.every(

@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { AccountContext } from '~/context/AccountContext';
 import { PortfolioContext } from '~/context/PortfolioContext';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 import { usePortfolio } from '~/hooks/polymesh';
@@ -11,7 +12,7 @@ import {
   StyledTopInfo,
   IconWrapper,
   StyledPortfolioInfo,
-  StyledCustody,
+  StyledDetails,
   StyledButtonWrapper,
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
@@ -19,6 +20,7 @@ import { MoveAssets } from '../MoveAssets';
 
 export const PortfolioInfo = () => {
   const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolioData>();
+  const { identity, identityHasValidCdd } = useContext(AccountContext);
   const { allPortfolios } = useContext(PortfolioContext);
   const { deletePortfolio, actionInProgress } = usePortfolio(
     selectedPortfolio?.portfolio,
@@ -48,35 +50,53 @@ export const PortfolioInfo = () => {
           <Icon name="PortfolioIcon" size="32px" />
         </IconWrapper>
         <div className="info">
-          <Heading type="h3" transform="capitalize">
-            {selectedPortfolio.name}
-          </Heading>
+          <StyledPortfolioInfo>
+            <Heading type="h3" transform="capitalize">
+              {selectedPortfolio.name}
+            </Heading>
+            <StyledDetails>
+              Portfolio ID:
+              <span>{selectedPortfolio.id?.replace('default', '0') || 0}</span>
+            </StyledDetails>
+          </StyledPortfolioInfo>
           <StyledPortfolioInfo>
             {selectedPortfolio.assets.length} token(s)
-            <StyledCustody>
+            <StyledDetails>
               Custody by:
               <span>{formatDid(selectedPortfolio.custodian.did, 7, 8)}</span>
               <CopyToClipboard value={selectedPortfolio.custodian.did} />
-            </StyledCustody>
+            </StyledDetails>
           </StyledPortfolioInfo>
         </div>
       </StyledTopInfo>
       <StyledButtonWrapper>
-        <Button variant="primary" onClick={toggleMoveModal}>
+        <Button
+          variant="primary"
+          onClick={toggleMoveModal}
+          disabled={
+            !identityHasValidCdd ||
+            selectedPortfolio.custodian.did !== identity?.did
+          }
+        >
           Move
         </Button>
         {notDefaultPortfolio && (
           <>
             <Button
               variant="secondary"
-              disabled={actionInProgress}
+              disabled={actionInProgress || !identityHasValidCdd}
               onClick={toggleEditModal}
             >
               Rename
             </Button>
             <Button
               variant="secondary"
-              disabled={!!selectedPortfolio.assets.length || actionInProgress}
+              disabled={
+                !!selectedPortfolio.assets.length ||
+                actionInProgress ||
+                !identityHasValidCdd ||
+                selectedPortfolio.custodian.did !== identity?.did
+              }
               onClick={deletePortfolio}
             >
               Delete

@@ -23,6 +23,7 @@ interface ITableProps<T, S> {
   tabs?: string[];
   setTab?: Dispatch<SetStateAction<S>>;
   loading: boolean;
+  totalItems?: number;
 }
 
 const perPageOptions = [3, 5, 10, 20, 50];
@@ -34,6 +35,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
     tabs,
     setTab,
     loading,
+    totalItems,
   } = props;
   const colsNumber = table.getAllColumns().length;
   const rowsNumber = table.getExpandedRowModel().rows.length;
@@ -137,7 +139,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
               </StyledPerPageSelect>
             </StyledPerPageWrapper>
             <Pagination
-              totalItems={rowsNumber}
+              totalItems={totalItems || rowsNumber}
               currentItems={getCurrentPageItems()}
               isPrevDisabled={!table.getCanPreviousPage()}
               isNextDisabled={!table.getCanNextPage()}
@@ -145,7 +147,9 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
               onPrevPageClick={() => table.previousPage()}
               onFirstPageClick={() => table.setPageIndex(0)}
               onLastPageClick={() =>
-                table.setPageIndex(Math.ceil(rowsNumber / pageSize) - 1)
+                table.setPageIndex(
+                  Math.ceil(totalItems || rowsNumber / pageSize) - 1,
+                )
               }
             />
           </>
@@ -158,6 +162,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
 Table.defaultProps = {
   tabs: [],
   setTab: () => {},
+  totalItems: 0,
 };
 
 export default Table;
