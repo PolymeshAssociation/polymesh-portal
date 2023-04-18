@@ -3,7 +3,9 @@ import {
   Instruction,
   NoArgsProcedureMethod,
   UnsubCallback,
+  GroupedInstructions,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { useSearchParams } from 'react-router-dom';
 import { InstructionsContext } from '~/context/InstructionsContext';
 import { AccountContext } from '~/context/AccountContext';
 import { useTransactionStatus } from '~/hooks/polymesh';
@@ -20,13 +22,20 @@ import {
 } from './styles';
 import { TransferItem } from '../TransferItem';
 import { notifyError } from '~/helpers/notifications';
+import { EInstructionTypes } from '../TransfersHeader/constants';
 
 export const TransfersList = () => {
   const [selectedItems, setSelectedItems] = useState<Instruction[]>([]);
   const { identityLoading } = useContext(AccountContext);
-  const { pendingInstructions, instructionsLoading } =
-    useContext(InstructionsContext);
+  const {
+    allInstructions,
+    pendingInstructions,
+    instructionsLoading,
+    refreshInstructions,
+  } = useContext(InstructionsContext);
   const { handleStatusChange } = useTransactionStatus();
+  const [searchParams] = useSearchParams();
+  const type = searchParams.get('type');
   const [actionInProgress, setActionInProgress] = useState(false);
 
   const handleItemSelect = (selectedInstruction: Instruction) => {
@@ -66,6 +75,7 @@ export const TransfersList = () => {
       const tx = await action();
       unsubCb = await tx.onStatusChange(handleStatusChange);
       await tx.run();
+      refreshInstructions();
     } catch (error) {
       notifyError((error as Error).message);
     } finally {
@@ -78,51 +88,57 @@ export const TransfersList = () => {
 
   return (
     <>
-      <StyledSelectionWrapper>
-        <SelectAllButton
-          onClick={handleSelectAll}
-          disabled={!pendingInstructions.length}
-        >
-          Select All
-        </SelectAllButton>
-        {!!selectedItems.length && (
-          <StyledButtonWrapper>
-            <StyledActionButton isReject disabled={actionInProgress}>
-              <Icon name="CloseIcon" size="24px" />
-              Reject
-            </StyledActionButton>
-            <StyledActionButton disabled={actionInProgress}>
-              <Icon name="Check" size="24px" />
-              Approve
-            </StyledActionButton>
-          </StyledButtonWrapper>
-        )}
-        <StyledSelected>
-          Selected: <span>{selectedItems.length}</span>
+      {type === EInstructionTypes.PENDING && (
+        <StyledSelectionWrapper>
+          <SelectAllButton
+            onClick={handleSelectAll}
+            disabled={!pendingInstructions.length}
+          >
+            Select All
+          </SelectAllButton>
           {!!selectedItems.length && (
-            <ClearSelectionButton onClick={clearSelection}>
-              <Icon name="CloseIcon" size="16px" />
-            </ClearSelectionButton>
+            <StyledButtonWrapper>
+              <StyledActionButton isReject disabled={actionInProgress}>
+                <Icon name="CloseIcon" size="24px" />
+                Reject
+              </StyledActionButton>
+              <StyledActionButton disabled={actionInProgress}>
+                <Icon name="Check" size="24px" />
+                Approve
+              </StyledActionButton>
+            </StyledButtonWrapper>
           )}
-        </StyledSelected>
-      </StyledSelectionWrapper>
+          <StyledSelected>
+            Selected: <span>{selectedItems.length}</span>
+            {!!selectedItems.length && (
+              <ClearSelectionButton onClick={clearSelection}>
+                <Icon name="CloseIcon" size="16px" />
+              </ClearSelectionButton>
+            )}
+          </StyledSelected>
+        </StyledSelectionWrapper>
+      )}
       {identityLoading || instructionsLoading ? (
         <TransfersPlaceholder>Loading</TransfersPlaceholder>
       ) : (
         <StyledTransfersList>
-          {pendingInstructions.length ? (
-            pendingInstructions.map((instruction) => (
-              <TransferItem
-                key={instruction.toHuman()}
-                instruction={instruction}
-                onSelect={() => handleItemSelect(instruction)}
-                isSelected={selectedItems.some(
-                  (item) => item.toHuman() === instruction.toHuman(),
-                )}
-                executeAction={executeAction}
-                actionInProgress={actionInProgress}
-              />
-            ))
+          {!!allInstructions &&
+          !!type &&
+          allInstructions[type as keyof GroupedInstructions].length ? (
+            allInstructions[type as keyof GroupedInstructions].map(
+              (instruction) => (
+                <TransferItem
+                  key={instruction.toHuman()}
+                  instruction={instruction}
+                  onSelect={() => handleItemSelect(instruction)}
+                  isSelected={selectedItems.some(
+                    (item) => item.toHuman() === instruction.toHuman(),
+                  )}
+                  executeAction={executeAction}
+                  actionInProgress={actionInProgress}
+                />
+              ),
+            )
           ) : (
             <TransfersPlaceholder>No data available</TransfersPlaceholder>
           )}

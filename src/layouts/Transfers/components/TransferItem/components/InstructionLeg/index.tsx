@@ -31,49 +31,64 @@ export const InstructionLeg: React.FC<ILegProps> = ({ data }) => {
 
     (async () => {
       const { from, to, amount, asset } = data;
+      let fromName = '';
+      let toName = '';
+      try {
+        if (from instanceof NumberedPortfolio) {
+          fromName = await from.getName();
+        }
+      } catch (error) {
+        fromName = 'unknown';
+      }
+      try {
+        if (to instanceof NumberedPortfolio) {
+          toName = await to.getName();
+        }
+      } catch (error) {
+        toName = 'unknown';
+      }
       const parsedData = {
         sendingDid: from.toHuman().did,
-        sendingName:
-          from instanceof NumberedPortfolio ? await from.getName() : 'Default',
+        sendingName: fromName || 'Default',
         receivingDid: to.toHuman().did,
-        receivingName:
-          to instanceof NumberedPortfolio ? await to.getName() : 'Default',
+        receivingName: toName || 'Default',
         asset: asset.ticker,
         amount: formatBalance(amount.toNumber()),
       } as ILegDetails;
+
       setLegDetails(parsedData);
     })();
   }, [data]);
-  return (
+  return legDetails ? (
     <StyledLeg>
       <StyledInfoItem>
         Sending DID
         <StyledInfoValue>
           <Text size="large" bold>
-            {formatDid(legDetails?.sendingDid)}
+            {formatDid(legDetails.sendingDid)}
           </Text>
-          <CopyToClipboard value={legDetails?.sendingDid} />
+          <CopyToClipboard value={legDetails.sendingDid} />
         </StyledInfoValue>
       </StyledInfoItem>
       <StyledInfoItem>
         Sending Portfolio
         <Text size="large" bold>
-          {legDetails?.sendingName}
+          {legDetails.sendingName}
         </Text>
       </StyledInfoItem>
       <StyledInfoItem>
         Receiving DID
         <StyledInfoValue>
           <Text size="large" bold>
-            {formatDid(legDetails?.receivingDid)}
+            {formatDid(legDetails.receivingDid)}
           </Text>
-          <CopyToClipboard value={legDetails?.receivingDid} />
+          <CopyToClipboard value={legDetails.receivingDid} />
         </StyledInfoValue>
       </StyledInfoItem>
       <StyledInfoItem>
         Receiving Portfolio
         <Text size="large" bold>
-          {legDetails?.receivingName}
+          {legDetails.receivingName}
         </Text>
       </StyledInfoItem>
       <StyledInfoItem>
@@ -81,17 +96,19 @@ export const InstructionLeg: React.FC<ILegProps> = ({ data }) => {
         <StyledInfoValue>
           <Icon name="Coins" />
           <Text size="large" bold>
-            {legDetails?.asset}
+            {legDetails.asset}
           </Text>
         </StyledInfoValue>
       </StyledInfoItem>
       <StyledInfoItem>
         Amount
         <Text size="large" bold>
-          {legDetails?.amount}
+          {legDetails.amount}
         </Text>
       </StyledInfoItem>
       <StyledLabel>Pending</StyledLabel>
     </StyledLeg>
+  ) : (
+    <StyledLeg>Loading</StyledLeg>
   );
 };

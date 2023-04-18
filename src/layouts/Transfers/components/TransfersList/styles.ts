@@ -4,7 +4,6 @@ export const StyledSelectionWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-top: 40px;
   margin-bottom: 24px;
 `;
 

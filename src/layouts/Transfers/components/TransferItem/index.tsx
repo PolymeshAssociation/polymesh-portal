@@ -17,6 +17,16 @@ import {
 import { Details } from './components/Details';
 import { InstructionLeg } from './components/InstructionLeg';
 
+const calculateCounterparties = (legs: Leg[]) => {
+  const involvedIdentities = legs
+    .map(({ from, to }) => [from.toHuman().did, to.toHuman().did])
+    .flat();
+
+  return involvedIdentities.filter(
+    (value, idx, array) => array.indexOf(value) === idx,
+  ).length;
+};
+
 interface IAuthorizationItemProps {
   instruction: Instruction;
   onSelect: () => void;
@@ -48,8 +58,11 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
       const details = await instruction.details();
       setInstructionDetails(details);
       setInstructionLegs(data);
+
       if (count) {
         setLegsCount(count.toNumber());
+      } else {
+        setLegsCount(data.length);
       }
     })();
   }, [instruction]);
@@ -59,13 +72,15 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
   return (
     <StyledItemWrapper>
       <StyledInfoWrapper>
-        <StyledSelect isSelected={isSelected} onClick={onSelect}>
-          <Icon name="Check" size="16px" />
-        </StyledSelect>
+        {!!instructionDetails && (
+          <StyledSelect isSelected={isSelected} onClick={onSelect}>
+            <Icon name="Check" size="16px" />
+          </StyledSelect>
+        )}
         <Details
           data={instructionDetails}
           legs={legsCount}
-          counterparties={legsCount}
+          counterparties={calculateCounterparties(instructionLegs)}
         />
       </StyledInfoWrapper>
       {detailsExpanded && (

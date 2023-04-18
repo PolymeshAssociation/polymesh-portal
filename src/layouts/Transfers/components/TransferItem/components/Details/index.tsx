@@ -1,6 +1,10 @@
-import { InstructionDetails } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  InstructionDetails,
+  VenueType,
+} from '@polymeshassociation/polymesh-sdk/types';
+import { useEffect, useState } from 'react';
 import { Text } from '~/components/UiKit';
-import { StyledInfoItem } from './styles';
+import { StyledInfoItem, StyledVenueDetails, StyledVenueId } from './styles';
 import { toParsedDate } from '~/helpers/dateTime';
 
 interface IDetailsProps {
@@ -9,19 +13,50 @@ interface IDetailsProps {
   counterparties: number;
 }
 
+interface IVenueDetails {
+  description: string;
+  type: `${VenueType}`;
+}
+
 export const Details: React.FC<IDetailsProps> = ({
   data,
   legs,
   counterparties,
 }) => {
-  return (
+  const [venueDetails, setVenueDetails] = useState<IVenueDetails | null>(null);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
+  useEffect(() => {
+    if (!data) return;
+
+    (async () => {
+      const { description, type } = await data.venue.details();
+      setVenueDetails({ description, type });
+    })();
+  }, [data]);
+
+  return data ? (
     <>
-      <StyledInfoItem>
-        Venue
+      <StyledVenueId
+        onMouseEnter={() => setDetailsExpanded(true)}
+        onMouseLeave={() => setDetailsExpanded(false)}
+      >
+        Venue ID
         <Text size="large" bold>
           {data?.venue.toHuman()}
         </Text>
-      </StyledInfoItem>
+        {!!venueDetails && detailsExpanded && (
+          <StyledVenueDetails>
+            <Text size="small" marginBottom={16}>
+              <span>Type: </span>
+              {venueDetails.type}
+            </Text>
+            <Text size="small">
+              <span>Description: </span>
+              {venueDetails.description}
+            </Text>
+          </StyledVenueDetails>
+        )}
+      </StyledVenueId>
       <StyledInfoItem>
         # of legs
         <Text size="large" bold>
@@ -65,5 +100,7 @@ export const Details: React.FC<IDetailsProps> = ({
         </StyledInfoItem>
       )}
     </>
+  ) : (
+    <span>loading</span>
   );
 };
