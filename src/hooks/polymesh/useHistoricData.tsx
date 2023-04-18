@@ -31,7 +31,7 @@ const useHistoricData = ({ pageIndex, pageSize }: IPaginationState) => {
         setDataLoading(true);
 
         const { data, count } = await account.getTransactionHistoryV2({
-          orderBy: ExtrinsicsOrderBy.BlockIdDesc,
+          orderBy: ExtrinsicsOrderBy.CreatedAtDesc,
           size: new BigNumber(pageSize),
           start: new BigNumber(pageIndex * pageSize),
         });
