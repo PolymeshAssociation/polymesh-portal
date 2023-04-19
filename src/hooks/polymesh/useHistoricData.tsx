@@ -21,6 +21,7 @@ const useHistoricData = ({ pageIndex, pageSize }: IPaginationState) => {
   >([]);
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState('');
+  const [fetchedPageIndex, setFetchedPageIndex] = useState(-1);
 
   // Get all extrinsics and instructions history for current account
   useEffect(() => {
@@ -51,6 +52,7 @@ const useHistoricData = ({ pageIndex, pageSize }: IPaginationState) => {
         setDataError((error as Error).message);
       } finally {
         setDataLoading(false);
+        setFetchedPageIndex(pageIndex);
       }
     })();
   }, [account, selectedAccount, pageIndex, pageSize]);
@@ -61,6 +63,7 @@ const useHistoricData = ({ pageIndex, pageSize }: IPaginationState) => {
     instructionsHistory,
     dataLoading,
     dataError,
+    fetchedPageIndex,
   };
 };
 
