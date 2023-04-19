@@ -5,6 +5,7 @@ import {
   Leg,
   NoArgsProcedureMethod,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
 import { Button } from '~/components/UiKit';
 import {
@@ -16,6 +17,7 @@ import {
 } from './styles';
 import { Details } from './components/Details';
 import { InstructionLeg } from './components/InstructionLeg';
+import { EInstructionTypes } from '../../types';
 
 const calculateCounterparties = (legs: Leg[]) => {
   const involvedIdentities = legs
@@ -48,6 +50,8 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
     useState<InstructionDetails | null>(null);
   const [instructionLegs, setInstructionLegs] = useState<Leg[]>([]);
   const [legsCount, setLegsCount] = useState<number>(0);
+  const [searchParams] = useSearchParams();
+  const type = searchParams.get('type');
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
   useEffect(() => {
@@ -91,21 +95,45 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
         </StyledLegsWrapper>
       )}
       <StyledButtonsWrapper expanded={detailsExpanded}>
-        <Button
-          disabled={actionInProgress}
-          onClick={() => executeAction(instruction.reject)}
-        >
-          <Icon name="CloseIcon" size="24px" />
-          Reject
-        </Button>
-        <Button
-          variant="success"
-          disabled={actionInProgress}
-          onClick={() => executeAction(instruction.affirm)}
-        >
-          <Icon name="Check" size="24px" />
-          Approve
-        </Button>
+        {type === EInstructionTypes.AFFIRMED ||
+          (type === EInstructionTypes.PENDING && (
+            <Button
+              disabled={actionInProgress}
+              onClick={() => executeAction(instruction.reject)}
+            >
+              <Icon name="CloseIcon" size="24px" />
+              Reject
+            </Button>
+          ))}
+        {type === EInstructionTypes.AFFIRMED && (
+          <Button
+            disabled={actionInProgress}
+            onClick={() => executeAction(instruction.withdraw)}
+          >
+            <Icon name="Check" size="24px" />
+            Unapprove
+          </Button>
+        )}
+        {type === EInstructionTypes.PENDING && (
+          <Button
+            variant="success"
+            disabled={actionInProgress}
+            onClick={() => executeAction(instruction.affirm)}
+          >
+            <Icon name="Check" size="24px" />
+            Approve
+          </Button>
+        )}
+        {type === EInstructionTypes.FAILED && (
+          <Button
+            variant="success"
+            disabled={actionInProgress}
+            onClick={() => executeAction(instruction.reschedule)}
+          >
+            <Icon name="Check" size="24px" />
+            Reschedule
+          </Button>
+        )}
         <Button variant="secondary" onClick={toggleDetails}>
           <Icon name="ExpandIcon" size="24px" className="expand-icon" />
           Details

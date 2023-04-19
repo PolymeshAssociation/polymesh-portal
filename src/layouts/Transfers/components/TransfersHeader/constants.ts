@@ -1,8 +1,4 @@
-export enum EInstructionTypes {
-  PENDING = 'pending',
-  AFFIRMED = 'affirmed',
-  FAILED = 'failed',
-}
+import { EInstructionTypes } from '../../types';
 
 export const TABS = [
   {

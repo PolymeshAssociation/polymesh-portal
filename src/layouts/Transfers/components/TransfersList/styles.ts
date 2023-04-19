@@ -82,8 +82,15 @@ export const StyledActionButton = styled.button<{ isReject?: boolean }>`
   color: #ffffff;
   box-shadow: 0px 1px 3px rgba(30, 30, 30, 0.12),
     0px 1px 2px rgba(30, 30, 30, 0.24);
+  transition: background-color 250ms ease-out, color 250ms ease-out;
+
   &:not(:first-child) {
     margin-left: 24px;
+  }
+
+  &:disabled {
+    background-color: #f0f0f0;
+    color: #8f8f8f;
   }
 `;
 

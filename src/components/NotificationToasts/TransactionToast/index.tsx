@@ -46,7 +46,14 @@ const TransactionToast: React.FC<ITxToastProps> = ({
   return (
     <div className="custom-toast">
       <StyledStatusWrapper>
-        <Text bold>{tag}</Text>
+        <div>
+          <Text bold transform="capitalize" color="secondary">
+            {tag.split('.')[0]}
+          </Text>
+          <Text bold transform="capitalize">
+            {tag.split('.')[1]}
+          </Text>
+        </div>
         <StyledStatusLabel status={status}>{status}</StyledStatusLabel>
       </StyledStatusWrapper>
       {!!message && <Text>{message}</Text>}
