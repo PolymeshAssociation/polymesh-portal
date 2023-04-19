@@ -93,18 +93,19 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
 
   // Update table data for Token Activity tab
   useEffect(() => {
-    if (!identity) {
-      setTableData([]);
-      identityRef.current = undefined;
-      return;
-    }
-
     if (
       currentTab !== EActivityTableTabs.TOKEN_ACTIVITY ||
       (currentTab !== tabRef.current && pageIndex !== 0)
     ) {
       return;
     }
+    if (!identity) {
+      setTableData([]);
+      tabRef.current = currentTab;
+      identityRef.current = undefined;
+      return;
+    }
+
     setTableLoading(true);
 
     (async () => {
