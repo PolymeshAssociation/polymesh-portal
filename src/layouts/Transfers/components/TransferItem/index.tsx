@@ -73,6 +73,9 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
 
   const toggleDetails = () => setDetailsExpanded((prev) => !prev);
 
+  const affirmedOrPending =
+    type === EInstructionTypes.AFFIRMED || type === EInstructionTypes.PENDING;
+
   return (
     <StyledItemWrapper>
       <StyledInfoWrapper>
@@ -95,16 +98,15 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
         </StyledLegsWrapper>
       )}
       <StyledButtonsWrapper expanded={detailsExpanded}>
-        {type === EInstructionTypes.AFFIRMED ||
-          (type === EInstructionTypes.PENDING && (
-            <Button
-              disabled={actionInProgress}
-              onClick={() => executeAction(instruction.reject)}
-            >
-              <Icon name="CloseIcon" size="24px" />
-              Reject
-            </Button>
-          ))}
+        {affirmedOrPending && (
+          <Button
+            disabled={actionInProgress}
+            onClick={() => executeAction(instruction.reject)}
+          >
+            <Icon name="CloseIcon" size="24px" />
+            Reject
+          </Button>
+        )}
         {type === EInstructionTypes.AFFIRMED && (
           <Button
             disabled={actionInProgress}
