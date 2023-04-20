@@ -1,14 +1,16 @@
 import { balanceToBigNumber } from '@polymeshassociation/polymesh-sdk/utils/conversion';
 import {
-  IMovementQueryResponse,
-  ITransferQueryResponse,
   IIdData,
   ITransactionItem,
   IMovementItem,
   ITokenItem,
 } from './constants';
 import { toParsedDateTime } from '~/helpers/dateTime';
-import { IAddress } from '~/constants/queries/types';
+import {
+  IAddress,
+  IMovementQueryResponse,
+  ITransferQueryResponse,
+} from '~/constants/queries/types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 
 export const getPortfolioNumber = (

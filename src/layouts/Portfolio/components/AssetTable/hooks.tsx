@@ -10,12 +10,7 @@ import {
 } from '@tanstack/react-table';
 import { PortfolioContext } from '~/context/PortfolioContext';
 import { AccountContext } from '~/context/AccountContext';
-import {
-  AssetTableItem,
-  IMovementQueryResponse,
-  EAssetsTableTabs,
-  ITransferQueryResponse,
-} from './constants';
+import { AssetTableItem, EAssetsTableTabs } from './constants';
 import { columns } from './config';
 import {
   getPortfolioNumber,
@@ -24,6 +19,10 @@ import {
   parseMovements,
   parseTransfers,
 } from './helpers';
+import {
+  IMovementQueryResponse,
+  ITransferQueryResponse,
+} from '~/constants/queries/types';
 import { notifyError } from '~/helpers/notifications';
 import {
   transferEventsQuery,

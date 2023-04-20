@@ -31,14 +31,12 @@ export const StyledSelect = styled.div<{ expanded: boolean }>`
 
 export const StyledExpandedSelect = styled.div`
   position: absolute;
-  display: flex;
-  flex-direction: column;
   top: 110%;
   left: 0;
   width: 100%;
+  overflow-x: hidden;
   overflow-y: scroll;
   max-height: 300px;
-  gap: 10px;
   padding: 10px 8px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: 0px 15px 25px rgba(30, 30, 30, 0.15),
@@ -62,6 +60,7 @@ export const StyledInput = styled.input`
 `;
 
 export const StyledLabel = styled.label<{ selected: boolean }>`
+  display: block;
   max-width: 100%;
   overflow: hidden;
   white-space: nowrap;
@@ -72,6 +71,11 @@ export const StyledLabel = styled.label<{ selected: boolean }>`
   ${({ selected }) => (selected ? `background-color: #ffebf1;` : '')}
   cursor: pointer;
   transition: background-color 250ms ease-out;
+
+  &:not(:first-child) {
+    margin-top: 10px;
+  }
+
   &:hover {
     background-color: #ffebf1;
   }

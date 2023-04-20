@@ -25,11 +25,7 @@ export const ReceivePolyx: React.FC<IReceivePolyxProps> = ({ toggleModal }) => {
       </Heading>
       <StyledWrapper>
         <QRWrapper>
-          <QRCode
-            value={selectedAccount}
-            bgColor="transparent"
-            fgColor="#ffffff"
-          />
+          <QRCode value={selectedAccount} bgColor="transparent" />
         </QRWrapper>
         <Text color="secondary" marginTop={8}>
           You can scan the QR-code to get POLYX
