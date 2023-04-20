@@ -1,12 +1,5 @@
-import {
-  createColumnHelper,
-  useReactTable,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getFilteredRowModel,
-  ColumnDef,
-} from '@tanstack/react-table';
-import { useState } from 'react';
+import { createColumnHelper } from '@tanstack/react-table';
+
 import {
   HISTORICAL_COLUMNS,
   EActivityTableTabs,
@@ -39,7 +32,7 @@ const createTokenActivityLink = (data: IIdData | undefined) => {
   }?event=${data.eventId}`;
 };
 
-const columns = {
+export const columns = {
   [EActivityTableTabs.HISTORICAL_ACTIVITY]: HISTORICAL_COLUMNS.map(
     ({ header, accessor }) => {
       const key = accessor as keyof IHistoricalItem;
@@ -136,27 +129,4 @@ const columns = {
       });
     },
   ),
-};
-
-export const useActivityTable = <T extends IHistoricalItem | ITokenItem>(
-  currentTab: `${EActivityTableTabs}`,
-) => {
-  const [tableData, setTableData] = useState<T[]>([]);
-  return {
-    table: useReactTable<T>({
-      data: tableData,
-      columns: columns[currentTab] as ColumnDef<T>[],
-      initialState: {
-        pagination: {
-          pageSize: 10,
-        },
-      },
-      getCoreRowModel: getCoreRowModel(),
-      getPaginationRowModel: getPaginationRowModel(),
-      enableColumnFilters: true,
-      enableSorting: false,
-      getFilteredRowModel: getFilteredRowModel(),
-    }),
-    setTableData,
-  };
 };
