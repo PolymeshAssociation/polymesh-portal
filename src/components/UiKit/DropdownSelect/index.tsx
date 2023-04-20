@@ -15,6 +15,7 @@ interface IDropdownSelectProps {
   error: string | undefined;
   onChange: (option: string) => void;
   options: string[];
+  removeSelection?: boolean;
 }
 
 const DropdownSelect: React.FC<IDropdownSelectProps> = ({
@@ -23,6 +24,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
   error,
   onChange,
   options,
+  removeSelection,
 }) => {
   const [selectExpanded, setSelectExpanded] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string>('');
@@ -52,6 +54,14 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
       onChange(option);
     }
   };
+
+  useEffect(() => {
+    if (!removeSelection) {
+      return;
+    }
+
+    setSelectedOption('');
+  }, [removeSelection]);
 
   return (
     <div>

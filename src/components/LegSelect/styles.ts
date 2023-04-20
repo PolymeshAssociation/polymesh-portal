@@ -19,7 +19,20 @@ export const AssetWrapper = styled.div`
   }
 `;
 
-export const StyledPlaceholder = styled.span`
+export const FlexWrapper = styled(AssetWrapper)<{ marginBottom?: number }>`
+  margin-bottom: ${({ marginBottom }) =>
+    marginBottom ? `${marginBottom}px` : 0};
+`;
+
+export const StyledPlaceholder = styled.span<{ isAbsolute?: boolean }>`
+  ${({ isAbsolute }) =>
+    isAbsolute
+      ? `
+position: absolute;
+top: 50%;
+
+`
+      : ''}
   color: ${({ theme }) => theme.colors.textSecondary};
   font-size: 14px;
 `;
@@ -28,18 +41,26 @@ export const AssetSelectWrapper = styled.div`
   position: relative;
 `;
 
-export const StyledAssetSelect = styled.div<{ expanded: boolean }>`
+export const StyledAssetSelect = styled.div<{
+  expanded: boolean;
+  isDisabled: boolean;
+}>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 36px;
   padding: 0 12px 0 16px;
-  background-color: ${({ theme }) => theme.colors.landingBackground};
+  background-color: ${({ theme, isDisabled }) =>
+    isDisabled
+      ? theme.colors.dashboardBackground
+      : theme.colors.landingBackground};
   border: 1px solid #8f8f8f;
   border-radius: 8px;
   cursor: pointer;
+  pointer-events: ${({ isDisabled }) => (isDisabled ? 'none' : 'all')};
 
   & .expand-icon {
+    transition: transform 250ms ease-out;
     transform: ${({ expanded }) => (expanded ? `rotate(180deg)` : `rotate(0)`)};
   }
 `;
@@ -90,8 +111,18 @@ export const IconWrapper = styled.div<{ background: string }>`
   color: #ffffff;
 `;
 
-export const InputWrapper = styled.div`
+export const InputWrapper = styled.div<{ marginBottom?: number }>`
   position: relative;
+  margin-bottom: ${({ marginBottom }) =>
+    marginBottom ? `${marginBottom}px` : 0};
+`;
+
+export const StyledLabel = styled.label`
+  display: block;
+  margin-bottom: 3px;
+  color: ${({ theme }) => theme.colors.textPrimary};
+  font-size: 14px;
+  font-weight: 500;
 `;
 
 export const StyledInput = styled.input`
@@ -120,7 +151,10 @@ export const StyledAvailableBalance = styled.div`
 `;
 
 export const StyledError = styled.p`
-  text-align: right;
+  position: absolute;
+  top: 100%;
+  right: 0;
+
   font-size: 12px;
   font-weight: 500;
   color: #db2c3e;
@@ -132,7 +166,7 @@ export const CloseButton = styled.button`
   right: 12px;
   padding: 0;
   background-color: transparent;
-  cursor: pointer;
+  z-index: 1;
 `;
 
 export const UseMaxButton = styled.button`

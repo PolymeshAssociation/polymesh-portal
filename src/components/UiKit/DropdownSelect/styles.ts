@@ -12,6 +12,7 @@ export const StyledSelect = styled.div<{
   font-size: 14px;
   color: ${({ isSelected, theme }) =>
     isSelected ? theme.colors.textPrimary : theme.colors.textSecondary};
+  background-color: ${({ theme }) => theme.colors.landingBackground};
 
   & .icon {
     position: absolute;

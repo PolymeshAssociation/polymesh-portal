@@ -1,25 +1,10 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import { useContext, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import {
-  UnsubCallback,
-  Venue,
-  VenueDetails,
-} from '@polymeshassociation/polymesh-sdk/types';
-import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { AssetSelect, Modal } from '~/components';
-import { Button, DropdownSelect, Heading } from '~/components/UiKit';
-import { InstructionsContext } from '~/context/InstructionsContext';
-import { PortfolioContext } from '~/context/PortfolioContext';
-import { AccountContext } from '~/context/AccountContext';
+import { useState } from 'react';
+import { Modal } from '~/components';
+import { Heading } from '~/components/UiKit';
 import { StyledNavLink } from '../../styles';
-import { StyledButtonsWrapper, StyledInput, StyledLabel } from '../styles';
-import { InputWrapper, StyledNavigation, StyledErrorMessage } from './styles';
-import { IFieldValues, FORM_CONFIG } from './components/config';
-import { ISelectedAsset } from '~/components/AssetSelect/types';
-import { notifyError } from '~/helpers/notifications';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { StyledNavigation } from './styles';
 import { BasicForm } from './components/BasicForm';
+import { AdvancedForm } from './components/AdvancedForm';
 
 interface ISendAssetProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -47,7 +32,11 @@ export const SendAsset: React.FC<ISendAssetProps> = ({ toggleModal }) => {
           Advanced
         </StyledNavLink>
       </StyledNavigation>
-      {variant === 'basic' ? <BasicForm toggleModal={toggleModal} /> : null}
+      {variant === 'basic' ? (
+        <BasicForm toggleModal={toggleModal} />
+      ) : (
+        <AdvancedForm toggleModal={toggleModal} />
+      )}
     </Modal>
   );
 };

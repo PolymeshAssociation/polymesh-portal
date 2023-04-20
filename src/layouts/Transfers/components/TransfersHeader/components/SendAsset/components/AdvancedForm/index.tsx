@@ -6,24 +6,25 @@ import {
   Venue,
   VenueDetails,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { AssetSelect } from '~/components';
-import { Button, DropdownSelect } from '~/components/UiKit';
+import { LegSelect, Icon } from '~/components';
+import { Button, DropdownSelect, Text } from '~/components/UiKit';
 import { InstructionsContext } from '~/context/InstructionsContext';
-import { PortfolioContext } from '~/context/PortfolioContext';
-import { AccountContext } from '~/context/AccountContext';
 import {
   StyledButtonsWrapper,
   StyledInput,
   StyledLabel,
 } from '../../../styles';
-import { InputWrapper, StyledErrorMessage } from '../../styles';
-import { IBasicFieldValues, BASIC_FORM_CONFIG } from '../config';
-import { ISelectedAsset } from '~/components/AssetSelect/types';
+import { FlexInputWrapper, InputWrapper, StyledAddButton } from '../../styles';
+import { IAdvancedFieldValues, ADVANCED_FORM_CONFIG } from '../config';
+import { ISelectedLeg } from '~/components/LegSelect/types';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
-import { createBasicInstructionParams } from '../helpers';
+import {
+  createAdvancedInstructionParams,
+  updateLegsOnSelect,
+} from '../helpers';
 
-interface IBasicFormProps {
+interface IAdvancedFormProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
 }
 
@@ -32,22 +33,21 @@ interface IVenueWithDetails {
   details: VenueDetails;
 }
 
-export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
+export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
   const { createdVenues, instructionsLoading, refreshInstructions } =
     useContext(InstructionsContext);
-  const { combinedPortfolios } = useContext(PortfolioContext);
-  const { identity } = useContext(AccountContext);
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
     setValue,
     reset,
-  } = useForm<IBasicFieldValues>(BASIC_FORM_CONFIG);
+  } = useForm<IAdvancedFieldValues>(ADVANCED_FORM_CONFIG);
   const { handleStatusChange } = useTransactionStatus();
   const [venues, setVenues] = useState<IVenueWithDetails[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
-  const [selectedAssets, setSelectedAssets] = useState<ISelectedAsset[]>([]);
+  const [legIndexes, setLegIndexes] = useState<number[]>([0]);
+  const [selectedLegs, setSelectedLegs] = useState<ISelectedLeg[]>([]);
 
   useEffect(() => {
     if (instructionsLoading) return;
@@ -76,22 +76,41 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     }
   };
 
-  const handleAssetSelect = (item: ISelectedAsset) => {
-    setSelectedAssets([item]);
+  const handleAssetSelect = (item: ISelectedLeg) => {
+    if (
+      !selectedLegs.some(({ index }) => index === item.index) &&
+      !selectedLegs.some(({ asset }) => asset === item.asset)
+    ) {
+      setSelectedLegs((prev) => [...prev, item]);
+    } else {
+      const updatedAssets = updateLegsOnSelect(item, selectedLegs);
+
+      setSelectedLegs(updatedAssets);
+    }
   };
 
-  const onSubmit = async (formData: IBasicFieldValues) => {
-    if (!selectedVenue || !identity) return;
+  const handleAddLegField = () => {
+    setLegIndexes((prev) => [...prev, prev[prev.length - 1] + 1]);
+  };
 
+  const handleDeleteLegField = (index: number) => {
+    setLegIndexes((prev) => prev.filter((prevIndex) => prevIndex !== index));
+
+    const updatedAssets = selectedLegs.filter(
+      (selectedAsset) => selectedAsset.index !== index,
+    );
+    setSelectedLegs(updatedAssets);
+  };
+
+  const onSubmit = async (formData: IAdvancedFieldValues) => {
+    if (!selectedVenue) return;
     let unsubCb: UnsubCallback | undefined;
-
     reset();
     toggleModal();
     try {
       const tx = await selectedVenue.addInstruction(
-        createBasicInstructionParams({ selectedAssets, identity, formData }),
+        createAdvancedInstructionParams({ selectedLegs, formData }),
       );
-
       unsubCb = tx.onStatusChange(handleStatusChange);
       await tx.run();
       refreshInstructions();
@@ -109,8 +128,8 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   );
   const isDataValid =
     isValid &&
-    !!selectedAssets.length &&
-    selectedAssets.every(({ amount }) => amount > 0);
+    !!selectedLegs.length &&
+    selectedLegs.every(({ amount }) => amount > 0);
 
   return (
     <>
@@ -123,27 +142,44 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
           error={errors?.venue?.message}
         />
       </InputWrapper>
-      <InputWrapper marginBotom={24}>
-        <StyledLabel htmlFor="recipient">Recipient</StyledLabel>
-        <StyledInput
-          id="recipient"
-          placeholder="Enter recipient address"
-          {...register('recipient')}
-        />
-        {!!errors?.recipient?.message && (
-          <StyledErrorMessage>
-            {errors?.recipient?.message as string}
-          </StyledErrorMessage>
-        )}
-      </InputWrapper>
-      {!!combinedPortfolios && (
-        <AssetSelect
-          portfolio={combinedPortfolios}
-          index={0}
+      <FlexInputWrapper marginBotom={36}>
+        <InputWrapper>
+          <StyledLabel htmlFor="valueDate">Value Date (Optional)</StyledLabel>
+          <StyledInput
+            id="valueDate"
+            type="date"
+            min={new Date().toISOString().split('T')[0]}
+            {...register('valueDate')}
+          />
+        </InputWrapper>
+        <InputWrapper>
+          <StyledLabel htmlFor="tradeDate">Trade Date (Optional)</StyledLabel>
+          <StyledInput
+            id="tradeDate"
+            type="date"
+            min={new Date().toISOString().split('T')[0]}
+            {...register('tradeDate')}
+          />
+        </InputWrapper>
+      </FlexInputWrapper>
+      <Text bold size="large" marginBottom={24}>
+        Leg Details
+      </Text>
+
+      {legIndexes.map((index) => (
+        <LegSelect
+          key={index}
+          index={index}
           handleAdd={handleAssetSelect}
-          selectedAssets={selectedAssets}
+          handleDelete={handleDeleteLegField}
+          selectedLegs={selectedLegs}
         />
-      )}
+      ))}
+
+      <StyledAddButton onClick={handleAddLegField}>
+        <Icon name="Plus" />
+        Add Leg
+      </StyledAddButton>
       <StyledButtonsWrapper>
         <Button variant="modalSecondary" onClick={toggleModal}>
           Cancel

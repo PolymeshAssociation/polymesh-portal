@@ -31,7 +31,7 @@ interface IAssetSelectProps {
   portfolio: IPortfolioData | ICombinedPortfolioData;
   index: number;
   handleAdd: (item: ISelectedAsset) => void;
-  handleDelete: (index: number) => void;
+  handleDelete?: (index: number) => void;
   selectedAssets: ISelectedAsset[];
 }
 
@@ -136,7 +136,9 @@ const AssetSelect: React.FC<IAssetSelectProps> = ({
   return (
     <StyledWrapper>
       {!!index && (
-        <CloseButton onClick={() => handleDelete(index)}>
+        <CloseButton
+          onClick={handleDelete ? () => handleDelete(index) : undefined}
+        >
           <Icon name="CloseIcon" size="16px" />
         </CloseButton>
       )}
