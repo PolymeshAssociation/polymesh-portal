@@ -39,6 +39,19 @@ export const StyledLegsWrapper = styled.div`
   margin-bottom: 24px;
 `;
 
+export const StyledMemo = styled.div`
+  padding: 24px;
+  background-color: ${({ theme }) => theme.colors.dashboardBackground};
+  border-radius: 24px;
+  color: ${({ theme }) => theme.colors.textPrimary};
+  font-size: 16px;
+
+  & span {
+    font-size: 14px;
+    color: ${({ theme }) => theme.colors.textSecondary};
+  }
+`;
+
 export const StyledButtonsWrapper = styled.div<{ expanded: boolean }>`
   display: flex;
   align-items: center;

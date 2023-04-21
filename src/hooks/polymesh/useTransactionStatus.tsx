@@ -14,20 +14,25 @@ const useTransactionStatus = () => {
   const handleStatusChange = (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     transaction: GenericPolymeshTransaction<any, any>,
+    customId?: Id,
   ) => {
+    const isTxBatch = transaction instanceof PolymeshTransactionBatch;
     let tag: TxTag;
 
-    if (transaction instanceof PolymeshTransactionBatch) {
+    if (isTxBatch) {
       tag = transaction.transactions[0].tag;
     } else {
       tag = transaction.tag;
     }
+
     switch (transaction.status) {
       case TransactionStatus.Unapproved:
         idRef.current = toast.info(
           <TransactionToast
             message="Please sign transaction in your wallet"
             tag={tag}
+            isTxBatch={isTxBatch}
+            batchSize={isTxBatch ? transaction.transactions.length : 0}
             status={transaction.status}
             timestamp={Date.now()}
           />,
@@ -35,18 +40,21 @@ const useTransactionStatus = () => {
             autoClose: false,
             closeOnClick: false,
             containerId: 'notification-center',
+            toastId: customId ?? idRef.current,
           },
         );
 
         break;
 
       case TransactionStatus.Running:
-        toast.update(idRef.current, {
+        toast.update(customId ?? idRef.current, {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
               status={transaction.status}
               tag={tag}
+              isTxBatch={isTxBatch}
+              batchSize={isTxBatch ? transaction.transactions.length : 0}
               timestamp={Date.now()}
             />
           ),
@@ -57,12 +65,14 @@ const useTransactionStatus = () => {
         });
         break;
       case TransactionStatus.Succeeded:
-        toast.update(idRef.current, {
+        toast.update(customId ?? idRef.current, {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
               status={transaction.status}
               tag={tag}
+              isTxBatch={isTxBatch}
+              batchSize={isTxBatch ? transaction.transactions.length : 0}
               timestamp={Date.now()}
             />
           ),
@@ -74,11 +84,13 @@ const useTransactionStatus = () => {
         });
         break;
       case TransactionStatus.Rejected:
-        toast.update(idRef.current, {
+        toast.update(customId ?? idRef.current, {
           render: (
             <TransactionToast
               status={transaction.status}
               tag={tag}
+              isTxBatch={isTxBatch}
+              batchSize={isTxBatch ? transaction.transactions.length : 0}
               error="Transaction was rejected"
               timestamp={Date.now()}
             />
@@ -92,12 +104,14 @@ const useTransactionStatus = () => {
         break;
 
       case TransactionStatus.Failed:
-        toast.update(idRef.current, {
+        toast.update(customId ?? idRef.current, {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
               status={transaction.status}
               tag={tag}
+              isTxBatch={isTxBatch}
+              batchSize={isTxBatch ? transaction.transactions.length : 0}
               error={transaction.error?.message}
               timestamp={Date.now()}
             />
@@ -111,11 +125,13 @@ const useTransactionStatus = () => {
         break;
 
       case TransactionStatus.Aborted:
-        toast.update(idRef.current, {
+        toast.update(customId ?? idRef.current, {
           render: (
             <TransactionToast
               status={transaction.status}
               tag={tag}
+              isTxBatch={isTxBatch}
+              batchSize={isTxBatch ? transaction.transactions.length : 0}
               error={transaction.error?.message}
               timestamp={Date.now()}
             />

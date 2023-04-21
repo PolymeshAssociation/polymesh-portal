@@ -14,6 +14,7 @@ import {
   StyledButtonsWrapper,
   StyledSelect,
   StyledLegsWrapper,
+  StyledMemo,
 } from './styles';
 import { Details } from './components/Details';
 import { InstructionLeg } from './components/InstructionLeg';
@@ -86,6 +87,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
         )}
         <Details
           data={instructionDetails}
+          instructionId={instruction.id.toString()}
           legs={legsCount}
           counterparties={calculateCounterparties(instructionLegs)}
         />
@@ -95,6 +97,11 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           {instructionLegs.map((leg, idx) => (
             <InstructionLeg key={`${instruction.toHuman() + idx}`} data={leg} />
           ))}
+          {instructionDetails?.memo ? (
+            <StyledMemo>
+              Memo: <span>{instructionDetails.memo}</span>
+            </StyledMemo>
+          ) : null}
         </StyledLegsWrapper>
       )}
       <StyledButtonsWrapper expanded={detailsExpanded}>

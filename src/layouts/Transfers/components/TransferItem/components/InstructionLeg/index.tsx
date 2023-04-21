@@ -35,7 +35,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({ data }) => {
       let toName = '';
       try {
         if (from instanceof NumberedPortfolio) {
-          fromName = await from.getName();
+          fromName = `${from.toHuman().id} / ${await from.getName()}`;
         }
       } catch (error) {
         fromName = 'unknown';

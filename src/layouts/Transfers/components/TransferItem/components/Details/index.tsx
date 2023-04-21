@@ -9,6 +9,7 @@ import { toParsedDate } from '~/helpers/dateTime';
 
 interface IDetailsProps {
   data: InstructionDetails | null;
+  instructionId: string;
   legs: number;
   counterparties: number;
 }
@@ -20,6 +21,7 @@ interface IVenueDetails {
 
 export const Details: React.FC<IDetailsProps> = ({
   data,
+  instructionId,
   legs,
   counterparties,
 }) => {
@@ -36,6 +38,12 @@ export const Details: React.FC<IDetailsProps> = ({
 
   return data ? (
     <>
+      <StyledInfoItem>
+        Instruction ID
+        <Text size="large" bold>
+          {instructionId}
+        </Text>
+      </StyledInfoItem>
       <StyledVenueId
         onMouseEnter={() => setDetailsExpanded(true)}
         onMouseLeave={() => setDetailsExpanded(false)}

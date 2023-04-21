@@ -6,6 +6,7 @@ import {
   GroupedInstructions,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useSearchParams } from 'react-router-dom';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { InstructionsContext } from '~/context/InstructionsContext';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
@@ -24,14 +25,14 @@ import {
 import { TransferItem } from '../TransferItem';
 import { notifyError } from '~/helpers/notifications';
 import { EInstructionTypes, EActionTypes } from '../../types';
-import { createTransactions } from './helpers';
+import { createTransactionChunks, createTransactions } from './helpers';
 
 export const TransfersList = () => {
   const [selectedItems, setSelectedItems] = useState<Instruction[]>([]);
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identityLoading } = useContext(AccountContext);
+  const { identityLoading, account } = useContext(AccountContext);
   const { allInstructions, instructionsLoading, refreshInstructions } =
     useContext(InstructionsContext);
   const { handleStatusChange } = useTransactionStatus();
@@ -83,7 +84,7 @@ export const TransfersList = () => {
   };
 
   const executeBatch = async (action: `${EActionTypes}`) => {
-    if (!sdk) return;
+    if (!sdk || !account) return;
 
     let unsubCb: UnsubCallback | undefined;
 
@@ -93,11 +94,23 @@ export const TransfersList = () => {
 
       if (!transactions) return;
 
-      const batch = await sdk.createTransactionBatch({
-        transactions,
-      });
-      unsubCb = await batch.onStatusChange(handleStatusChange);
-      await batch.run();
+      const chunks = createTransactionChunks(transactions, 10);
+
+      const currentNonce = await account.getCurrentNonce();
+      await Promise.all(
+        chunks.map(async (chunk, index) => {
+          const batch = await sdk.createTransactionBatch(
+            {
+              transactions: chunk,
+            },
+            { nonce: () => new BigNumber(currentNonce.toNumber() + index) },
+          );
+          unsubCb = await batch.onStatusChange((transaction) =>
+            handleStatusChange(transaction, index),
+          );
+          await batch.run();
+        }),
+      );
       clearSelection();
       refreshInstructions();
     } catch (error) {
@@ -130,6 +143,9 @@ export const TransfersList = () => {
     }
   };
 
+  const affirmedOrPending =
+    type === EInstructionTypes.AFFIRMED || type === EInstructionTypes.PENDING;
+
   return (
     <>
       <StyledSelectionWrapper>
@@ -141,17 +157,16 @@ export const TransfersList = () => {
         </SelectAllButton>
         {!!selectedItems.length && (
           <StyledButtonWrapper>
-            {type === EInstructionTypes.AFFIRMED ||
-              (type === EInstructionTypes.PENDING && (
-                <StyledActionButton
-                  isReject
-                  disabled={actionInProgress}
-                  onClick={() => executeBatch(EActionTypes.REJECT)}
-                >
-                  <Icon name="CloseIcon" size="24px" />
-                  Reject
-                </StyledActionButton>
-              ))}
+            {affirmedOrPending && (
+              <StyledActionButton
+                isReject
+                disabled={actionInProgress}
+                onClick={() => executeBatch(EActionTypes.REJECT)}
+              >
+                <Icon name="CloseIcon" size="24px" />
+                Reject
+              </StyledActionButton>
+            )}
             {type === EInstructionTypes.AFFIRMED && (
               <StyledActionButton
                 isReject

@@ -1,4 +1,7 @@
-import { Instruction } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  GenericPolymeshTransaction,
+  Instruction,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { EActionTypes } from '../../types';
 
 export const createTransactions = async (
@@ -29,4 +32,23 @@ export const createTransactions = async (
     default:
       return null;
   }
+};
+
+export const createTransactionChunks = (
+  transactions: GenericPolymeshTransaction<Instruction, Instruction>[],
+  perChunk: number,
+) => {
+  const result = transactions.reduce((acc, item, index) => {
+    const chunkIndex = Math.floor(index / perChunk);
+
+    if (!acc[chunkIndex]) {
+      acc[chunkIndex] = [];
+    }
+
+    acc[chunkIndex].push(item);
+
+    return acc;
+  }, [] as GenericPolymeshTransaction<Instruction, Instruction>[][]);
+
+  return result;
 };

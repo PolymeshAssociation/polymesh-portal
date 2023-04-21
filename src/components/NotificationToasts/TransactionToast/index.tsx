@@ -3,8 +3,10 @@ import { TransactionStatus } from '@polymeshassociation/polymesh-sdk/types';
 import { Icon, CopyToClipboard } from '~/components';
 import { Text } from '~/components/UiKit';
 import {
-  StyledStatusWrapper,
+  StyledInfoWrapper,
   StyledStatusLabel,
+  StyledBatchLabel,
+  StyledStatusWrapper,
   StyledDetailsWrapper,
   StyledDetail,
   StyledLink,
@@ -18,6 +20,8 @@ interface ITxToastProps {
   txHash?: string;
   message?: string;
   status: `${TransactionStatus}`;
+  isTxBatch: boolean;
+  batchSize: number;
   tag: string;
   error?: string;
   timestamp: number;
@@ -27,6 +31,8 @@ const TransactionToast: React.FC<ITxToastProps> = ({
   txHash,
   message,
   status,
+  isTxBatch,
+  batchSize,
   tag,
   error,
   timestamp,
@@ -45,7 +51,7 @@ const TransactionToast: React.FC<ITxToastProps> = ({
 
   return (
     <div className="custom-toast">
-      <StyledStatusWrapper>
+      <StyledInfoWrapper>
         <div>
           <Text bold transform="capitalize" color="secondary">
             {tag.split('.')[0]}
@@ -54,8 +60,13 @@ const TransactionToast: React.FC<ITxToastProps> = ({
             {tag.split('.')[1]}
           </Text>
         </div>
-        <StyledStatusLabel status={status}>{status}</StyledStatusLabel>
-      </StyledStatusWrapper>
+        <StyledStatusWrapper>
+          {isTxBatch && (
+            <StyledBatchLabel>Batch size: {batchSize}</StyledBatchLabel>
+          )}
+          <StyledStatusLabel status={status}>{status}</StyledStatusLabel>
+        </StyledStatusWrapper>
+      </StyledInfoWrapper>
       {!!message && <Text>{message}</Text>}
       {!!txHash && (
         <StyledDetailsWrapper>

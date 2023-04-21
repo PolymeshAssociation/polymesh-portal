@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { TransactionStatus } from '@polymeshassociation/polymesh-sdk/types';
 
-export const StyledStatusWrapper = styled.div`
+export const StyledInfoWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -52,11 +52,30 @@ const handleStatusType = (status: `${TransactionStatus}`) => {
 };
 
 export const StyledStatusLabel = styled.div<{ status: `${TransactionStatus}` }>`
+  max-width: fit-content;
   padding: 1px 8px;
   border-radius: 100px;
   font-weight: 500;
   font-size: 10px;
+  text-align: center;
   ${({ status }) => handleStatusType(status)}
+`;
+
+export const StyledBatchLabel = styled.div`
+  padding: 1px 8px;
+  border-radius: 100px;
+  font-weight: 500;
+  font-size: 10px;
+  text-align: center;
+  background-color: #f2efff;
+  color: #43195b;
+`;
+
+export const StyledStatusWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
 `;
 
 export const StyledDetailsWrapper = styled.div`
