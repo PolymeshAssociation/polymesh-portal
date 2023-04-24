@@ -31,4 +31,5 @@ export const StyledLabel = styled.div`
   color: #ffffff;
   font-weight: 500;
   font-size: 12px;
+  text-transform: capitalize;
 `;
