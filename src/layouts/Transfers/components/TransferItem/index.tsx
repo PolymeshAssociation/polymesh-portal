@@ -7,7 +7,7 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
-import { Button } from '~/components/UiKit';
+import { Button, Text } from '~/components/UiKit';
 import {
   StyledItemWrapper,
   StyledInfoWrapper,
@@ -61,6 +61,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
     (async () => {
       const { data, count } = await instruction.getLegs();
       const details = await instruction.details();
+
       setInstructionDetails(details);
       setInstructionLegs(data);
 
@@ -88,7 +89,6 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
         <Details
           data={instructionDetails}
           instructionId={instruction.id.toString()}
-          legs={legsCount}
           counterparties={calculateCounterparties(instructionLegs)}
         />
       </StyledInfoWrapper>
@@ -146,6 +146,14 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
         <Button variant="secondary" onClick={toggleDetails}>
           <Icon name="ExpandIcon" size="24px" className="expand-icon" />
           Details
+          {!!legsCount && (
+            <>
+              :{' '}
+              <Text>
+                {legsCount} Leg{legsCount > 1 ? 's' : ''}
+              </Text>
+            </>
+          )}
         </Button>
       </StyledButtonsWrapper>
     </StyledItemWrapper>

@@ -1,5 +1,6 @@
 import {
   InstructionDetails,
+  InstructionType,
   VenueType,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useEffect, useState } from 'react';
@@ -10,7 +11,6 @@ import { toParsedDate } from '~/helpers/dateTime';
 interface IDetailsProps {
   data: InstructionDetails | null;
   instructionId: string;
-  legs: number;
   counterparties: number;
 }
 
@@ -22,10 +22,10 @@ interface IVenueDetails {
 export const Details: React.FC<IDetailsProps> = ({
   data,
   instructionId,
-  legs,
   counterparties,
 }) => {
   const [venueDetails, setVenueDetails] = useState<IVenueDetails | null>(null);
+  const [blockNumber, setBlockNumber] = useState<string | null>(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   useEffect(() => {
     if (!data) return;
@@ -34,6 +34,13 @@ export const Details: React.FC<IDetailsProps> = ({
       const { description, type } = await data.venue.details();
       setVenueDetails({ description, type });
     })();
+
+    if (data.type === InstructionType.SettleOnBlock) {
+      setBlockNumber(data.endBlock.toString());
+    }
+    if (data.type === InstructionType.SettleManual) {
+      setBlockNumber(data.endAfterBlock.toString());
+    }
   }, [data]);
 
   return data ? (
@@ -66,12 +73,6 @@ export const Details: React.FC<IDetailsProps> = ({
         )}
       </StyledVenueId>
       <StyledInfoItem>
-        # of legs
-        <Text size="large" bold>
-          {legs}
-        </Text>
-      </StyledInfoItem>
-      <StyledInfoItem>
         # counterparties
         <Text size="large" bold>
           {counterparties}
@@ -83,6 +84,16 @@ export const Details: React.FC<IDetailsProps> = ({
           {data?.type}
         </Text>
       </StyledInfoItem>
+      {blockNumber && (
+        <StyledInfoItem>
+          {data.type === InstructionType.SettleManual
+            ? 'End After Block'
+            : 'End Block'}
+          <Text size="large" bold>
+            {blockNumber}
+          </Text>
+        </StyledInfoItem>
+      )}
       {!!data?.tradeDate && (
         <StyledInfoItem>
           Trade date
