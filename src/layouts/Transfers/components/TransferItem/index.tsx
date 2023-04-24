@@ -114,7 +114,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
   const isAllowedToSettle =
     isSettleManual && latestBlock > instructionDetails.endAfterBlock.toNumber();
 
-  const shouldAffirmAndExecute =
+  const canAffirmAndExecute =
     isSettleManual &&
     isLastManualAffirmation({
       instructionAffirmations,
@@ -185,20 +185,31 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           </>
         )}
         {type === EInstructionTypes.PENDING && (
-          <Button
-            variant="success"
-            disabled={actionInProgress}
-            onClick={() =>
-              executeAction(
-                shouldAffirmAndExecute
-                  ? [instruction.affirm, instruction.executeManually]
-                  : instruction.affirm,
-              )
-            }
-          >
-            <Icon name="Check" size="24px" />
-            {shouldAffirmAndExecute ? 'Approve and Settle' : 'Approve'}
-          </Button>
+          <>
+            <Button
+              variant="success"
+              disabled={actionInProgress}
+              onClick={() => executeAction(instruction.affirm)}
+            >
+              <Icon name="Check" size="24px" />
+              Approve
+            </Button>
+            {canAffirmAndExecute && (
+              <Button
+                variant="success"
+                disabled={actionInProgress}
+                onClick={() =>
+                  executeAction([
+                    instruction.affirm,
+                    instruction.executeManually,
+                  ])
+                }
+              >
+                <Icon name="Check" size="24px" />
+                Approve and Settle
+              </Button>
+            )}
+          </>
         )}
         {type === EInstructionTypes.FAILED && (
           <Button
