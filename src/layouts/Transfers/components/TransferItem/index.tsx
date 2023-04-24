@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
   AffirmationStatus,
   Instruction,
   InstructionAffirmation,
   InstructionDetails,
+  InstructionType,
   Leg,
   NoArgsProcedureMethod,
 } from '@polymeshassociation/polymesh-sdk/types';
@@ -21,6 +22,9 @@ import {
 import { Details } from './components/Details';
 import { InstructionLeg } from './components/InstructionLeg';
 import { EInstructionTypes } from '../../types';
+import { isLastManualAffirmation } from './helpers';
+import { AccountContext } from '~/context/AccountContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
 
 const calculateCounterparties = (legs: Leg[]) => {
   const involvedIdentities = legs
@@ -37,7 +41,9 @@ interface IAuthorizationItemProps {
   onSelect: () => void;
   isSelected: boolean;
   executeAction: (
-    action: NoArgsProcedureMethod<Instruction, Instruction>,
+    action:
+      | NoArgsProcedureMethod<Instruction, Instruction>
+      | NoArgsProcedureMethod<Instruction, Instruction>[],
   ) => void;
   actionInProgress: boolean;
 }
@@ -49,6 +55,10 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
   executeAction,
   actionInProgress,
 }) => {
+  const {
+    api: { sdk },
+  } = useContext(PolymeshContext);
+  const { identity } = useContext(AccountContext);
   const [instructionDetails, setInstructionDetails] =
     useState<InstructionDetails | null>(null);
   const [instructionLegs, setInstructionLegs] = useState<Leg[]>([]);
@@ -56,13 +66,14 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
   const [instructionAffirmations, setInstructionAffirmations] = useState<
     InstructionAffirmation[]
   >([]);
+  const [latestBlock, setLatestBlock] = useState<number>(0);
   const [affirmationsCount, setAffirmationsCount] = useState<number>(0);
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
   useEffect(() => {
-    if (!instruction) return;
+    if (!instruction || !sdk) return;
 
     (async () => {
       const { data, count } = await instruction.getLegs();
@@ -72,6 +83,8 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
         (a, index, self) =>
           index === self.findIndex((t) => t.identity.did === a.identity.did),
       );
+      const block = await sdk.network.getLatestBlock();
+      setLatestBlock(block.toNumber());
 
       setInstructionDetails(details);
       setInstructionLegs(data);
@@ -88,12 +101,26 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
         setLegsCount(data.length);
       }
     })();
-  }, [instruction]);
+  }, [instruction, sdk]);
 
   const toggleDetails = () => setDetailsExpanded((prev) => !prev);
 
   const affirmedOrPending =
     type === EInstructionTypes.AFFIRMED || type === EInstructionTypes.PENDING;
+
+  const isSettleManual =
+    instructionDetails?.type === InstructionType.SettleManual;
+
+  const isAllowedToSettle =
+    isSettleManual && latestBlock > instructionDetails.endAfterBlock.toNumber();
+
+  const shouldAffirmAndExecute =
+    isSettleManual &&
+    isLastManualAffirmation({
+      instructionAffirmations,
+      counterparties: calculateCounterparties(instructionLegs),
+      identity,
+    });
 
   return (
     <StyledItemWrapper>
@@ -137,22 +164,40 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           </Button>
         )}
         {type === EInstructionTypes.AFFIRMED && (
-          <Button
-            disabled={actionInProgress}
-            onClick={() => executeAction(instruction.withdraw)}
-          >
-            <Icon name="Check" size="24px" />
-            Unapprove
-          </Button>
+          <>
+            <Button
+              disabled={actionInProgress}
+              onClick={() => executeAction(instruction.withdraw)}
+            >
+              <Icon name="Check" size="24px" />
+              Unapprove
+            </Button>
+            {isAllowedToSettle && (
+              <Button
+                variant="success"
+                disabled={actionInProgress}
+                onClick={() => executeAction(instruction.executeManually)}
+              >
+                <Icon name="Check" size="24px" />
+                Settle
+              </Button>
+            )}
+          </>
         )}
         {type === EInstructionTypes.PENDING && (
           <Button
             variant="success"
             disabled={actionInProgress}
-            onClick={() => executeAction(instruction.affirm)}
+            onClick={() =>
+              executeAction(
+                shouldAffirmAndExecute
+                  ? [instruction.affirm, instruction.executeManually]
+                  : instruction.affirm,
+              )
+            }
           >
             <Icon name="Check" size="24px" />
-            Approve
+            {shouldAffirmAndExecute ? 'Approve and Settle' : 'Approve'}
           </Button>
         )}
         {type === EInstructionTypes.FAILED && (
@@ -162,7 +207,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
             onClick={() => executeAction(instruction.reschedule)}
           >
             <Icon name="Check" size="24px" />
-            Reschedule
+            Retry Settling
           </Button>
         )}
         <Button variant="secondary" onClick={toggleDetails}>

@@ -124,12 +124,27 @@ export const TransfersList = () => {
   };
 
   const executeAction = async (
-    action: NoArgsProcedureMethod<Instruction, Instruction>,
+    action:
+      | NoArgsProcedureMethod<Instruction, Instruction>
+      | NoArgsProcedureMethod<Instruction, Instruction>[],
   ) => {
+    if (!sdk) return;
+
     let unsubCb: UnsubCallback | undefined;
     try {
       setActionInProgress(true);
-      const tx = await action();
+      let tx;
+      if (Array.isArray(action)) {
+        const transactions = await Promise.all(
+          action.map(async (method) => method()),
+        );
+        tx = await sdk.createTransactionBatch({
+          transactions,
+        });
+      } else {
+        tx = await action();
+      }
+
       unsubCb = await tx.onStatusChange(handleStatusChange);
       await tx.run();
       refreshInstructions();
