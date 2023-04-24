@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import {
+  AffirmationStatus,
   Instruction,
+  InstructionAffirmation,
   InstructionDetails,
   Leg,
   NoArgsProcedureMethod,
@@ -51,6 +53,10 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
     useState<InstructionDetails | null>(null);
   const [instructionLegs, setInstructionLegs] = useState<Leg[]>([]);
   const [legsCount, setLegsCount] = useState<number>(0);
+  const [instructionAffirmations, setInstructionAffirmations] = useState<
+    InstructionAffirmation[]
+  >([]);
+  const [affirmationsCount, setAffirmationsCount] = useState<number>(0);
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
   const [detailsExpanded, setDetailsExpanded] = useState(false);
@@ -61,9 +67,20 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
     (async () => {
       const { data, count } = await instruction.getLegs();
       const details = await instruction.details();
+      const { data: affirmations } = await instruction.getAffirmations();
+      const uniqueAffirmations = affirmations.filter(
+        (a, index, self) =>
+          index === self.findIndex((t) => t.identity.did === a.identity.did),
+      );
 
       setInstructionDetails(details);
       setInstructionLegs(data);
+      setInstructionAffirmations(uniqueAffirmations);
+      setAffirmationsCount(
+        uniqueAffirmations.filter(
+          (affirmation) => affirmation.status === AffirmationStatus.Affirmed,
+        ).length,
+      );
 
       if (count) {
         setLegsCount(count.toNumber());
@@ -88,6 +105,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
         )}
         <Details
           data={instructionDetails}
+          affirmationsCount={affirmationsCount}
           instructionId={instruction.id.toString()}
           counterparties={calculateCounterparties(instructionLegs)}
         />
@@ -95,7 +113,11 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
       {detailsExpanded && (
         <StyledLegsWrapper>
           {instructionLegs.map((leg, idx) => (
-            <InstructionLeg key={`${instruction.toHuman() + idx}`} data={leg} />
+            <InstructionLeg
+              key={`${instruction.toHuman() + idx}`}
+              data={leg}
+              affirmationsData={instructionAffirmations}
+            />
           ))}
           {instructionDetails?.memo ? (
             <StyledMemo>

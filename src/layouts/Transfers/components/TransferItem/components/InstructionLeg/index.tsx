@@ -1,5 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
-import { Leg } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  InstructionAffirmation,
+  Leg,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { NumberedPortfolio } from '@polymeshassociation/polymesh-sdk/internal';
 import { useSearchParams } from 'react-router-dom';
 import { AccountContext } from '~/context/AccountContext';
@@ -12,16 +15,15 @@ import {
   StyledInfoValue,
 } from './styles';
 import { formatBalance, formatDid } from '~/helpers/formatters';
-
-enum EInstructionDirection {
-  INCOMING = 'Incoming',
-  OUTGOING = 'Outgoing',
-  INTER_PORTFOLIO = 'Inter-Portfolio',
-  NONE = 'None',
-}
+import {
+  EInstructionDirection,
+  getAffirmationStatus,
+  getLegDirection,
+} from './helpers';
 
 interface ILegProps {
   data: Leg;
+  affirmationsData: InstructionAffirmation[];
 }
 interface ILegDetails {
   sendingDid: string;
@@ -33,7 +35,10 @@ interface ILegDetails {
   direction: `${EInstructionDirection}`;
 }
 
-export const InstructionLeg: React.FC<ILegProps> = ({ data }) => {
+export const InstructionLeg: React.FC<ILegProps> = ({
+  data,
+  affirmationsData,
+}) => {
   const { identity } = useContext(AccountContext);
   const [legDetails, setLegDetails] = useState<ILegDetails | null>(null);
   const [searchParams] = useSearchParams();
@@ -46,7 +51,6 @@ export const InstructionLeg: React.FC<ILegProps> = ({ data }) => {
       const { from, to, amount, asset } = data;
       let fromName = '';
       let toName = '';
-      let direction = '';
       try {
         if (from instanceof NumberedPortfolio) {
           fromName = `${from.toHuman().id} / ${await from.getName()}`;
@@ -62,18 +66,6 @@ export const InstructionLeg: React.FC<ILegProps> = ({ data }) => {
         toName = 'unknown';
       }
 
-      if (
-        from.toHuman().did === identity.did &&
-        to.toHuman().did === identity.did
-      ) {
-        direction = EInstructionDirection.INTER_PORTFOLIO;
-      } else if (from.toHuman().did === identity.did) {
-        direction = EInstructionDirection.OUTGOING;
-      } else if (to.toHuman().did === identity.did) {
-        direction = EInstructionDirection.INCOMING;
-      } else {
-        direction = EInstructionDirection.NONE;
-      }
       const parsedData = {
         sendingDid: from.toHuman().did,
         sendingName: fromName || 'Default',
@@ -81,7 +73,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({ data }) => {
         receivingName: toName || 'Default',
         asset: asset.ticker,
         amount: formatBalance(amount.toNumber()),
-        direction,
+        direction: getLegDirection({ from, to, identity }),
       } as ILegDetails;
 
       setLegDetails(parsedData);
@@ -91,7 +83,12 @@ export const InstructionLeg: React.FC<ILegProps> = ({ data }) => {
     <StyledLeg>
       <StyledInfoItem>
         Sending DID
-        <StyledInfoValue>
+        <StyledInfoValue
+          affirmationStatus={getAffirmationStatus(
+            affirmationsData,
+            legDetails.sendingDid,
+          )}
+        >
           <Text size="large" bold>
             {formatDid(legDetails.sendingDid)}
           </Text>
@@ -106,7 +103,12 @@ export const InstructionLeg: React.FC<ILegProps> = ({ data }) => {
       </StyledInfoItem>
       <StyledInfoItem>
         Receiving DID
-        <StyledInfoValue>
+        <StyledInfoValue
+          affirmationStatus={getAffirmationStatus(
+            affirmationsData,
+            legDetails.receivingDid,
+          )}
+        >
           <Text size="large" bold>
             {formatDid(legDetails.receivingDid)}
           </Text>

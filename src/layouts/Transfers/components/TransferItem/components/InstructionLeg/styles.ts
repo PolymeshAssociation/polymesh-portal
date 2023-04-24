@@ -1,3 +1,4 @@
+import { AffirmationStatus } from '@polymeshassociation/polymesh-sdk/types';
 import styled from 'styled-components';
 
 export const StyledLeg = styled.div`
@@ -14,10 +15,29 @@ export const StyledInfoItem = styled.div`
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
-export const StyledInfoValue = styled.div`
+export const StyledInfoValue = styled.div<{
+  affirmationStatus?: AffirmationStatus;
+}>`
   display: flex;
   align-items: center;
   gap: 4px;
+  ${({ affirmationStatus }) => {
+    if (!affirmationStatus) return '';
+
+    return `
+    &::before {
+      content: '';
+      display: block;
+      border-radius: 50%;
+      width: 8px;
+      height: 8px;
+      background-color: ${
+        affirmationStatus === AffirmationStatus.Affirmed ? '#00AA5E' : '#E3A30C'
+      };
+    }
+    
+    `;
+  }}
 `;
 
 export const StyledLabel = styled.div`

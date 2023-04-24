@@ -10,6 +10,7 @@ import { toParsedDate } from '~/helpers/dateTime';
 
 interface IDetailsProps {
   data: InstructionDetails | null;
+  affirmationsCount: number;
   instructionId: string;
   counterparties: number;
 }
@@ -21,6 +22,7 @@ interface IVenueDetails {
 
 export const Details: React.FC<IDetailsProps> = ({
   data,
+  affirmationsCount,
   instructionId,
   counterparties,
 }) => {
@@ -75,7 +77,11 @@ export const Details: React.FC<IDetailsProps> = ({
       <StyledInfoItem>
         # counterparties
         <Text size="large" bold>
-          {counterparties}
+          {counterparties} (
+          {affirmationsCount
+            ? `affirmed by ${affirmationsCount}`
+            : 'no affirmations'}
+          )
         </Text>
       </StyledInfoItem>
       <StyledInfoItem>
@@ -86,9 +92,7 @@ export const Details: React.FC<IDetailsProps> = ({
       </StyledInfoItem>
       {blockNumber && (
         <StyledInfoItem>
-          {data.type === InstructionType.SettleManual
-            ? 'End After Block'
-            : 'End Block'}
+          Latest block
           <Text size="large" bold>
             {blockNumber}
           </Text>
