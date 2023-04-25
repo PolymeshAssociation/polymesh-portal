@@ -13,12 +13,14 @@ import {
   StyledLabel,
   StyledInfoItem,
   StyledInfoValue,
+  StyledExpandedErrors,
 } from './styles';
 import { formatBalance, formatDid } from '~/helpers/formatters';
 import {
   EInstructionDirection,
   getAffirmationStatus,
   getLegDirection,
+  getLegErrors,
 } from './helpers';
 
 interface ILegProps {
@@ -41,6 +43,8 @@ export const InstructionLeg: React.FC<ILegProps> = ({
 }) => {
   const { identity } = useContext(AccountContext);
   const [legDetails, setLegDetails] = useState<ILegDetails | null>(null);
+  const [legErrors, setLegErrors] = useState<string[]>([]);
+  const [legErrorExpanded, setLegErrorExpanded] = useState(false);
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
 
@@ -65,6 +69,10 @@ export const InstructionLeg: React.FC<ILegProps> = ({
       } catch (error) {
         toName = 'unknown';
       }
+      const errors = await getLegErrors({ data, affirmationsData });
+      if (errors.length) {
+        setLegErrors(errors);
+      }
 
       const parsedData = {
         sendingDid: from.toHuman().did,
@@ -78,7 +86,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
 
       setLegDetails(parsedData);
     })();
-  }, [data, identity]);
+  }, [affirmationsData, data, identity]);
   return legDetails ? (
     <StyledLeg>
       <StyledInfoItem>
@@ -142,7 +150,24 @@ export const InstructionLeg: React.FC<ILegProps> = ({
           {legDetails.amount}
         </Text>
       </StyledInfoItem>
-      <StyledLabel>{type}</StyledLabel>
+      {legErrors.length ? (
+        <StyledLabel
+          isError
+          onMouseEnter={() => setLegErrorExpanded(true)}
+          onMouseLeave={() => setLegErrorExpanded(false)}
+        >
+          Error
+          {legErrorExpanded && (
+            <StyledExpandedErrors>
+              {legErrors.map((error) => (
+                <li key={error}>{error}</li>
+              ))}
+            </StyledExpandedErrors>
+          )}
+        </StyledLabel>
+      ) : (
+        <StyledLabel>{type}</StyledLabel>
+      )}
     </StyledLeg>
   ) : (
     <StyledLeg>Loading</StyledLeg>
