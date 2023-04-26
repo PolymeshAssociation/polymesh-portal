@@ -7,6 +7,7 @@ import { PolymeshProvider } from '~/context/PolymeshContext';
 import { AccountProvider } from '~/context/AccountContext';
 import { PortfolioProvider } from '~/context/PortfolioContext';
 import { AuthorizationsProvider } from '~/context/AuthorizationsContext';
+import { ClaimsProvider } from './context/ClaimsContext';
 import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
 import { ROUTES } from '~/constants/routes';
 import { gqlClient } from '~/config/graphql';
@@ -40,15 +41,17 @@ const WrappedApp = () => {
       <AccountProvider>
         <PortfolioProvider>
           <AuthorizationsProvider>
-            <AppThemeProvider>
-              <ApolloProvider client={gqlClient}>
-                <Suspense fallback="loading...">
-                  <BrowserRouter>
-                    <App />
-                  </BrowserRouter>
-                </Suspense>
-              </ApolloProvider>
-            </AppThemeProvider>
+            <ClaimsProvider>
+              <AppThemeProvider>
+                <ApolloProvider client={gqlClient}>
+                  <Suspense fallback="loading...">
+                    <BrowserRouter>
+                      <App />
+                    </BrowserRouter>
+                  </Suspense>
+                </ApolloProvider>
+              </AppThemeProvider>
+            </ClaimsProvider>
           </AuthorizationsProvider>
         </PortfolioProvider>
       </AccountProvider>
