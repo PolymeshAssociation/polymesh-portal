@@ -3,31 +3,32 @@ import {
   ClaimData,
   ClaimScope,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { notifyError } from '~/helpers/notifications';
-
+import { AccountContext } from '../AccountContext';
 import { PolymeshContext } from '../PolymeshContext';
 import ClaimsContext from './context';
+import { getScopesFromClaims } from './helpers';
 
 interface IProviderProps {
   children: React.ReactNode;
 }
 
-const target =
-  '0x005e9edd535c59583f744cf9cf2d28204902f11b07ba979e3e26db7af82b122d';
-
 const ClaimsProvider = ({ children }: IProviderProps) => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const [scopeOptions, setScopeOptions] = useState<ClaimScope[]>([]);
+  const { identity } = useContext(AccountContext);
   const [receivedClaims, setReceivedClaims] = useState<ClaimData<Claim>[]>([]);
   const [issuedClaims, setIssuedClaims] = useState<ClaimData<Claim>[]>([]);
+  const [receivedScopes, setReceivedScopes] = useState<ClaimScope[]>([]);
+  const [issuedScopes, setIssuedScopes] = useState<ClaimScope[]>([]);
   const [claimsLoading, setClaimsLoading] = useState(true);
   const [shouldRefetchClaims, setShouldRefetchClaims] = useState(true);
+  const identityRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!sdk) {
+    if (!sdk || !identity) {
       setShouldRefetchClaims(true);
       return;
     }
@@ -37,24 +38,36 @@ const ClaimsProvider = ({ children }: IProviderProps) => {
       try {
         setClaimsLoading(true);
 
-        const claimScopes = await sdk.claims.getClaimScopes({ target });
-        setScopeOptions(claimScopes);
-
         const { data: targeting } = await sdk.claims.getTargetingClaimsV2({
-          target,
+          target: identity,
         });
-        setReceivedClaims(targeting.flatMap(({ claims }) => claims));
+        const targetingClaims = targeting.flatMap(({ claims }) => claims);
+        setReceivedClaims(targetingClaims);
 
-        const { data: issued } = await sdk.claims.getIssuedClaimsV2({ target });
+        const { data: issued } = await sdk.claims.getIssuedClaimsV2({
+          target: identity,
+        });
         setIssuedClaims(issued);
+
+        setReceivedScopes(getScopesFromClaims(targetingClaims));
+        setIssuedScopes(getScopesFromClaims(issued));
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
         setClaimsLoading(false);
         setShouldRefetchClaims(false);
+        identityRef.current = identity.did;
       }
     })();
-  }, [sdk, shouldRefetchClaims]);
+  }, [sdk, shouldRefetchClaims, identity]);
+
+  useEffect(() => {
+    if (shouldRefetchClaims) return;
+
+    if (identity && identity.did !== identityRef.current) {
+      setShouldRefetchClaims(true);
+    }
+  }, [shouldRefetchClaims, identity]);
 
   const refreshClaims = () => {
     setShouldRefetchClaims(true);
@@ -62,13 +75,14 @@ const ClaimsProvider = ({ children }: IProviderProps) => {
 
   const contextValue = useMemo(
     () => ({
-      scopeOptions,
       receivedClaims,
       issuedClaims,
+      receivedScopes,
+      issuedScopes,
       claimsLoading,
       refreshClaims,
     }),
-    [scopeOptions, receivedClaims, issuedClaims, claimsLoading],
+    [receivedClaims, issuedClaims, receivedScopes, issuedScopes, claimsLoading],
   );
 
   return (

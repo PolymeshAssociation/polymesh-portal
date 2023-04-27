@@ -5,17 +5,19 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 
 export interface IClaimsContext {
-  scopeOptions: ClaimScope[];
   receivedClaims: ClaimData<Claim>[];
   issuedClaims: ClaimData<Claim>[];
+  receivedScopes: ClaimScope[];
+  issuedScopes: ClaimScope[];
   claimsLoading: boolean;
   refreshClaims: () => void;
 }
 
 export const initialState = {
-  scopeOptions: [],
   receivedClaims: [],
   issuedClaims: [],
+  receivedScopes: [],
+  issuedScopes: [],
   claimsLoading: true,
   refreshClaims: () => {},
 };

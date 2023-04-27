@@ -1,13 +1,18 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { EClaimsType } from './constants';
+import { EClaimsType, EScopeSortOptions } from './constants';
 import { ClaimsNavigation } from './components/ClaimsNavigation';
 import { ClaimsContext } from '~/context/ClaimsContext';
 import { ClaimPlaceholder, StyledClaimsList } from './styles';
 import { ScopeItem } from './components/ScopeItem';
+import { sortScopesBySortOption } from './helpers';
 
 const Claims = () => {
-  const { scopeOptions, issuedClaims } = useContext(ClaimsContext);
+  const { receivedScopes, issuedScopes, claimsLoading } =
+    useContext(ClaimsContext);
+  const [sortBy, setSortBy] = useState<EScopeSortOptions>(
+    EScopeSortOptions.TICKER,
+  );
   const [searchParams, setSearchParams] = useSearchParams();
   const type = searchParams.get('type');
 
@@ -17,25 +22,34 @@ const Claims = () => {
     setSearchParams({ type: EClaimsType.RECEIVED });
   }, [setSearchParams, type]);
 
+  const scopeTypes = {
+    [EClaimsType.RECEIVED]: receivedScopes,
+    [EClaimsType.ISSUED]: issuedScopes,
+  };
+
   return (
     <>
-      <ClaimsNavigation />
-      {type === EClaimsType.RECEIVED &&
-        (scopeOptions.length ? (
+      <ClaimsNavigation sortBy={sortBy} setSortBy={setSortBy} />
+      {claimsLoading ? (
+        <ClaimPlaceholder>Loading</ClaimPlaceholder>
+      ) : (
+        <>
+          {!scopeTypes[type as EClaimsType].length && (
+            <ClaimPlaceholder>No data available</ClaimPlaceholder>
+          )}
           <StyledClaimsList>
-            {scopeOptions.map(({ scope }) =>
-              scope ? <ScopeItem key={scope.value} scope={scope} /> : null,
-            )}
+            {sortScopesBySortOption(
+              scopeTypes[type as EClaimsType],
+              sortBy,
+            ).map(({ scope }, idx) => (
+              <ScopeItem
+                key={(scope?.value || 'unscoped') + idx.toString()}
+                scope={scope}
+              />
+            ))}
           </StyledClaimsList>
-        ) : (
-          <ClaimPlaceholder>No data available</ClaimPlaceholder>
-        ))}
-      {type === EClaimsType.ISSUED &&
-        (issuedClaims.length ? (
-          <ClaimPlaceholder>Issued claims</ClaimPlaceholder>
-        ) : (
-          <ClaimPlaceholder>No data available</ClaimPlaceholder>
-        ))}
+        </>
+      )}
     </>
   );
 };

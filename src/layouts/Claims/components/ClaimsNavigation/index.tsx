@@ -1,10 +1,25 @@
 import { useSearchParams } from 'react-router-dom';
-import { EClaimsType } from '../../constants';
+import { EClaimsType, EScopeSortOptions } from '../../constants';
 import { Button } from '~/components/UiKit';
 import { Icon } from '~/components';
-import { StyledNavBar, StyledNavLink, StyledNavList } from './styles';
+import {
+  StyledActionsWrapper,
+  StyledNavBar,
+  StyledNavLink,
+  StyledNavList,
+  StyledSort,
+  StyledSortSelect,
+} from './styles';
 
-export const ClaimsNavigation = () => {
+interface IClaimsNavigationProps {
+  sortBy: EScopeSortOptions;
+  setSortBy: React.Dispatch<React.SetStateAction<EScopeSortOptions>>;
+}
+
+export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
+  sortBy,
+  setSortBy,
+}) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const claimType = searchParams.get('type');
   return (
@@ -20,10 +35,30 @@ export const ClaimsNavigation = () => {
           </StyledNavLink>
         ))}
       </StyledNavList>
-      <Button variant="modalPrimary">
-        <Icon name="Plus" />
-        Create New Claim
-      </Button>
+      <StyledActionsWrapper>
+        <StyledSort>
+          Sort by:
+          <StyledSortSelect>
+            <select
+              onChange={({ target }) => {
+                setSortBy(target.value as EScopeSortOptions);
+              }}
+              value={sortBy}
+            >
+              {Object.values(EScopeSortOptions).map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <Icon name="DropdownIcon" className="dropdown-icon" />
+          </StyledSortSelect>
+        </StyledSort>
+        <Button variant="modalPrimary">
+          <Icon name="Plus" />
+          Create New Claim
+        </Button>
+      </StyledActionsWrapper>
     </StyledNavBar>
   );
 };

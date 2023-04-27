@@ -20,6 +20,7 @@ export const StyledScopeInfo = styled.div`
   align-items: center;
   gap: 8px;
   color: ${({ theme }) => theme.colors.textSecondary};
+  font-size: 14px;
 `;
 
 export const StyledScopeLabel = styled.div`
@@ -47,6 +48,7 @@ export const StyledSort = styled.div`
   display: flex;
   align-items: center;
   color: ${({ theme }) => theme.colors.textSecondary};
+  font-size: 14px;
 
   &::after {
     content: '';
@@ -68,5 +70,35 @@ export const StyledActionsWrapper = styled.div<{ expanded: boolean }>`
       transform: ${({ expanded }) =>
         expanded ? `rotate(180deg)` : `rotate(0)`};
     }
+  }
+`;
+
+export const StyledSortSelect = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-left: 2px;
+  padding-left: 2px;
+  padding-right: 16px;
+
+  & .dropdown-icon {
+    position: absolute;
+    top: -5%;
+    right: 0;
+    color: ${({ theme }) => theme.colors.textPrimary};
+  }
+
+  & select {
+    position: relative;
+    z-index: 1;
+    appearance: none;
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
   }
 `;
