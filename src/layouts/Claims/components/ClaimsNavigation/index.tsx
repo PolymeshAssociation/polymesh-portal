@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { EClaimsType, EScopeSortOptions } from '../../constants';
 import { Button } from '~/components/UiKit';
@@ -10,6 +11,7 @@ import {
   StyledSort,
   StyledSortSelect,
 } from './styles';
+import { CreateNewClaim } from '../CreateNewClaim';
 
 interface IClaimsNavigationProps {
   sortBy: EScopeSortOptions;
@@ -20,8 +22,12 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
   sortBy,
   setSortBy,
 }) => {
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const claimType = searchParams.get('type');
+
+  const toggleModal = () => setCreateModalOpen((prev) => !prev);
+
   return (
     <StyledNavBar>
       <StyledNavList>
@@ -54,11 +60,12 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
             <Icon name="DropdownIcon" className="dropdown-icon" />
           </StyledSortSelect>
         </StyledSort>
-        <Button variant="modalPrimary">
+        <Button variant="modalPrimary" onClick={toggleModal}>
           <Icon name="Plus" />
           Create New Claim
         </Button>
       </StyledActionsWrapper>
+      {createModalOpen && <CreateNewClaim toggleModal={toggleModal} />}
     </StyledNavBar>
   );
 };
