@@ -1,4 +1,8 @@
-import { ScopeType } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  ClaimTarget,
+  ScopeType,
+} from '@polymeshassociation/polymesh-sdk/types';
+import { IFieldValues, ISelectedClaimItem } from './constants';
 
 export const createPlaceholderByScopeType = (type: ScopeType) => {
   switch (type) {
@@ -14,4 +18,24 @@ export const createPlaceholderByScopeType = (type: ScopeType) => {
     default:
       return '';
   }
+};
+
+export const createClaimsData = ({
+  data: { target, scopeType, scopeValue },
+  selectedClaims,
+}: {
+  data: IFieldValues;
+  selectedClaims: ISelectedClaimItem[];
+}) => {
+  return selectedClaims.map(({ claimType, expiry }) => ({
+    target,
+    expiry,
+    claim: {
+      type: claimType,
+      scope: {
+        type: scopeType,
+        value: scopeValue,
+      },
+    },
+  })) as ClaimTarget[];
 };

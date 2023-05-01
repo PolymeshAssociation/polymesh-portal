@@ -70,7 +70,13 @@ const ClaimsProvider = ({ children }: IProviderProps) => {
   }, [shouldRefetchClaims, identity]);
 
   const refreshClaims = () => {
-    setShouldRefetchClaims(true);
+    // getIssuedClaimsV2 doesn't return updated data immediately after adding claims
+    // some delay is required not to reload page manually
+
+    const timeoutId = setTimeout(() => {
+      setShouldRefetchClaims(true);
+      clearTimeout(timeoutId);
+    }, 1500);
   };
 
   const contextValue = useMemo(

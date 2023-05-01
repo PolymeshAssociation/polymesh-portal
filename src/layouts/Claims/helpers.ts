@@ -38,11 +38,10 @@ export const sortScopesBySortOption = (
       });
 
     case EScopeSortOptions.NO_SCOPE:
-      return scopes.sort((a, b) => {
-        if (!a.scope || !b.scope) return 1;
-
-        return -1;
-      });
+      return [
+        ...scopes.filter(({ scope }) => !scope),
+        ...scopes.filter(({ scope }) => !!scope),
+      ];
 
     default:
       return scopes;

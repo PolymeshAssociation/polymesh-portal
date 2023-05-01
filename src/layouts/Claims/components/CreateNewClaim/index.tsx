@@ -1,7 +1,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { useState } from 'react';
-import { ClaimType, ScopeType } from '@polymeshassociation/polymesh-sdk/types';
+import { useContext, useState } from 'react';
+import {
+  ClaimType,
+  ScopeType,
+  UnsubCallback,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { useForm } from 'react-hook-form';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import { Modal } from '~/components';
 import { Heading, Button, Text } from '~/components/UiKit';
 import DropdownSelect from './components/DropdownSelect';
@@ -18,10 +23,12 @@ import {
   CLAIM_ITEMS,
   FORM_CONFIG,
   IFieldValues,
-  INPUT_NAMES,
   ISelectedClaimItem,
 } from './constants';
-import { createPlaceholderByScopeType } from './helpers';
+import { createClaimsData, createPlaceholderByScopeType } from './helpers';
+import { notifyError } from '~/helpers/notifications';
+import { useTransactionStatus } from '~/hooks/polymesh';
+import { ClaimsContext } from '~/context/ClaimsContext';
 
 interface ICreateNewClaimProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -29,6 +36,10 @@ interface ICreateNewClaimProps {
 export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
   toggleModal,
 }) => {
+  const {
+    api: { sdk },
+  } = useContext(PolymeshContext);
+  const { refreshClaims } = useContext(ClaimsContext);
   const {
     register,
     handleSubmit,
@@ -39,6 +50,7 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
   const [selectedClaims, setSelectedClaims] = useState<ISelectedClaimItem[]>(
     [],
   );
+  const { handleStatusChange } = useTransactionStatus();
 
   const handleScopeChange = (option: string) => {
     setSelectedScope(option as ScopeType);
@@ -71,7 +83,25 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
     );
   };
 
-  const onSubmit = (data: IFieldValues) => {};
+  const onSubmit = async (data: IFieldValues) => {
+    if (!sdk) return;
+    toggleModal();
+
+    const claims = createClaimsData({ data, selectedClaims });
+    let unsubCb: UnsubCallback | undefined;
+    try {
+      const addClaimsTx = await sdk.claims.addClaims({ claims });
+      unsubCb = addClaimsTx.onStatusChange(handleStatusChange);
+      await addClaimsTx.run();
+      refreshClaims();
+    } catch (error) {
+      notifyError((error as Error).message);
+    } finally {
+      if (unsubCb) {
+        unsubCb();
+      }
+    }
+  };
 
   return (
     <Modal handleClose={toggleModal}>

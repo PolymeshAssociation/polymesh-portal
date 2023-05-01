@@ -35,7 +35,18 @@ export const FORM_CONFIG = {
         .max(66, 'Target must be valid DID')
         .required('Target is required'),
       [INPUT_NAMES.SCOPE_TYPE]: yup.string().required('Scope type is required'),
-      [INPUT_NAMES.SCOPE_VALUE]: yup.string().required('Value is required'),
+      [INPUT_NAMES.SCOPE_VALUE]: yup
+        .string()
+        .when(INPUT_NAMES.SCOPE_TYPE, (scopeTypes: ScopeType[], schema) => {
+          if (scopeTypes[0] === ScopeType.Identity) {
+            return schema
+              .required('Value is required')
+              .min(66, 'Value must be valid DID')
+              .max(66, 'Value must be valid DID');
+          }
+
+          return schema.required('Value is required');
+        }),
     }),
   ),
 };

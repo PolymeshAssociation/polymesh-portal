@@ -34,12 +34,12 @@ const Claims = () => {
         <ClaimPlaceholder>Loading</ClaimPlaceholder>
       ) : (
         <>
-          {!scopeTypes[type as EClaimsType].length && (
+          {!scopeTypes[type as EClaimsType]?.length && (
             <ClaimPlaceholder>No data available</ClaimPlaceholder>
           )}
           <StyledClaimsList>
             {sortScopesBySortOption(
-              scopeTypes[type as EClaimsType],
+              scopeTypes[type as EClaimsType] || [],
               sortBy,
             ).map(({ scope }, idx) => (
               <ScopeItem

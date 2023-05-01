@@ -1,10 +1,10 @@
-import { Scope } from '@polymeshassociation/polymesh-sdk/types';
+import { Scope, ScopeType } from '@polymeshassociation/polymesh-sdk/types';
 import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Icon } from '~/components';
+import { CopyToClipboard, Icon } from '~/components';
 import { Button } from '~/components/UiKit';
 import { ClaimsContext } from '~/context/ClaimsContext';
-import { stringToColor } from '~/helpers/formatters';
+import { formatDid, stringToColor } from '~/helpers/formatters';
 import { ClaimItem } from '../ClaimItem';
 import { EClaimsType, EClaimSortOptions } from '../../constants';
 import { filterClaimsByScope } from './helpers';
@@ -44,12 +44,19 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
           <StyledScopeInfo>
             Scope - {scope.type}
             <StyledScopeLabel>
-              {scope.type === 'Ticker' && (
+              {scope.type === ScopeType.Ticker && (
                 <StyledIconWrapper color={stringToColor(scope.value)}>
                   <Icon name="Coins" size="12px" />
                 </StyledIconWrapper>
               )}
-              {scope.value}
+              {scope.type === ScopeType.Identity ? (
+                <>
+                  {formatDid(scope.value, 10, 11)}
+                  <CopyToClipboard value={scope.value} />
+                </>
+              ) : (
+                scope.value
+              )}
             </StyledScopeLabel>
           </StyledScopeInfo>
         ) : (
