@@ -10,10 +10,10 @@ export const createPlaceholderByScopeType = (type: ScopeType) => {
       return 'Enter Ticker';
 
     case ScopeType.Identity:
-      return 'Ender DID';
+      return 'Enter DID';
 
     case ScopeType.Custom:
-      return 'Ender custom value';
+      return 'Enter custom value';
 
     default:
       return '';

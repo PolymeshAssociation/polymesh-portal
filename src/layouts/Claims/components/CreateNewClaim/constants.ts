@@ -33,6 +33,7 @@ export const FORM_CONFIG = {
         .string()
         .min(66, 'Target must be valid DID')
         .max(66, 'Target must be valid DID')
+        .matches(/^[0-9a-z]+$/, 'Value must be valid DID')
         .required('Target is required'),
       [INPUT_NAMES.SCOPE_TYPE]: yup.string().required('Scope type is required'),
       [INPUT_NAMES.SCOPE_VALUE]: yup
@@ -42,7 +43,13 @@ export const FORM_CONFIG = {
             return schema
               .required('Value is required')
               .min(66, 'Value must be valid DID')
-              .max(66, 'Value must be valid DID');
+              .max(66, 'Value must be valid DID')
+              .matches(/^[0-9a-z]+$/, 'Value must be valid DID');
+          }
+          if (scopeTypes[0] === ScopeType.Ticker) {
+            return schema
+              .required('Value is required')
+              .max(12, 'Value must be 12 characters or less');
           }
 
           return schema.required('Value is required');
@@ -75,10 +82,6 @@ export const CLAIM_ITEMS = [
   {
     label: 'Affiliate',
     value: ClaimType.Affiliate,
-  },
-  {
-    label: 'Investor Uniqueness',
-    value: ClaimType.InvestorUniqueness,
   },
   {
     label: 'Exempted',
