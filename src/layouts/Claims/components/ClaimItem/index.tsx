@@ -67,13 +67,23 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
           {claim.type}
         </Text>
       </StyledClaimItem>
-      <StyledClaimItem>
-        Issued by
-        <StyledDidWrapper>
-          {formatDid(claimData.issuer.did, 10, 11)}
-          <CopyToClipboard value={claimData.issuer.did} />
-        </StyledDidWrapper>
-      </StyledClaimItem>
+      {type === EClaimsType.RECEIVED ? (
+        <StyledClaimItem>
+          Issued by
+          <StyledDidWrapper>
+            {formatDid(claimData.issuer.did, 10, 11)}
+            <CopyToClipboard value={claimData.issuer.did} />
+          </StyledDidWrapper>
+        </StyledClaimItem>
+      ) : (
+        <StyledClaimItem>
+          Target
+          <StyledDidWrapper>
+            {formatDid(claimData.target.did, 10, 11)}
+            <CopyToClipboard value={claimData.target.did} />
+          </StyledDidWrapper>
+        </StyledClaimItem>
+      )}
       {!!claimData.expiry && (
         <StyledClaimItem>
           Expiry Date
