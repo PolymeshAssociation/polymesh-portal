@@ -90,6 +90,7 @@ export const NewClaimItem: React.FC<INewClaimItem> = ({
                 options={countryCodes.map(({ name }) => name)}
                 onChange={handleCountryChange}
                 error={countryCodeError}
+                enableSearch
               />
             </StyledInputWrapper>
           )}

@@ -7,6 +7,7 @@ import {
   StyledOption,
   StyledSelect,
   InputWrapper,
+  StyledSearch,
 } from './styles';
 
 interface IDropdownSelectProps {
@@ -16,6 +17,7 @@ interface IDropdownSelectProps {
   onChange: (option: string) => void;
   options: string[];
   removeSelection?: boolean;
+  enableSearch?: boolean;
 }
 
 const DropdownSelect: React.FC<IDropdownSelectProps> = ({
@@ -25,9 +27,11 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
   onChange,
   options,
   removeSelection,
+  enableSearch,
 }) => {
   const [selectExpanded, setSelectExpanded] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string>('');
+  const [searchFilter, setSearchFilter] = useState<string>('');
   const ref = useRef<HTMLDivElement>(null);
   const selectedRef = useRef<HTMLButtonElement>(null);
 
@@ -72,6 +76,12 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
     setSelectedOption('');
   }, [removeSelection]);
 
+  const dropdownOptions = enableSearch
+    ? options.filter((option) =>
+        option.toLowerCase().includes(searchFilter.toLowerCase()),
+      )
+    : options;
+
   return (
     <div>
       <StyledLabel>{label}</StyledLabel>
@@ -81,17 +91,32 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
           expanded={selectExpanded}
           isSelected={options.includes(selectedOption)}
         >
-          {selectedOption || placeholder}
+          {enableSearch ? (
+            <StyledSearch
+              placeholder={placeholder}
+              onChange={({ target }) => {
+                if (!selectExpanded) {
+                  setSelectExpanded(true);
+                }
+                setSelectedOption('');
+                setSearchFilter(target.value);
+              }}
+              value={selectedOption || searchFilter}
+            />
+          ) : (
+            selectedOption || placeholder
+          )}
           <Icon name="ExpandIcon" size="18px" className="icon" />
         </StyledSelect>
-        {!!options.length && selectExpanded && (
+        {!!dropdownOptions.length && selectExpanded && (
           <StyledExpandedSelect>
-            {options.map((option) => (
+            {dropdownOptions.map((option) => (
               <StyledOption
                 ref={option === selectedOption ? selectedRef : null}
                 key={option}
                 onClick={() => {
                   setSelectedOption(option);
+                  setSearchFilter('');
                   handleDropdownToggle(option);
                 }}
                 isSelected={option === selectedOption}

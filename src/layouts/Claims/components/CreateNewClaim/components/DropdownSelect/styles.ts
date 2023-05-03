@@ -27,6 +27,20 @@ export const StyledSelect = styled.div<{
   }
 `;
 
+export const StyledSearch = styled.input`
+  border: none;
+  outline: none;
+  width: 95%;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  cursor: inherit;
+
+  &:focus {
+    cursor: initial;
+  }
+`;
+
 export const InputWrapper = styled.div`
   position: relative;
 `;
