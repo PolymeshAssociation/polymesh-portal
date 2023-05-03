@@ -3,6 +3,7 @@ import {
   Claim,
   ClaimData,
   ClaimType,
+  CountryCode,
   UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useSearchParams } from 'react-router-dom';
@@ -21,6 +22,7 @@ import {
   StyledDidWrapper,
   RevokeButton,
 } from './styles';
+import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
 
 interface IClaimItemProps {
   claimData: ClaimData<Claim>;
@@ -59,6 +61,13 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
     }
   };
 
+  const getCountryName = (countryCode: CountryCode) => {
+    const country = countryCodes.find(
+      ({ code }) => code === countryCode.toUpperCase(),
+    );
+    return country ? country.name.split(',')[0] : '';
+  };
+
   return (
     <StyledClaimWrapper>
       <StyledClaimItem>
@@ -71,7 +80,7 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
         <StyledClaimItem>
           Issued by
           <StyledDidWrapper>
-            {formatDid(claimData.issuer.did, 10, 11)}
+            {formatDid(claimData.issuer.did, 7, 8)}
             <CopyToClipboard value={claimData.issuer.did} />
           </StyledDidWrapper>
         </StyledClaimItem>
@@ -79,7 +88,7 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
         <StyledClaimItem>
           Target
           <StyledDidWrapper>
-            {formatDid(claimData.target.did, 10, 11)}
+            {formatDid(claimData.target.did, 7, 8)}
             <CopyToClipboard value={claimData.target.did} />
           </StyledDidWrapper>
         </StyledClaimItem>
@@ -100,9 +109,9 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
       </StyledClaimItem>
       {claim.type === ClaimType.Jurisdiction && (
         <StyledClaimItem>
-          Country
+          Region
           <Text bold size="large">
-            {claim.code}
+            {getCountryName(claim.code)}
           </Text>
         </StyledClaimItem>
       )}

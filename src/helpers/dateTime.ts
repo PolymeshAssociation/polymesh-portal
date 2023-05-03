@@ -5,5 +5,9 @@ export const toRelativeTime = (timestamp: number) => {
 };
 
 export const toParsedDateTime = (timestamp: string | number) => {
-  return moment(timestamp).format('YYYY-MM-DD hh:mm:ss');
+  return moment(timestamp).format('YYYY-MM-DD HH:mm:ss');
+};
+
+export const removeTimezoneOffset = (date: Date | null | undefined) => {
+  return date ? new Date(date.toISOString().slice(0, -1)) : null;
 };

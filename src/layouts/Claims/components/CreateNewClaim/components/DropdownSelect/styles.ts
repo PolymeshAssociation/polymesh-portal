@@ -14,6 +14,7 @@ export const StyledSelect = styled.div<{
     isSelected ? theme.colors.textPrimary : theme.colors.textSecondary};
   background-color: ${({ theme }) => theme.colors.landingBackground};
   overflow: hidden;
+  cursor: pointer;
 
   & .icon {
     position: absolute;

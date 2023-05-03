@@ -1,11 +1,16 @@
 import { ValidationMode } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { ClaimType, ScopeType } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  ClaimType,
+  CountryCode,
+  ScopeType,
+} from '@polymeshassociation/polymesh-sdk/types';
 
 export interface ISelectedClaimItem {
   claimType: ClaimType;
   expiry: Date | null;
+  code?: CountryCode;
 }
 
 export const INPUT_NAMES = {

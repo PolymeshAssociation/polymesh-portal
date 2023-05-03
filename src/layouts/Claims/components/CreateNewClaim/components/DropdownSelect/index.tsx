@@ -29,6 +29,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
   const [selectExpanded, setSelectExpanded] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string>('');
   const ref = useRef<HTMLDivElement>(null);
+  const selectedRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!selectExpanded) return undefined;
@@ -56,6 +57,14 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
   };
 
   useEffect(() => {
+    if (!selectExpanded || !selectedRef.current) return;
+
+    selectedRef.current.scrollIntoView({
+      block: 'nearest',
+    });
+  }, [selectExpanded]);
+
+  useEffect(() => {
     if (!removeSelection) {
       return;
     }
@@ -79,6 +88,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
           <StyledExpandedSelect>
             {options.map((option) => (
               <StyledOption
+                ref={option === selectedOption ? selectedRef : null}
                 key={option}
                 onClick={() => {
                   setSelectedOption(option);

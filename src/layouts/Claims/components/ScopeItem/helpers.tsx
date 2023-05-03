@@ -21,18 +21,22 @@ export const filterClaimsByScope = (
             (claim as ScopedClaim).scope.value === scope.value,
         )
     : claims.filter(({ claim }) => !claim.hasOwnProperty('scope'));
-  return filteredClaims.sort((a, b) => {
-    switch (sortBy) {
-      case EClaimSortOptions.EXPIRY_DATE:
-        if (!a.expiry || !b.expiry) return -1;
-        return b.expiry.getMilliseconds() - a.expiry.getMilliseconds();
 
-      case EClaimSortOptions.ISSUE_DATE:
-        if (!a.expiry || !b.expiry) return -1;
-        return b.issuedAt.getMilliseconds() - a.issuedAt.getMilliseconds();
+  if (sortBy === EClaimSortOptions.EXPIRY_DATE) {
+    const noExpiryClaims = filteredClaims.filter(({ expiry }) => !expiry);
+    const claimsWithExpiry = filteredClaims.filter(({ expiry }) => expiry);
 
-      default:
-        return 0;
-    }
-  });
+    return [
+      ...claimsWithExpiry.sort(
+        (a, b) =>
+          (a.expiry as Date).getMilliseconds() -
+          (b.expiry as Date).getMilliseconds(),
+      ),
+      ...noExpiryClaims,
+    ];
+  }
+
+  return filteredClaims.sort(
+    (a, b) => a.issuedAt.getMilliseconds() - b.issuedAt.getMilliseconds(),
+  );
 };

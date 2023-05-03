@@ -1,5 +1,7 @@
 import {
   ClaimTarget,
+  ClaimType,
+  CountryCode,
   ScopeType,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { IFieldValues, ISelectedClaimItem } from './constants';
@@ -27,15 +29,25 @@ export const createClaimsData = ({
   data: IFieldValues;
   selectedClaims: ISelectedClaimItem[];
 }) => {
-  return selectedClaims.map(({ claimType, expiry }) => ({
+  return selectedClaims.map(({ claimType, expiry, code }) => ({
     target,
     expiry,
-    claim: {
-      type: claimType,
-      scope: {
-        type: scopeType,
-        value: scopeValue,
-      },
-    },
+    claim:
+      claimType === ClaimType.Jurisdiction
+        ? {
+            type: claimType,
+            code: code as CountryCode,
+            scope: {
+              type: scopeType,
+              value: scopeValue,
+            },
+          }
+        : {
+            type: claimType,
+            scope: {
+              type: scopeType,
+              value: scopeValue,
+            },
+          },
   })) as ClaimTarget[];
 };

@@ -1,9 +1,15 @@
-import { ClaimType } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  ClaimType,
+  CountryCode,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { useState } from 'react';
 import { Toggler, Text } from '~/components/UiKit';
 import { ISelectedClaimItem } from '../../constants';
 import { StyledInput, StyledInputWrapper, StyledLabel } from '../../styles';
+import DropdownSelect from '../DropdownSelect';
 import { StyledWrapper, StyledTopInfo } from './styles';
+import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
+import { removeTimezoneOffset } from '~/helpers/dateTime';
 
 interface INewClaimItem {
   label: string;
@@ -19,11 +25,13 @@ export const NewClaimItem: React.FC<INewClaimItem> = ({
   handleDelete,
 }) => {
   const [isSelected, setIsSelected] = useState(false);
+  const [countryCode, setCountryCode] = useState<CountryCode | null>(null);
+  const [countryCodeError, setCountryCodeError] = useState<string>('');
   const [expiry, setExpiry] = useState<Date | null>(null);
 
   const handleToggle = (toggleState: boolean) => {
     setIsSelected(toggleState);
-    if (toggleState) {
+    if (toggleState && value !== ClaimType.Jurisdiction) {
       handleAdd({ claimType: value, expiry });
     } else {
       handleDelete(value);
@@ -34,12 +42,32 @@ export const NewClaimItem: React.FC<INewClaimItem> = ({
   const handleDateChange: React.ChangeEventHandler<HTMLInputElement> = ({
     target,
   }) => {
-    const date = target.valueAsDate;
+    const date = removeTimezoneOffset(target.valueAsDate);
+
     setExpiry(date);
 
-    if (isSelected) {
+    if (value === ClaimType.Jurisdiction) {
+      if (!countryCode) return;
+
+      handleAdd({ claimType: value, expiry: date, code: countryCode });
+    } else {
       handleAdd({ claimType: value, expiry: date });
     }
+  };
+
+  const handleCountryChange = (option: string) => {
+    const isoCode = countryCodes.find(({ name }) => name === option)?.code;
+    if (!isoCode) {
+      setCountryCodeError('Country is required');
+      return;
+    }
+    const code = `${isoCode.charAt(0)}${isoCode
+      .slice(1)
+      .toLowerCase()}` as CountryCode;
+
+    setCountryCode(code);
+    setCountryCodeError('');
+    handleAdd({ claimType: value, code, expiry });
   };
 
   return (
@@ -53,14 +81,27 @@ export const NewClaimItem: React.FC<INewClaimItem> = ({
         />
       </StyledTopInfo>
       {isSelected && (
-        <StyledInputWrapper marginTop={20}>
-          <StyledLabel>Expiry Date (Optional)</StyledLabel>
-          <StyledInput
-            type="date"
-            onChange={handleDateChange}
-            min={new Date().toISOString().split('T')[0]}
-          />
-        </StyledInputWrapper>
+        <>
+          {value === ClaimType.Jurisdiction && (
+            <StyledInputWrapper marginTop={20}>
+              <DropdownSelect
+                label="Country"
+                placeholder="Select Country"
+                options={countryCodes.map(({ name }) => name)}
+                onChange={handleCountryChange}
+                error={countryCodeError}
+              />
+            </StyledInputWrapper>
+          )}
+          <StyledInputWrapper marginTop={20}>
+            <StyledLabel>Expiry Date (Optional)</StyledLabel>
+            <StyledInput
+              type="date"
+              onChange={handleDateChange}
+              min={new Date().toISOString().split('T')[0]}
+            />
+          </StyledInputWrapper>
+        </>
       )}
     </StyledWrapper>
   );
