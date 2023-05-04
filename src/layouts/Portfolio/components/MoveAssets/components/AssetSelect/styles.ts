@@ -54,7 +54,7 @@ export const StyledExpandedSelect = styled.div`
   border: 1px solid #8f8f8f;
   border-radius: 8px;
   z-index: 1;
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
 `;
 
 export const SelectedOption = styled.div`

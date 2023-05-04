@@ -3,11 +3,13 @@ import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-ext
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import PolymeshContext from './context';
 import { IConnectOptions } from './constants';
-import { useInjectedWeb3 } from '~/hooks/polymesh';
+import { useLocalStorage } from '~/hooks/utility';
 
 interface IProviderProps {
   children: React.ReactNode;
 }
+
+const injectedExtensions = BrowserExtensionSigningManager.getExtensionList();
 
 const PolymeshProvider = ({ children }: IProviderProps) => {
   const [sdk, setSdk] = useState<Polymesh | null>(null);
@@ -16,15 +18,9 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   const [connecting, setConnecting] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [walletError, setWalletError] = useState('');
-  const { connectExtension, defaultExtension } = useInjectedWeb3();
-  const [connectOptions, setConnectOptions] = useState<IConnectOptions | null>(
-    () => {
-      if (defaultExtension) {
-        const { extensionName, isDefault } = defaultExtension;
-        return { extensionName, isDefault };
-      }
-      return null;
-    },
+  const [defaultExtension, setDefaultExtension] = useLocalStorage<string>(
+    'defaultExtension',
+    '',
   );
 
   // Create the browser extension signing manager.
@@ -32,13 +28,15 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     async ({ extensionName, isDefault }: IConnectOptions) => {
       try {
         setConnecting(true);
-        setConnectOptions({ extensionName, isDefault });
         const signingManagerInstance =
           await BrowserExtensionSigningManager.create({
             appName: 'polymesh-user-portal',
             extensionName,
           });
         setSigningManager(signingManagerInstance);
+        if (isDefault) {
+          setDefaultExtension(extensionName);
+        }
       } catch (error) {
         if (error instanceof Error) {
           setWalletError(error.message);
@@ -47,17 +45,22 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 
   // Trigger signing manager initialization automatically when recent used extension data exists
   useEffect(() => {
-    if (!defaultExtension || initialized) return;
+    if (
+      !defaultExtension ||
+      !injectedExtensions.includes(defaultExtension) ||
+      initialized
+    )
+      return;
 
-    const { extensionName, isDefault } = defaultExtension;
     connectWallet({
-      extensionName,
-      isDefault,
+      extensionName: defaultExtension,
+      isDefault: true,
     });
   }, [connectWallet, initialized, defaultExtension]);
 
@@ -77,10 +80,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
 
         setSdk(sdkInstance);
         setInitialized(true);
-        connectExtension(
-          (connectOptions as IConnectOptions).extensionName as string,
-          (connectOptions as IConnectOptions).isDefault as boolean,
-        );
       } catch (error) {
         if (error instanceof Error) {
           setWalletError(error.message);
@@ -91,7 +90,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setConnecting(false);
       }
     })();
-  }, [connectExtension, connectOptions, initialized, signingManager]);
+  }, [initialized, signingManager]);
 
   const contextValue = useMemo(
     () => ({
@@ -101,9 +100,22 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         walletError,
       },
       api: { sdk, signingManager },
+      settings: {
+        defaultExtension,
+        setDefaultExtension,
+      },
       connectWallet,
     }),
-    [connecting, initialized, walletError, sdk, signingManager, connectWallet],
+    [
+      connecting,
+      initialized,
+      walletError,
+      sdk,
+      signingManager,
+      connectWallet,
+      defaultExtension,
+      setDefaultExtension,
+    ],
   );
 
   return (

@@ -10,7 +10,7 @@ export const StyledBackdrop = styled.div`
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background-color: rgba(21, 41, 53, 0.3);
+  background-color: ${({ theme }) => theme.colors.backdrop};
   z-index: 2;
   overflow: scroll;
 `;
@@ -20,7 +20,7 @@ export const StyledModal = styled.div<{ disableOverflow?: boolean }>`
   max-width: 504px;
   max-height: 80vh;
   background-color: ${({ theme }) => theme.colors.modalBackground};
-  box-shadow: 0px 20px 40px rgba(21, 41, 53, 0.1);
+  box-shadow: ${({ theme }) => `0px 20px 40px ${theme.colors.shadow}`};
   border-radius: 8px;
   ${({ disableOverflow }) => (disableOverflow ? '' : `overflow-y: scroll;`)}
 `;

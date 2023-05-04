@@ -7,6 +7,7 @@ export const StyledHeading = styled.h1<{
   marginBottom?: number;
   transform?: `${EHeadingCases}`;
 }>`
+  color: ${({ theme }) => theme.colors.textPrimary};
   ${({ centered, marginTop, marginBottom, transform }) => `
       ${centered ? 'text-align: center;' : ''}
       ${marginTop ? `margin-top: ${marginTop}px;` : ''}

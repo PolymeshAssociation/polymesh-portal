@@ -7,6 +7,8 @@ const Overview = lazy(() => import('~/layouts/Overview'));
 const Portfolio = lazy(() => import('~/layouts/Portfolio'));
 const Authorizations = lazy(() => import('~/layouts/Authorizations'));
 
+const Settings = lazy(() => import('~/layouts/Settings'));
+
 interface IRoute {
   path: string;
   label: string | null;
@@ -59,6 +61,7 @@ export const ROUTES = [
     label: 'Authorizations',
     component: Authorizations,
   },
+  { path: PATHS.SETTINGS, label: 'Settings', component: Settings },
   {
     path: PATHS.NOT_FOUND,
     label: null,

@@ -39,8 +39,8 @@ export const StyledExpandedSelect = styled.div`
   max-height: 300px;
   padding: 10px 8px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  box-shadow: 0px 15px 25px rgba(30, 30, 30, 0.15),
-    0px 5px 10px rgba(30, 30, 30, 0.05);
+  box-shadow: ${({ theme }) => `0px 15px 25px ${theme.colors.shadow},
+    0px 5px 10px ${theme.colors.shadow}`};
   border-radius: 12px;
   text-align: center;
   z-index: 1;

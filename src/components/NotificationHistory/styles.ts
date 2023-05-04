@@ -6,7 +6,7 @@ export const StyledWrapper = styled.div<{ expanded: boolean }>`
   overflow-y: scroll;
   padding: ${({ expanded }) => (expanded ? '24px' : 0)};
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
   opacity: ${({ expanded }) => (expanded ? 1 : 0)};
   ${({ expanded }) => (expanded ? '' : 'transform: translateX(150%);')}

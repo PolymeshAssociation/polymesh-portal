@@ -45,3 +45,11 @@ li {
 .no-scroll {
   overflow: hidden;
 }
+
+input {
+  outline: none;
+  background: transparent;
+}
+input:focus {
+  background: transparent;
+}

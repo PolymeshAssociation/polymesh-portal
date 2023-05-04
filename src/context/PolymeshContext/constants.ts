@@ -16,6 +16,10 @@ export interface IPolymeshContext {
     sdk: Polymesh | null;
     signingManager: BrowserExtensionSigningManager | null;
   };
+  settings: {
+    defaultExtension: string;
+    setDefaultExtension: (option: string) => void;
+  };
   connectWallet: (data: IConnectOptions) => Promise<void>;
 }
 
@@ -28,6 +32,10 @@ export const initialState = {
   api: {
     sdk: null,
     signingManager: null,
+  },
+  settings: {
+    defaultExtension: '',
+    setDefaultExtension: () => {},
   },
   connectWallet: async () => {},
 };

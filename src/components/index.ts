@@ -9,3 +9,4 @@ export { default as Table } from './Table';
 export { default as Pagination } from './Pagination';
 export { default as Sidebar } from './Sidebar';
 export { default as NotificationHistory } from './NotificationHistory';
+export { default as ExtensionSelect } from './ExtensionSelect';

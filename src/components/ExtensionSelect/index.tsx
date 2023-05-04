@@ -1,24 +1,29 @@
 import { useContext, useState } from 'react';
+import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { useInjectedWeb3 } from '~/hooks/polymesh';
 import { WALLET_CONNECT_OPTIONS } from '~/constants/wallets';
 import { Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
-import { WalletOptionGroup } from '../WalletOptionGroup';
-import { DefaultSelectionCheckbox } from '../DefaultSelectionCheckbox';
+import { WalletOptionGroup } from './components/WalletOptionGroup';
+import { DefaultSelectionCheckbox } from './components/DefaultSelectionCheckbox';
 import { StyledButtonWrapper } from './styles';
 
-interface IConnectWalletPopupProps {
+interface IExtensionSelectProps {
   handleClose: () => void | React.ReactEventHandler | React.ChangeEventHandler;
+  isDefaultSelect?: boolean;
 }
 
-export const ConnectWalletPopup: React.FC<IConnectWalletPopupProps> = ({
+const ExtensionSelect: React.FC<IExtensionSelectProps> = ({
   handleClose,
+  isDefaultSelect,
 }) => {
-  const { connectWallet } = useContext(PolymeshContext);
-  const { injectedExtensions } = useInjectedWeb3();
-  const [selectedWallet, setSelectedWallet] = useState('');
+  const {
+    connectWallet,
+    settings: { defaultExtension, setDefaultExtension },
+  } = useContext(PolymeshContext);
+  const [selectedWallet, setSelectedWallet] = useState(defaultExtension);
   const [isDefault, setIsDefault] = useState(false);
+  const injectedExtensions = BrowserExtensionSigningManager.getExtensionList();
 
   // Check if any of available extensions are installed to display them accordingly
   const walletOptions = WALLET_CONNECT_OPTIONS.map((option) => {
@@ -45,27 +50,39 @@ export const ConnectWalletPopup: React.FC<IConnectWalletPopupProps> = ({
     connectWallet({ extensionName: selectedWallet, isDefault });
   };
 
+  const handleChangeDefaultWallet = () => {
+    setDefaultExtension(selectedWallet);
+    handleClose();
+    // Reload page when other default wallet is selected in settings?
+    // window.location.reload();
+  };
+
   return (
     <Modal handleClose={handleClose}>
       <Heading type="h4" marginBottom={32}>
-        Choose Wallet to Connect
+        {isDefaultSelect ? 'Default Wallet' : 'Choose Wallet to Connect'}
       </Heading>
       <WalletOptionGroup
         options={walletOptions}
         onChange={handleWalletSelect}
+        selectedWallet={selectedWallet}
       />
-      <DefaultSelectionCheckbox
-        disabled={!selectedWallet}
-        onChange={handleDefaultSelect}
-      />
+      {!isDefaultSelect && (
+        <DefaultSelectionCheckbox
+          disabled={!selectedWallet}
+          onChange={handleDefaultSelect}
+        />
+      )}
       <StyledButtonWrapper>
         <Button variant="modalSecondary" onClick={handleCancel}>
           Cancel
         </Button>
         <Button
           variant="modalPrimary"
-          disabled={!selectedWallet}
-          onClick={handleConnectWallet}
+          disabled={!selectedWallet || selectedWallet === defaultExtension}
+          onClick={
+            isDefaultSelect ? handleChangeDefaultWallet : handleConnectWallet
+          }
         >
           Apply
         </Button>
@@ -73,3 +90,5 @@ export const ConnectWalletPopup: React.FC<IConnectWalletPopupProps> = ({
     </Modal>
   );
 };
+
+export default ExtensionSelect;

@@ -5,7 +5,7 @@ export const StyledWrapper = styled.div`
   padding: 24px;
   height: 196px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
 `;
 
@@ -82,7 +82,7 @@ export const StyledExpandedOtherAssets = styled.ul`
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 16px;
   border: 1px solid ${({ theme }) => theme.colors.textSecondary};
   background-color: ${({ theme }) => theme.colors.landingBackground};

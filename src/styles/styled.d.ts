@@ -13,6 +13,8 @@ declare module 'styled-components' {
       modalBackground: string;
       textPrimary: string;
       textSecondary: string;
+      shadow: string;
+      backdrop: string;
     };
   }
 }

@@ -8,7 +8,7 @@ export const StyledWrapper = styled.div`
   height: 244px;
   padding: 24px;
   background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
 
   & button {

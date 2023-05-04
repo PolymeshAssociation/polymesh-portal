@@ -11,8 +11,8 @@ export const StyledButton = styled.button`
   height: 24px;
   background-color: #ffffff;
   border: 1px solid #e6e6e6;
-  box-shadow: 0px 1px 3px rgba(30, 30, 30, 0.12),
-    0px 1px 2px rgba(30, 30, 30, 0.24);
+  box-shadow: ${({ theme }) => `0px 1px 3px ${theme.colors.shadow},
+    0px 1px 2px ${theme.colors.shadow}`};
   border-radius: 50%;
   z-index: 1;
 

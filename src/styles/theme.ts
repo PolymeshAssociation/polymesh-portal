@@ -1,4 +1,4 @@
-import { DefaultTheme } from 'styled-components';
+import { DefaultTheme, createGlobalStyle } from 'styled-components';
 
 const common = {
   textSize: {
@@ -16,23 +16,32 @@ const light = {
     modalBackground: '#FFFFFF',
     textPrimary: '#1E1E1E',
     textSecondary: '#727272',
+    shadow: 'rgba(30, 30, 30, 0.15)',
+    backdrop: 'rgba(21, 41, 53, 0.3)',
   },
 } as DefaultTheme;
 
 const dark = {
   ...common,
   colors: {
-    landingBackground: '#FFFFFF',
-    dashboardBackground: '#F5F5F5',
-    modalBackground: '#FFFFFF',
-    textPrimary: '#1E1E1E',
+    landingBackground: '#1E1E1E',
+    dashboardBackground: '#000000',
+    modalBackground: '#1E1E1E',
+    textPrimary: '#FFFFFF',
     textSecondary: '#727272',
+    shadow: 'rgba(120, 120, 120, 0.15)',
+    backdrop: 'rgba(209, 194, 182, 0.3)',
   },
 } as DefaultTheme;
 
-const theme = {
+export const theme = {
   light,
   dark,
 };
 
-export default theme;
+export const GlobalStyle = createGlobalStyle`
+body {
+    background-color: ${({ theme: styledTheme }) =>
+      styledTheme.colors.landingBackground};
+  }
+`;
