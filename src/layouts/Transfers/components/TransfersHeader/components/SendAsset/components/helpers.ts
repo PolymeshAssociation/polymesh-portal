@@ -38,10 +38,6 @@ export const updateLegsOnSelect = (
   selectedLegs: ISelectedLeg[],
 ) => {
   return selectedLegs.reduce((acc, assetItem) => {
-    if (assetItem.asset === item.asset && assetItem.index !== item.index) {
-      return [...acc, { ...assetItem, amount: item.amount }];
-    }
-
     if (assetItem.index === item.index) {
       const updatedAcc = acc.filter(({ index }) => index !== item.index);
 
@@ -70,7 +66,7 @@ export const createBasicInstructionParams = ({
   identity: Identity;
   formData: IBasicFieldValues;
 }) => {
-  const { recipient } = formData;
+  const { recipient, memo } = formData;
   const instructionParams = {
     legs: selectedAssets.map((selectedAsset) => ({
       amount: new BigNumber(selectedAsset.amount),
@@ -78,6 +74,7 @@ export const createBasicInstructionParams = ({
       from: identity.did,
       to: recipient,
     })),
+    memo,
   } as AddInstructionParams;
 
   return instructionParams;
@@ -90,7 +87,7 @@ export const createAdvancedInstructionParams = ({
   selectedLegs: ISelectedLeg[];
   formData: IAdvancedFieldValues;
 }) => {
-  const { valueDate, tradeDate } = formData;
+  const { valueDate, tradeDate, memo } = formData;
   const instructionParams = {
     legs: selectedLegs.map(({ amount, asset, from, to }) => ({
       amount: new BigNumber(amount),
@@ -100,6 +97,7 @@ export const createAdvancedInstructionParams = ({
     })),
     valueDate,
     tradeDate,
+    memo,
   } as AddInstructionParams;
 
   return instructionParams;

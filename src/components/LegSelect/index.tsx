@@ -28,12 +28,17 @@ import { formatBalance, stringToColor } from '~/helpers/formatters';
 import { ISelectedLeg } from './types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { getPortfolioDataFromIdentity } from './helpers';
+import {
+  getPortfolioDataFromIdentity,
+  checkAvailableBalance,
+  validateTotalSelected,
+} from './helpers';
 
 interface ILegSelectProps {
   index: number;
   handleAdd: (item: ISelectedLeg) => void;
   handleDelete?: (index: number) => void;
+  handleResetAmount?: (index: number) => void;
   selectedLegs: ISelectedLeg[];
 }
 
@@ -41,6 +46,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
   index,
   handleAdd,
   handleDelete,
+  handleResetAmount,
   selectedLegs,
 }) => {
   const {
@@ -70,6 +76,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     useState(true);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [availableBalance, setAvailableBalance] = useState(0);
+  const [initialFreeBalance, setInitialFreeBalance] = useState(0);
   const [selectedAmount, setSelectedAmount] = useState('');
   const [validationError, setValidationError] = useState('');
   const [assetSelectExpanded, setAssetSelectExpanded] = useState(false);
@@ -179,6 +186,8 @@ const LegSelect: React.FC<ILegSelectProps> = ({
   };
 
   const validateInput = (inputValue: string) => {
+    if (!selectedSenderPortfolio) return;
+
     const amount = Number(inputValue);
     let error = '';
 
@@ -188,7 +197,17 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       error = 'Amount is required';
     } else if (amount <= 0) {
       error = 'Amount must be greater than zero';
-    } else if (amount > availableBalance) {
+    } else if (
+      validateTotalSelected({
+        asset: selectedAsset as Asset,
+        selectedLegs,
+        sender: selectedSenderPortfolio.portfolio.toHuman().did,
+        portfolioId: selectedSenderPortfolio.id,
+        inputValue,
+        initialFreeBalance,
+        index,
+      })
+    ) {
       error = 'Insufficient balance';
     } else if (!selectedAssetIsDivisible && inputValue.indexOf('.') !== -1) {
       error = 'Asset does not allow decimal places';
@@ -223,6 +242,10 @@ const LegSelect: React.FC<ILegSelectProps> = ({
 
     switch (role) {
       case 'sender':
+        setSelectedAmount('');
+        if (handleResetAmount) {
+          handleResetAmount(index);
+        }
         const selectedSendingPortfolio = senderPortfolios.find((item) => {
           return Number.isNaN(Number(id))
             ? item.id === 'default'
@@ -250,15 +273,26 @@ const LegSelect: React.FC<ILegSelectProps> = ({
   };
 
   const handleAssetSelect = (asset: Asset, balance: BigNumber) => {
+    if (!selectedSenderPortfolio || !selectedReceiverPortfolio) return;
+
     setSelectedAsset(asset);
-    setAvailableBalance(balance.toNumber());
+    setInitialFreeBalance(balance.toNumber());
+    const availableAmount = checkAvailableBalance({
+      asset,
+      balance,
+      selectedLegs,
+      sender: selectedSenderPortfolio.portfolio.toHuman().did,
+      portfolioId: selectedSenderPortfolio.id,
+    });
+    setAvailableBalance(availableAmount);
+
     setSelectedAmount('');
     handleAdd({
       asset: asset.toHuman(),
       amount: 0,
       index,
-      from: (selectedSenderPortfolio as IPortfolioData).portfolio,
-      to: (selectedReceiverPortfolio as IPortfolioData).portfolio,
+      from: selectedSenderPortfolio.portfolio,
+      to: selectedReceiverPortfolio.portfolio,
     });
     toggleAssetSelectDropdown();
   };
@@ -271,16 +305,44 @@ const LegSelect: React.FC<ILegSelectProps> = ({
   };
 
   const handleUseMax = () => {
-    setSelectedAmount(availableBalance.toString());
-    validateInput(availableBalance.toString());
+    const balance =
+      selectedAmount && !validationError
+        ? Number(selectedAmount) + availableBalance
+        : availableBalance;
+
+    setSelectedAmount(balance.toString());
+    validateInput(balance.toString());
   };
 
-  const filteredAssets = selectedSenderPortfolio
-    ? selectedSenderPortfolio.assets.filter(
-        ({ asset }) =>
-          !selectedLegs.some((selected) => selected.asset === asset.toHuman()),
-      )
-    : [];
+  useEffect(() => {
+    if (
+      !selectedAsset ||
+      !selectedSenderPortfolio ||
+      !selectedLegs.find((leg) => leg.index === index)
+    )
+      return;
+
+    const availableAmount = checkAvailableBalance({
+      asset: selectedAsset,
+      balance: initialFreeBalance,
+      selectedLegs,
+      sender: selectedSenderPortfolio.portfolio.toHuman().did,
+      portfolioId: selectedSenderPortfolio.id,
+    });
+
+    setAvailableBalance(availableAmount);
+  }, [
+    index,
+    initialFreeBalance,
+    selectedAmount,
+    selectedAsset,
+    selectedLegs,
+    selectedSenderPortfolio,
+  ]);
+
+  const disableAmountInput = selectedAmount
+    ? false
+    : !selectedAsset || !availableBalance;
 
   return (
     <StyledWrapper>
@@ -383,9 +445,8 @@ const LegSelect: React.FC<ILegSelectProps> = ({
             </StyledAssetSelect>
             {selectedSenderPortfolio && assetSelectExpanded && (
               <StyledExpandedSelect>
-                {selectedSenderPortfolio.assets.length &&
-                !!filteredAssets.length ? (
-                  filteredAssets.map(({ asset, free }) => (
+                {selectedSenderPortfolio.assets.length ? (
+                  selectedSenderPortfolio.assets.map(({ asset, free }) => (
                     <StyledSelectOption
                       key={asset.toHuman()}
                       onClick={() => handleAssetSelect(asset, free)}
@@ -413,11 +474,13 @@ const LegSelect: React.FC<ILegSelectProps> = ({
               placeholder="Enter Amount"
               value={selectedAmount}
               onChange={handleAmountChange}
-              disabled={!selectedAsset || !availableBalance}
+              disabled={disableAmountInput}
             />
-            {!!selectedAsset && !!availableBalance && (
-              <UseMaxButton onClick={handleUseMax}>Use max</UseMaxButton>
-            )}
+            {!!selectedAsset &&
+              Number(selectedAmount) < availableBalance &&
+              !!availableBalance && (
+                <UseMaxButton onClick={handleUseMax}>Use max</UseMaxButton>
+              )}
           </InputWrapper>
         </div>
       </AssetWrapper>

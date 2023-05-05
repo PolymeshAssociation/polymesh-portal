@@ -14,7 +14,12 @@ import {
   StyledInput,
   StyledLabel,
 } from '../../../styles';
-import { FlexInputWrapper, InputWrapper, StyledAddButton } from '../../styles';
+import {
+  FlexInputWrapper,
+  InputWrapper,
+  StyledAddButton,
+  StyledErrorMessage,
+} from '../../styles';
 import { IAdvancedFieldValues, ADVANCED_FORM_CONFIG } from '../config';
 import { ISelectedLeg } from '~/components/LegSelect/types';
 import { notifyError } from '~/helpers/notifications';
@@ -77,10 +82,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
   };
 
   const handleAssetSelect = (item: ISelectedLeg) => {
-    if (
-      !selectedLegs.some(({ index }) => index === item.index) &&
-      !selectedLegs.some(({ asset }) => asset === item.asset)
-    ) {
+    if (!selectedLegs.some(({ index }) => index === item.index)) {
       setSelectedLegs((prev) => [...prev, item]);
     } else {
       const updatedAssets = updateLegsOnSelect(item, selectedLegs);
@@ -100,6 +102,16 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
       (selectedAsset) => selectedAsset.index !== index,
     );
     setSelectedLegs(updatedAssets);
+  };
+
+  const handleResetAssetAmount = (index: number) => {
+    setSelectedLegs((prev) =>
+      prev.map((selectedLeg) => {
+        if (selectedLeg.index !== index) return selectedLeg;
+
+        return { ...selectedLeg, amount: 0 };
+      }),
+    );
   };
 
   const onSubmit = async (formData: IAdvancedFieldValues) => {
@@ -142,7 +154,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
           error={errors?.venue?.message}
         />
       </InputWrapper>
-      <FlexInputWrapper marginBotom={36}>
+      <FlexInputWrapper marginBotom={24}>
         <InputWrapper>
           <StyledLabel htmlFor="valueDate">Value Date (Optional)</StyledLabel>
           <StyledInput
@@ -162,6 +174,15 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
           />
         </InputWrapper>
       </FlexInputWrapper>
+      <InputWrapper marginBotom={36}>
+        <StyledLabel htmlFor="memo">Memo (Optional)</StyledLabel>
+        <StyledInput id="memo" placeholder="Enter memo" {...register('memo')} />
+        {!!errors?.memo?.message && (
+          <StyledErrorMessage>
+            {errors?.memo?.message as string}
+          </StyledErrorMessage>
+        )}
+      </InputWrapper>
       <Text bold size="large" marginBottom={24}>
         Leg Details
       </Text>
@@ -172,6 +193,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
           index={index}
           handleAdd={handleAssetSelect}
           handleDelete={handleDeleteLegField}
+          handleResetAmount={handleResetAssetAmount}
           selectedLegs={selectedLegs}
         />
       ))}

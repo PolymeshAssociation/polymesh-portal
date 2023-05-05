@@ -81,7 +81,10 @@ export const getLegErrors = async ({
           return t.restriction.type.toString();
         })
         .filter((value) => !!value);
-      errors.push(`Restriction errors: ${restrictionErrors.join(', ')}`);
+
+      if (restrictionErrors.length) {
+        errors.push(`Restriction errors: ${restrictionErrors.join(', ')}`);
+      }
     }
     if (general.length) {
       const generalErrors = general

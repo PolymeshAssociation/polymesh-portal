@@ -24,10 +24,14 @@ import {
 } from './styles';
 import { TransferItem } from '../TransferItem';
 import { notifyError } from '~/helpers/notifications';
-import { EInstructionTypes, EActionTypes } from '../../types';
+import { EInstructionTypes, EActionTypes, ESortOptions } from '../../types';
 import { createTransactionChunks, createTransactions } from './helpers';
 
-export const TransfersList = () => {
+interface ITransfersListProps {
+  sortBy: ESortOptions;
+}
+
+export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const [selectedItems, setSelectedItems] = useState<Instruction[]>([]);
   const {
     api: { sdk },
@@ -161,6 +165,19 @@ export const TransfersList = () => {
   const affirmedOrPending =
     type === EInstructionTypes.AFFIRMED || type === EInstructionTypes.PENDING;
 
+  const sortInstructions = (instructions: Instruction[]) => {
+    switch (sortBy) {
+      case ESortOptions.NEWEST:
+        return instructions.sort((a, b) => b.id.toNumber() - a.id.toNumber());
+
+      case ESortOptions.OLDEST:
+        return instructions.sort((a, b) => a.id.toNumber() - b.id.toNumber());
+
+      default:
+        return instructions;
+    }
+  };
+
   return (
     <>
       <StyledSelectionWrapper>
@@ -227,7 +244,7 @@ export const TransfersList = () => {
       ) : (
         <StyledTransfersList>
           {currentTabInstructions && currentTabInstructions.length ? (
-            currentTabInstructions.map((instruction) => (
+            sortInstructions(currentTabInstructions).map((instruction) => (
               <TransferItem
                 key={instruction.toHuman()}
                 instruction={instruction}

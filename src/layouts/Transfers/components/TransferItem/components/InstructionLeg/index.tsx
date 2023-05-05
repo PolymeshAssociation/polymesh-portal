@@ -60,14 +60,14 @@ export const InstructionLeg: React.FC<ILegProps> = ({
           fromName = `${from.toHuman().id} / ${await from.getName()}`;
         }
       } catch (error) {
-        fromName = 'unknown';
+        fromName = `${from.toHuman().id} / unknown`;
       }
       try {
         if (to instanceof NumberedPortfolio) {
           toName = await to.getName();
         }
       } catch (error) {
-        toName = 'unknown';
+        toName = `${to.toHuman().id} / unknown`;
       }
       const errors = await getLegErrors({ data, affirmationsData });
       if (errors.length) {

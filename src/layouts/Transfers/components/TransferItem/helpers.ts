@@ -15,11 +15,8 @@ export const isLastManualAffirmation = ({
 }) => {
   if (!identity) return false;
 
-  if (instructionAffirmations.length !== counterparties - 1) {
-    return false;
-  }
-
   if (
+    instructionAffirmations.length === counterparties - 1 &&
     !instructionAffirmations.find(
       (affirmation) => affirmation.identity.did === identity.did,
     )

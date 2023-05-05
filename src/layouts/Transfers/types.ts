@@ -10,3 +10,8 @@ export enum EActionTypes {
   WITHDRAW = 'withdraw',
   RESCHEDULE = 'reschedule',
 }
+
+export enum ESortOptions {
+  NEWEST = 'Newest',
+  OLDEST = 'Oldest',
+}

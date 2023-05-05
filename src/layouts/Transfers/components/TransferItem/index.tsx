@@ -105,14 +105,13 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
 
   const toggleDetails = () => setDetailsExpanded((prev) => !prev);
 
-  const affirmedOrPending =
-    type === EInstructionTypes.AFFIRMED || type === EInstructionTypes.PENDING;
-
   const isSettleManual =
     instructionDetails?.type === InstructionType.SettleManual;
 
   const isAllowedToSettle =
-    isSettleManual && latestBlock > instructionDetails.endAfterBlock.toNumber();
+    isSettleManual &&
+    latestBlock > instructionDetails.endAfterBlock.toNumber() &&
+    affirmationsCount === calculateCounterparties(instructionLegs);
 
   const canAffirmAndExecute =
     isSettleManual &&
@@ -154,15 +153,13 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
         </StyledLegsWrapper>
       )}
       <StyledButtonsWrapper expanded={detailsExpanded}>
-        {affirmedOrPending && (
-          <Button
-            disabled={actionInProgress}
-            onClick={() => executeAction(instruction.reject)}
-          >
-            <Icon name="CloseIcon" size="24px" />
-            Reject
-          </Button>
-        )}
+        <Button
+          disabled={actionInProgress}
+          onClick={() => executeAction(instruction.reject)}
+        >
+          <Icon name="CloseIcon" size="24px" />
+          Reject
+        </Button>
         {type === EInstructionTypes.AFFIRMED && (
           <>
             <Button

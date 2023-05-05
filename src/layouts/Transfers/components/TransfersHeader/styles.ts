@@ -39,3 +39,49 @@ export const StyledNavLink = styled.button`
     color: #000000;
   }
 `;
+
+export const StyledSortWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-size: 14px;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 32px;
+    margin-left: 24px;
+    background-color: #e6e6e6;
+  }
+`;
+
+export const StyledSort = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 68px;
+  margin-left: 2px;
+  padding-left: 2px;
+
+  & .dropdown-icon {
+    position: absolute;
+    top: -5%;
+    right: 0;
+    color: ${({ theme }) => theme.colors.textPrimary};
+  }
+
+  & select {
+    position: relative;
+    z-index: 1;
+    appearance: none;
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
+  }
+`;

@@ -1,8 +1,16 @@
 import {
   Identity,
   NumberedPortfolio,
+  DefaultPortfolio,
+  Asset,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import {
+  DefaultPortfolio as DefaultPortfolioInstance,
+  NumberedPortfolio as NumberedPortfolioInstance,
+} from '@polymeshassociation/polymesh-sdk/internal';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
+import { ISelectedLeg } from './types';
 
 export const getPortfolioDataFromIdentity = async (
   identity: Identity,
@@ -48,4 +56,112 @@ export const getPortfolioDataFromIdentity = async (
   }));
 
   return portfoliosWithNoZeroBalances;
+};
+
+export const getTotalSelectedInSamePortfolio = ({
+  asset,
+  selectedLegs,
+  sender,
+  portfolioId,
+}: {
+  asset: Asset;
+  selectedLegs: ISelectedLeg[];
+  sender: string;
+  portfolioId: string | undefined;
+}) => {
+  const totalSameAssets = selectedLegs.filter((leg) => {
+    return (
+      leg.asset === asset.toHuman() &&
+      (leg.from as DefaultPortfolio | NumberedPortfolio).toHuman().did ===
+        sender
+    );
+  });
+
+  return totalSameAssets.reduce((acc, { from, amount }) => {
+    if (from instanceof DefaultPortfolioInstance && portfolioId === 'default') {
+      return acc + amount;
+    }
+    if (
+      from instanceof NumberedPortfolioInstance &&
+      from.toHuman().id === portfolioId
+    ) {
+      return acc + amount;
+    }
+    return acc;
+  }, 0);
+};
+
+export const checkAvailableBalance = ({
+  asset,
+  balance,
+  selectedLegs,
+  sender,
+  portfolioId,
+}: {
+  asset: Asset;
+  balance: BigNumber | number;
+  selectedLegs: ISelectedLeg[];
+  sender: string;
+  portfolioId: string | undefined;
+}) => {
+  const freeBalance =
+    balance instanceof BigNumber ? balance.toNumber() : balance;
+
+  const totalSelectedInSamePortfolio = getTotalSelectedInSamePortfolio({
+    asset,
+    selectedLegs,
+    sender,
+    portfolioId,
+  });
+
+  return freeBalance - totalSelectedInSamePortfolio;
+};
+
+export const validateTotalSelected = ({
+  asset,
+  selectedLegs,
+  sender,
+  portfolioId,
+  inputValue,
+  initialFreeBalance,
+  index,
+}: {
+  asset: Asset;
+  selectedLegs: ISelectedLeg[];
+  sender: string;
+  portfolioId: string | undefined;
+  inputValue: string;
+  initialFreeBalance: number;
+  index: number;
+}) => {
+  const totalSameAssetsWithOtherIndexes = selectedLegs.filter((leg) => {
+    return (
+      leg.index !== index &&
+      leg.asset === asset.toHuman() &&
+      (leg.from as DefaultPortfolio | NumberedPortfolio).toHuman().did ===
+        sender
+    );
+  });
+  const totalAmountExceptCurrentIndex = totalSameAssetsWithOtherIndexes.reduce(
+    (acc, { from, amount }) => {
+      if (
+        from instanceof DefaultPortfolioInstance &&
+        portfolioId === 'default'
+      ) {
+        return acc + amount;
+      }
+      if (
+        from instanceof NumberedPortfolioInstance &&
+        from.toHuman().id === portfolioId
+      ) {
+        return acc + amount;
+      }
+      return acc;
+    },
+    0,
+  );
+
+  return (
+    totalAmountExceptCurrentIndex + Number(inputValue) > initialFreeBalance
+  );
 };

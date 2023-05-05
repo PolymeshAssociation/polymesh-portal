@@ -136,6 +136,15 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
           </StyledErrorMessage>
         )}
       </InputWrapper>
+      <InputWrapper marginBotom={24}>
+        <StyledLabel htmlFor="memo">Memo (Optional)</StyledLabel>
+        <StyledInput id="memo" placeholder="Enter memo" {...register('memo')} />
+        {!!errors?.memo?.message && (
+          <StyledErrorMessage>
+            {errors?.memo?.message as string}
+          </StyledErrorMessage>
+        )}
+      </InputWrapper>
       {!!combinedPortfolios && (
         <AssetSelect
           portfolio={combinedPortfolios}
