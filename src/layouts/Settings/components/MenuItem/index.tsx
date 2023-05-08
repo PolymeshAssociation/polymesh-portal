@@ -20,13 +20,13 @@ export const MenuItem: React.FC<IMenuItemProps> = ({
 }) => {
   return (
     <StyledWrapper>
+      <IconWrapper>
+        <Icon name={iconName} size="24px" />
+      </IconWrapper>
       <StyledDescription>
-        <IconWrapper>
-          <Icon name={iconName} size="24px" />
-        </IconWrapper>
         {description}
+        <StyledValue>{value}</StyledValue>
       </StyledDescription>
-      <StyledValue>{value}</StyledValue>
     </StyledWrapper>
   );
 };

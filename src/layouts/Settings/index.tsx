@@ -1,6 +1,9 @@
 import { Text } from '~/components/UiKit';
+import { BlockedWallets } from './components/BlockedWallets';
+import { DefaultAddress } from './components/DefaultAddress';
 import { DefaultWallet } from './components/DefaultWallet';
 import { MenuItem } from './components/MenuItem';
+import { RpcUrl } from './components/RpcUrl';
 import { ThemeToggle } from './components/ThemeToggle';
 import { StyledMenuList, StyledSettings } from './styles';
 
@@ -12,21 +15,21 @@ const Settings = () => {
       </Text>
       <StyledMenuList>
         <MenuItem
-          iconName="Coins"
+          iconName="Wallet"
           description="Default Wallet"
           value={<DefaultWallet />}
         />
         <MenuItem
-          iconName="Coins"
+          iconName="Home"
           description="Default Wallet Address"
-          value="xdxx...fVqd7"
+          value={<DefaultAddress />}
         />
-        <MenuItem iconName="Coins" description="Blocked Wallets" value="2" />
         <MenuItem
-          iconName="Coins"
-          description="RPC URL"
-          value="https://example.com"
+          iconName="MinusCircle"
+          description="Blocked Wallets"
+          value={<BlockedWallets />}
         />
+        <MenuItem iconName="Link" description="RPC URL" value={<RpcUrl />} />
       </StyledMenuList>
       <Text
         size="large"
@@ -39,7 +42,7 @@ const Settings = () => {
       </Text>
       <StyledMenuList>
         <MenuItem
-          iconName="Coins"
+          iconName="Brush"
           description="Theme"
           value={<ThemeToggle />}
         />

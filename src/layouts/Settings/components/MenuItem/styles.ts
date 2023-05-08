@@ -3,13 +3,13 @@ import styled from 'styled-components';
 export const StyledWrapper = styled.li`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
 `;
 
 export const StyledDescription = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  flex-grow: 1;
   color: ${({ theme }) => theme.colors.textPrimary};
   font-weight: 500;
 `;
@@ -28,4 +28,5 @@ export const IconWrapper = styled.div`
 export const StyledValue = styled.div`
   color: #ff2e72;
   font-weight: 500;
+  margin-left: auto;
 `;

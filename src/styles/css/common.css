@@ -49,6 +49,7 @@ li {
 input {
   outline: none;
   background: transparent;
+  font-family: inherit;
 }
 input:focus {
   background: transparent;

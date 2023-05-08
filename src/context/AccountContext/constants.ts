@@ -15,6 +15,11 @@ export interface IAccountContext {
   selectedAccount: string;
   allAccounts: string[];
   setSelectedAccount: (account: string) => void;
+  defaultAccount: string;
+  setDefaultAccount: (account: string) => void;
+  blockedWallets: string[];
+  blockWalletAddress: (account: string) => void;
+  unblockWalletAddress: (account: string) => void;
   identity: Identity | null;
   allIdentities: (Identity | null)[];
   primaryKey: string;
@@ -30,6 +35,11 @@ export const initialState = {
   selectedAccount: '',
   allAccounts: [],
   setSelectedAccount: () => {},
+  defaultAccount: '',
+  setDefaultAccount: () => {},
+  blockedWallets: [],
+  blockWalletAddress: () => {},
+  unblockWalletAddress: () => {},
   identity: null,
   allIdentities: [],
   primaryKey: '',

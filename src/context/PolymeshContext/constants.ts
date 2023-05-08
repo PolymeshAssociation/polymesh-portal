@@ -19,6 +19,8 @@ export interface IPolymeshContext {
   settings: {
     defaultExtension: string;
     setDefaultExtension: (option: string) => void;
+    nodeUrl: string;
+    setNodeUrl: (url: string) => void;
   };
   connectWallet: (data: IConnectOptions) => Promise<void>;
 }
@@ -36,6 +38,8 @@ export const initialState = {
   settings: {
     defaultExtension: '',
     setDefaultExtension: () => {},
+    nodeUrl: '',
+    setNodeUrl: () => {},
   },
   connectWallet: async () => {},
 };

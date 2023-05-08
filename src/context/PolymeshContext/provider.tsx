@@ -4,6 +4,7 @@ import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import PolymeshContext from './context';
 import { IConnectOptions } from './constants';
 import { useLocalStorage } from '~/hooks/utility';
+import { notifyGlobalError } from '~/helpers/notifications';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -22,6 +23,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     'defaultExtension',
     '',
   );
+  const [nodeUrl, setNodeUrl] = useState<string>(import.meta.env.VITE_NODE_URL);
 
   // Create the browser extension signing manager.
   const connectWallet = useCallback(
@@ -38,11 +40,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
           setDefaultExtension(extensionName);
         }
       } catch (error) {
-        if (error instanceof Error) {
-          setWalletError(error.message);
-        } else {
-          throw error;
-        }
+        notifyGlobalError((error as Error).message);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,11 +64,11 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
 
   // Connect to the Polymesh SDK once signing manager is created
   useEffect(() => {
-    if (!signingManager || initialized) return;
+    if (!signingManager) return;
     (async () => {
       try {
         const sdkInstance = await Polymesh.connect({
-          nodeUrl: import.meta.env.VITE_NODE_URL,
+          nodeUrl,
           signingManager,
           middlewareV2: {
             link: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL,
@@ -81,16 +79,12 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setSdk(sdkInstance);
         setInitialized(true);
       } catch (error) {
-        if (error instanceof Error) {
-          setWalletError(error.message);
-        } else {
-          throw error;
-        }
+        notifyGlobalError((error as Error).message);
       } finally {
         setConnecting(false);
       }
     })();
-  }, [initialized, signingManager]);
+  }, [initialized, signingManager, nodeUrl]);
 
   const contextValue = useMemo(
     () => ({
@@ -103,6 +97,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       settings: {
         defaultExtension,
         setDefaultExtension,
+        nodeUrl,
+        setNodeUrl,
       },
       connectWallet,
     }),
@@ -115,6 +111,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       connectWallet,
       defaultExtension,
       setDefaultExtension,
+      nodeUrl,
+      setNodeUrl,
     ],
   );
 
