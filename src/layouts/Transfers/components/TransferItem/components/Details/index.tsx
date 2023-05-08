@@ -94,7 +94,7 @@ export const Details: React.FC<IDetailsProps> = ({
         <StyledInfoItem>
           {data?.type === InstructionType.SettleOnBlock
             ? 'Scheduled block'
-            : 'Latest block'}
+            : 'Earliest execution block'}
           <Text size="large" bold>
             {blockNumber}
           </Text>

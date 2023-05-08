@@ -130,10 +130,22 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
   const isSettleManual =
     instructionDetails?.type === InstructionType.SettleManual;
 
-  const isAllowedToSettle =
+  const isFullyAffirmed =
+    affirmationsCount === calculateCounterparties(instructionLegs);
+
+  const isAllowedToSettleManually =
     isSettleManual &&
     latestBlock > instructionDetails.endAfterBlock.toNumber() &&
-    affirmationsCount === calculateCounterparties(instructionLegs);
+    isFullyAffirmed;
+
+  const isManualCannotAffirm =
+    isSettleManual &&
+    instructionLegs.some(({ errors }) => {
+      if (errors.length === 1 && errors[0].startsWith('Block errors:')) {
+        return false;
+      }
+      return !!errors.length;
+    });
 
   const canAffirmAndExecute =
     isSettleManual &&
@@ -191,16 +203,16 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
         {type === EInstructionTypes.AFFIRMED && (
           <>
             <Button
-              disabled={detailsLoading || actionInProgress || legsHaveErrors}
+              disabled={detailsLoading || actionInProgress}
               onClick={() => executeAction(instruction.withdraw)}
             >
               <Icon name="Check" size="24px" />
               Unapprove
             </Button>
-            {isAllowedToSettle && (
+            {isAllowedToSettleManually && (
               <Button
                 variant="success"
-                disabled={actionInProgress}
+                disabled={actionInProgress || legsHaveErrors}
                 onClick={() => executeAction(instruction.executeManually)}
               >
                 <Icon name="Check" size="24px" />
@@ -213,7 +225,12 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           <>
             <Button
               variant="success"
-              disabled={detailsLoading || actionInProgress}
+              disabled={
+                detailsLoading ||
+                actionInProgress ||
+                (!isSettleManual && legsHaveErrors) ||
+                isManualCannotAffirm
+              }
               onClick={() => executeAction(instruction.affirm)}
             >
               <Icon name="Check" size="24px" />
@@ -239,7 +256,12 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
         {type === EInstructionTypes.FAILED && (
           <Button
             variant="success"
-            disabled={detailsLoading || actionInProgress || legsHaveErrors}
+            disabled={
+              detailsLoading ||
+              actionInProgress ||
+              legsHaveErrors ||
+              !isFullyAffirmed
+            }
             onClick={() => executeAction(instruction.reschedule)}
           >
             <Icon name="Check" size="24px" />

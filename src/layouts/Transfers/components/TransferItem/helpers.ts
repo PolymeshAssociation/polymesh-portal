@@ -105,7 +105,9 @@ export const getLegErrors = async ({
           return error;
         })
         .filter((value) => !!value);
-      errors.push(`General errors: ${generalErrors.join(', ')}`);
+      if (generalErrors.length) {
+        errors.push(`General errors: ${generalErrors.join(', ')}`);
+      }
     }
   } catch (error) {
     errors.push((error as Error).message);
@@ -116,7 +118,7 @@ export const getLegErrors = async ({
     instructionDetails.endAfterBlock.toNumber() > latestBlock
   ) {
     errors.push(
-      `Block errors: Latest Block must be in the past. Current block number is ${latestBlock}`,
+      `Block errors: Earliest execution block must be in the past. Current block number is ${latestBlock}`,
     );
   }
 
@@ -124,10 +126,17 @@ export const getLegErrors = async ({
     instructionDetails.type === InstructionType.SettleOnBlock &&
     instructionDetails.endBlock.toNumber() < latestBlock
   ) {
-    const status = getAffirmationStatus(affirmationsData, from.toHuman().did);
-    if (status === AffirmationStatus.Affirmed) {
+    const fromStatus = getAffirmationStatus(
+      affirmationsData,
+      from.toHuman().did,
+    );
+    const toStatus = getAffirmationStatus(affirmationsData, to.toHuman().did);
+    if (
+      !(fromStatus === AffirmationStatus.Affirmed) ||
+      !(toStatus === AffirmationStatus.Affirmed)
+    ) {
       errors.push(
-        `Block errors: Scheduled Block must be in the future. Current block number is ${latestBlock}`,
+        `Block errors: The scheduled block executed before all approvals were received. Current block number is ${latestBlock}`,
       );
     }
   }
