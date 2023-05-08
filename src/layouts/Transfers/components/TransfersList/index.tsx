@@ -162,9 +162,6 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
     }
   };
 
-  const affirmedOrPending =
-    type === EInstructionTypes.AFFIRMED || type === EInstructionTypes.PENDING;
-
   const sortInstructions = (instructions: Instruction[]) => {
     switch (sortBy) {
       case ESortOptions.NEWEST:
@@ -189,16 +186,14 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
         </SelectAllButton>
         {!!selectedItems.length && (
           <StyledButtonWrapper>
-            {affirmedOrPending && (
-              <StyledActionButton
-                isReject
-                disabled={actionInProgress}
-                onClick={() => executeBatch(EActionTypes.REJECT)}
-              >
-                <Icon name="CloseIcon" size="24px" />
-                Reject
-              </StyledActionButton>
-            )}
+            <StyledActionButton
+              isReject
+              disabled={actionInProgress}
+              onClick={() => executeBatch(EActionTypes.REJECT)}
+            >
+              <Icon name="CloseIcon" size="24px" />
+              Reject
+            </StyledActionButton>
             {type === EInstructionTypes.AFFIRMED && (
               <StyledActionButton
                 isReject
@@ -218,7 +213,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                 Approve
               </StyledActionButton>
             )}
-            {type === EInstructionTypes.FAILED && (
+            {/* {type === EInstructionTypes.FAILED && (
               <StyledActionButton
                 disabled={actionInProgress}
                 onClick={() => executeBatch(EActionTypes.RESCHEDULE)}
@@ -226,7 +221,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                 <Icon name="Check" size="24px" />
                 Reschedule
               </StyledActionButton>
-            )}
+            )} */}
           </StyledButtonWrapper>
         )}
         <StyledSelected>

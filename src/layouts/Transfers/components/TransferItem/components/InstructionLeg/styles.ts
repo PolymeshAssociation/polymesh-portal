@@ -68,6 +68,7 @@ export const StyledExpandedErrors = styled.ul`
   color: #db2c3e;
   text-transform: initial;
   cursor: initial;
+  z-index: 1;
 
   & li {
     list-style: circle;

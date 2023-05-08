@@ -45,7 +45,7 @@ export const Details: React.FC<IDetailsProps> = ({
     }
   }, [data]);
 
-  return data ? (
+  return (
     <>
       <StyledInfoItem>
         Instruction ID
@@ -92,7 +92,9 @@ export const Details: React.FC<IDetailsProps> = ({
       </StyledInfoItem>
       {blockNumber && (
         <StyledInfoItem>
-          Latest block
+          {data?.type === InstructionType.SettleOnBlock
+            ? 'Scheduled block'
+            : 'Latest block'}
           <Text size="large" bold>
             {blockNumber}
           </Text>
@@ -123,7 +125,5 @@ export const Details: React.FC<IDetailsProps> = ({
         </StyledInfoItem>
       )}
     </>
-  ) : (
-    <span>loading</span>
   );
 };

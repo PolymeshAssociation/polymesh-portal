@@ -29,6 +29,7 @@ export const StyledVenueDetails = styled.div`
   border-radius: 24px;
   border: 1px solid #c8c8c8;
   overflow-y: scroll;
+  z-index: 1;
 
   & span {
     color: ${({ theme }) => theme.colors.textSecondary};

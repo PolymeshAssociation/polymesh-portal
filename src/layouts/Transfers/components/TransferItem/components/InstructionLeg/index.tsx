@@ -20,11 +20,13 @@ import {
   EInstructionDirection,
   getAffirmationStatus,
   getLegDirection,
-  getLegErrors,
 } from './helpers';
 
 interface ILegProps {
-  data: Leg;
+  data: {
+    leg: Leg;
+    errors: string[];
+  };
   affirmationsData: InstructionAffirmation[];
 }
 interface ILegDetails {
@@ -38,21 +40,20 @@ interface ILegDetails {
 }
 
 export const InstructionLeg: React.FC<ILegProps> = ({
-  data,
+  data: { leg, errors },
   affirmationsData,
 }) => {
   const { identity } = useContext(AccountContext);
   const [legDetails, setLegDetails] = useState<ILegDetails | null>(null);
-  const [legErrors, setLegErrors] = useState<string[]>([]);
   const [legErrorExpanded, setLegErrorExpanded] = useState(false);
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
 
   useEffect(() => {
-    if (!data || !identity) return;
+    if (!leg || !identity) return;
 
     (async () => {
-      const { from, to, amount, asset } = data;
+      const { from, to, amount, asset } = leg;
       let fromName = '';
       let toName = '';
       try {
@@ -69,10 +70,6 @@ export const InstructionLeg: React.FC<ILegProps> = ({
       } catch (error) {
         toName = `${to.toHuman().id} / unknown`;
       }
-      const errors = await getLegErrors({ data, affirmationsData });
-      if (errors.length) {
-        setLegErrors(errors);
-      }
 
       const parsedData = {
         sendingDid: from.toHuman().did,
@@ -86,7 +83,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
 
       setLegDetails(parsedData);
     })();
-  }, [affirmationsData, data, identity]);
+  }, [affirmationsData, leg, identity]);
   return legDetails ? (
     <StyledLeg>
       <StyledInfoItem>
@@ -150,7 +147,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
           {legDetails.amount}
         </Text>
       </StyledInfoItem>
-      {legErrors.length ? (
+      {errors.length ? (
         <StyledLabel
           isError
           onMouseEnter={() => setLegErrorExpanded(true)}
@@ -159,7 +156,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
           Error
           {legErrorExpanded && (
             <StyledExpandedErrors>
-              {legErrors.map((error) => (
+              {errors.map((error) => (
                 <li key={error}>{error}</li>
               ))}
             </StyledExpandedErrors>
