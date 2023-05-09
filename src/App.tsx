@@ -44,7 +44,7 @@ const WrappedApp = () => {
           <AuthorizationsProvider>
             <InstructionsProvider>
               <ClaimsProvider>
-              <AppThemeProvider>
+                <AppThemeProvider>
                   <ApolloProvider client={gqlClient}>
                     <Suspense fallback="loading...">
                       <BrowserRouter>
@@ -53,8 +53,8 @@ const WrappedApp = () => {
                     </Suspense>
                   </ApolloProvider>
                 </AppThemeProvider>
+              </ClaimsProvider>
             </InstructionsProvider>
-            </ClaimsProvider>
           </AuthorizationsProvider>
         </PortfolioProvider>
       </AccountProvider>

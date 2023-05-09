@@ -8,8 +8,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { Modal } from '~/components';
-import { Heading, Button, Text } from '~/components/UiKit';
-import DropdownSelect from './components/DropdownSelect';
+import { Heading, Button, Text, DropdownSelect } from '~/components/UiKit';
 import { NewClaimItem } from './components/NewClaimItem';
 import {
   StyledScrollableWrapper,
