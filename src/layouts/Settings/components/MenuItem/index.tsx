@@ -8,7 +8,7 @@ import {
 } from './styles';
 
 interface IMenuItemProps {
-  iconName: TIcons;
+  iconName?: TIcons;
   description: string;
   value: React.ReactNode;
 }
@@ -20,9 +20,11 @@ export const MenuItem: React.FC<IMenuItemProps> = ({
 }) => {
   return (
     <StyledWrapper>
-      <IconWrapper>
-        <Icon name={iconName} size="24px" />
-      </IconWrapper>
+      {!!iconName && (
+        <IconWrapper>
+          <Icon name={iconName} size="24px" />
+        </IconWrapper>
+      )}
       <StyledDescription>
         {description}
         <StyledValue>{value}</StyledValue>

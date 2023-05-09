@@ -49,7 +49,7 @@ export const StyledActionButton = styled.button<{ marginTop?: number }>`
   color: ${({ theme }) => theme.colors.textBlue};
 
   &:disabled {
-    ${({ theme }) => theme.colors.textDisabled};
+    color: ${({ theme }) => theme.colors.textDisabled};
   }
 `;
 

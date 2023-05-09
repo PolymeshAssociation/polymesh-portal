@@ -18,12 +18,14 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     useState<BrowserExtensionSigningManager | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [initialized, setInitialized] = useState(false);
-  const [walletError, setWalletError] = useState('');
   const [defaultExtension, setDefaultExtension] = useLocalStorage<string>(
     'defaultExtension',
     '',
   );
-  const [nodeUrl, setNodeUrl] = useState<string>(import.meta.env.VITE_NODE_URL);
+  const [nodeUrl, setNodeUrl] = useLocalStorage<string>(
+    'rpcUrl',
+    import.meta.env.VITE_NODE_URL,
+  );
 
   // Create the browser extension signing manager.
   const connectWallet = useCallback(
@@ -91,7 +93,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       state: {
         connecting,
         initialized,
-        walletError,
       },
       api: { sdk, signingManager },
       settings: {
@@ -105,7 +106,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     [
       connecting,
       initialized,
-      walletError,
       sdk,
       signingManager,
       connectWallet,

@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { useNetwork, useNotifications } from '~/hooks/polymesh';
+import { useContext, useEffect, useState } from 'react';
+import { NetworkInfo } from '@polymeshassociation/browser-extension-signing-manager/types';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { useNotifications } from '~/hooks/polymesh';
 import { Icon } from '~/components';
 import { NotificationCounter } from '../UiKit';
 import {
@@ -13,14 +15,31 @@ import {
   ExpandedLinks,
   StyledExpandedLink,
   SoonLabel,
+  WarningLabel,
 } from './styles';
 import { NAV_LINKS } from '~/constants/routes';
 
 const Sidebar = () => {
-  const { networkName, networkLoading } = useNetwork();
+  const {
+    api: { signingManager },
+    settings: { nodeUrl },
+  } = useContext(PolymeshContext);
+  const [networkInfo, setNetworkInfo] = useState<NetworkInfo | null>(null);
+  const [networkLoading, setNetworkLoading] = useState(true);
   const { count } = useNotifications();
   const [fullWidth, setFullWidth] = useState(true);
   const [linksExpanded, setLinksExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!signingManager) return;
+
+    (async () => {
+      setNetworkLoading(true);
+      const network = await signingManager.getCurrentNetwork();
+      setNetworkInfo(network);
+      setNetworkLoading(false);
+    })();
+  }, [signingManager]);
 
   const toggleSidebarWidth = () => setFullWidth((prev) => !prev);
   const expandPopup = () => setLinksExpanded(true);
@@ -40,8 +59,14 @@ const Sidebar = () => {
       <StyledNetworkWrapper fullWidth={fullWidth}>
         <StyledNetworkStatus fullWidth={fullWidth}>
           <StatusDot isLoading={networkLoading} fullWidth={fullWidth} />
-          {networkLoading ? '' : <span>{networkName}</span>}
+          {networkInfo ? <span>{networkInfo.label}</span> : ''}
         </StyledNetworkStatus>
+        {nodeUrl !== import.meta.env.VITE_NODE_URL && (
+          <WarningLabel className="warning">
+            <Icon name="Alert" size="16px" />
+            Custom node URL
+          </WarningLabel>
+        )}
       </StyledNetworkWrapper>
       <nav>
         <StyledNavList fullWidth={fullWidth}>

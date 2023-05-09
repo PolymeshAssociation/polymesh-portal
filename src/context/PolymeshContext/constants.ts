@@ -10,7 +10,6 @@ export interface IPolymeshContext {
   state: {
     connecting: boolean;
     initialized: boolean;
-    walletError: string;
   };
   api: {
     sdk: Polymesh | null;
@@ -29,7 +28,6 @@ export const initialState = {
   state: {
     connecting: false,
     initialized: false,
-    walletError: '',
   },
   api: {
     sdk: null,

@@ -1,8 +1,14 @@
 import { useContext, useState } from 'react';
-import { Modal } from '~/components';
+import { Modal, Icon } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { StyledButtonWrapper, StyledValue, StyledInput } from './styles';
+import {
+  StyledButtonWrapper,
+  StyledValue,
+  StyledInput,
+  StyledLabel,
+  StyledActionButton,
+} from './styles';
 
 export const RpcUrl = () => {
   const {
@@ -15,12 +21,26 @@ export const RpcUrl = () => {
 
   const handleApply = () => {
     setNodeUrl(rpcUrl);
+    setRpcUrl('');
+    toggleModal();
+  };
+
+  const handleResetToDefault = () => {
+    setNodeUrl(import.meta.env.VITE_NODE_URL);
     toggleModal();
   };
 
   return (
     <>
-      <StyledValue onClick={toggleModal}>{nodeUrl}</StyledValue>
+      <StyledValue onClick={toggleModal}>
+        {nodeUrl}
+        {nodeUrl !== import.meta.env.VITE_NODE_URL && (
+          <StyledLabel>
+            <Icon name="Alert" size="18px" />
+            Custom URL
+          </StyledLabel>
+        )}
+      </StyledValue>
       {editRpcExpanded && (
         <Modal handleClose={toggleModal}>
           <Heading type="h4" marginBottom={48}>
@@ -31,6 +51,14 @@ export const RpcUrl = () => {
             value={rpcUrl}
             onChange={({ target }) => setRpcUrl(target.value)}
           />
+          <StyledActionButton
+            marginTop={24}
+            disabled={nodeUrl === import.meta.env.VITE_NODE_URL}
+            onClick={handleResetToDefault}
+          >
+            <Icon name="Check" />
+            Reset to Default
+          </StyledActionButton>
           <StyledButtonWrapper>
             <Button variant="modalSecondary" onClick={toggleModal}>
               Cancel

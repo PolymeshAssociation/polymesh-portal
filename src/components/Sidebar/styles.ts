@@ -42,6 +42,20 @@ export const StyledNetworkWrapper = styled.div<{ fullWidth: boolean }>`
   margin: 0 auto 34px auto;
   border-radius: 100px;
   background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
+
+  & .warning {
+    transition: text-indent 250ms ease-out 100ms;
+  }
+
+  ${({ fullWidth }) =>
+    fullWidth
+      ? ''
+      : `
+      & .warning {
+        gap: 0;
+        text-indent: -300px;
+      }
+  `}
 `;
 export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
   position: absolute;
@@ -224,7 +238,7 @@ export const StyledExpandedLink = styled.button<{ disabled?: boolean }>`
   transition: background-color 250ms ease-out, color 250ms ease-out;
 
   &:hover {
-    background-color: ${({ theme }) => theme.colors.lightAccent};
+    background-color: ${({ theme }) => theme.colors.shadow};
   }
 
   & .link-icon {
@@ -255,4 +269,16 @@ export const SoonLabel = styled.div`
   font-weight: 500;
   font-size: 12px;
   color: #43195b;
+`;
+
+export const WarningLabel = styled(SoonLabel)`
+  top: -90%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  min-width: 24px;
+  padding: 0 6px;
+  gap: 4px;
+  background-color: #fbf3d0;
+  color: #e3a30c;
 `;

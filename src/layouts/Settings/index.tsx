@@ -1,4 +1,7 @@
+/* eslint-disable no-underscore-dangle */
+import { useContext, useEffect, useState } from 'react';
 import { Text } from '~/components/UiKit';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import { BlockedWallets } from './components/BlockedWallets';
 import { DefaultAddress } from './components/DefaultAddress';
 import { DefaultWallet } from './components/DefaultWallet';
@@ -7,7 +10,49 @@ import { RpcUrl } from './components/RpcUrl';
 import { ThemeToggle } from './components/ThemeToggle';
 import { StyledMenuList, StyledSettings } from './styles';
 
+interface IChainInfo {
+  runtime: {
+    name: string;
+    version: string;
+  };
+  chain: string;
+  system: {
+    name: string;
+    version: string;
+  };
+}
+
 const Settings = () => {
+  const {
+    api: { sdk },
+  } = useContext(PolymeshContext);
+  const [chainInfo, setChainInfo] = useState<IChainInfo | null>(null);
+  const [infoLoading, setInfoLoading] = useState(true);
+  useEffect(() => {
+    if (!sdk) return;
+
+    (async () => {
+      setInfoLoading(true);
+      const runtimeVersion = (
+        await sdk._polkadotApi.rpc.state.getRuntimeVersion()
+      ).toHuman();
+
+      const info = {
+        runtime: {
+          name: runtimeVersion.specName as string,
+          version: runtimeVersion.specVersion as string,
+        },
+        chain: (await sdk._polkadotApi.rpc.system.name()).toHuman(),
+        system: {
+          name: (await sdk._polkadotApi.rpc.system.name()).toHuman(),
+          version: (await sdk._polkadotApi.rpc.system.version()).toHuman(),
+        },
+      };
+
+      setChainInfo(info);
+      setInfoLoading(false);
+    })();
+  }, [sdk]);
   return (
     <StyledSettings>
       <Text size="large" bold color="secondary" marginBottom={28}>
@@ -47,18 +92,34 @@ const Settings = () => {
           value={<ThemeToggle />}
         />
       </StyledMenuList>
-      <Text
-        size="large"
-        bold
-        color="secondary"
-        marginTop={40}
-        marginBottom={12}
-      >
-        Connected Chain Information
-      </Text>
-      <Text size="large" bold>
-        Test example
-      </Text>
+      {!!chainInfo && (
+        <>
+          <Text
+            size="large"
+            bold
+            color="secondary"
+            marginTop={40}
+            marginBottom={28}
+          >
+            Connected Chain Information
+          </Text>
+          {infoLoading ? (
+            'loading'
+          ) : (
+            <StyledMenuList>
+              <MenuItem
+                description="Runtime version"
+                value={`${chainInfo.runtime.name}/${chainInfo.runtime.version}`}
+              />
+              <MenuItem description="Chain" value={chainInfo.chain} />
+              <MenuItem
+                description="System version"
+                value={`${chainInfo.system.name} - ${chainInfo.system.version}`}
+              />
+            </StyledMenuList>
+          )}
+        </>
+      )}
     </StyledSettings>
   );
 };
