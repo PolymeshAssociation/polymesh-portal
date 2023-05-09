@@ -29,8 +29,7 @@ export const BASIC_FORM_CONFIG = {
       recipient: yup
         .string()
         .required('Recipient is required')
-        .min(66, 'Recipiend DID must be valid')
-        .max(66, 'Recipiend DID must be valid'),
+        .matches(/^0x[0-9a-fA-F]{64}$/, 'Recipient DID must be a valid'),
       memo: yup.string().max(32, 'Memo must be 32 characters or less'),
     }),
   ),

@@ -148,11 +148,14 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       return;
     }
 
-    if (did.length < 66) {
-      setIdentityError((prev) => ({ ...prev, [role]: 'DID must be valid' }));
+    // test that the DID is hexadecimal and the correct length
+    if (!/^0x[0-9a-fA-F]{64}$/.test(did)) {
+      setIdentityError((prev) => ({
+        ...prev,
+        [role]: 'DID must be a valid',
+      }));
       return;
     }
-
     const isValid = await sdk.identities.isIdentityValid({ identity: did });
 
     if (isValid) {
