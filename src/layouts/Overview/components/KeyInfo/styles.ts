@@ -18,6 +18,12 @@ export const StyledWrapper = styled.div`
       color: rgba(255, 255, 255, 0.82);
     }
   }
+
+  & .key-name {
+    color: ${({ theme }) => theme.colors.textPrimary};
+    font-weight: 500;
+    text-transform: uppercase;
+  }
 `;
 
 export const IconWrapper = styled.div<{ size?: string }>`

@@ -1,5 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
-import { NetworkInfo } from '@polymeshassociation/browser-extension-signing-manager/types';
+import {
+  NetworkInfo,
+  UnsubCallback,
+} from '@polymeshassociation/browser-extension-signing-manager/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useNotifications } from '~/hooks/polymesh';
 import { Icon } from '~/components';
@@ -18,6 +21,7 @@ import {
   WarningLabel,
 } from './styles';
 import { NAV_LINKS } from '~/constants/routes';
+import { notifyError } from '~/helpers/notifications';
 
 const Sidebar = () => {
   const {
@@ -31,14 +35,31 @@ const Sidebar = () => {
   const [linksExpanded, setLinksExpanded] = useState(false);
 
   useEffect(() => {
-    if (!signingManager) return;
+    if (!signingManager) return undefined;
+
+    let unsubCb: UnsubCallback | undefined;
 
     (async () => {
-      setNetworkLoading(true);
-      const network = await signingManager.getCurrentNetwork();
-      setNetworkInfo(network);
-      setNetworkLoading(false);
+      try {
+        setNetworkLoading(true);
+        const network = await signingManager.getCurrentNetwork();
+
+        unsubCb = signingManager.onNetworkChange((newNetwork) => {
+          setNetworkInfo(newNetwork);
+        });
+
+        setNetworkInfo(network);
+      } catch (error) {
+        notifyError((error as Error).message);
+      } finally {
+        setNetworkLoading(false);
+      }
     })();
+
+    if (unsubCb) {
+      return unsubCb;
+    }
+    return undefined;
   }, [signingManager]);
 
   const toggleSidebarWidth = () => setFullWidth((prev) => !prev);

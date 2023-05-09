@@ -5,9 +5,11 @@ import {
   Identity,
   UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 import { PolymeshContext } from '../PolymeshContext';
 import AccountContext from './context';
-import { notifyError } from '~/helpers/notifications';
+import { notifyGlobalError } from '~/helpers/notifications';
 import { IBalanceByKey } from './constants';
 import { useLocalStorage } from '~/hooks/utility';
 
@@ -23,6 +25,9 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [account, setAccount] = useState<Account | MultiSig | null>(null);
   const [selectedAccount, setSelectedAccount] = useState('');
   const [allAccounts, setAllAccounts] = useState<string[]>([]);
+  const [allAccountsWithMeta, setAllAccountsWithMeta] = useState<
+    InjectedAccountWithMeta[]
+  >([]);
   const [defaultAccount, setDefaultAccount] = useLocalStorage(
     'defaultAccount',
     '',
@@ -50,9 +55,11 @@ const AccountProvider = ({ children }: IProviderProps) => {
     (async () => {
       try {
         const connectedAccounts = await signingManager.getAccounts();
+        const accountsWithMeta = await signingManager.getAccountsWithMeta();
         setAllAccounts(connectedAccounts);
+        setAllAccountsWithMeta(accountsWithMeta);
       } catch (error) {
-        notifyError((error as Error).message);
+        notifyGlobalError((error as Error).message);
       }
     })();
   }, [initialized, signingManager]);
@@ -65,7 +72,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
       const [firstAccount] = newAccounts;
       signerRef.current = firstAccount.toString();
       setAllAccounts(newAccounts.map((acc) => acc.toString()));
-    });
+      setAllAccountsWithMeta(newAccounts as InjectedAccountWithMeta[]);
+    }, true);
 
     return () => unsubCb();
   }, [initialized, signingManager]);
@@ -109,7 +117,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
         const multiSig = await accountInstance.getMultiSig();
         setAccountIsMultisigSigner(!!multiSig);
       } catch (error) {
-        notifyError((error as Error).message);
+        notifyGlobalError((error as Error).message);
       }
     })();
   }, [sdk, selectedAccount]);
@@ -146,7 +154,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
         setIdentity(accIdentity);
         setAllIdentities(uniqueIdentities);
       } catch (error) {
-        notifyError((error as Error).message);
+        notifyGlobalError((error as Error).message);
       } finally {
         setIdentityLoading(false);
       }
@@ -245,6 +253,9 @@ const AccountProvider = ({ children }: IProviderProps) => {
       allAccounts: allAccounts.filter(
         (address) => !blockedWallets.includes(address),
       ),
+      allAccountsWithMeta: allAccountsWithMeta.filter(
+        ({ address }) => !blockedWallets.includes(address),
+      ),
       setSelectedAccount,
       defaultAccount,
       setDefaultAccount,
@@ -265,6 +276,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       account,
       selectedAccount,
       allAccounts,
+      allAccountsWithMeta,
       identity,
       allIdentities,
       defaultAccount,

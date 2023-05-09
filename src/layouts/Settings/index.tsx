@@ -33,19 +33,22 @@ const Settings = () => {
 
     (async () => {
       setInfoLoading(true);
-      const runtimeVersion = (
-        await sdk._polkadotApi.rpc.state.getRuntimeVersion()
-      ).toHuman();
+      const runtimeVersion = sdk._polkadotApi.runtimeVersion.toHuman();
 
       const info = {
         runtime: {
           name: runtimeVersion.specName as string,
           version: runtimeVersion.specVersion as string,
         },
-        chain: (await sdk._polkadotApi.rpc.system.name()).toHuman(),
+        chain: sdk._polkadotApi.runtimeChain.toHuman(),
         system: {
-          name: (await sdk._polkadotApi.rpc.system.name()).toHuman(),
-          version: (await sdk._polkadotApi.rpc.system.version()).toHuman(),
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          name: (await sdk._polkadotApi.rpc.system.name()).toHuman() as string,
+          version:
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            (await sdk._polkadotApi.rpc.system.version()).toHuman() as string,
         },
       };
 
