@@ -22,6 +22,11 @@ a {
   color: inherit;
 }
 
+input {
+  font-family: inherit;
+  outline: none;
+}
+
 button {
   border: none;
   font-family: inherit;

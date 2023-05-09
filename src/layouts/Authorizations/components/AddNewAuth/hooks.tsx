@@ -51,11 +51,7 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
             [INPUT_NAMES.TARGET]: yup
               .string()
               .required('Target is required')
-              .test(
-                'length',
-                'Target must be valid DID',
-                (value) => value.length === 66,
-              ),
+              .matches(/^0x[0-9a-fA-F]{64}$/, 'Target must be valid DID'),
             [INPUT_NAMES.TICKER]: yup.string().required('Ticker is required'),
           }),
         ),
@@ -71,11 +67,7 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
             [INPUT_NAMES.TARGET]: yup
               .string()
               .required('Target is required')
-              .test(
-                'length',
-                'Target must be valid DID',
-                (value) => value.length === 66,
-              ),
+              .matches(/^0x[0-9a-fA-F]{64}$/, 'Target must be valid DID'),
             [INPUT_NAMES.ASSET]: yup.string().required('Asset is required'),
           }),
         ),
@@ -113,11 +105,7 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
             [INPUT_NAMES.TARGET_IDENTITY]: yup
               .string()
               .required('Target is required')
-              .test(
-                'length',
-                'Target must be valid DID',
-                (value) => value.length === 66,
-              ),
+              .matches(/^0x[0-9a-fA-F]{64}$/, 'Target must be valid DID'),
             [INPUT_NAMES.PORTFOLIO]: yup
               .string()
               .required('Portfolio is required'),
@@ -138,11 +126,7 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
             [INPUT_NAMES.TARGET]: yup
               .string()
               .required('Target is required')
-              .test(
-                'length',
-                'Target must be valid DID',
-                (value) => value.length === 66,
-              ),
+              .matches(/^0x[0-9a-fA-F]{64}$/, 'Target must be valid DID'),
             [INPUT_NAMES.PERMISSIONS]: yup
               .string()
               .required('Permission is required'),

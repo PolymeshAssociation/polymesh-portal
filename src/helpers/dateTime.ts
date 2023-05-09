@@ -7,3 +7,7 @@ export const toRelativeTime = (timestamp: number) => {
 export const toParsedDateTime = (timestamp: string | number) => {
   return moment(timestamp).format('YYYY-MM-DD hh:mm:ss');
 };
+
+export const toParsedDate = (timestamp: string | number) => {
+  return moment(timestamp).format('MMM D, YYYY');
+};

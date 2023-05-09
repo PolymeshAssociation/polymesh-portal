@@ -54,10 +54,12 @@ export const PortfolioInfo = () => {
             <Heading type="h3" transform="capitalize">
               {selectedPortfolio.name}
             </Heading>
-            <StyledDetails>
-              Portfolio ID:
-              <span>{selectedPortfolio.id?.replace('default', '0') || 0}</span>
-            </StyledDetails>
+            {selectedPortfolio.id === 'default' ? null : (
+              <StyledDetails>
+                Portfolio ID:
+                <span>{selectedPortfolio.id || ''}</span>
+              </StyledDetails>
+            )}
           </StyledPortfolioInfo>
           <StyledPortfolioInfo>
             {selectedPortfolio.assets.length} token(s)

@@ -8,6 +8,8 @@
 .Toastify__toast-container {
     position: static;
     padding: 0;
+    width: auto;
+    max-width: 400px;
 }
 
 .Toastify__toast {
