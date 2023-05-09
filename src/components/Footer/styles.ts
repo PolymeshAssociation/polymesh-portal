@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 export const StyledFooter = styled.footer<{ isLandingPage: boolean }>`
-  border-top: 2px solid #f0f0f0;
-  color: #727272;
+  border-top: 2px solid ${({ theme }) => theme.colors.lightAccent};
+  color: ${({ theme }) => theme.colors.textSecondary};
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   ${({ isLandingPage }) =>
     isLandingPage &&

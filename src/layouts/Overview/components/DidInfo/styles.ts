@@ -57,8 +57,8 @@ export const StyledVerifiedLabel = styled.div`
   width: 54px;
   height: 16px;
   border-radius: 4px;
-  background-color: #d4f7e7;
-  color: #00aa5e;
+  background-color: ${({ theme }) => theme.colors.successBackground};
+  color: ${({ theme }) => theme.colors.textSuccess};
   font-size: 12px;
 `;
 

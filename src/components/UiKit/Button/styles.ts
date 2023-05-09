@@ -6,7 +6,7 @@ export const StyledButton = styled.button<{
   marginTop?: number;
   marginBottom?: number;
 }>`
-  ${({ variant, marginTop, marginBottom }) => `
+  ${({ variant, marginTop, marginBottom, theme }) => `
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -18,19 +18,20 @@ export const StyledButton = styled.button<{
   ${
     variant === EButtonVariants.PRIMARY
       ? `
-    color: #FF2E72;
-    background: #FFEBF1;  
+    color: ${theme.colors.textPink};
+    background: ${theme.colors.pinkBackground};  
 
     &:hover:enabled, &:focus:enabled {
-      background: #FF2E72;
-      color: #FFEBF1;
+      background: ${theme.colors.textPink};
+      color: ${theme.colors.pinkBackground};
     }
     &:active:enabled {
 
     }
     &:disabled {
-      background: #F0F0F0;
-      color: #8F8F8F;
+      border: 1px solid ${theme.colors.textDisabled};
+      background: ${theme.colors.disabledBackground};
+      color: ${theme.colors.textDisabled};
     }
 
     `
@@ -49,7 +50,9 @@ export const StyledButton = styled.button<{
       background: #DCD3FF;
     }
     &:disabled {
-      color: #8F8F8F;
+      border: 1px solid ${theme.colors.textDisabled};
+      background: ${theme.colors.disabledBackground};
+      color: ${theme.colors.textDisabled};
     }
     `
       : ''
@@ -68,8 +71,9 @@ export const StyledButton = styled.button<{
       box-shadow: 0px 12px 24px transparent;
     }
     &:disabled {
-      background: #F0F0F0;
-      color: #8F8F8F;
+      border: 1px solid ${theme.colors.textDisabled};
+      background: ${theme.colors.disabledBackground};
+      color: ${theme.colors.textDisabled};
       box-shadow: 0px 12px 24px transparent;
     }
 
@@ -90,8 +94,9 @@ export const StyledButton = styled.button<{
       background: #DCD3FF;
     }
     &:disabled {
-      border: 1px solid #F0F0F0;
-      color: #8F8F8F;
+      background: ${theme.colors.disabledBackground};
+      border: 1px solid ${theme.colors.textDisabled};
+      color: ${theme.colors.textDisabled};
     }
     `
       : ''
@@ -110,8 +115,8 @@ export const StyledButton = styled.button<{
       box-shadow: 0px 12px 24px transparent;
     }
     &:disabled {
-      background: #F0F0F0;
-      color: #8F8F8F;
+      background: ${theme.colors.disabledBackground};
+      color: ${theme.colors.textDisabled};
       box-shadow: 0px 12px 24px transparent;
     }
     `
@@ -129,7 +134,9 @@ export const StyledButton = styled.button<{
     &:active:enabled {
     }
     &:disabled {
-      color: #8F8F8F;
+      border: 1px solid ${theme.colors.textDisabled};
+      background: ${theme.colors.disabledBackground};
+      color: ${theme.colors.textDisabled};
     }
     `
       : ''
@@ -137,17 +144,18 @@ export const StyledButton = styled.button<{
   ${
     variant === EButtonVariants.SUCCESS
       ? `
-    color: #00AA5E;
-    background: #D4F7E7;
+    color: ${theme.colors.textSuccess};
+    background: ${theme.colors.successBackground};
 
     &:hover:enabled, &:focus:enabled {
-      color: #D4F7E7;
-      background: #00AA5E;
+      color: ${theme.colors.successBackground};
+      background: ${theme.colors.textSuccess};
     }
   
     &:disabled {
-      background: #F0F0F0;
-      color: #8F8F8F;
+      border: 1px solid ${theme.colors.textDisabled};
+      background: ${theme.colors.disabledBackground};
+      color: ${theme.colors.textDisabled};
     }
     `
       : ''

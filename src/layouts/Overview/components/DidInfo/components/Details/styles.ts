@@ -19,10 +19,10 @@ export const IconWrapper = styled.div<{ size?: string }>`
   background-color: ${({ theme }) => theme.colors.landingBackground};
 
   & .id-icon {
-    color: #ff2e72;
+    color: ${({ theme }) => theme.colors.textPink};
   }
   & .copy-icon {
-    color: #727272;
+    color: ${({ theme }) => theme.colors.textSecondary};
   }
 `;
 
@@ -66,8 +66,8 @@ export const StyledVerifiedLabel = styled.div`
   width: 54px;
   height: 16px;
   border-radius: 4px;
-  background-color: #d4f7e7;
-  color: #00aa5e;
+  background-color: ${({ theme }) => theme.colors.successBackground};
+  color: ${({ theme }) => theme.colors.textSuccess};
   font-size: 12px;
 `;
 
@@ -149,23 +149,23 @@ export const StyledLabel = styled.div<{
   border-radius: 100px;
   font-weight: 500;
   font-size: 12px;
-  ${({ isPrimary }) =>
+  ${({ isPrimary, theme }) =>
     isPrimary
       ? `
     border: 1px solid #FAD1DC;
-    color: #EC4673;
+    color: ${theme.colors.textPink};
   `
       : `
     border: 1px solid #DCD3FF;
-    color: #170087;
+    color: ${theme.colors.textBlue};
   `}
-  ${({ available }) =>
+  ${({ available, theme }) =>
     available
       ? `
     place-self: flex-end;
-    border: 1px solid #D4F7E7;
-    background-color: #D4F7E7;
-    color: #00AA5E;
+    border: 1px solid ${theme.colors.successBackground};
+    background-color: ${theme.colors.successBackground};
+    color: ${theme.colors.textSuccess};
   `
       : ''}
 `;

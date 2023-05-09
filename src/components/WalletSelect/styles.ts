@@ -132,7 +132,9 @@ export const StyledLabel = styled.label<{
             ? `background-color: ${theme.colors.dashboardBackground};`
             : ''
         }`
-      : `${selected ? `background-color: #ffebf1;` : ''}`}
+      : `${
+          selected ? `background-color: ${theme.colors.pinkBackground};` : ''
+        }`}
 
   cursor: pointer;
   transition: background-color 250ms ease-out;
@@ -140,7 +142,7 @@ export const StyledLabel = styled.label<{
     ${({ theme, placement }) =>
       placement === ESelectPlacements.HEADER
         ? `background-color: ${theme.colors.dashboardBackground}`
-        : 'background-color: #ffebf1;'}
+        : `background-color: ${theme.colors.pinkBackground};`}
   }
 `;
 

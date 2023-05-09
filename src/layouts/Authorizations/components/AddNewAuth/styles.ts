@@ -60,12 +60,13 @@ export const StyledTypeOption = styled.button<{ isSelected?: boolean }>`
   font-size: 14px;
   text-align: left;
   transition: background-color 250ms ease-out;
+  color: ${({ theme }) => theme.colors.textPrimary};
 
   &:hover:enabled {
     background-color: ${({ theme }) => theme.colors.dashboardBackground};
   }
   &:disabled {
-    color: #8f8f8f;
+    color: ${({ theme }) => theme.colors.textDisabled};
   }
   &:not(:first-child) {
     margin-top: 8px;

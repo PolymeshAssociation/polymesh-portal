@@ -142,7 +142,7 @@ export const UseMaxButton = styled.button`
   justify-content: center;
   padding: 8px;
   background-color: transparent;
-  color: #170087;
+  color: ${({ theme }) => theme.colors.textBlue};
 `;
 
 export const StyledMemoLabel = styled.div<{ expanded: boolean }>`

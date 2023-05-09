@@ -55,7 +55,7 @@ export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
   padding: 0 0 0 28px;
   border-radius: 100px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
-  color: #43195b;
+  color: ${({ theme }) => theme.colors.textPink};
   font-weight: 500;
   font-size: 14px;
 
@@ -164,27 +164,26 @@ export const StyledNavLink = styled(NavLink)<{ disabled?: boolean }>`
   font-weight: 500;
   font-size: 14px;
   color: ${({ theme, disabled }) =>
-    disabled ? `#C7C7C7;` : theme.colors.textSecondary};
+    disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
   ${({ disabled }) => (disabled ? 'pointer-events: none;' : '')}
-
   transition: background-color 250ms ease-out, color 250ms ease-out,
     text-indent 250ms ease-out 100ms;
 
   &:hover {
-    background-color: #f0f0f0;
+    background-color: ${({ theme }) => theme.colors.lightAccent};
   }
 
   & .link-icon {
     color: ${({ theme, disabled }) =>
-      disabled ? `#C7C7C7;` : theme.colors.textSecondary};
+      disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
     transition: color 250ms ease-out;
   }
   &.active {
-    background-color: #ffebf1;
-    color: #1e1e1e;
+    background-color: ${({ theme }) => theme.colors.pinkBackground};
+    color: ${({ theme }) => theme.colors.textPrimary};
 
     & .link-icon {
-      color: #ff2e72;
+      color: ${({ theme }) => theme.colors.textPink};
     }
   }
   & span {
@@ -219,26 +218,25 @@ export const StyledExpandedLink = styled.button<{ disabled?: boolean }>`
   font-size: 14px;
   background-color: transparent;
   color: ${({ theme, disabled }) =>
-    disabled ? `#C7C7C7;` : theme.colors.textSecondary};
+    disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
   ${({ disabled }) => (disabled ? 'pointer-events: none;' : '')}
 
   transition: background-color 250ms ease-out, color 250ms ease-out;
 
   &:hover {
-    background-color: #f0f0f0;
+    background-color: ${({ theme }) => theme.colors.lightAccent};
   }
 
   & .link-icon {
     color: ${({ theme, disabled }) =>
-      disabled ? `#C7C7C7;` : theme.colors.textSecondary};
+      disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
     transition: color 250ms ease-out;
   }
   &.active {
-    background-color: #ffebf1;
-    color: #1e1e1e;
-
+    background-color: ${({ theme }) => theme.colors.pinkBackground};
+    color: ${({ theme }) => theme.colors.textPrimary};
     & .link-icon {
-      color: #ff2e72;
+      color: ${({ theme }) => theme.colors.textPink};
     }
   }
 `;

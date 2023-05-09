@@ -68,7 +68,8 @@ export const StyledLabel = styled.label<{ selected: boolean }>`
   padding: 12px 16px;
   border-radius: 62px;
   font-size: 14px;
-  ${({ selected }) => (selected ? `background-color: #ffebf1;` : '')}
+  ${({ selected, theme }) =>
+    selected ? `background-color: ${theme.colors.pinkBackground};` : ''}
   cursor: pointer;
   transition: background-color 250ms ease-out;
 
@@ -77,7 +78,7 @@ export const StyledLabel = styled.label<{ selected: boolean }>`
   }
 
   &:hover {
-    background-color: #ffebf1;
+    background-color: ${({ theme }) => theme.colors.pinkBackground};
   }
 `;
 

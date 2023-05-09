@@ -9,11 +9,11 @@ export const StatusLabel = styled.div<{ success?: boolean }>`
   border-radius: 100px;
   font-weight: 500;
   font-size: 12px;
-  ${({ success }) =>
+  ${({ success, theme }) =>
     success
       ? `
-        background-color: #d4f7e7;
-        color: #00aa5e;`
+        background-color: ${theme.colors.successBackground};
+        color: ${theme.colors.textSuccess};`
       : `
         background-color: #FAE6E8;
         color: #DB2C3E;
@@ -26,7 +26,7 @@ export const IdCellWrapper = styled.span`
   gap: 10px;
 
   &:hover {
-    color: blue;
+    color: ${({ theme }) => theme.colors.textBlue};
     text-decoration: underline;
     cursor: pointer;
   }
@@ -39,8 +39,8 @@ export const IconWrapper = styled.div`
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background-color: #fbfbfb;
-  color: #727272;
+  background-color: ${({ theme }) => theme.colors.dashboardBackground};
+  color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 export const StyledTime = styled.span`

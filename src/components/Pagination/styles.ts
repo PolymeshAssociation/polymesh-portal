@@ -11,7 +11,7 @@ export const StyledPaginationButton = styled.button`
   display: flex;
   padding: 0;
   background-color: transparent;
-  color: #1e1e1e;
+  color: ${({ theme }) => theme.colors.textPrimary};
   transition: color 250ms ease-out;
 
   &:hover {
@@ -19,6 +19,6 @@ export const StyledPaginationButton = styled.button`
   }
 
   &:disabled {
-    color: #c7c7c7;
+    color: ${({ theme }) => theme.colors.textDisabled};
   }
 `;

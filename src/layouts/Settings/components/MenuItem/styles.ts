@@ -20,13 +20,13 @@ export const IconWrapper = styled.div`
   justify-content: center;
   width: 40px;
   height: 40px;
-  background-color: #ffebf1;
+  background-color: ${({ theme }) => theme.colors.pinkBackground};
   border-radius: 50%;
-  color: #ff2e72;
+  color: ${({ theme }) => theme.colors.textPink};
 `;
 
 export const StyledValue = styled.div`
-  color: #ff2e72;
+  color: ${({ theme }) => theme.colors.textPink};
   font-weight: 500;
   margin-left: auto;
 `;

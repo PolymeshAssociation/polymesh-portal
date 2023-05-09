@@ -23,7 +23,7 @@ export const StyledLabel = styled.label<{ disabled: boolean }>`
   & .checkbox-icon {
     width: 13px;
     height: 13px;
-    background-color: #ff2e72;
+    background-color: ${({ theme }) => theme.colors.textPink};
     border-radius: 1px;
     opacity: 0;
     transition: opacity 250ms ease-out;

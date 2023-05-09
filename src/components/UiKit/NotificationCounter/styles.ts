@@ -7,7 +7,7 @@ export const StyledWrapper = styled.div`
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background-color: #ff2e72;
-  color: #ffffff;
+  background-color: ${({ theme }) => theme.colors.textPink};
+  color: ${({ theme }) => theme.colors.landingBackground};
   font-size: 12px;
 `;

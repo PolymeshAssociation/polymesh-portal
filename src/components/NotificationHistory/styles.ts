@@ -41,7 +41,7 @@ export const StyledNotificationItem = styled.div`
   }
 
   &:hover {
-    background-color: #ffebf1;
+    background-color: ${({ theme }) => theme.colors.pinkBackground};
   }
 `;
 

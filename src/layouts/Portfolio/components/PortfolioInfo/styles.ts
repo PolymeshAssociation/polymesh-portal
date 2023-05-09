@@ -29,24 +29,15 @@ export const IconWrapper = styled.div`
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background-color: #ffebf1;
-  color: #ff2e72;
+  background-color: ${({ theme }) => theme.colors.pinkBackground};
+  color: ${({ theme }) => theme.colors.textPink};
 `;
 
 export const StyledPortfolioInfo = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #ff2e72;
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    color: initial;
-  }
+  color: ${({ theme }) => theme.colors.textPink};
 `;
 
 export const StyledDetails = styled.div`

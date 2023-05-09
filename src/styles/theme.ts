@@ -14,10 +14,17 @@ const light = {
     landingBackground: '#FFFFFF',
     dashboardBackground: '#F5F5F5',
     modalBackground: '#FFFFFF',
+    disabledBackground: '#F0F0F0',
+    pinkBackground: '#FFEBF1',
+    successBackground: '#D4F7E7',
     textPrimary: '#1E1E1E',
     textSecondary: '#727272',
     textBlue: '#170087',
-    shadow: 'rgba(30, 30, 30, 0.15)',
+    textPink: '#FF2E72',
+    textSuccess: '#00AA5E',
+    textDisabled: '#c7c7c7',
+    lightAccent: '#F0F0F0',
+    shadow: 'rgba(30, 30, 30, 0.1)',
     backdrop: 'rgba(21, 41, 53, 0.3)',
   },
 } as DefaultTheme;
@@ -25,14 +32,20 @@ const light = {
 const dark = {
   ...common,
   colors: {
-    landingBackground: '#1E1E1E',
-    dashboardBackground: '#000000',
-    modalBackground: '#1E1E1E',
-    textPrimary: '#FFFFFF',
-    textSecondary: '#727272',
+    landingBackground: '#3A3A3A',
+    dashboardBackground: '#1E1E1E',
+    modalBackground: '#3A3A3A',
+    disabledBackground: 'transparent',
+    pinkBackground: '#97266D',
+    successBackground: '#00AA5E',
+    textPrimary: '#FBFBFB',
+    textSecondary: '#C7C7C7;',
     textBlue: '#DCD3FF',
-    shadow: 'rgba(120, 120, 120, 0.15)',
-    // backdrop: 'rgba(209, 194, 182, 0.1)',
+    textPink: '#FAD1DC',
+    textSuccess: '#D4F7E7',
+    textDisabled: '#565656',
+    lightAccent: '#3A3A3A',
+    shadow: 'rgba(120, 120, 120, 0.1)',
     backdrop: 'rgba(0, 0, 0, 0.5)',
   },
 } as DefaultTheme;
@@ -46,6 +59,7 @@ export const GlobalStyle = createGlobalStyle`
 body {
     background-color: ${({ theme: styledTheme }) =>
       styledTheme.colors.landingBackground};
+  color: ${({ theme: styledTheme }) => styledTheme.colors.textPrimary};
   }
 
  input {
