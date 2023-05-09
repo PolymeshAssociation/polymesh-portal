@@ -13,10 +13,19 @@ export interface IPortfolioData {
   assets: PortfolioBalance[];
 }
 
+export interface ICombinedPortfolioData {
+  name: string;
+  id: string;
+  portfolio: (DefaultPortfolio | NumberedPortfolio)[];
+  custodian: Identity;
+  assets: PortfolioBalance[];
+}
+
 export interface IPortfolioContext {
   defaultPortfolio: DefaultPortfolio | null;
   numberedPortfolios: NumberedPortfolio[];
   allPortfolios: IPortfolioData[];
+  combinedPortfolios: ICombinedPortfolioData | null;
   totalAssetsAmount: number;
   portfolioLoading: boolean;
   portfolioError: string;
@@ -27,6 +36,7 @@ export const initialState = {
   defaultPortfolio: null,
   numberedPortfolios: [],
   allPortfolios: [],
+  combinedPortfolios: null,
   totalAssetsAmount: 0,
   portfolioLoading: false,
   portfolioError: '',

@@ -8,6 +8,7 @@ import { AccountProvider } from '~/context/AccountContext';
 import { PortfolioProvider } from '~/context/PortfolioContext';
 import { AuthorizationsProvider } from '~/context/AuthorizationsContext';
 import { ClaimsProvider } from './context/ClaimsContext';
+import { InstructionsProvider } from '~/context/InstructionsContext';
 import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
 import { ROUTES } from '~/constants/routes';
 import { gqlClient } from '~/config/graphql';
@@ -41,16 +42,18 @@ const WrappedApp = () => {
       <AccountProvider>
         <PortfolioProvider>
           <AuthorizationsProvider>
-            <ClaimsProvider>
+            <InstructionsProvider>
+              <ClaimsProvider>
               <AppThemeProvider>
-                <ApolloProvider client={gqlClient}>
-                  <Suspense fallback="loading...">
-                    <BrowserRouter>
-                      <App />
-                    </BrowserRouter>
-                  </Suspense>
-                </ApolloProvider>
-              </AppThemeProvider>
+                  <ApolloProvider client={gqlClient}>
+                    <Suspense fallback="loading...">
+                      <BrowserRouter>
+                        <App />
+                      </BrowserRouter>
+                    </Suspense>
+                  </ApolloProvider>
+                </AppThemeProvider>
+            </InstructionsProvider>
             </ClaimsProvider>
           </AuthorizationsProvider>
         </PortfolioProvider>
