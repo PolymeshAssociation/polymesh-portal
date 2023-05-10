@@ -3,10 +3,9 @@ import {
   CountryCode,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useState } from 'react';
-import { Toggler, Text } from '~/components/UiKit';
+import { Toggler, Text, DropdownSelect } from '~/components/UiKit';
 import { ISelectedClaimItem } from '../../constants';
 import { StyledInput, StyledInputWrapper, StyledLabel } from '../../styles';
-import DropdownSelect from '../DropdownSelect';
 import { StyledWrapper, StyledTopInfo } from './styles';
 import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
 import { removeTimezoneOffset } from '~/helpers/dateTime';
