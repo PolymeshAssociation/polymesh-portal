@@ -32,6 +32,8 @@ export const NewClaimItem: React.FC<INewClaimItem> = ({
     setIsSelected(toggleState);
     if (toggleState && value !== ClaimType.Jurisdiction) {
       handleAdd({ claimType: value, expiry });
+    } else if (toggleState && value === ClaimType.Jurisdiction) {
+      handleAdd({ claimType: value, expiry, code: countryCode });
     } else {
       handleDelete(value);
       setExpiry(null);
@@ -46,8 +48,6 @@ export const NewClaimItem: React.FC<INewClaimItem> = ({
     setExpiry(date);
 
     if (value === ClaimType.Jurisdiction) {
-      if (!countryCode) return;
-
       handleAdd({ claimType: value, expiry: date, code: countryCode });
     } else {
       handleAdd({ claimType: value, expiry: date });

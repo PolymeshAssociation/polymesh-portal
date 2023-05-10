@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
-import { Button } from '~/components/UiKit';
+import { Button, RefreshButton } from '~/components/UiKit';
 import { InstructionsContext } from '~/context/InstructionsContext';
 import { ESortOptions } from '../../types';
 import { CreateVenue } from './components/CreateVenue';
@@ -25,7 +25,8 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
   sortBy,
   setSortBy,
 }) => {
-  const { createdVenues } = useContext(InstructionsContext);
+  const { createdVenues, refreshInstructions } =
+    useContext(InstructionsContext);
   const [createVenueOpen, setCreateVenueOpen] = useState(false);
   const [sendAssetOpen, setSendAssetOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -83,6 +84,7 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
           <Icon name="ArrowTopRight" />
           Send Asset
         </Button>
+        <RefreshButton onClick={refreshInstructions} />
       </StyledWrapper>
       {createVenueOpen && <CreateVenue toggleModal={toggleCreateVenue} />}
       {sendAssetOpen && <SendAsset toggleModal={toggleSendAsset} />}

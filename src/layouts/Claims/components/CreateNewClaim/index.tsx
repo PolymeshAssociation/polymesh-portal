@@ -160,7 +160,14 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
         </Button>
         <Button
           variant="modalPrimary"
-          disabled={!isValid || !selectedClaims.length}
+          disabled={
+            !isValid ||
+            !selectedClaims.length ||
+            selectedClaims.some(
+              ({ claimType, code }) =>
+                claimType === ClaimType.Jurisdiction && !code,
+            )
+          }
           onClick={handleSubmit(onSubmit)}
         >
           Create

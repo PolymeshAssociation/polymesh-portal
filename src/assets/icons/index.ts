@@ -41,3 +41,4 @@ export { ReactComponent as Sort } from './sort.svg';
 export { ReactComponent as SortAscending } from './sort-ascending.svg';
 export { ReactComponent as SortDescending } from './sort-descending.svg';
 export { ReactComponent as Coins } from './coins.svg';
+export { ReactComponent as Refresh } from './refresh.svg';

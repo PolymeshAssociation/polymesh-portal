@@ -10,7 +10,7 @@ import {
 export interface ISelectedClaimItem {
   claimType: ClaimType;
   expiry: Date | null;
-  code?: CountryCode;
+  code?: CountryCode | null;
 }
 
 export const INPUT_NAMES = {
@@ -36,9 +36,7 @@ export const FORM_CONFIG = {
     yup.object().shape({
       [INPUT_NAMES.TARGET_DID]: yup
         .string()
-        .min(66, 'Target must be valid DID')
-        .max(66, 'Target must be valid DID')
-        .matches(/^[0-9a-z]+$/, 'Value must be valid DID')
+        .matches(/^0x[0-9a-fA-F]{64}$/, 'Target DID must be valid')
         .required('Target is required'),
       [INPUT_NAMES.SCOPE_TYPE]: yup.string().required('Scope type is required'),
       [INPUT_NAMES.SCOPE_VALUE]: yup
@@ -47,9 +45,7 @@ export const FORM_CONFIG = {
           if (scopeTypes[0] === ScopeType.Identity) {
             return schema
               .required('Value is required')
-              .min(66, 'Value must be valid DID')
-              .max(66, 'Value must be valid DID')
-              .matches(/^[0-9a-z]+$/, 'Value must be valid DID');
+              .matches(/^0x[0-9a-fA-F]{64}$/, 'DID must be valid');
           }
           if (scopeTypes[0] === ScopeType.Ticker) {
             return schema

@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { EClaimsType, EScopeSortOptions } from '../../constants';
-import { Button } from '~/components/UiKit';
+import { Button, RefreshButton } from '~/components/UiKit';
 import { Icon } from '~/components';
 import {
   StyledActionsWrapper,
@@ -12,6 +12,7 @@ import {
   StyledSortSelect,
 } from './styles';
 import { CreateNewClaim } from '../CreateNewClaim';
+import { ClaimsContext } from '~/context/ClaimsContext';
 
 interface IClaimsNavigationProps {
   sortBy: EScopeSortOptions;
@@ -22,6 +23,7 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
   sortBy,
   setSortBy,
 }) => {
+  const { refreshClaims } = useContext(ClaimsContext);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const claimType = searchParams.get('type');
@@ -64,6 +66,7 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
           <Icon name="Plus" />
           Create New Claim
         </Button>
+        <RefreshButton onClick={refreshClaims} />
       </StyledActionsWrapper>
       {createModalOpen && <CreateNewClaim toggleModal={toggleModal} />}
     </StyledNavBar>
