@@ -8,6 +8,7 @@ import {
   KeyInfoWrapper,
   StyledLabel,
 } from './styles';
+import { useWindowWidth } from '~/hooks/utility';
 
 export const KeyInfo = () => {
   const {
@@ -16,12 +17,15 @@ export const KeyInfo = () => {
     secondaryKeys,
     accountIsMultisigSigner,
   } = useContext(AccountContext);
+  const { isMobile, isSmallDesktop } = useWindowWidth();
 
   return (
     <StyledWrapper>
-      <IconWrapper size="64px">
-        <Icon name="KeyIcon" className="key-icon" size="26px" />
-      </IconWrapper>
+      {!isMobile && !isSmallDesktop && (
+        <IconWrapper size="64px">
+          <Icon name="KeyIcon" className="key-icon" size="26px" />
+        </IconWrapper>
+      )}
       <div className="info-wrapper">
         <Text marginBottom={4}>Selected key</Text>
         <KeyInfoWrapper>

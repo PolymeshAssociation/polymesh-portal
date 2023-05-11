@@ -16,6 +16,16 @@ export const StyledHeaderContainer = styled.div`
 export const StyledInfoList = styled.ul`
   display: flex;
   align-items: center;
+
+  @media screen and (max-width: 767px) {
+    margin-left: auto;
+  }
+
+  @media screen and (max-width: 1023px) {
+    max-width: 300px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
 `;
 
 export const StyledInfoItem = styled.li`
@@ -36,4 +46,18 @@ export const StyledInfoItem = styled.li`
   &:last-child {
     margin-left: 4px;
   }
+
+  @media screen and (max-width: 1024px) {
+    &:nth-child(2)::after {
+      display: none;
+    }
+  }
+`;
+
+export const StyledCloseMenuButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: ${({ theme }) => theme.colors.textPrimary};
 `;

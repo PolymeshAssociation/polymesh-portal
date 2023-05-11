@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNetwork, useNotifications } from '~/hooks/polymesh';
 import { Icon } from '~/components';
 import { NotificationCounter } from '../UiKit';
@@ -15,11 +15,21 @@ import {
   SoonLabel,
 } from './styles';
 import { NAV_LINKS } from '~/constants/routes';
+import { useWindowWidth } from '~/hooks/utility';
 
-const Sidebar = () => {
+interface ISidebarProps {
+  mobileMenuOpen: boolean;
+  toggleMobileMenu: () => void;
+}
+
+const Sidebar: React.FC<ISidebarProps> = ({
+  mobileMenuOpen,
+  toggleMobileMenu,
+}) => {
   const { networkName, networkLoading } = useNetwork();
   const { count } = useNotifications();
-  const [fullWidth, setFullWidth] = useState(true);
+  const { isMobile } = useWindowWidth();
+  const [fullWidth, setFullWidth] = useState(!isMobile);
   const [linksExpanded, setLinksExpanded] = useState(false);
 
   const toggleSidebarWidth = () => setFullWidth((prev) => !prev);
@@ -27,24 +37,32 @@ const Sidebar = () => {
   const collapsePopup = () => setLinksExpanded(false);
   const handleOpenLink = (url: string) => window.open(url, '_blank');
 
+  useEffect(() => {
+    if (isMobile) return;
+
+    setFullWidth(true);
+  }, [isMobile]);
+
+  const sidebarExpanded = isMobile ? mobileMenuOpen : fullWidth;
+
   return (
-    <StyledSidebar fullWidth={fullWidth}>
-      {fullWidth ? (
+    <StyledSidebar fullWidth={sidebarExpanded}>
+      {sidebarExpanded ? (
         <Icon name="PolymeshLogo" className="text-logo-icon" />
       ) : (
         <Icon name="PolymeshSymbol" className="logo-icon" />
       )}
-      <MenuButton fullWidth={fullWidth} onClick={toggleSidebarWidth}>
+      <MenuButton fullWidth={sidebarExpanded} onClick={toggleSidebarWidth}>
         <Icon name="MenuIcon" />
       </MenuButton>
-      <StyledNetworkWrapper fullWidth={fullWidth}>
-        <StyledNetworkStatus fullWidth={fullWidth}>
-          <StatusDot isLoading={networkLoading} fullWidth={fullWidth} />
+      <StyledNetworkWrapper fullWidth={sidebarExpanded}>
+        <StyledNetworkStatus fullWidth={sidebarExpanded}>
+          <StatusDot isLoading={networkLoading} fullWidth={sidebarExpanded} />
           {networkLoading ? '' : <span>{networkName}</span>}
         </StyledNetworkStatus>
       </StyledNetworkWrapper>
       <nav>
-        <StyledNavList fullWidth={fullWidth}>
+        <StyledNavList fullWidth={sidebarExpanded}>
           {NAV_LINKS.map(
             ({
               path,
@@ -83,7 +101,7 @@ const Sidebar = () => {
                       className="notification"
                     />
                   ) : null}
-                  {disabled && fullWidth && <SoonLabel>Soon</SoonLabel>}
+                  {disabled && sidebarExpanded && <SoonLabel>Soon</SoonLabel>}
                   {expandable && linksExpanded && (
                     <ExpandedLinks>
                       {nestedLinks?.map(

@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 export const StyledWrapper = styled.div`
   grid-area: balance;
-  min-height: 392px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -10,6 +9,29 @@ export const StyledWrapper = styled.div`
   background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
   border-radius: 24px;
+
+  & .balance {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    margin-bottom: 36px;
+
+    @media screen and (min-width: 768px) and (max-width: 1023px) {
+      flex-direction: row;
+      flex-wrap: wrap;
+
+      & > div:first-child {
+        width: 100%;
+      }
+    }
+  }
+  @media screen and (min-width: 1024px) {
+    min-height: 392px;
+  }
+
+  @media screen and (max-width: 1200px) {
+    width: 100%;
+  }
 `;
 
 export const StyledTotalBalance = styled.div`

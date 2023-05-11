@@ -17,6 +17,7 @@ import {
 import { formatDid } from '~/helpers/formatters';
 import { Details } from './components/Details';
 import { systematicCddProviders } from './constants';
+import { useWindowWidth } from '~/hooks/utility';
 
 export const DidInfo = () => {
   const {
@@ -28,6 +29,7 @@ export const DidInfo = () => {
   const [issuer, setIssuer] = useState<string | null>(null);
   const [claimDetailsLoading, setClaimDetailsLoading] = useState(true);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const { isMobile, isSmallDesktop } = useWindowWidth();
 
   useEffect(() => {
     setClaimDetailsLoading(true);
@@ -139,7 +141,7 @@ export const DidInfo = () => {
           Expires on:
           <span>{date}</span>
         </div>
-        <Separator />
+        {!isMobile && !isSmallDesktop && <Separator />}
         <div>
           Verified by:
           <span>
@@ -159,9 +161,11 @@ export const DidInfo = () => {
     <>
       <StyledWrapper>
         <StyledTopInfo>
-          <IconWrapper size="64px">
-            <Icon name="IdCard" size="32px" className="id-icon" />
-          </IconWrapper>
+          {!isMobile && !isSmallDesktop && (
+            <IconWrapper size="64px">
+              <Icon name="IdCard" size="32px" className="id-icon" />
+            </IconWrapper>
+          )}
           <div className="did-wrapper">
             {!identityLoading && !identity ? (
               <Text bold size="large" marginTop={22}>

@@ -30,35 +30,37 @@ export const BalanceInfo = () => {
   return (
     <>
       <StyledWrapper>
-        <div>
-          <StyledTotalBalance>
-            <Icon name="PolymeshSymbol" size="36px" />
-            <Heading type="h2">
+        <div className="balance">
+          <div>
+            <StyledTotalBalance>
+              <Icon name="PolymeshSymbol" size="36px" />
+              <Heading type="h2">
+                {connecting || balanceIsLoading
+                  ? 'loading...'
+                  : formatBalance(balance.total)}{' '}
+                <StyledAsset>POLYX</StyledAsset>
+              </Heading>
+            </StyledTotalBalance>
+            <Text size="large">Total balance</Text>
+          </div>
+          <div>
+            <Heading type="h3">
               {connecting || balanceIsLoading
                 ? 'loading...'
-                : formatBalance(balance.total)}{' '}
+                : formatBalance(balance.free)}{' '}
               <StyledAsset>POLYX</StyledAsset>
             </Heading>
-          </StyledTotalBalance>
-          <Text size="large">Total balance</Text>
-        </div>
-        <div>
-          <Heading type="h3">
-            {connecting || balanceIsLoading
-              ? 'loading...'
-              : formatBalance(balance.free)}{' '}
-            <StyledAsset>POLYX</StyledAsset>
-          </Heading>
-          <Text size="large">Unlocked</Text>
-        </div>
-        <div>
-          <Heading type="h3">
-            {connecting || balanceIsLoading
-              ? 'loading...'
-              : formatBalance(balance.locked)}{' '}
-            <StyledAsset>POLYX</StyledAsset>
-          </Heading>
-          <Text size="large">Locked</Text>
+            <Text size="large">Unlocked</Text>
+          </div>
+          <div>
+            <Heading type="h3">
+              {connecting || balanceIsLoading
+                ? 'loading...'
+                : formatBalance(balance.locked)}{' '}
+              <StyledAsset>POLYX</StyledAsset>
+            </Heading>
+            <Text size="large">Locked</Text>
+          </div>
         </div>
         <StyledButtonGroup>
           <Button

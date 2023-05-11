@@ -18,6 +18,10 @@ export const StyledWrapper = styled.div`
       color: rgba(255, 255, 255, 0.82);
     }
   }
+
+  @media screen and (max-width: 1024px) {
+    width: 100%;
+  }
 `;
 
 export const IconWrapper = styled.div<{ size?: string }>`

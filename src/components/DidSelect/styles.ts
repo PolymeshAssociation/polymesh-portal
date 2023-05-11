@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const StyledSelectWrapper = styled.div`
+  width: calc(100% - 8px - 32px);
   position: relative;
   cursor: pointer;
   flex-grow: 1;

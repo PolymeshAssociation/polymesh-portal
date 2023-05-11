@@ -14,6 +14,10 @@ export const StyledWrapper = styled.div`
   & button {
     width: 100%;
   }
+
+  @media screen and (max-width: 1200px) {
+    width: 100%;
+  }
 `;
 
 export const IconWrapper = styled.div<{ size?: string }>`
@@ -73,6 +77,11 @@ export const StyledBottomInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
+  @media screen and (min-width: 1024px) and (max-width: 1200px) {
+    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
   & div {
     display: flex;

@@ -1,10 +1,10 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useInjectedWeb3 } from '~/hooks/polymesh';
 import { Footer, Header, Sidebar } from '~/components';
 import { StyledMain, StyledPageWrapper } from './styles';
-import { notifyGlobalError } from '~/helpers/notifications';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface ILayoutProps {
   children: React.ReactNode;
@@ -12,8 +12,10 @@ interface ILayoutProps {
 
 const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
   const {
-    state: { connecting, initialized, walletError },
+    state: { connecting, initialized },
   } = useContext(PolymeshContext);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isMobile } = useWindowWidth();
   const { pathname } = useLocation();
   const { defaultExtension } = useInjectedWeb3();
   const isLandingPage = pathname === '/';
@@ -21,10 +23,12 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
     !defaultExtension && !isLandingPage && !connecting && !initialized;
 
   useEffect(() => {
-    if (!walletError) return;
+    if (!isMobile) return;
 
-    notifyGlobalError(walletError);
-  }, [walletError, isLandingPage]);
+    setMobileMenuOpen(false);
+  }, [isMobile]);
+
+  const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
 
   return (
     <>
@@ -35,9 +39,12 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
         </>
       ) : (
         <StyledPageWrapper>
-          <Sidebar />
+          <Sidebar
+            mobileMenuOpen={mobileMenuOpen}
+            toggleMobileMenu={toggleMobileMenu}
+          />
           <div className="main-wrapper">
-            <Header />
+            <Header toggleMobileMenu={toggleMobileMenu} />
             <StyledMain isLandingPage={isLandingPage}>{children}</StyledMain>
             <Footer isLandingPage={isLandingPage} />
           </div>

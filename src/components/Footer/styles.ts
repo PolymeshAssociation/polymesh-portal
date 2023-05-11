@@ -18,14 +18,20 @@ export const StyledFooter = styled.footer<{ isLandingPage: boolean }>`
 export const StyledContainer = styled.div<{ isLandingPage: boolean }>`
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   padding: ${({ isLandingPage }) => (isLandingPage ? '0 64px' : '0 48px')};
+
+  & p {
+    padding: 10px 0;
+  }
 `;
 
 export const StyledLinkList = styled.ul`
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 24px;
-  margin-left: auto;
 `;
 
 export const StyledLink = styled.a`
