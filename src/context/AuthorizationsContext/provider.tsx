@@ -33,27 +33,27 @@ const AuthorizationsProvider = ({ children }: IAuthorizationsProviderProps) => {
       try {
         setAuthorizationsLoading(true);
 
-        if (!identity) {
-          const incoming = await account.authorizations.getReceived();
-          setIncomingAuthorizations(
-            incoming.sort((a, b) => a.authId.toNumber() - b.authId.toNumber()),
-          );
-          setOutgoingAuthorizations([]);
-        } else {
+        const accountIncoming = await account.authorizations.getReceived();
+        if (identity) {
           const identityIncoming = await identity.authorizations.getReceived();
-          const outgoing = await identity.authorizations.getSent();
-
           setIncomingAuthorizations(
-            identityIncoming.sort(
-              (a, b) => a.authId.toNumber() - b.authId.toNumber(),
-            ),
+            accountIncoming
+              .concat(identityIncoming)
+              .sort((a, b) => a.authId.toNumber() - b.authId.toNumber()),
           );
-
+          const outgoing = await identity.authorizations.getSent();
           setOutgoingAuthorizations(
             outgoing.data.sort(
               (a, b) => a.authId.toNumber() - b.authId.toNumber(),
             ),
           );
+        } else {
+          setIncomingAuthorizations(
+            accountIncoming.sort(
+              (a, b) => a.authId.toNumber() - b.authId.toNumber(),
+            ),
+          );
+          setOutgoingAuthorizations([]);
         }
       } catch (error) {
         notifyError((error as Error).message);
