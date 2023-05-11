@@ -10,7 +10,7 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
-import { Button, Text } from '~/components/UiKit';
+import { Button } from '~/components/UiKit';
 import {
   StyledItemWrapper,
   StyledInfoWrapper,
@@ -274,9 +274,9 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           {!!legsCount && (
             <>
               :{' '}
-              <Text>
+              <span className="leg-count">
                 {legsCount} Leg{legsCount > 1 ? 's' : ''}
-              </Text>
+              </span>
             </>
           )}
         </Button>

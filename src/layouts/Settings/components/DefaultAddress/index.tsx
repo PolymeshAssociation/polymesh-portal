@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { Modal } from '~/components';
-import { Heading, Text, Button } from '~/components/UiKit';
+import { Heading, Button, DropdownSelect } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
 import { formatKey } from '~/helpers/formatters';
 import { StyledValue, StyledButtonWrapper, StyledLabel } from './styles';
@@ -40,26 +40,19 @@ export const DefaultAddress = () => {
         )}
       </StyledValue>
       {addressSelectExpanded && (
-        <Modal handleClose={toggleModal}>
+        <Modal handleClose={toggleModal} disableOverflow>
           <Heading type="h4" marginBottom={48}>
             Default Wallet Address
           </Heading>
-          <Text bold marginBottom={3}>
-            Wallet Address
-          </Text>
-          <select
-            name="pets"
-            id="pet-select"
-            value={selectedAddress || defaultAccount}
-            onChange={({ target }) => setSelectedAddress(target.value)}
-          >
-            <option value="">--Please choose an option--</option>
-            {allAccounts.map((account) => (
-              <option value={account} key={account}>
-                {formatKey(account)}
-              </option>
-            ))}
-          </select>
+          <DropdownSelect
+            label="Wallet Address"
+            placeholder="Select Default Address"
+            options={allAccounts}
+            onChange={(option) => setSelectedAddress(option)}
+            truncateOption
+            truncateLength={14}
+            error={undefined}
+          />
           <StyledButtonWrapper>
             <Button variant="modalSecondary" onClick={toggleModal}>
               Cancel

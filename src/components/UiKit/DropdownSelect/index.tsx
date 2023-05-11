@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Icon } from '~/components';
+import { formatKey } from '~/helpers/formatters';
 import {
   StyledLabel,
   StyledErrorMessage,
@@ -18,6 +19,8 @@ interface IDropdownSelectProps {
   options: string[];
   removeSelection?: boolean;
   enableSearch?: boolean;
+  truncateOption?: boolean;
+  truncateLength?: number;
 }
 
 const DropdownSelect: React.FC<IDropdownSelectProps> = ({
@@ -28,6 +31,8 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
   options,
   removeSelection,
   enableSearch,
+  truncateOption,
+  truncateLength,
 }) => {
   const [selectExpanded, setSelectExpanded] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string>('');
@@ -82,6 +87,15 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
       )
     : options;
 
+  const displayedOption =
+    !!selectedOption && truncateOption
+      ? formatKey(
+          selectedOption,
+          truncateLength || 4,
+          truncateLength ? truncateLength + 1 : 5,
+        )
+      : selectedOption;
+
   return (
     <div>
       <StyledLabel>{label}</StyledLabel>
@@ -101,10 +115,10 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
                 setSelectedOption('');
                 setSearchFilter(target.value);
               }}
-              value={selectedOption || searchFilter}
+              value={displayedOption || searchFilter}
             />
           ) : (
-            selectedOption || placeholder
+            displayedOption || placeholder
           )}
           <Icon name="ExpandIcon" size="18px" className="icon" />
         </StyledSelect>
@@ -121,7 +135,13 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
                 }}
                 isSelected={option === selectedOption}
               >
-                {option}
+                {truncateOption
+                  ? formatKey(
+                      option,
+                      truncateLength || 4,
+                      truncateLength ? truncateLength + 1 : 5,
+                    )
+                  : option}
               </StyledOption>
             ))}
           </StyledExpandedSelect>

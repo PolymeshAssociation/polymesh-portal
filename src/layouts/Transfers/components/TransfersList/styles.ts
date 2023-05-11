@@ -16,19 +16,19 @@ export const SelectAllButton = styled.button`
   padding: 0 16px;
   background-color: transparent;
   border: 1px solid transparent;
-  color: #170087;
+  color: ${({ theme }) => theme.colors.textBlue};
 
   transition: border 250ms ease-out, box-shadow 250ms ease-out;
 
   &:hover:enabled {
-    border: 1px solid #170087;
+    border: 1px solid ${({ theme }) => theme.colors.textBlue};
   }
   &:active:enabled {
-    box-shadow: 0px 24px 24px rgba(23, 0, 135, 0.12);
+    box-shadow: 0px 24px 24px ${({ theme }) => theme.colors.shadow};
   }
 
   &:disabled {
-    color: #c7c7c7;
+    color: ${({ theme }) => theme.colors.textDisabled};
   }
 `;
 
@@ -48,7 +48,7 @@ export const StyledSelected = styled.div`
     margin-right: 16px;
     width: 1px;
     height: 32px;
-    background-color: #e6e6e6;
+    background-color: ${({ theme }) => theme.colors.lightAccent};
   }
 `;
 
@@ -78,19 +78,33 @@ export const StyledActionButton = styled.button<{ isReject?: boolean }>`
   padding: 0 16px;
   height: 32px;
   border-radius: 100px;
-  background-color: ${({ isReject }) => (isReject ? '#ff2e72' : '#60d3cb')};
-  color: #ffffff;
-  box-shadow: 0px 1px 3px rgba(30, 30, 30, 0.12),
-    0px 1px 2px rgba(30, 30, 30, 0.24);
-  transition: background-color 250ms ease-out, color 250ms ease-out;
+  background-color: ${({ isReject, theme }) =>
+    isReject ? theme.colors.pinkBackground : theme.colors.successBackground};
+  color: ${({ isReject, theme }) =>
+    isReject ? theme.colors.textPink : theme.colors.textSuccess};
+  box-shadow: ${({ theme }) => `0px 1px 3px ${theme.colors.shadow},
+    0px 1px 2px ${theme.colors.shadow}`};
+  transition: background-color 250ms ease-out, color 250ms ease-out,
+    box-shadow 250ms ease-out;
 
   &:not(:first-child) {
     margin-left: 24px;
   }
 
+  &:enabled:hover {
+    background-color: ${({ isReject, theme }) =>
+      isReject ? theme.colors.textPink : theme.colors.textSuccess};
+    color: ${({ isReject, theme }) =>
+      isReject ? theme.colors.pinkBackground : theme.colors.successBackground};
+  }
+
+  &:enabled:active {
+    box-shadow: 0px 1px 3px transparent;
+  }
+
   &:disabled {
-    background-color: #f0f0f0;
-    color: #8f8f8f;
+    background-color: ${({ theme }) => theme.colors.disabledBackground};
+    color: ${({ theme }) => theme.colors.textDisabled};
   }
 `;
 
@@ -104,7 +118,14 @@ export const ClearSelectionButton = styled.button`
   height: 20px;
   border-radius: 50%;
   background-color: ${({ theme }) => theme.colors.textSecondary};
-  color: #ffffff;
+  color: ${({ theme }) => theme.colors.landingBackground};
+
+  transition: background-color 250ms ease-out, color 250ms ease-out;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.textPink};
+    color: ${({ theme }) => theme.colors.pinkBackground};
+  }
 `;
 
 export const TransfersPlaceholder = styled.div`

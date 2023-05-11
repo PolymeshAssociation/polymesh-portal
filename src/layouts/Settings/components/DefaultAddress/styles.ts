@@ -20,7 +20,7 @@ export const StyledButtonWrapper = styled.div`
   justify-content: flex-end;
   gap: 16px;
   margin-top: 48px;
-  width: 400px;
+  width: 360px;
 `;
 
 export const StyledLabel = styled.div`

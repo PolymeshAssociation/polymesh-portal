@@ -7,6 +7,7 @@ import {
   StyledWrapper,
   StyledCloseButton,
   StyledNotificationItem,
+  StyledTopContainer,
   //   StyledTimestamp,
 } from './styles';
 
@@ -39,12 +40,14 @@ const NotificationHistory: React.FC<INotificationHistoryProps> = ({
 
   return (
     <StyledWrapper expanded={expanded}>
-      <StyledCloseButton onClick={handleClose}>
-        <Icon name="CloseIcon" size="24px" />
-      </StyledCloseButton>
-      <Heading type="h4" marginBottom={32}>
-        Notifications
-      </Heading>
+      <StyledTopContainer>
+        <StyledCloseButton onClick={handleClose}>
+          <Icon name="CloseIcon" size="24px" />
+        </StyledCloseButton>
+        <Heading type="h4" marginBottom={32}>
+          Notifications
+        </Heading>
+      </StyledTopContainer>
       {allNotifications.length ? (
         allNotifications.map(({ data, id, type }) => (
           <StyledNotificationItem key={id} onClick={() => navigate(`/${type}`)}>

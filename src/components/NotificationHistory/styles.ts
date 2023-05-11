@@ -15,15 +15,26 @@ export const StyledWrapper = styled.div<{ expanded: boolean }>`
     opacity 250ms ease-out, max-height 250ms ease-out, padding 250ms ease-out;
 `;
 
+export const StyledTopContainer = styled.div`
+  position: relative;
+  margin-bottom: 32px;
+`;
+
 export const StyledCloseButton = styled.button`
   position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
-  top: 24px;
-  right: 24px;
+  top: 0;
+  right: 0;
   background-color: transparent;
   cursor: pointer;
+  color: ${({ theme }) => theme.colors.textPrimary};
+  transition: color 250ms ease-out;
+
+  &:hover {
+    color: #ff2e72;
+  }
 `;
 
 export const StyledNotificationItem = styled.div`

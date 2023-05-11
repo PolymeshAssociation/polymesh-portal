@@ -32,6 +32,7 @@ const App = () => {
         enableMultiContainer
         containerId="globalToast"
         position="top-center"
+        theme={currentTheme}
       />
     </ThemeProvider>
   );
