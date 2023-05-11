@@ -108,13 +108,23 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
             {data.data.type}
           </Text>
         </StyledInfoItem>
-        <StyledInfoItem>
-          Issuing DID
-          <StyledTextWithCopy>
-            {formatDid(data.issuer)}
-            <CopyToClipboard value={data.issuer} />
-          </StyledTextWithCopy>
-        </StyledInfoItem>
+        {direction === EAuthorizationDirections.INCOMING ? (
+          <StyledInfoItem>
+            Issuing DID
+            <StyledTextWithCopy>
+              {formatDid(data.issuer)}
+              <CopyToClipboard value={data.issuer} />
+            </StyledTextWithCopy>
+          </StyledInfoItem>
+        ) : (
+          <StyledInfoItem>
+            Target {data.target.type}
+            <StyledTextWithCopy>
+              {formatDid(data.target.value)}
+              <CopyToClipboard value={data.target.value} />
+            </StyledTextWithCopy>
+          </StyledInfoItem>
+        )}
         <StyledInfoItem>
           Expiry Date
           <Text size="large" bold>

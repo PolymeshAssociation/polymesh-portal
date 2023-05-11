@@ -2,11 +2,13 @@ import { useContext, useMemo, useState, useEffect, useCallback } from 'react';
 import {
   DefaultPortfolio,
   NumberedPortfolio,
+  PortfolioBalance,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { PolymeshContext } from '../PolymeshContext';
 import { AccountContext } from '../AccountContext';
 import PortfolioContext from './context';
-import { IPortfolioData } from './constants';
+import { ICombinedPortfolioData, IPortfolioData } from './constants';
 import { notifyGlobalError } from '~/helpers/notifications';
 
 interface IProviderProps {
@@ -26,6 +28,8 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
     NumberedPortfolio[]
   >([]);
   const [allPortfolios, setAllPortfolios] = useState<IPortfolioData[]>([]);
+  const [combinedPortfolios, setCombinedPortfolios] =
+    useState<ICombinedPortfolioData | null>(null);
   const [totalAssetsAmount, setTotalAssetsAmount] = useState(0);
   const [portfolioLoading, setPortfolioLoading] = useState(false);
   const [portfolioError, setPortfolioError] = useState('');
@@ -77,6 +81,60 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
 
       setAllPortfolios(portfoliosWithNoZeroBalances);
 
+      const combineAssets = (assets: PortfolioBalance[]) => {
+        const reducedAssets = assets.reduce((acc: PortfolioBalance[], curr) => {
+          if (!acc.length) return [curr];
+
+          const duplicate = acc.find(
+            (accItem) =>
+              (accItem as PortfolioBalance).asset.toHuman() ===
+              curr.asset.toHuman(),
+          );
+          if (duplicate) {
+            return [
+              ...acc.filter(
+                (accItem) =>
+                  (accItem as PortfolioBalance).asset.toHuman() !==
+                  curr.asset.toHuman(),
+              ),
+              {
+                ...curr,
+                free: new BigNumber(
+                  duplicate.free.toNumber() + curr.free.toNumber(),
+                ),
+                locked: new BigNumber(
+                  duplicate.locked.toNumber() + curr.locked.toNumber(),
+                ),
+                total: new BigNumber(
+                  duplicate.total.toNumber() + curr.total.toNumber(),
+                ),
+              },
+            ];
+          }
+
+          return [...acc, curr];
+        }, [] as PortfolioBalance[]);
+
+        return reducedAssets;
+      };
+
+      const combined = portfoliosWithNoZeroBalances.reduce(
+        (acc, { assets, portfolio, custodian }) => ({
+          name: 'Combined',
+          id: 'combined',
+          custodian,
+          portfolio: acc.portfolio
+            ? [...acc.portfolio, portfolio]
+            : [portfolio],
+          assets: acc.assets ? [...acc.assets, ...assets] : assets,
+        }),
+        {} as ICombinedPortfolioData,
+      );
+      setCombinedPortfolios({
+        ...combined,
+        assets: combineAssets(combined.assets),
+      });
+
       const totalBalance = parsedPortfolios.reduce((prevValue, { assets }) => {
         if (!assets.length) return prevValue;
 
@@ -107,6 +165,7 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
       defaultPortfolio,
       numberedPortfolios,
       allPortfolios,
+      combinedPortfolios,
       totalAssetsAmount,
       portfolioLoading,
       portfolioError,
@@ -116,6 +175,7 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
       allPortfolios,
       defaultPortfolio,
       numberedPortfolios,
+      combinedPortfolios,
       totalAssetsAmount,
       portfolioError,
       portfolioLoading,

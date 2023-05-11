@@ -43,7 +43,9 @@ export const columns = {
       enableSorting: false,
       cell: (info) => {
         const balance = info.getValue();
-        return `${balance?.amount} ${balance?.ticker}`;
+        return balance
+          ? `${formatBalance(balance.amount)} ${balance?.ticker}`
+          : '';
       },
     }),
     tokenColumnHelper.accessor('locked', {
@@ -51,7 +53,9 @@ export const columns = {
       enableSorting: false,
       cell: (info) => {
         const locked = info.getValue();
-        return locked?.amount ? `${locked?.amount} ${locked?.ticker}` : '-';
+        return locked?.amount
+          ? `${formatBalance(locked.amount)} ${locked?.ticker}`
+          : '-';
       },
     }),
   ],

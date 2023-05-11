@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AccountContext } from '~/context/AccountContext';
 import { AddNewAuth } from '../AddNewAuth';
-import { Button, NotificationCounter } from '~/components/UiKit';
+import { Button, NotificationCounter, RefreshButton } from '~/components/UiKit';
 import {
   StyledNavBar,
   StyledNavList,
@@ -11,6 +11,7 @@ import {
 } from './styles';
 import { TABS } from './constants';
 import { Icon } from '~/components';
+import { AuthorizationsContext } from '~/context/AuthorizationsContext';
 
 interface IAuthorizationsNavigationProps {
   notificationsCount: {
@@ -23,6 +24,7 @@ export const AuthorizationsNavigation: React.FC<
   IAuthorizationsNavigationProps
 > = ({ notificationsCount }) => {
   const { identity } = useContext(AccountContext);
+  const { refreshAuthorizations } = useContext(AuthorizationsContext);
   const [addNewAuthExpanded, setAddNewAuthExpanded] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const direction = searchParams.get('direction');
@@ -62,6 +64,7 @@ export const AuthorizationsNavigation: React.FC<
           <Icon name="Plus" />
           Create New Auth
         </Button>
+        <RefreshButton onClick={refreshAuthorizations} />
       </StyledActionsWrapper>
       {addNewAuthExpanded && <AddNewAuth toggleModal={toggleModal} />}
     </StyledNavBar>

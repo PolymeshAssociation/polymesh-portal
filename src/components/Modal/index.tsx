@@ -49,7 +49,7 @@ const Modal: React.FC<IModalProps> = ({
   }, [handleClose]);
 
   return createPortal(
-    <StyledBackdrop onClick={handleBackdropClick}>
+    <StyledBackdrop onMouseDown={handleBackdropClick}>
       <StyledModal disableOverflow={disableOverflow}>{children}</StyledModal>
     </StyledBackdrop>,
     modalRoot,

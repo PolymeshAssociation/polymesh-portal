@@ -6,6 +6,9 @@ const Landing = lazy(() => import('~/layouts/Landing'));
 const Overview = lazy(() => import('~/layouts/Overview'));
 const Portfolio = lazy(() => import('~/layouts/Portfolio'));
 const Authorizations = lazy(() => import('~/layouts/Authorizations'));
+const Transfers = lazy(() => import('~/layouts/Transfers'));
+
+const Claims = lazy(() => import('~/layouts/Claims'));
 
 const Settings = lazy(() => import('~/layouts/Settings'));
 
@@ -62,6 +65,16 @@ export const ROUTES = [
     component: Authorizations,
   },
   { path: PATHS.SETTINGS, label: 'Settings', component: Settings },
+  {
+    path: PATHS.TRANSFERS,
+    label: 'Transfers',
+    component: Transfers,
+  },
+  {
+    path: PATHS.CLAIMS,
+    label: 'Claims',
+    component: Claims,
+  },
   {
     path: PATHS.NOT_FOUND,
     label: null,
