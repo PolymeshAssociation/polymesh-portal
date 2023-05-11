@@ -20,7 +20,7 @@ export const StyledWrapper = styled.div`
   }
 
   & .key-name {
-    color: ${({ theme }) => theme.colors.textPrimary};
+    color: #ffffff;
     font-weight: 500;
     text-transform: uppercase;
   }

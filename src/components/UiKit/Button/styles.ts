@@ -84,7 +84,7 @@ export const StyledButton = styled.button<{
     variant === EButtonVariants.MODAL_SECONDARY
       ? `
     color: #170087;
-    background: #FFFFFF;
+    background: #ffffff;
     border: 1px solid #170087;
 
     &:hover:enabled, &:focus:enabled {

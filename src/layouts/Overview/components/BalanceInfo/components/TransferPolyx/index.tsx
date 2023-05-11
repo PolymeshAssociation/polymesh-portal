@@ -5,10 +5,12 @@ import { Heading, Button } from '~/components/UiKit';
 import {
   StyledModalWrapper,
   StyledButtonWrapper,
+  StyledInputWrapper,
   StyledInput,
   StyledLabel,
   StyledCaption,
   StyledMaxButton,
+  StyledErrorMessage,
 } from './styles';
 import { formatBalance } from '~/helpers/formatters';
 import { TRANSFER_INPUTS, createFormConfig } from './constants';
@@ -55,33 +57,31 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
         <Heading type="h4">Send POLYX</Heading>
         {TRANSFER_INPUTS.map(
           ({ label, id, placeholder, withCaption, withButton }) => (
-            <div key={id}>
-              <StyledLabel htmlFor={id}>
-                {label}
-                {errors[id] ? (
-                  <span style={{ color: 'red' }}>
-                    {(errors[id]?.message as string) || ''}
-                  </span>
-                ) : null}
-                <StyledInput
-                  // eslint-disable-next-line react/jsx-props-no-spreading
-                  {...register(id)}
-                  id={id}
-                  placeholder={placeholder}
-                />
-                {withButton && (
-                  <StyledMaxButton onClick={handleUseMax}>
-                    Use max
-                  </StyledMaxButton>
-                )}
-                {withCaption && (
-                  <StyledCaption>
-                    Available balance{' '}
-                    <span>{formatBalance(availableBalance)} POLYX</span>
-                  </StyledCaption>
-                )}
-              </StyledLabel>
-            </div>
+            <StyledInputWrapper key={id}>
+              <StyledLabel htmlFor={id}>{label}</StyledLabel>
+              <StyledInput
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...register(id)}
+                id={id}
+                placeholder={placeholder}
+              />
+              {withButton && (
+                <StyledMaxButton onClick={handleUseMax}>
+                  Use max
+                </StyledMaxButton>
+              )}
+              {withCaption && (
+                <StyledCaption>
+                  Available balance{' '}
+                  <span>{formatBalance(availableBalance)} POLYX</span>
+                </StyledCaption>
+              )}
+              {errors[id] ? (
+                <StyledErrorMessage>
+                  {(errors[id]?.message as string) || ''}
+                </StyledErrorMessage>
+              ) : null}
+            </StyledInputWrapper>
           ),
         )}
         <StyledButtonWrapper>

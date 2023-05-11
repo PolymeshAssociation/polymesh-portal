@@ -42,16 +42,16 @@ export const StyledSelect = styled.div<{
       }
       `
       : ''}
-  ${({ placement, theme }) =>
+  ${({ placement }) =>
     placement === ESelectPlacements.WIDGET
       ? `
       padding: 7px 28px 7px 8px;
-      color: ${theme.colors.dashboardBackground};
+      color: #ffffff;
       text-align: center;
 
       & div {
         right: 8px;
-        color: ${theme.colors.dashboardBackground};
+        color:  #ffffff;
       }
       `
       : ''}

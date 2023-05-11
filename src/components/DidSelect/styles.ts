@@ -17,12 +17,12 @@ export const StyledSelect = styled.div<{ expanded: boolean }>`
 
   font-weight: 500;
   font-size: 12px;
-  color: ${({ theme }) => theme.colors.dashboardBackground};
+  color: #ffffff;
   text-align: center;
 
   & div {
     right: 8px;
-    color: ${({ theme }) => theme.colors.dashboardBackground};
+    color: #ffffff;
     transition: transform 250ms ease-out;
     ${({ expanded }) =>
       expanded ? `transform: rotate(90deg);` : 'transform: rotate(0);'}
