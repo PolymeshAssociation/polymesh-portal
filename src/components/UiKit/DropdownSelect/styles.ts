@@ -14,6 +14,7 @@ export const StyledSelect = styled.div<{
     isSelected ? theme.colors.textPrimary : theme.colors.textSecondary};
   background-color: ${({ theme }) => theme.colors.landingBackground};
   overflow: hidden;
+  cursor: pointer;
 
   & .icon {
     position: absolute;
@@ -23,6 +24,20 @@ export const StyledSelect = styled.div<{
     transition: transform 250ms ease-out;
     ${({ expanded }) =>
       expanded ? `transform: rotate(180deg);` : 'transform: rotate(0);'}
+  }
+`;
+
+export const StyledSearch = styled.input`
+  border: none;
+  outline: none;
+  width: 95%;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  cursor: inherit;
+
+  &:focus {
+    cursor: initial;
   }
 `;
 

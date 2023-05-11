@@ -23,6 +23,7 @@ import {
   disabledAuthTypes,
   AllowedAuthTypes,
 } from './constants';
+import { removeTimezoneOffset } from '~/helpers/dateTime';
 
 export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
   const { checkAddressValidity } = useTransferPolyx();
@@ -227,7 +228,7 @@ export const useSubmitHandler = () => {
       if (!sdk) return;
       const target = data.target as string;
       const ticker = data.ticker as string;
-      const expiry = data.expiry as string | undefined;
+      const utcExpiry = data.expiry as string | undefined;
 
       const tickerReservation = tickerReservations.find(
         (reservation) => reservation.ticker === ticker,
@@ -237,7 +238,11 @@ export const useSubmitHandler = () => {
         return;
       }
 
-      const args = expiry ? { expiry: new Date(expiry), target } : { target };
+      const expiry = utcExpiry
+        ? removeTimezoneOffset(new Date(utcExpiry))
+        : null;
+
+      const args = expiry ? { expiry, target } : { target };
 
       let unsubCb: UnsubCallback | undefined;
       try {
@@ -268,7 +273,7 @@ export const useSubmitHandler = () => {
       if (!sdk) return;
       const target = data.target as string;
       const asset = data.asset as string;
-      const expiry = data.expiry as string | undefined;
+      const utcExpiry = data.expiry as string | undefined;
 
       const assetEntity = heldAssets.find(({ ticker }) => ticker === asset);
       if (!assetEntity) {
@@ -276,7 +281,11 @@ export const useSubmitHandler = () => {
         return;
       }
 
-      const args = expiry ? { expiry: new Date(expiry), target } : { target };
+      const expiry = utcExpiry
+        ? removeTimezoneOffset(new Date(utcExpiry))
+        : null;
+
+      const args = expiry ? { expiry, target } : { target };
 
       let unsubCb: UnsubCallback | undefined;
       try {
@@ -306,10 +315,12 @@ export const useSubmitHandler = () => {
     [AuthorizationType.JoinIdentity]: async (data: FieldValues) => {
       if (!sdk) return;
       const targetAccount = data.targetAccount as string;
-      const expiry = data.expiry as string | undefined;
-      const args = expiry
-        ? { expiry: new Date(expiry), targetAccount }
-        : { targetAccount };
+      const utcExpiry = data.expiry as string | undefined;
+      const expiry = utcExpiry
+        ? removeTimezoneOffset(new Date(utcExpiry))
+        : null;
+
+      const args = expiry ? { expiry, targetAccount } : { targetAccount };
 
       let unsubCb: UnsubCallback | undefined;
       try {
@@ -340,7 +351,7 @@ export const useSubmitHandler = () => {
       if (!sdk) return;
       const targetIdentity = data.targetIdentity as string;
       const portfolio = data.portfolio as string;
-      const expiry = data.expiry as string | undefined;
+      const utcExpiry = data.expiry as string | undefined;
 
       const portfolioEntity = allPortfolios.find(
         ({ name }) => name === portfolio,
@@ -351,9 +362,13 @@ export const useSubmitHandler = () => {
         return;
       }
 
+      const expiry = utcExpiry
+        ? removeTimezoneOffset(new Date(utcExpiry))
+        : null;
+
       const args = expiry
         ? {
-            expiry: new Date(expiry),
+            expiry,
             targetIdentity,
           }
         : { targetIdentity };
@@ -390,7 +405,7 @@ export const useSubmitHandler = () => {
       const permissions = data.permissions as
         | `${PermissionGroupType}`
         | 'Custom';
-      const expiry = data.expiry as string | undefined;
+      const utcExpiry = data.expiry as string | undefined;
       const groupId = data.groupId as number | undefined;
 
       const assetEntity = heldAssets.find(({ ticker }) => ticker === asset);
@@ -424,9 +439,13 @@ export const useSubmitHandler = () => {
         return;
       }
 
+      const expiry = utcExpiry
+        ? removeTimezoneOffset(new Date(utcExpiry))
+        : null;
+
       const args = expiry
         ? {
-            expiry: new Date(expiry),
+            expiry,
             target,
             permissions: permissionGroupEntity,
           }
