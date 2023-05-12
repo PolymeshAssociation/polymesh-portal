@@ -80,6 +80,17 @@ const WalletSelect: React.FC<ISelectProps> = ({
         <StyledExpandedSelect placement={placement}>
           {allAccountsWithMeta
             .sort(({ address }) => (address === selectedAccount ? -1 : 1))
+            .sort((a, b) => {
+              if (
+                a.address === primaryKey &&
+                !secondaryKeys.includes(b.address)
+              )
+                return -1;
+              if (secondaryKeys.includes(a.address) && b.address !== primaryKey)
+                return -1;
+
+              return 1;
+            })
             .map(({ address, meta }) => (
               <StyledLabel
                 key={address}
