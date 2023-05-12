@@ -3,7 +3,7 @@ import { Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { Icon, CopyToClipboard, DidSelect } from '~/components';
-import { Text, Button } from '~/components/UiKit';
+import { Text, Button, SkeletonLoader } from '~/components/UiKit';
 import {
   StyledWrapper,
   IconWrapper,
@@ -182,7 +182,17 @@ export const DidInfo = () => {
                 <StyledDidWrapper>
                   <DidSelect />
                   <IconWrapper>
-                    <CopyToClipboard value={identity?.did} />
+                    {identityLoading ? (
+                      <SkeletonLoader
+                        circle
+                        height="32px"
+                        width="32px"
+                        baseColor="rgba(255,255,255,0.05)"
+                        highlightColor="rgba(255, 255, 255, 0.24)"
+                      />
+                    ) : (
+                      <CopyToClipboard value={identity?.did} />
+                    )}
                   </IconWrapper>
                 </StyledDidWrapper>
               </>
@@ -193,6 +203,13 @@ export const DidInfo = () => {
           {!identityLoading &&
             !claimDetailsLoading &&
             renderBottomInfo(identity, expiry, issuer)}
+          {identityLoading || claimDetailsLoading ? (
+            <SkeletonLoader
+              count={2}
+              baseColor="rgba(255,255,255,0.05)"
+              highlightColor="rgba(255, 255, 255, 0.24)"
+            />
+          ) : null}
         </StyledBottomInfo>
         {!identityLoading && !identity ? (
           <StyledButtonWrapper>
@@ -220,8 +237,12 @@ export const DidInfo = () => {
             </Button>
           </StyledButtonWrapper>
         ) : (
-          <Button variant="transparent" onClick={toggleModal}>
-            Details
+          <Button
+            variant="transparent"
+            onClick={toggleModal}
+            disabled={identityLoading}
+          >
+            {identityLoading ? '' : 'Details'}
           </Button>
         )}
       </StyledWrapper>

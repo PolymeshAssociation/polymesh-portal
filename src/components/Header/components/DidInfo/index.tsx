@@ -3,7 +3,7 @@ import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { StyledWrapper } from './styles';
 import { Icon, CopyToClipboard } from '~/components';
-import { Text } from '~/components/UiKit';
+import { SkeletonLoader, Text } from '~/components/UiKit';
 import { formatDid } from '~/helpers/formatters';
 
 export const DidInfo = () => {
@@ -14,15 +14,21 @@ export const DidInfo = () => {
 
   return (
     <StyledWrapper>
-      <Icon name="IdCard" className="id-icon" size="16px" />
+      <div className="icon-wrapper">
+        <Icon name="IdCard" className="id-icon" size="16px" />
+      </div>
       {connecting || identityLoading ? (
-        '...'
+        <SkeletonLoader width="64px" />
       ) : (
         <Text size="small" bold color="secondary">
           {formatDid(identity?.did)}
         </Text>
       )}
-      <CopyToClipboard value={identity?.did} />
+      {connecting || identityLoading ? (
+        <SkeletonLoader circle width="24px" />
+      ) : (
+        <CopyToClipboard value={identity?.did} />
+      )}
     </StyledWrapper>
   );
 };

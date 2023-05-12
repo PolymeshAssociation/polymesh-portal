@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { AccountContext } from '~/context/AccountContext';
 import { Icon, CopyToClipboard, WalletSelect } from '~/components';
-import { Text } from '~/components/UiKit';
+import { SkeletonLoader, Text } from '~/components/UiKit';
 import {
   StyledWrapper,
   IconWrapper,
@@ -44,7 +44,17 @@ export const KeyInfo = () => {
             !accountIsMultisigSigner && <StyledLabel>Unassigned</StyledLabel>}
           <WalletSelect placement="widget" trimValue={false} />
           <IconWrapper>
-            <CopyToClipboard value={selectedAccount} />
+            {selectedAccount ? (
+              <CopyToClipboard value={selectedAccount} />
+            ) : (
+              <SkeletonLoader
+                circle
+                height="32px"
+                width="32px"
+                baseColor="rgba(255,255,255,0.05)"
+                highlightColor="rgba(255, 255, 255, 0.24)"
+              />
+            )}
           </IconWrapper>
         </KeyInfoWrapper>
       </div>

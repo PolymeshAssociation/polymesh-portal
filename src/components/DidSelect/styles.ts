@@ -11,7 +11,7 @@ export const StyledSelectWrapper = styled.div`
 `;
 
 export const StyledSelect = styled.div<{ expanded: boolean }>`
-  max-width: 95%;
+  width: 95%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

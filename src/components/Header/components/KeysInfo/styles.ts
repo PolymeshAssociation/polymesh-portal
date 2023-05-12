@@ -13,6 +13,12 @@ export const StyledWrapper = styled.div`
   & .key-icon {
     color: #ff2e72;
   }
+
+  & .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 export const StyledPrimaryLabel = styled.div`

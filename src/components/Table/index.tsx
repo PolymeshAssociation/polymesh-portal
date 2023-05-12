@@ -2,7 +2,7 @@ import { Table as ReactTable, flexRender } from '@tanstack/react-table';
 import { Dispatch, SetStateAction } from 'react';
 import { Icon, Pagination } from '~/components';
 import { useWindowWidth } from '~/hooks/utility';
-import { Button, Heading } from '../UiKit';
+import { Button, Heading, SkeletonLoader } from '../UiKit';
 import {
   StyledTableWrapper,
   StyledTableHeader,
@@ -137,22 +137,28 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
         <Heading type="h3">{title}</Heading>
         {tabs && tabs?.length > 1 && (
           <StyledTabsWrapper>
-            {tabs.map((tabItem) => (
-              <StyledTabItem
-                key={tabItem}
-                selected={tabItem === tab}
-                onClick={() =>
-                  (setTab as Dispatch<SetStateAction<S>>)(tabItem as S)
-                }
-              >
-                {tabItem}
-              </StyledTabItem>
-            ))}
+            {tabs.map((tabItem) =>
+              loading ? (
+                <SkeletonLoader key={tabItem} />
+              ) : (
+                <StyledTabItem
+                  key={tabItem}
+                  selected={tabItem === tab}
+                  onClick={() =>
+                    (setTab as Dispatch<SetStateAction<S>>)(tabItem as S)
+                  }
+                >
+                  {tabItem}
+                </StyledTabItem>
+              ),
+            )}
           </StyledTabsWrapper>
         )}
       </StyledTableHeader>
       {loading ? (
-        <StyledTablePlaceholder>Loading...</StyledTablePlaceholder>
+        <StyledTablePlaceholder>
+          <SkeletonLoader borderRadius={0} height="108px" />
+        </StyledTablePlaceholder>
       ) : null}
       {!loading && !rowsNumber && (
         <StyledTablePlaceholder>

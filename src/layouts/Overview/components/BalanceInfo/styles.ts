@@ -38,6 +38,10 @@ export const StyledTotalBalance = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+
+  & h2 {
+    flex-grow: 1;
+  }
 `;
 
 export const StyledAsset = styled.span`

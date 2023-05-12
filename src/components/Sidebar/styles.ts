@@ -46,7 +46,7 @@ export const StyledSidebar = styled.aside<{ fullWidth: boolean }>`
     transform: ${({ fullWidth }) =>
       fullWidth ? 'translateX(0)' : 'translateX(-100%)'};
     overflow-y: scroll;
-    z-index: 1;
+    z-index: 2;
     transition: transform 250ms ease-out;
 
     & .container {
@@ -80,7 +80,10 @@ export const StyledNetworkWrapper = styled.div<{ fullWidth: boolean }>`
     width: 100%;
   }
 `;
-export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
+export const StyledNetworkStatus = styled.div<{
+  fullWidth: boolean;
+  isLoading: boolean;
+}>`
   position: absolute;
   top: 50%;
   left: 50%;
@@ -89,7 +92,7 @@ export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
   align-items: center;
   width: calc(100% - 2px);
   height: calc(100% - 2px);
-  padding: 0 0 0 28px;
+  padding: 0 0 0 ${({ isLoading }) => (isLoading ? '0' : '28px')};
   border-radius: 100px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   color: #43195b;
@@ -246,7 +249,7 @@ export const ExpandedLinks = styled.ul`
   box-shadow: 0px 15px 25px rgba(30, 30, 30, 0.15),
     0px 5px 10px rgba(30, 30, 30, 0.05);
   border-radius: 12px;
-  z-index: 1;
+  z-index: 2;
 
   @media screen and (max-width: 767px) {
     left: 0;
@@ -314,7 +317,7 @@ export const StyledCloseMenuButton = styled.button`
   justify-content: center;
   background: transparent;
   color: ${({ theme }) => theme.colors.textPrimary};
-  z-index: 1;
+  z-index: 2;
 `;
 
 export const StyledAccountInfo = styled.div`

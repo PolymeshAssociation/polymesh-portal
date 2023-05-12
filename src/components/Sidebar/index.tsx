@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useBalance, useNetwork, useNotifications } from '~/hooks/polymesh';
 import { CopyToClipboard, Icon } from '~/components';
-import { NotificationCounter, Text } from '../UiKit';
+import { NotificationCounter, SkeletonLoader, Text } from '../UiKit';
 import {
   StyledSidebar,
   MenuButton,
@@ -71,21 +71,23 @@ const Sidebar: React.FC<ISidebarProps> = ({
         {isMobile && (
           <>
             <StyledAccountInfo>
-              <Icon name="PolymeshSymbol" size="24px" />
-              {balanceIsLoading ? (
-                'loading'
+              {identityLoading || balanceIsLoading ? (
+                <SkeletonLoader />
               ) : (
-                <Text bold size="large">
-                  {formatBalance(balance.total)} <span>POLYX</span>
-                </Text>
+                <>
+                  <Icon name="PolymeshSymbol" size="24px" />
+                  <Text bold size="large">
+                    {formatBalance(balance.total)} <span>POLYX</span>
+                  </Text>
+                </>
               )}
             </StyledAccountInfo>
             <StyledAccountInfo>
-              <Icon name="IdCard" size="24px" />
               {identityLoading ? (
-                'loading'
+                <SkeletonLoader />
               ) : (
                 <>
+                  <Icon name="IdCard" size="24px" />
                   <span>{formatDid(identity?.did, 10, 9)}</span>
                   <CopyToClipboard value={identity?.did} />
                 </>
@@ -94,9 +96,21 @@ const Sidebar: React.FC<ISidebarProps> = ({
           </>
         )}
         <StyledNetworkWrapper fullWidth={sidebarExpanded}>
-          <StyledNetworkStatus fullWidth={sidebarExpanded}>
-            <StatusDot isLoading={networkLoading} fullWidth={sidebarExpanded} />
-            {networkLoading ? '' : <span>{networkName}</span>}
+          <StyledNetworkStatus
+            fullWidth={sidebarExpanded}
+            isLoading={networkLoading}
+          >
+            {networkLoading ? (
+              <SkeletonLoader height="30px" />
+            ) : (
+              <>
+                <StatusDot
+                  isLoading={networkLoading}
+                  fullWidth={sidebarExpanded}
+                />
+                {networkLoading ? '' : <span>{networkName}</span>}
+              </>
+            )}
           </StyledNetworkStatus>
         </StyledNetworkWrapper>
         <nav>

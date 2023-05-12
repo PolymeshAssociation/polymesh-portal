@@ -143,6 +143,7 @@ export const StyledTabsWrapper = styled.div`
   display: flex;
   align-items: center;
   height: 40px;
+  min-width: 160px;
   gap: 4px;
   padding: 4px;
   border: 1px solid #c7c7c7;

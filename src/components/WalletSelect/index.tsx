@@ -11,8 +11,9 @@ import {
   StyledKeyLabel,
 } from './styles';
 import { formatKey } from '~/helpers/formatters';
-import { ISelectProps } from './types';
+import { ESelectPlacements, ISelectProps } from './types';
 import { useWindowWidth } from '~/hooks/utility';
+import { SkeletonLoader } from '../UiKit';
 
 const WalletSelect: React.FC<ISelectProps> = ({
   placement = 'header',
@@ -60,25 +61,19 @@ const WalletSelect: React.FC<ISelectProps> = ({
     setExpanded((prev) => !prev);
   };
 
-  return (
+  return selected ? (
     <StyledSelectWrapper ref={ref} placement={placement}>
       <StyledSelect
         onClick={handleDropdownToggle}
         expanded={expanded}
         placement={placement}
       >
-        {selected ? (
-          <>
-            {trimValue
-              ? formatKey(selected)
-              : formatKey(selected, isMobile ? 6 : 8, isMobile ? 6 : 8)}
-            <IconWrapper>
-              <Icon name="DropdownIcon" />
-            </IconWrapper>
-          </>
-        ) : (
-          'loading...'
-        )}
+        {trimValue
+          ? formatKey(selected)
+          : formatKey(selected, isMobile ? 6 : 8, isMobile ? 6 : 8)}
+        <IconWrapper>
+          <Icon name="DropdownIcon" />
+        </IconWrapper>
       </StyledSelect>
       {expanded && (
         <StyledExpandedSelect placement={placement}>
@@ -112,6 +107,21 @@ const WalletSelect: React.FC<ISelectProps> = ({
         </StyledExpandedSelect>
       )}
     </StyledSelectWrapper>
+  ) : (
+    <SkeletonLoader
+      height={placement === ESelectPlacements.HEADER ? undefined : '32px'}
+      width={placement === ESelectPlacements.HEADER ? '94px' : undefined}
+      baseColor={
+        placement === ESelectPlacements.HEADER
+          ? undefined
+          : 'rgba(255,255,255,0.05)'
+      }
+      highlightColor={
+        placement === ESelectPlacements.HEADER
+          ? undefined
+          : 'rgba(255, 255, 255, 0.24)'
+      }
+    />
   );
 };
 

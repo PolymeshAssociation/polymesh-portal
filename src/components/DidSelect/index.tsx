@@ -13,6 +13,7 @@ import {
 import { formatDid } from '~/helpers/formatters';
 import { notifyError } from '~/helpers/notifications';
 import { useWindowWidth } from '~/hooks/utility';
+import { SkeletonLoader } from '../UiKit';
 
 const DidSelect = () => {
   const { setSelectedAccount, allAccounts, identity, allIdentities } =
@@ -83,20 +84,15 @@ const DidSelect = () => {
 
   const truncateLength = Math.ceil(windowWidth / 77);
 
-  return (
+  return selected ? (
     <StyledSelectWrapper ref={ref}>
       <StyledSelect onClick={handleDropdownToggle} expanded={expanded}>
-        {selected ? (
-          <>
-            {formatDid(selected.did, truncateLength, truncateLength - 1)}
-            <IconWrapper>
-              <Icon name="DropdownIcon" />
-            </IconWrapper>
-          </>
-        ) : (
-          'loading...'
-        )}
+        {formatDid(selected.did, truncateLength, truncateLength - 1)}
+        <IconWrapper>
+          <Icon name="DropdownIcon" />
+        </IconWrapper>
       </StyledSelect>
+
       {expanded && (
         <StyledExpandedSelect>
           {allIdentities.map((option) => (
@@ -118,6 +114,12 @@ const DidSelect = () => {
         </StyledExpandedSelect>
       )}
     </StyledSelectWrapper>
+  ) : (
+    <SkeletonLoader
+      height="32px"
+      baseColor="rgba(255,255,255,0.05)"
+      highlightColor="rgba(255, 255, 255, 0.24)"
+    />
   );
 };
 

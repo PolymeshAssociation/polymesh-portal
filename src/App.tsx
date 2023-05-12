@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { ApolloProvider } from '@apollo/client';
 import { ToastContainer } from 'react-toastify';
+import { SkeletonTheme } from 'react-loading-skeleton';
 import { PolymeshProvider } from '~/context/PolymeshContext';
 import { AccountProvider } from '~/context/AccountContext';
 import { PortfolioProvider } from '~/context/PortfolioContext';
@@ -20,18 +21,24 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme[currentTheme]}>
-      <SharedLayout>
-        <Routes>
-          {ROUTES.map(({ path, component }) => (
-            <Route path={path} element={createElement(component)} key={path} />
-          ))}
-        </Routes>
-      </SharedLayout>
-      <ToastContainer
-        enableMultiContainer
-        containerId="globalToast"
-        position="top-center"
-      />
+      <SkeletonTheme>
+        <SharedLayout>
+          <Routes>
+            {ROUTES.map(({ path, component }) => (
+              <Route
+                path={path}
+                element={createElement(component)}
+                key={path}
+              />
+            ))}
+          </Routes>
+        </SharedLayout>
+        <ToastContainer
+          enableMultiContainer
+          containerId="globalToast"
+          position="top-center"
+        />
+      </SkeletonTheme>
     </ThemeProvider>
   );
 };
