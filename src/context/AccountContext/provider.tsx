@@ -71,7 +71,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
     const unsubCb = signingManager.onAccountChange(async (newAccounts) => {
       const [firstAccount] = newAccounts;
       signerRef.current = firstAccount.toString();
-      setAllAccounts(newAccounts.map((acc) => acc.toString()));
+      setAllAccounts((newAccounts as InjectedAccountWithMeta[]).map((acc) => acc.address.toString()));
       setAllAccountsWithMeta(newAccounts as InjectedAccountWithMeta[]);
     }, true);
 
