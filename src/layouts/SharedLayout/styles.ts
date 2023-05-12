@@ -14,6 +14,10 @@ export const StyledMain = styled.main<{
       flex-grow: 1;
       min-height: calc(100vh - 16px - 72px - 55px);
       padding: 36px 48px;
+
+      @media screen and (max-width: 767px) {
+        padding: 24px 36px 36px 36px;
+      }
       `
   }
   background-color: ${

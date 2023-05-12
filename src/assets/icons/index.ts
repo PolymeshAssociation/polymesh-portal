@@ -42,3 +42,4 @@ export { ReactComponent as SortAscending } from './sort-ascending.svg';
 export { ReactComponent as SortDescending } from './sort-descending.svg';
 export { ReactComponent as Coins } from './coins.svg';
 export { ReactComponent as Refresh } from './refresh.svg';
+export { ReactComponent as BurgerMenu } from './burger-menu.svg';

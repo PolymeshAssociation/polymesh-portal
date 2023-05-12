@@ -100,6 +100,8 @@ export const DidInfo = () => {
 
   const toggleModal = () => setDetailsExpanded((prev) => !prev);
 
+  const isSmallScreen = isMobile || isSmallDesktop;
+
   const renderBottomInfo = (
     activeIdentity: Identity | null,
     expiryDate: Date | null | undefined,
@@ -141,7 +143,7 @@ export const DidInfo = () => {
           Expires on:
           <span>{date}</span>
         </div>
-        {!isMobile && !isSmallDesktop && <Separator />}
+        {!isSmallScreen && <Separator />}
         <div>
           Verified by:
           <span>

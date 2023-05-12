@@ -14,7 +14,12 @@ export const parseExtrinsicHistory = async (
         extrinsicId: `${blockNumber.toString()}-${extrinsicIdx.toString()}`,
         dateTime: await getExtrinsicTime(blockNumber, extrinsicIdx),
         module: txTag.split('.')[0],
-        call: txTag.split('.')[1],
+        call:
+          txTag
+            .split('.')[1]
+            .match(/([A-Z]?[^A-Z]*)/g)
+            ?.slice(0, -1)
+            .join(' ') || txTag.split('.')[1],
         success,
       }),
     ),

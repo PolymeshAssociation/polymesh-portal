@@ -16,10 +16,43 @@ export const StyledSidebar = styled.aside<{ fullWidth: boolean }>`
     padding-top: 6px;
     margin-left: 8px;
     margin-bottom: 54px;
+
+    @media screen and (max-width: 767px) {
+      justify-content: center;
+      margin-bottom: 50px;
+      margin-left: 0;
+      padding-top: 0;
+    }
   }
   & .logo-icon {
     width: 32px;
     margin: 0 auto 48px auto;
+  }
+
+  @media screen and (max-width: 480px) {
+    & .container {
+      max-width: 320px;
+      margin: 0 auto;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    padding: 24px 16px;
+    transform: ${({ fullWidth }) =>
+      fullWidth ? 'translateX(0)' : 'translateX(-100%)'};
+    overflow-y: scroll;
+    z-index: 1;
+    transition: transform 250ms ease-out;
+
+    & .container {
+      width: 420px;
+      margin: 0 auto;
+    }
   }
 `;
 
@@ -42,6 +75,10 @@ export const StyledNetworkWrapper = styled.div<{ fullWidth: boolean }>`
   margin: 0 auto 34px auto;
   border-radius: 100px;
   background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
+
+  @media screen and (max-width: 767px) {
+    width: 100%;
+  }
 `;
 export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
   position: absolute;
@@ -65,15 +102,17 @@ export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
     transition: opacity 150ms linear;
   }
 
-  ${({ fullWidth }) =>
-    fullWidth
-      ? ''
-      : `
+  @media screen and (min-width: 768px) {
+    ${({ fullWidth }) =>
+      fullWidth
+        ? ''
+        : `
       text-indent: -300px;
       & span {
         opacity: 0;
       }
   `}
+  }
 `;
 
 export const StatusDot = styled.div<{ fullWidth: boolean; isLoading: boolean }>`
@@ -130,16 +169,18 @@ export const StyledNavList = styled.nav<{ fullWidth: boolean }>`
   flex-direction: column;
   gap: 10px;
 
-  & a {
-    ${({ fullWidth }) =>
-      fullWidth
-        ? ''
-        : `
+  @media screen and (min-width: 768px) {
+    & a {
+      ${({ fullWidth }) =>
+        fullWidth
+          ? ''
+          : `
     text-indent: -300px;
     & span {
       opacity: 0;
     }
     `}
+    }
   }
 
   & .notification {
@@ -206,6 +247,11 @@ export const ExpandedLinks = styled.ul`
     0px 5px 10px rgba(30, 30, 30, 0.05);
   border-radius: 12px;
   z-index: 1;
+
+  @media screen and (max-width: 767px) {
+    left: 0;
+    width: 100%;
+  }
 `;
 
 export const StyledExpandedLink = styled.button<{ disabled?: boolean }>`
@@ -257,4 +303,34 @@ export const SoonLabel = styled.div`
   font-weight: 500;
   font-size: 12px;
   color: #43195b;
+`;
+
+export const StyledCloseMenuButton = styled.button`
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: ${({ theme }) => theme.colors.textPrimary};
+  z-index: 1;
+`;
+
+export const StyledAccountInfo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 56px;
+  margin-bottom: 28px;
+  padding: 0 16px;
+  background-color: ${({ theme }) => theme.colors.landingBackground};
+  border-radius: 60px;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-weight: 500;
+  font-size: 14px;
+  & span {
+    color: ${({ theme }) => theme.colors.textSecondary};
+  }
 `;

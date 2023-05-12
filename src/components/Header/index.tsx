@@ -35,7 +35,7 @@ const Header: React.FC<IHeaderProps> = ({ toggleMobileMenu }) => {
       <StyledHeaderContainer>
         {isMobile ? (
           <StyledCloseMenuButton onClick={toggleMobileMenu}>
-            <Icon name="CloseIcon" size="24px" />
+            <Icon name="BurgerMenu" size="24px" />
           </StyledCloseMenuButton>
         ) : (
           <Heading type="h2">{pageLabel}</Heading>

@@ -75,20 +75,42 @@ export const StyledDidWrapper = styled.div`
 
 export const StyledBottomInfo = styled.div`
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+
+  @media screen and (min-width: 768px) and (max-width: 1023px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
   @media screen and (min-width: 1024px) and (max-width: 1200px) {
     gap: 8px;
     flex-direction: column;
     align-items: flex-start;
   }
+  @media screen and (min-width: 1200px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
 
-  & div {
+  & > div {
     display: flex;
     align-items: center;
     gap: 6px;
     font-size: 14px;
     color: rgba(255, 255, 255, 0.82);
+
+    @media screen and (min-width: 0px) and (max-width: 767px) {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    @media screen and (min-width: 1024px) and (max-width: 1200px) {
+      width: 100%;
+      justify-content: space-between;
+    }
   }
 
   & p {

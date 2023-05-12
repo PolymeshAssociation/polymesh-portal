@@ -10,7 +10,7 @@ const Overview = () => {
       <BalanceInfo />
       <KeyInfo />
       <DidInfo />
-      {/* <ActivityTable /> */}
+      <ActivityTable />
     </OverviewGrid>
   );
 };

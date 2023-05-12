@@ -10,10 +10,9 @@ export const StyledButton = styled.button<{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-width: 128px;
-  height: 48px;
-  padding: 0 16px;
+  gap: 6px;
+  height: 40px;
+  padding: 0 8px;
   border-radius: 100px;
   ${
     variant === EButtonVariants.PRIMARY
@@ -159,4 +158,11 @@ export const StyledButton = styled.button<{
   transition-duration: 250ms;
   transition-timing-function: ease-out;
   `}
+
+  @media screen and (min-width: 480px) {
+    min-width: 128px;
+    gap: 10px;
+    padding: 0 16px;
+    height: 48px;
+  }
 `;

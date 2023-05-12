@@ -48,9 +48,13 @@ export const StyledButtonGroup = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 12px;
 
   & button {
     flex-grow: 1;
+  }
+
+  @media screen and (min-width: 480px) {
+    gap: 24px;
   }
 `;

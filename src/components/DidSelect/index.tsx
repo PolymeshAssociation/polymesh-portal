@@ -12,6 +12,7 @@ import {
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
 import { notifyError } from '~/helpers/notifications';
+import { useWindowWidth } from '~/hooks/utility';
 
 const DidSelect = () => {
   const { setSelectedAccount, allAccounts, identity, allIdentities } =
@@ -19,6 +20,7 @@ const DidSelect = () => {
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState<Identity | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+  const { windowWidth } = useWindowWidth();
 
   useEffect(() => {
     if (!identity) return;
@@ -79,12 +81,14 @@ const DidSelect = () => {
     setExpanded((prev) => !prev);
   };
 
+  const truncateLength = Math.ceil(windowWidth / 77);
+
   return (
     <StyledSelectWrapper ref={ref}>
       <StyledSelect onClick={handleDropdownToggle} expanded={expanded}>
         {selected ? (
           <>
-            {formatDid(selected?.did, 10, 10)}
+            {formatDid(selected.did, truncateLength, truncateLength - 1)}
             <IconWrapper>
               <Icon name="DropdownIcon" />
             </IconWrapper>
@@ -101,7 +105,7 @@ const DidSelect = () => {
               htmlFor={option?.did}
               selected={selected?.did === option?.did}
             >
-              {formatDid(option?.did, 10, 10)}
+              {formatDid(option?.did, truncateLength, truncateLength)}
               <StyledInput
                 type="radio"
                 name="key"

@@ -12,6 +12,7 @@ import {
 } from './styles';
 import { formatKey } from '~/helpers/formatters';
 import { ISelectProps } from './types';
+import { useWindowWidth } from '~/hooks/utility';
 
 const WalletSelect: React.FC<ISelectProps> = ({
   placement = 'header',
@@ -27,6 +28,7 @@ const WalletSelect: React.FC<ISelectProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState('');
   const ref = useRef<HTMLDivElement>(null);
+  const { isMobile } = useWindowWidth();
 
   useEffect(() => {
     if (!selectedAccount) return;
@@ -67,7 +69,9 @@ const WalletSelect: React.FC<ISelectProps> = ({
       >
         {selected ? (
           <>
-            {trimValue ? formatKey(selected) : formatKey(selected, 7, 9)}
+            {trimValue
+              ? formatKey(selected)
+              : formatKey(selected, isMobile ? 6 : 8, isMobile ? 6 : 8)}
             <IconWrapper>
               <Icon name="DropdownIcon" />
             </IconWrapper>
@@ -87,7 +91,9 @@ const WalletSelect: React.FC<ISelectProps> = ({
                 selected={selected === option}
                 placement={placement}
               >
-                {trimValue ? formatKey(option) : formatKey(option, 7, 9)}
+                {trimValue
+                  ? formatKey(option)
+                  : formatKey(option, isMobile ? 6 : 8, isMobile ? 6 : 8)}
                 {option === primaryKey ? (
                   <StyledKeyLabel primary>Primary</StyledKeyLabel>
                 ) : null}

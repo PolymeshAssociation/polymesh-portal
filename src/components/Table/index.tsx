@@ -1,7 +1,8 @@
 import { Table as ReactTable, flexRender } from '@tanstack/react-table';
 import { Dispatch, SetStateAction } from 'react';
 import { Icon, Pagination } from '~/components';
-import { Heading } from '../UiKit';
+import { useWindowWidth } from '~/hooks/utility';
+import { Button, Heading } from '../UiKit';
 import {
   StyledTableWrapper,
   StyledTableHeader,
@@ -12,6 +13,9 @@ import {
   StyledTabItem,
   StyledPerPageWrapper,
   StyledPerPageSelect,
+  StyledMobileTable,
+  StyledMobileRow,
+  StyledMobileCell,
 } from './styles';
 
 interface ITableProps<T, S> {
@@ -29,6 +33,8 @@ interface ITableProps<T, S> {
 const perPageOptions = [3, 5, 10, 20, 50];
 
 const Table = <T, S>(props: ITableProps<T, S>) => {
+  const { isMobile, isTablet } = useWindowWidth();
+
   const {
     data: { table, tab },
     title,
@@ -50,6 +56,80 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
 
     return { first, last };
   };
+
+  const tableHeaders = table.getFlatHeaders();
+  const tableRows = table.getRowModel().rows;
+
+  const renderMobileTable = () => (
+    <StyledMobileTable>
+      {tableRows.map((row) => (
+        <StyledMobileRow key={`${row.id}/desktop`}>
+          {row.getVisibleCells().map((cell, idx) => (
+            <StyledMobileCell key={`${cell.id}/desktop`}>
+              <div className="header">
+                {(() => {
+                  const currentHeader = tableHeaders.find(
+                    (header) => header.index === idx,
+                  );
+                  return !currentHeader || currentHeader.isPlaceholder
+                    ? null
+                    : flexRender(
+                        currentHeader.column.columnDef.header,
+                        currentHeader.getContext(),
+                      );
+                })()}
+              </div>
+              <div className="data">
+                {flexRender(
+                  cell.column.columnDef.cell &&
+                    (cell.column.columnDef.cell as CallableFunction)(cell),
+                  {},
+                )}
+              </div>
+            </StyledMobileCell>
+          ))}
+        </StyledMobileRow>
+      ))}
+    </StyledMobileTable>
+  );
+
+  const renderDesktopTable = () => (
+    <StyledTableBody colsNumber={colsNumber}>
+      <thead>
+        <tr>
+          {tableHeaders.map((header) => (
+            <td key={`${header.id}/desktop`}>
+              {header.isPlaceholder
+                ? null
+                : flexRender(
+                    header.column.columnDef.header,
+                    header.getContext(),
+                  )}
+            </td>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {tableRows.map((row) => (
+          <tr key={`${row.id}/desktop`}>
+            {row.getVisibleCells().map((cell) => {
+              return (
+                <td key={`${cell.id}/desktop`}>
+                  {flexRender(
+                    cell.column.columnDef.cell &&
+                      (cell.column.columnDef.cell as CallableFunction)(cell),
+                    {},
+                  )}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </StyledTableBody>
+  );
+
+  const isSmallScreen = isMobile || isTablet;
 
   return (
     <StyledTableWrapper>
@@ -80,78 +160,66 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
           No data available
         </StyledTablePlaceholder>
       )}
-      {!loading && !!rowsNumber && (
-        <StyledTableBody colsNumber={colsNumber}>
-          <thead>
-            <tr>
-              {table.getFlatHeaders().map((header) => (
-                <td key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </td>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => {
-                  return (
-                    <td key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell &&
-                          (cell.column.columnDef.cell as CallableFunction)(
-                            cell,
-                          ),
-                        {},
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </StyledTableBody>
-      )}
+      {isSmallScreen
+        ? !loading && !!rowsNumber && renderMobileTable()
+        : !loading && !!rowsNumber && renderDesktopTable()}
       <StyledTableFooter>
         {!loading && rowsNumber ? (
           <>
-            <StyledPerPageWrapper>
-              Show:
-              <StyledPerPageSelect>
-                <select
-                  onChange={({ target }) => {
-                    table.setPageSize(Number(target.value));
-                  }}
-                  value={pageSize}
+            {!isSmallScreen && (
+              <StyledPerPageWrapper>
+                Show:
+                <StyledPerPageSelect>
+                  <select
+                    onChange={({ target }) => {
+                      table.setPageSize(Number(target.value));
+                    }}
+                    value={pageSize}
+                  >
+                    {perPageOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <Icon name="DropdownIcon" className="dropdown-icon" />
+                </StyledPerPageSelect>
+              </StyledPerPageWrapper>
+            )}
+            {isSmallScreen ? (
+              <>
+                <Button
+                  disabled={!table.getCanPreviousPage()}
+                  onClick={() => table.previousPage()}
                 >
-                  {perPageOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                <Icon name="DropdownIcon" className="dropdown-icon" />
-              </StyledPerPageSelect>
-            </StyledPerPageWrapper>
-            <Pagination
-              totalItems={totalItems || rowsNumber}
-              currentItems={getCurrentPageItems()}
-              isPrevDisabled={!table.getCanPreviousPage()}
-              isNextDisabled={!table.getCanNextPage()}
-              onNextPageClick={() => table.nextPage()}
-              onPrevPageClick={() => table.previousPage()}
-              onFirstPageClick={() => table.setPageIndex(0)}
-              onLastPageClick={() =>
-                table.setPageIndex(
-                  Math.ceil(totalItems || rowsNumber / pageSize) - 1,
-                )
-              }
-            />
+                  <Icon name="PrevPage" />
+                  Previous
+                </Button>
+                <Button
+                  variant="secondary"
+                  disabled={!table.getCanNextPage()}
+                  onClick={() => table.nextPage()}
+                >
+                  Next
+                  <Icon name="NextPage" />
+                </Button>
+              </>
+            ) : (
+              <Pagination
+                totalItems={totalItems || rowsNumber}
+                currentItems={getCurrentPageItems()}
+                isPrevDisabled={!table.getCanPreviousPage()}
+                isNextDisabled={!table.getCanNextPage()}
+                onNextPageClick={() => table.nextPage()}
+                onPrevPageClick={() => table.previousPage()}
+                onFirstPageClick={() => table.setPageIndex(0)}
+                onLastPageClick={() =>
+                  table.setPageIndex(
+                    Math.ceil(totalItems || rowsNumber / pageSize) - 1,
+                  )
+                }
+              />
+            )}
           </>
         ) : null}
       </StyledTableFooter>

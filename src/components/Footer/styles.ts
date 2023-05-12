@@ -22,8 +22,13 @@ export const StyledContainer = styled.div<{ isLandingPage: boolean }>`
   flex-wrap: wrap;
   padding: ${({ isLandingPage }) => (isLandingPage ? '0 64px' : '0 48px')};
 
+  @media screen and (max-width: 1023px) {
+    justify-content: center;
+  }
   & p {
-    padding: 10px 0;
+    @media screen and (max-width: 1023px) {
+      padding: 8px 0;
+    }
   }
 `;
 
@@ -39,4 +44,8 @@ export const StyledLink = styled.a`
   padding: 16px 0;
   font-weight: 500;
   font-size: 14px;
+
+  @media screen and (max-width: 1023px) {
+    padding: 8px 0;
+  }
 `;

@@ -3,6 +3,10 @@ import styled from 'styled-components';
 export const StyledHeader = styled.header`
   padding-top: 16px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
+
+  @media screen and (max-width: 767px) {
+    padding-top: 0;
+  }
 `;
 
 export const StyledHeaderContainer = styled.div`
@@ -11,6 +15,11 @@ export const StyledHeaderContainer = styled.div`
   justify-content: space-between;
   height: 72px;
   padding: 0 48px;
+
+  @media screen and (max-width: 767px) {
+    height: 64px;
+    padding: 0 36px;
+  }
 `;
 
 export const StyledInfoList = styled.ul`

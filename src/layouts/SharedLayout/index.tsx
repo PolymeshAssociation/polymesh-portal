@@ -5,6 +5,8 @@ import { useInjectedWeb3 } from '~/hooks/polymesh';
 import { Footer, Header, Sidebar } from '~/components';
 import { StyledMain, StyledPageWrapper } from './styles';
 import { useWindowWidth } from '~/hooks/utility';
+import { Heading } from '~/components/UiKit';
+import { ROUTES } from '~/constants/routes';
 
 interface ILayoutProps {
   children: React.ReactNode;
@@ -23,12 +25,29 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
     !defaultExtension && !isLandingPage && !connecting && !initialized;
 
   useEffect(() => {
-    if (!isMobile) return;
+    if (!isMobile) {
+      document.body.classList.remove('no-scroll');
+      return;
+    }
 
-    setMobileMenuOpen(false);
+    setMobileMenuOpen((prev) => {
+      if (prev) {
+        document.body.classList.remove('no-scroll');
+      }
+      return false;
+    });
   }, [isMobile]);
 
-  const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen((prev) => {
+      if (prev) {
+        document.body.classList.remove('no-scroll');
+      } else {
+        document.body.classList.add('no-scroll');
+      }
+      return !prev;
+    });
+  };
 
   return (
     <>
@@ -45,7 +64,14 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
           />
           <div className="main-wrapper">
             <Header toggleMobileMenu={toggleMobileMenu} />
-            <StyledMain isLandingPage={isLandingPage}>{children}</StyledMain>
+            <StyledMain isLandingPage={isLandingPage}>
+              {isMobile && (
+                <Heading type="h2" marginBottom={24}>
+                  {ROUTES.find(({ path }) => path === pathname)?.label || null}
+                </Heading>
+              )}
+              {children}
+            </StyledMain>
             <Footer isLandingPage={isLandingPage} />
           </div>
         </StyledPageWrapper>
