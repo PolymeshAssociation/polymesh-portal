@@ -44,7 +44,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
   const portfolioId = searchParams.get('id');
   const { allPortfolios, totalAssetsAmount, portfolioLoading } =
     useContext(PortfolioContext);
-  const { identity, identityLoading } = useContext(AccountContext);
+  const { identity } = useContext(AccountContext);
   const [tableDataLoading, setTableDataLoading] = useState(false);
   const tabRef = useRef<string>('');
   const portfolioRef = useRef<string | null>(null);
@@ -189,7 +189,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
       getPaginationRowModel: getPaginationRowModel(),
       getSortedRowModel: getSortedRowModel(),
     }),
-    tableDataLoading: identityLoading || tableDataLoading || portfolioLoading,
+    tableDataLoading: tableDataLoading || portfolioLoading,
     totalItems,
   };
 };

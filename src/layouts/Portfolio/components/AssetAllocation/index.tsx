@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Asset } from '@polymeshassociation/polymesh-sdk/types';
-import { Text } from '~/components/UiKit';
+import { SkeletonLoader, Text } from '~/components/UiKit';
 import { PortfolioContext } from '~/context/PortfolioContext';
 import {
   StyledWrapper,
@@ -13,7 +13,6 @@ import {
   StyledExpandedOtherAssets,
 } from './styles';
 import { formatBalance, stringToColor } from '~/helpers/formatters';
-import { AccountContext } from '~/context/AccountContext';
 
 interface IAssetOption {
   ticker: string;
@@ -36,7 +35,6 @@ export const AssetAllocation = () => {
   const [assetOptions, setAssetOptions] = useState<IAssetOption[]>([]);
   const [reducedOptions, setReducedOptions] = useState<IReducedOption[]>([]);
   const [otherAssetsExpanded, setOtherAssetsExpanded] = useState(false);
-  const { identityLoading } = useContext(AccountContext);
   const { allPortfolios, totalAssetsAmount, portfolioLoading } =
     useContext(PortfolioContext);
   const [searchParams] = useSearchParams();
@@ -144,57 +142,70 @@ export const AssetAllocation = () => {
 
   return (
     <StyledWrapper>
-      <Text size="large" bold>
-        Asset allocation
+      <Text size="large" bold marginBottom={22}>
+        {portfolioLoading ? <SkeletonLoader /> : 'Asset allocation'}
       </Text>
-      {identityLoading || !assetOptions.length || portfolioLoading ? (
-        <StyledPlaceholder>
-          {!portfolioLoading && !reducedOptions.length && 'No assets available'}
-        </StyledPlaceholder>
+      {portfolioLoading ? (
+        <SkeletonLoader height={56} borderRadius={8} />
       ) : (
-        <StyledPercentageBar>
-          {reducedOptions.map(({ ticker, color, percentage }) => {
-            return (
-              <StyledFraction
-                key={ticker}
-                percentage={percentage}
-                color={color}
-              />
-            );
-          })}
-        </StyledPercentageBar>
+        <>
+          {!assetOptions && (
+            <StyledPlaceholder>No assets available</StyledPlaceholder>
+          )}
+          {!!assetOptions && (
+            <StyledPercentageBar>
+              {reducedOptions.map(({ ticker, color, percentage }) => {
+                return (
+                  <StyledFraction
+                    key={ticker}
+                    percentage={percentage}
+                    color={color}
+                  />
+                );
+              })}
+            </StyledPercentageBar>
+          )}
+        </>
       )}
+
       <StyledLegendList>
-        {reducedOptions.map(({ ticker, color, percentage }) => {
-          const isOther = ticker === 'Other';
-          return isOther ? (
-            <StyledLegendItem
-              key={ticker}
-              color={color}
-              expandable
-              onMouseEnter={() => setOtherAssetsExpanded(true)}
-              onMouseLeave={() => setOtherAssetsExpanded(false)}
-            >
-              {ticker}
-              <span>{formatBalance(percentage)}%</span>
-              {otherAssetsExpanded && (
-                <StyledExpandedOtherAssets>
-                  {smallAmountAssets.map((option) => (
-                    <StyledLegendItem key={option.ticker} color={option.color}>
-                      {option.ticker}
-                      <span>{formatBalance(option.percentage)}%</span>
-                    </StyledLegendItem>
-                  ))}
-                </StyledExpandedOtherAssets>
-              )}
-            </StyledLegendItem>
-          ) : (
-            <StyledLegendItem key={ticker} color={color}>
-              {ticker}
-              <span>{formatBalance(percentage)}%</span>
-            </StyledLegendItem>
-          );
-        })}
+        {portfolioLoading ? (
+          <SkeletonLoader />
+        ) : (
+          reducedOptions.map(({ ticker, color, percentage }) => {
+            const isOther = ticker === 'Other';
+            return isOther ? (
+              <StyledLegendItem
+                key={ticker}
+                color={color}
+                expandable
+                onMouseEnter={() => setOtherAssetsExpanded(true)}
+                onMouseLeave={() => setOtherAssetsExpanded(false)}
+              >
+                {ticker}
+                <span>{formatBalance(percentage)}%</span>
+                {otherAssetsExpanded && (
+                  <StyledExpandedOtherAssets>
+                    {smallAmountAssets.map((option) => (
+                      <StyledLegendItem
+                        key={option.ticker}
+                        color={option.color}
+                      >
+                        {option.ticker}
+                        <span>{formatBalance(option.percentage)}%</span>
+                      </StyledLegendItem>
+                    ))}
+                  </StyledExpandedOtherAssets>
+                )}
+              </StyledLegendItem>
+            ) : (
+              <StyledLegendItem key={ticker} color={color}>
+                {ticker}
+                <span>{formatBalance(percentage)}%</span>
+              </StyledLegendItem>
+            );
+          })
+        )}
       </StyledLegendList>
     </StyledWrapper>
   );

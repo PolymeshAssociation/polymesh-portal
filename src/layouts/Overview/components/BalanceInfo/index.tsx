@@ -1,5 +1,4 @@
 import { useContext, useState } from 'react';
-import { PolymeshContext } from '~/context/PolymeshContext';
 import { useBalance } from '~/hooks/polymesh';
 import { Icon } from '~/components';
 import { Text, Heading, Button, SkeletonLoader } from '~/components/UiKit';
@@ -15,9 +14,6 @@ import { formatBalance } from '~/helpers/formatters';
 import { AccountContext } from '~/context/AccountContext';
 
 export const BalanceInfo = () => {
-  const {
-    state: { connecting },
-  } = useContext(PolymeshContext);
   const { identityHasValidCdd, accountIsMultisigSigner } =
     useContext(AccountContext);
   const { balance, balanceIsLoading } = useBalance();
@@ -33,9 +29,9 @@ export const BalanceInfo = () => {
         <div className="balance">
           <div>
             <StyledTotalBalance>
-              <Icon name="PolymeshSymbol" size="36px" />
+              {!balanceIsLoading && <Icon name="PolymeshSymbol" size="36px" />}
               <Heading type="h2">
-                {connecting || balanceIsLoading ? (
+                {balanceIsLoading ? (
                   <SkeletonLoader />
                 ) : (
                   <>
@@ -49,7 +45,7 @@ export const BalanceInfo = () => {
           </div>
           <div>
             <Heading type="h3">
-              {connecting || balanceIsLoading ? (
+              {balanceIsLoading ? (
                 <SkeletonLoader />
               ) : (
                 <>
@@ -61,7 +57,7 @@ export const BalanceInfo = () => {
           </div>
           <div>
             <Heading type="h3">
-              {connecting || balanceIsLoading ? (
+              {balanceIsLoading ? (
                 <SkeletonLoader />
               ) : (
                 <>

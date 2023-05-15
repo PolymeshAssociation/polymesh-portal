@@ -19,6 +19,7 @@ interface IDropdownSelectProps {
   selected?: string;
   removeSelection?: boolean;
   enableSearch?: boolean;
+  borderRadius?: number;
 }
 
 const DropdownSelect: React.FC<IDropdownSelectProps> = ({
@@ -30,6 +31,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
   selected,
   removeSelection,
   enableSearch,
+  borderRadius,
 }) => {
   const [selectExpanded, setSelectExpanded] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string>(selected || '');
@@ -92,6 +94,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
           onClick={() => handleDropdownToggle()}
           expanded={selectExpanded}
           isSelected={options.includes(selectedOption)}
+          borderRadius={borderRadius}
         >
           {enableSearch ? (
             <StyledSearch
@@ -111,7 +114,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
           <Icon name="ExpandIcon" size="18px" className="icon" />
         </StyledSelect>
         {!!dropdownOptions.length && selectExpanded && (
-          <StyledExpandedSelect>
+          <StyledExpandedSelect borderRadius={borderRadius}>
             {dropdownOptions.map((option) => (
               <StyledOption
                 ref={option === selectedOption ? selectedRef : null}

@@ -16,6 +16,7 @@ export const KeyInfo = () => {
     primaryKey,
     secondaryKeys,
     accountIsMultisigSigner,
+    identityLoading,
   } = useContext(AccountContext);
   const { isMobile, isSmallDesktop } = useWindowWidth();
 
@@ -29,19 +30,25 @@ export const KeyInfo = () => {
       <div className="info-wrapper">
         <Text marginBottom={4}>Selected key</Text>
         <KeyInfoWrapper>
-          {selectedAccount && selectedAccount === primaryKey && (
-            <StyledLabel>Primary</StyledLabel>
+          {!identityLoading && (
+            <>
+              {selectedAccount && selectedAccount === primaryKey && (
+                <StyledLabel>Primary</StyledLabel>
+              )}
+              {secondaryKeys.includes(selectedAccount) && (
+                <StyledLabel>Secondary</StyledLabel>
+              )}
+              {accountIsMultisigSigner && (
+                <StyledLabel>MultiSig Signer</StyledLabel>
+              )}
+              {selectedAccount &&
+                selectedAccount !== primaryKey &&
+                !secondaryKeys.includes(selectedAccount) &&
+                !accountIsMultisigSigner && (
+                  <StyledLabel>Unassigned</StyledLabel>
+                )}
+            </>
           )}
-          {secondaryKeys.includes(selectedAccount) && (
-            <StyledLabel>Secondary</StyledLabel>
-          )}
-          {accountIsMultisigSigner && (
-            <StyledLabel>MultiSig Signer</StyledLabel>
-          )}
-          {selectedAccount &&
-            selectedAccount !== primaryKey &&
-            !secondaryKeys.includes(selectedAccount) &&
-            !accountIsMultisigSigner && <StyledLabel>Unassigned</StyledLabel>}
           <WalletSelect placement="widget" trimValue={false} />
           <IconWrapper>
             {selectedAccount ? (

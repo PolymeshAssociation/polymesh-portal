@@ -13,12 +13,15 @@ export const StyledHeaderContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 72px;
-  padding: 0 48px;
+  height: 64px;
+  padding: 0 24px;
 
-  @media screen and (max-width: 767px) {
-    height: 64px;
+  @media screen and (min-width: 768px) {
     padding: 0 36px;
+  }
+  @media screen and (min-width: 1200px) {
+    height: 72px;
+    padding: 0 48px;
   }
 `;
 

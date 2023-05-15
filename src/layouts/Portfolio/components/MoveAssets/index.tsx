@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Icon, Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
 import { usePortfolio } from '~/hooks/polymesh';
+import { useWindowWidth } from '~/hooks/utility';
 import { AssetSelect } from './components/AssetSelect';
 import { PortfolioSelect } from './components/PortfolioSelect';
 import { StyledAddButton, StyledButtonsWrapper } from './styles';
@@ -37,6 +38,7 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
     DefaultPortfolio | NumberedPortfolio | null
   >(null);
   const { moveAssets } = usePortfolio(portfolio.portfolio);
+  const { isMobile } = useWindowWidth();
 
   const handleAddAssetField = () => {
     setAssetIndexes((prev) => [...prev, prev[prev.length - 1] + 1]);
@@ -103,7 +105,7 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
   return (
     <Modal handleClose={toggleModal}>
       <Heading type="h4" marginBottom={32}>
-        Move Assets between Portfolios
+        Move Assets between {isMobile && <br />} Portfolios
       </Heading>
       <PortfolioSelect
         portfolio={portfolio}
@@ -128,9 +130,11 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
         Add Asset
       </StyledAddButton>
       <StyledButtonsWrapper>
-        <Button variant="modalSecondary" onClick={toggleModal}>
-          Cancel
-        </Button>
+        {!isMobile && (
+          <Button variant="modalSecondary" onClick={toggleModal}>
+            Cancel
+          </Button>
+        )}
         <Button
           variant="modalPrimary"
           disabled={

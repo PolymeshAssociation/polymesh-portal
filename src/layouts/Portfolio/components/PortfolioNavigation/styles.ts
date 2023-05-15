@@ -4,6 +4,15 @@ export const StyledNavBar = styled.div`
   grid-area: nav;
   display: flex;
   align-items: center;
+
+  @media screen and (max-width: 1023px) {
+    width: 100%;
+  }
+`;
+
+export const StyledMobileNavigation = styled.div`
+  position: relative;
+  width: 100%;
 `;
 
 export const StyledNavList = styled.ul`
@@ -41,6 +50,7 @@ export const AddPortfolioButton = styled.button`
   width: 173px;
   height: 48px;
   gap: 10px;
+  margin-left: auto;
   background-color: transparent;
   font-weight: 500;
   font-size: 14px;
@@ -49,4 +59,14 @@ export const AddPortfolioButton = styled.button`
   &:disabled {
     color: #8f8f8f;
   }
+
+  @media screen and (max-width: 1023px) {
+    width: 48px;
+  }
+`;
+
+export const AddPortfolioMobile = styled(AddPortfolioButton)`
+  position: absolute;
+  top: -64px;
+  right: -8px;
 `;

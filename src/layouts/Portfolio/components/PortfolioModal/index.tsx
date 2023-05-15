@@ -5,6 +5,7 @@ import { Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
 import { StyledInput, StyledButtonWrapper, StyledError } from './styles';
 import { EModalType, modalConfig, createFormConfig } from './constants';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IPortfolioModalProps {
   type: `${EModalType}`;
@@ -27,6 +28,7 @@ export const PortfolioModal: React.FC<IPortfolioModalProps> = ({
     ),
   );
   const { createPortfolio, editPortfolio } = usePortfolio(portfolio?.portfolio);
+  const { isMobile } = useWindowWidth();
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     const newName = data.name as string;
@@ -61,9 +63,11 @@ export const PortfolioModal: React.FC<IPortfolioModalProps> = ({
         <StyledError>{errors.name.message as string}</StyledError>
       ) : null}
       <StyledButtonWrapper>
-        <Button variant="modalSecondary" onClick={toggleModal}>
-          Cancel
-        </Button>
+        {!isMobile && (
+          <Button variant="modalSecondary" onClick={toggleModal}>
+            Cancel
+          </Button>
+        )}
         <Button
           variant="modalPrimary"
           onClick={handleSubmit(onSubmit)}

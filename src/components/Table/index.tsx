@@ -144,6 +144,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
           selected={tab}
           error={undefined}
           placeholder="Select tab"
+          borderRadius={24}
         />
       );
     }
