@@ -93,6 +93,9 @@ export const StyledExpandedSelect = styled.div<{
       top: 110%;
       left: 0;
       width: 100%;
+      @media screen and (max-width: 767px) {
+        width: 120%;
+      }
       text-align: center;
       `
       : ''}

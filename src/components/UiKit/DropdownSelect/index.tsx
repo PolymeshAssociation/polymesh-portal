@@ -11,11 +11,12 @@ import {
 } from './styles';
 
 interface IDropdownSelectProps {
-  label: string;
   placeholder: string;
   error: string | undefined;
   onChange: (option: string) => void;
   options: string[];
+  label?: string;
+  selected?: string;
   removeSelection?: boolean;
   enableSearch?: boolean;
 }
@@ -26,11 +27,12 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
   error,
   onChange,
   options,
+  selected,
   removeSelection,
   enableSearch,
 }) => {
   const [selectExpanded, setSelectExpanded] = useState<boolean>(false);
-  const [selectedOption, setSelectedOption] = useState<string>('');
+  const [selectedOption, setSelectedOption] = useState<string>(selected || '');
   const [searchFilter, setSearchFilter] = useState<string>('');
   const ref = useRef<HTMLDivElement>(null);
   const selectedRef = useRef<HTMLButtonElement>(null);

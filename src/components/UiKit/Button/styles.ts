@@ -12,7 +12,8 @@ export const StyledButton = styled.button<{
   justify-content: center;
   gap: 6px;
   height: 40px;
-  padding: 0 8px;
+  padding: 0 16px;
+  min-width: 96px;
   border-radius: 100px;
   ${
     variant === EButtonVariants.PRIMARY
@@ -162,7 +163,6 @@ export const StyledButton = styled.button<{
   @media screen and (min-width: 480px) {
     min-width: 128px;
     gap: 10px;
-    padding: 0 16px;
     height: 48px;
   }
 `;

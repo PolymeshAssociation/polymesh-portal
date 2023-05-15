@@ -21,6 +21,16 @@ export const StyledTableHeader = styled.div`
   padding: 24px;
   height: 84px;
 
+  @media screen and (max-width: 767px) {
+    & > div {
+      width: 100%;
+      text-transform: capitalize;
+      & button {
+        text-transform: capitalize;
+      }
+    }
+  }
+
   @media screen and (max-width: 1023px) {
     flex-direction: column;
     align-items: flex-start;

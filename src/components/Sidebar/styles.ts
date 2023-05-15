@@ -1,7 +1,9 @@
 import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
-export const StyledSidebar = styled.aside<{ fullWidth: boolean }>`
+export const StyledSidebar = styled.aside<{
+  fullWidth: boolean;
+}>`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -252,8 +254,11 @@ export const ExpandedLinks = styled.ul`
   z-index: 2;
 
   @media screen and (max-width: 767px) {
+    position: fixed;
+    bottom: 0;
     left: 0;
-    width: 100%;
+    width: 100vw;
+    padding: 24px;
   }
 `;
 

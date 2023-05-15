@@ -11,6 +11,7 @@ import {
   QRWrapper,
 } from './styles';
 import { formatKey } from '~/helpers/formatters';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IReceivePolyxProps {
   toggleModal: () => void;
@@ -18,6 +19,7 @@ interface IReceivePolyxProps {
 
 export const ReceivePolyx: React.FC<IReceivePolyxProps> = ({ toggleModal }) => {
   const { selectedAccount } = useContext(AccountContext);
+  const { isMobile } = useWindowWidth();
   return (
     <Modal handleClose={toggleModal}>
       <Heading type="h4" marginBottom={24}>
@@ -37,11 +39,13 @@ export const ReceivePolyx: React.FC<IReceivePolyxProps> = ({ toggleModal }) => {
           <CopyToClipboard value={selectedAccount} />
         </StyledAddressWrapper>
       </StyledWrapper>
-      <StyledButtonsWrapper>
-        <Button variant="modalSecondary" marginTop={40} onClick={toggleModal}>
-          Close
-        </Button>
-      </StyledButtonsWrapper>
+      {!isMobile && (
+        <StyledButtonsWrapper>
+          <Button variant="modalSecondary" marginTop={40} onClick={toggleModal}>
+            Close
+          </Button>
+        </StyledButtonsWrapper>
+      )}
     </Modal>
   );
 };

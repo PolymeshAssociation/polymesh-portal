@@ -2,7 +2,7 @@ import { Table as ReactTable, flexRender } from '@tanstack/react-table';
 import { Dispatch, SetStateAction } from 'react';
 import { Icon, Pagination } from '~/components';
 import { useWindowWidth } from '~/hooks/utility';
-import { Button, Heading, SkeletonLoader } from '../UiKit';
+import { Button, Heading, DropdownSelect, SkeletonLoader } from '../UiKit';
 import {
   StyledTableWrapper,
   StyledTableHeader,
@@ -129,31 +129,53 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
     </StyledTableBody>
   );
 
+  const renderTabs = () => {
+    if (!tabs || tabs.length < 2) return null;
+
+    if (isMobile) {
+      if (loading) return <SkeletonLoader height="36px" />;
+
+      return (
+        <DropdownSelect
+          options={tabs}
+          onChange={(tabItem) =>
+            (setTab as Dispatch<SetStateAction<S>>)(tabItem as S)
+          }
+          selected={tab}
+          error={undefined}
+          placeholder="Select tab"
+        />
+      );
+    }
+
+    return (
+      <StyledTabsWrapper>
+        {tabs.map((tabItem) =>
+          loading ? (
+            <SkeletonLoader key={tabItem} />
+          ) : (
+            <StyledTabItem
+              key={tabItem}
+              selected={tabItem === tab}
+              onClick={() =>
+                (setTab as Dispatch<SetStateAction<S>>)(tabItem as S)
+              }
+            >
+              {tabItem}
+            </StyledTabItem>
+          ),
+        )}
+      </StyledTabsWrapper>
+    );
+  };
+
   const isSmallScreen = isMobile || isTablet;
 
   return (
     <StyledTableWrapper>
       <StyledTableHeader>
         <Heading type="h3">{title}</Heading>
-        {tabs && tabs?.length > 1 && (
-          <StyledTabsWrapper>
-            {tabs.map((tabItem) =>
-              loading ? (
-                <SkeletonLoader key={tabItem} />
-              ) : (
-                <StyledTabItem
-                  key={tabItem}
-                  selected={tabItem === tab}
-                  onClick={() =>
-                    (setTab as Dispatch<SetStateAction<S>>)(tabItem as S)
-                  }
-                >
-                  {tabItem}
-                </StyledTabItem>
-              ),
-            )}
-          </StyledTabsWrapper>
-        )}
+        {renderTabs()}
       </StyledTableHeader>
       {loading ? (
         <StyledTablePlaceholder>

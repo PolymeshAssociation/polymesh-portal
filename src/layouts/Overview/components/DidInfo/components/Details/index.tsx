@@ -20,6 +20,7 @@ import {
   StyledButtonsWrapper,
 } from './styles';
 import { formatDid, formatBalance, formatKey } from '~/helpers/formatters';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IDetailsProps {
   toggleModal: () => void;
@@ -37,6 +38,7 @@ export const Details: React.FC<IDetailsProps> = ({
   issuer,
 }) => {
   const { allKeyBalances, primaryKey } = useContext(AccountContext);
+  const { isMobile } = useWindowWidth();
 
   return (
     <Modal handleClose={toggleModal}>
@@ -108,11 +110,13 @@ export const Details: React.FC<IDetailsProps> = ({
       ) : (
         'Loading...'
       )}
-      <StyledButtonsWrapper>
-        <Button variant="modalSecondary" onClick={toggleModal} marginTop={24}>
-          Close
-        </Button>
-      </StyledButtonsWrapper>
+      {!isMobile && (
+        <StyledButtonsWrapper>
+          <Button variant="modalSecondary" onClick={toggleModal} marginTop={24}>
+            Close
+          </Button>
+        </StyledButtonsWrapper>
+      )}
     </Modal>
   );
 };
