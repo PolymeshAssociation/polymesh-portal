@@ -26,6 +26,8 @@ import { TransferItem } from '../TransferItem';
 import { notifyError } from '~/helpers/notifications';
 import { EInstructionTypes, EActionTypes, ESortOptions } from '../../types';
 import { createTransactionChunks, createTransactions } from './helpers';
+import { useWindowWidth } from '~/hooks/utility';
+import { SkeletonLoader } from '~/components/UiKit';
 
 interface ITransfersListProps {
   sortBy: ESortOptions;
@@ -36,7 +38,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identityLoading, account } = useContext(AccountContext);
+  const { account } = useContext(AccountContext);
   const { allInstructions, instructionsLoading, refreshInstructions } =
     useContext(InstructionsContext);
   const { handleStatusChange } = useTransactionStatus();
@@ -44,6 +46,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const type = searchParams.get('type');
   const typeRef = useRef<string | null>(null);
   const [actionInProgress, setActionInProgress] = useState(false);
+  const { isWidescreen, isMobile } = useWindowWidth();
 
   const currentTabInstructions =
     !allInstructions || !type
@@ -180,7 +183,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
       <StyledSelectionWrapper>
         <SelectAllButton
           onClick={handleSelectAll}
-          disabled={!!currentTabInstructions && !currentTabInstructions.length}
+          disabled={instructionsLoading}
         >
           Select All
         </SelectAllButton>
@@ -192,7 +195,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
               onClick={() => executeBatch(EActionTypes.REJECT)}
             >
               <Icon name="CloseIcon" size="24px" />
-              Reject
+              {!isMobile && 'Reject'}
             </StyledActionButton>
             {type === EInstructionTypes.AFFIRMED && (
               <StyledActionButton
@@ -201,7 +204,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                 onClick={() => executeBatch(EActionTypes.WITHDRAW)}
               >
                 <Icon name="Check" size="24px" />
-                Unapprove
+                {!isMobile && 'Unapprove'}
               </StyledActionButton>
             )}
             {type === EInstructionTypes.PENDING && (
@@ -210,7 +213,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                 onClick={() => executeBatch(EActionTypes.AFFIRM)}
               >
                 <Icon name="Check" size="24px" />
-                Approve
+                {!isMobile && 'Approve'}
               </StyledActionButton>
             )}
             {/* {type === EInstructionTypes.FAILED && (
@@ -225,7 +228,8 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
           </StyledButtonWrapper>
         )}
         <StyledSelected>
-          Selected: <span>{selectedItems.length}</span>
+          {isWidescreen && 'Selected:'}
+          <span>{selectedItems.length}</span>
           {!!selectedItems.length && (
             <ClearSelectionButton onClick={clearSelection}>
               <Icon name="CloseIcon" size="16px" />
@@ -234,8 +238,8 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
         </StyledSelected>
       </StyledSelectionWrapper>
 
-      {identityLoading || instructionsLoading ? (
-        <TransfersPlaceholder>Loading</TransfersPlaceholder>
+      {instructionsLoading ? (
+        <SkeletonLoader height={isMobile ? 344 : 162} />
       ) : (
         <StyledTransfersList>
           {currentTabInstructions && currentTabInstructions.length ? (

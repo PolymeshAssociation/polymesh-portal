@@ -4,6 +4,21 @@ export const StyledHeader = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 40px;
+  flex-wrap: wrap-reverse;
+  gap: 16px;
+
+  @media screen and (max-width: 767px) {
+    flex-direction: column;
+    margin-bottom: 24px;
+
+    & > div:first-child {
+      min-width: 332px;
+      text-transform: capitalize;
+      & button {
+        text-transform: capitalize;
+      }
+    }
+  }
 `;
 
 export const StyledWrapper = styled.div`
@@ -11,6 +26,12 @@ export const StyledWrapper = styled.div`
   align-items: center;
   gap: 24px;
   margin-left: auto;
+
+  @media screen and (max-width: 767px) {
+    flex-wrap: wrap-reverse;
+    margin-left: 0;
+    gap: 16px;
+  }
 `;
 
 export const StyledNavList = styled.ul`
@@ -40,19 +61,31 @@ export const StyledNavLink = styled.button`
   }
 `;
 
+export const StyledButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 24px;
+
+  @media screen and (max-width: 767px) {
+    margin: 0 auto;
+  }
+`;
+
 export const StyledSortWrapper = styled.div`
   display: flex;
   align-items: center;
   color: ${({ theme }) => theme.colors.textSecondary};
   font-size: 14px;
 
-  &::after {
-    content: '';
-    display: block;
-    width: 1px;
-    height: 32px;
-    margin-left: 24px;
-    background-color: #e6e6e6;
+  @media screen and (min-width: 768px) {
+    &::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 32px;
+      margin-left: 24px;
+      background-color: #e6e6e6;
+    }
   }
 `;
 
@@ -73,7 +106,7 @@ export const StyledSort = styled.div`
 
   & select {
     position: relative;
-    z-index: 1;
+    /* z-index: 1; */
     appearance: none;
     display: flex;
     align-items: flex-end;

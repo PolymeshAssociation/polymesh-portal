@@ -17,6 +17,13 @@ export const AssetWrapper = styled.div`
   & > div {
     width: 248px;
   }
+
+  @media screen and (max-width: 767px) {
+    flex-direction: column;
+    & > div {
+      width: 100%;
+    }
+  }
 `;
 
 export const FlexWrapper = styled(AssetWrapper)<{ marginBottom?: number }>`
@@ -24,12 +31,19 @@ export const FlexWrapper = styled(AssetWrapper)<{ marginBottom?: number }>`
     marginBottom ? `${marginBottom}px` : 0};
 `;
 
-export const StyledPlaceholder = styled.span<{ isAbsolute?: boolean }>`
+export const StyledPlaceholder = styled.div<{ isAbsolute?: boolean }>`
   ${({ isAbsolute }) =>
     isAbsolute
       ? `
-position: absolute;
-top: 50%;
+// position: absolute;
+padding-top: 32px;
+
+
+
+@media screen and (max-width: 767px) {
+  position: static;
+  padding: 0;
+}
 
 `
       : ''}
@@ -115,6 +129,9 @@ export const InputWrapper = styled.div<{ marginBottom?: number }>`
   position: relative;
   margin-bottom: ${({ marginBottom }) =>
     marginBottom ? `${marginBottom}px` : 0};
+  @media screen and (min-width: 768px) {
+    height: 60px;
+  }
 `;
 
 export const StyledLabel = styled.label`
@@ -171,7 +188,7 @@ export const CloseButton = styled.button`
 
 export const UseMaxButton = styled.button`
   position: absolute;
-  top: 0;
+  bottom: 0;
   right: 8px;
   display: flex;
   align-items: center;

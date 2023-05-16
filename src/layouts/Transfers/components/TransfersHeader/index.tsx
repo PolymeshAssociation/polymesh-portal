@@ -1,8 +1,10 @@
 import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
-import { Button, RefreshButton } from '~/components/UiKit';
+import { Button, DropdownSelect, RefreshButton } from '~/components/UiKit';
+import { AccountContext } from '~/context/AccountContext';
 import { InstructionsContext } from '~/context/InstructionsContext';
+import { useWindowWidth } from '~/hooks/utility';
 import { ESortOptions } from '../../types';
 import { CreateVenue } from './components/CreateVenue';
 import { SendAsset } from './components/SendAsset';
@@ -14,6 +16,7 @@ import {
   StyledNavLink,
   StyledSortWrapper,
   StyledSort,
+  StyledButtonWrapper,
 } from './styles';
 
 interface ITransfersHeaderProps {
@@ -25,12 +28,14 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
   sortBy,
   setSortBy,
 }) => {
-  const { createdVenues, refreshInstructions } =
+  const { createdVenues, refreshInstructions, instructionsLoading } =
     useContext(InstructionsContext);
+  const { identityLoading } = useContext(AccountContext);
   const [createVenueOpen, setCreateVenueOpen] = useState(false);
   const [sendAssetOpen, setSendAssetOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const type = searchParams.get('type');
+  const { isMobile, isWidescreen } = useWindowWidth();
 
   const toggleCreateVenue = () => {
     setCreateVenueOpen((prev) => !prev);
@@ -41,18 +46,34 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
 
   return (
     <StyledHeader>
-      <StyledNavList>
-        {TABS.map(({ label, searchParam }) => (
-          <li key={label}>
-            <StyledNavLink
-              className={type === label ? 'active' : ''}
-              onClick={() => setSearchParams(searchParam)}
-            >
-              {label}
-            </StyledNavLink>
-          </li>
-        ))}
-      </StyledNavList>
+      {isMobile ? (
+        <DropdownSelect
+          options={TABS.map(({ label }) => label)}
+          onChange={(option) => {
+            const tab = TABS.find(({ label }) => label === option);
+            if (tab) {
+              setSearchParams(tab.searchParam);
+            }
+          }}
+          selected={type || undefined}
+          borderRadius={24}
+          error={undefined}
+          placeholder="Transfer Type"
+        />
+      ) : (
+        <StyledNavList>
+          {TABS.map(({ label, searchParam }) => (
+            <li key={label}>
+              <StyledNavLink
+                className={type === label ? 'active' : ''}
+                onClick={() => setSearchParams(searchParam)}
+              >
+                {label}
+              </StyledNavLink>
+            </li>
+          ))}
+        </StyledNavList>
+      )}
       <StyledWrapper>
         <StyledSortWrapper>
           Sort by:
@@ -72,19 +93,30 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
             <Icon name="DropdownIcon" className="dropdown-icon" />
           </StyledSort>
         </StyledSortWrapper>
-        <Button variant="modalPrimary" onClick={toggleCreateVenue}>
-          <Icon name="Plus" />
-          Create Venue
-        </Button>
-        <Button
-          variant="modalPrimary"
-          disabled={!createdVenues.length}
-          onClick={toggleSendAsset}
-        >
-          <Icon name="ArrowTopRight" />
-          Send Asset
-        </Button>
-        <RefreshButton onClick={refreshInstructions} />
+        <StyledButtonWrapper>
+          <Button
+            variant="modalPrimary"
+            onClick={toggleCreateVenue}
+            round={!isWidescreen}
+            disabled={identityLoading}
+          >
+            <Icon name="Plus" />
+            {isWidescreen && ' Create Venue'}
+          </Button>
+          <Button
+            variant="modalPrimary"
+            disabled={identityLoading || !createdVenues.length}
+            onClick={toggleSendAsset}
+            round={!isWidescreen}
+          >
+            <Icon name="ArrowTopRight" />
+            {isWidescreen && 'Send Asset'}
+          </Button>
+          <RefreshButton
+            onClick={refreshInstructions}
+            disabled={instructionsLoading}
+          />
+        </StyledButtonWrapper>
       </StyledWrapper>
       {createVenueOpen && <CreateVenue toggleModal={toggleCreateVenue} />}
       {sendAssetOpen && <SendAsset toggleModal={toggleSendAsset} />}

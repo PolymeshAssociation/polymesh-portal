@@ -11,14 +11,17 @@ export const StyledButton = styled.button`
   background-color: transparent;
   padding: 0;
 
-  &:hover {
+  &:enabled:hover {
     background-color: #170087;
     color: ${({ theme }) => theme.colors.landingBackground};
     box-shadow: 0px 24px 24px rgba(23, 0, 135, 0.12);
   }
 
-  &:active {
+  &:enabled:active {
     box-shadow: 0px 12px 24px transparent;
+  }
+  &:disabled {
+    color: #c8c8c8;
   }
 
   transition-property: color, background-color, box-shadow;

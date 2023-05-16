@@ -31,6 +31,7 @@ export const StyledBackdrop = styled.div`
 export const StyledModal = styled.div<{
   disableOverflow?: boolean;
 }>`
+  position: relative;
   padding: 24px;
   @media screen and (max-width: 767px) {
     width: 100vw;

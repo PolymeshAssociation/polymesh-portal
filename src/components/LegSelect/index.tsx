@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useContext } from 'react';
 import { Asset, Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { Icon } from '~/components';
-import { DropdownSelect, Text } from '~/components/UiKit';
+import { DropdownSelect, SkeletonLoader, Text } from '~/components/UiKit';
 import {
   StyledAmountInput,
   InputWrapper,
@@ -33,6 +33,7 @@ import {
   checkAvailableBalance,
   validateTotalSelected,
 } from './helpers';
+import { notifyError } from '~/helpers/notifications';
 
 interface ILegSelectProps {
   index: number;
@@ -74,6 +75,10 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     useState(true);
   const [shouldHideReceiverPortfolio, setShouldHideReceiverPortfolio] =
     useState(true);
+  const [portfolioLoading, setPortfolioLoading] = useState({
+    sender: false,
+    receiver: false,
+  });
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [availableBalance, setAvailableBalance] = useState(0);
   const [initialFreeBalance, setInitialFreeBalance] = useState(0);
@@ -159,26 +164,33 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     const isValid = await sdk.identities.isIdentityValid({ identity: did });
 
     if (isValid) {
-      setIdentityError((prev) => ({ ...prev, [role]: '' }));
-      const identity = await sdk.identities.getIdentity({ did });
-      const portfolios = await getPortfolioDataFromIdentity(identity);
-      switch (role) {
-        case 'sender':
-          setSelectedSenderPortfolio(null);
-          setShouldHideSenderPortfolio(false);
-          setSenderIdentity(identity);
-          setSenderPortfolios(portfolios);
-          break;
+      try {
+        setIdentityError((prev) => ({ ...prev, [role]: '' }));
+        setPortfolioLoading((prev) => ({ ...prev, [role]: true }));
+        const identity = await sdk.identities.getIdentity({ did });
+        const portfolios = await getPortfolioDataFromIdentity(identity);
+        switch (role) {
+          case 'sender':
+            setSelectedSenderPortfolio(null);
+            setShouldHideSenderPortfolio(false);
+            setSenderIdentity(identity);
+            setSenderPortfolios(portfolios);
+            break;
 
-        case 'receiver':
-          setSelectedReceiverPortfolio(null);
-          setShouldHideReceiverPortfolio(false);
-          setReceiverIdentity(identity);
-          setReceiverPortfolios(portfolios);
-          break;
+          case 'receiver':
+            setSelectedReceiverPortfolio(null);
+            setShouldHideReceiverPortfolio(false);
+            setReceiverIdentity(identity);
+            setReceiverPortfolios(portfolios);
+            break;
 
-        default:
-          break;
+          default:
+            break;
+        }
+      } catch (error) {
+        notifyError((error as Error).message);
+      } finally {
+        setPortfolioLoading((prev) => ({ ...prev, [role]: false }));
       }
     } else {
       setIdentityError((prev) => ({
@@ -383,7 +395,13 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           />
         ) : (
           <InputWrapper>
-            <StyledPlaceholder isAbsolute>Enter Sender DID</StyledPlaceholder>
+            <StyledPlaceholder isAbsolute>
+              {portfolioLoading.sender ? (
+                <SkeletonLoader height={16} />
+              ) : (
+                'Enter Sender DID'
+              )}
+            </StyledPlaceholder>
           </InputWrapper>
         )}
       </FlexWrapper>
@@ -413,7 +431,13 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           />
         ) : (
           <InputWrapper>
-            <StyledPlaceholder isAbsolute>Enter Receiver DID</StyledPlaceholder>
+            <StyledPlaceholder isAbsolute>
+              {portfolioLoading.receiver ? (
+                <SkeletonLoader height={16} />
+              ) : (
+                'Enter Receiver DID'
+              )}
+            </StyledPlaceholder>
           </InputWrapper>
         )}
       </FlexWrapper>
@@ -468,10 +492,10 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           </AssetSelectWrapper>
         </div>
         <div>
-          <Text size="medium" bold marginBottom={3}>
-            Amount
-          </Text>
           <InputWrapper>
+            <Text size="medium" bold marginBottom={3}>
+              Amount
+            </Text>
             <StyledAmountInput
               name="amount"
               placeholder="Enter Amount"

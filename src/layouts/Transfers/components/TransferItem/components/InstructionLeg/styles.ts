@@ -5,14 +5,42 @@ export const StyledLeg = styled.div`
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
+  gap: 8px;
   padding: 24px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   border-radius: 24px;
+
+  @media screen and (max-width: 1023px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  @media screen and (min-width: 1024px) and (max-width: 1199px) {
+    flex-wrap: wrap;
+  }
 `;
 
-export const StyledInfoItem = styled.div`
+export const StyledInfoItem = styled.div<{ isLoading?: boolean }>`
   font-size: 12px;
   color: ${({ theme }) => theme.colors.textSecondary};
+  ${({ isLoading }) => (isLoading ? 'width: 10%;' : '')}
+  @media screen and (max-width: 1023px) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+  }
+
+  @media screen and (min-width: 1024px) and (max-width: 1399px) {
+    & p {
+      font-size: 14px;
+    }
+    & svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
 `;
 
 export const StyledInfoValue = styled.div<{

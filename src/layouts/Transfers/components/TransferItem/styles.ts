@@ -14,6 +14,19 @@ export const StyledInfoWrapper = styled.div`
   justify-content: space-between;
   padding: 0 12px;
   margin-bottom: 24px;
+  min-height: 40px;
+  gap: 8px;
+
+  @media screen and (max-width: 1023px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  & .select-placeholder {
+    display: flex;
+    align-items: center;
+    width: 20px;
+  }
 `;
 
 export const StyledSelect = styled.div<{ isSelected: boolean }>`
@@ -61,10 +74,18 @@ export const StyledButtonsWrapper = styled.div<{ expanded: boolean }>`
     flex-grow: 1;
   }
   & button:last-child {
-    flex-grow: 0;
+    width: 100%;
+    @media screen and (min-width: 1024px) {
+      width: initial;
+      flex-grow: 0;
+    }
     & .expand-icon {
       transform: ${({ expanded }) =>
         expanded ? `rotate(180deg)` : `rotate(0)`};
     }
+  }
+
+  @media screen and (max-width: 1023px) {
+    flex-wrap: wrap-reverse;
   }
 `;

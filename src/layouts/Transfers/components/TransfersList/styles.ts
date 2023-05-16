@@ -5,6 +5,9 @@ export const StyledSelectionWrapper = styled.div`
   align-items: center;
   gap: 16px;
   margin-bottom: 24px;
+  @media screen and (max-width: 767px) {
+    justify-content: center;
+  }
 `;
 
 export const SelectAllButton = styled.button`
@@ -29,6 +32,10 @@ export const SelectAllButton = styled.button`
 
   &:disabled {
     color: #c7c7c7;
+  }
+
+  @media screen and (max-width: 1023px) {
+    padding: 0 8px;
   }
 `;
 

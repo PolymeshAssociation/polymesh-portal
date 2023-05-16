@@ -3,6 +3,21 @@ import styled from 'styled-components';
 export const StyledInfoItem = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.colors.textSecondary};
+
+  @media screen and (max-width: 1023px) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+  }
+
+  @media screen and (min-width: 1024px) and (max-width: 1199px) {
+    font-size: 10px;
+    & p {
+      font-size: 14px;
+    }
+  }
 `;
 
 export const StyledVenueId = styled(StyledInfoItem)`
@@ -12,6 +27,10 @@ export const StyledVenueId = styled(StyledInfoItem)`
 
   &:hover {
     text-decoration: underline;
+  }
+
+  @media screen and (max-width: 1023px) {
+    padding: 0;
   }
 `;
 

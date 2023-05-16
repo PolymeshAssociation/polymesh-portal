@@ -22,6 +22,7 @@ import { ISelectedAsset } from '~/components/AssetSelect/types';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import { createBasicInstructionParams } from '../helpers';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IBasicFormProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -48,6 +49,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   const [venues, setVenues] = useState<IVenueWithDetails[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const [selectedAssets, setSelectedAssets] = useState<ISelectedAsset[]>([]);
+  const { isMobile } = useWindowWidth();
 
   useEffect(() => {
     if (instructionsLoading) return;
@@ -154,9 +156,11 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
         />
       )}
       <StyledButtonsWrapper>
-        <Button variant="modalSecondary" onClick={toggleModal}>
-          Cancel
-        </Button>
+        {!isMobile && (
+          <Button variant="modalSecondary" onClick={toggleModal}>
+            Cancel
+          </Button>
+        )}
         <Button
           variant="modalPrimary"
           disabled={!isDataValid}

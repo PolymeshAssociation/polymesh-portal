@@ -5,6 +5,7 @@ export const StyledButton = styled.button<{
   variant: `${EButtonVariants}`;
   marginTop?: number;
   marginBottom?: number;
+  round?: boolean;
 }>`
   ${({ variant, marginTop, marginBottom }) => `
   display: inline-flex;
@@ -160,8 +161,18 @@ export const StyledButton = styled.button<{
   transition-timing-function: ease-out;
   `}
 
+  ${({ round }) =>
+    round
+      ? ` 
+  min-width: 48px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  `
+      : ''}
+
   @media screen and (min-width: 480px) {
-    min-width: 128px;
+    ${({ round }) => (round ? '' : 'min-width: 128px;')}
     gap: 10px;
     height: 48px;
   }

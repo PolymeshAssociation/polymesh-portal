@@ -17,6 +17,13 @@ export const AssetWrapper = styled.div`
   & > div {
     width: 248px;
   }
+
+  @media screen and (max-width: 767px) {
+    flex-direction: column;
+    & > div {
+      width: 100%;
+    }
+  }
 `;
 
 export const StyledPlaceholder = styled.span`

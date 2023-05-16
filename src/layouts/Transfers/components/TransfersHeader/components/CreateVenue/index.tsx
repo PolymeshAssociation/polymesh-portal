@@ -14,6 +14,7 @@ import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import { InstructionsContext } from '~/context/InstructionsContext';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface ICreateVenueProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -32,6 +33,7 @@ export const CreateVenue: React.FC<ICreateVenueProps> = ({ toggleModal }) => {
   } = useContext(PolymeshContext);
   const { refreshInstructions } = useContext(InstructionsContext);
   const { handleStatusChange } = useTransactionStatus();
+  const { isMobile } = useWindowWidth();
 
   const onSubmit = async ({ description, type }: IFieldValues) => {
     if (!sdk) return;
@@ -78,9 +80,11 @@ export const CreateVenue: React.FC<ICreateVenueProps> = ({ toggleModal }) => {
         error={errors?.type?.message}
       />
       <StyledButtonsWrapper>
-        <Button variant="modalSecondary" onClick={toggleModal}>
-          Cancel
-        </Button>
+        {!isMobile && (
+          <Button variant="modalSecondary" onClick={toggleModal}>
+            Cancel
+          </Button>
+        )}
         <Button
           variant="modalPrimary"
           disabled={!isValid}

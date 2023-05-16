@@ -17,6 +17,10 @@ export const FlexInputWrapper = styled.div<{ marginBotom?: number }>`
   align-items: center;
   gap: 24px;
   margin-bottom: ${({ marginBotom }) => (marginBotom ? `${marginBotom}px` : 0)};
+
+  @media screen and (max-width: 767px) {
+    flex-direction: column;
+  }
 `;
 
 export const StyledErrorMessage = styled.span`

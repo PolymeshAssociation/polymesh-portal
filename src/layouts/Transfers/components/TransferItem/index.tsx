@@ -10,7 +10,7 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
-import { Button, Text } from '~/components/UiKit';
+import { Button, SkeletonLoader, Text } from '~/components/UiKit';
 import {
   StyledItemWrapper,
   StyledInfoWrapper,
@@ -161,20 +161,24 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
     <StyledItemWrapper>
       <StyledInfoWrapper>
         {detailsLoading ? (
-          <p>loading</p>
+          <SkeletonLoader
+            circle
+            width={20}
+            height={20}
+            containerClassName="select-placeholder"
+          />
         ) : (
-          <>
-            <StyledSelect isSelected={isSelected} onClick={onSelect}>
-              <Icon name="Check" size="16px" />
-            </StyledSelect>
-            <Details
-              data={instructionDetails}
-              affirmationsCount={affirmationsCount}
-              instructionId={instruction.id.toString()}
-              counterparties={calculateCounterparties(instructionLegs)}
-            />
-          </>
+          <StyledSelect isSelected={isSelected} onClick={onSelect}>
+            <Icon name="Check" size="16px" />
+          </StyledSelect>
         )}
+        <Details
+          data={instructionDetails}
+          affirmationsCount={affirmationsCount}
+          instructionId={instruction.id.toString()}
+          counterparties={calculateCounterparties(instructionLegs)}
+          loading={detailsLoading}
+        />
       </StyledInfoWrapper>
       {detailsExpanded && (
         <StyledLegsWrapper>
@@ -268,7 +272,11 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
             Retry Settling
           </Button>
         )}
-        <Button variant="secondary" onClick={toggleDetails}>
+        <Button
+          variant="secondary"
+          onClick={toggleDetails}
+          disabled={detailsLoading}
+        >
           <Icon name="ExpandIcon" size="24px" className="expand-icon" />
           Details
           {!!legsCount && (
