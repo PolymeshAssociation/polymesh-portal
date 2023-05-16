@@ -20,6 +20,8 @@ export interface IPolymeshContext {
     setDefaultExtension: (option: string) => void;
     nodeUrl: string;
     setNodeUrl: (url: string) => void;
+    middlewareUrl: string;
+    setMiddlewareUrl: (url: string) => void;
   };
   connectWallet: (data: IConnectOptions) => Promise<void>;
 }
@@ -38,6 +40,8 @@ export const initialState = {
     setDefaultExtension: () => {},
     nodeUrl: '',
     setNodeUrl: () => {},
+    middlewareUrl: '',
+    setMiddlewareUrl: () => {},
   },
   connectWallet: async () => {},
 };

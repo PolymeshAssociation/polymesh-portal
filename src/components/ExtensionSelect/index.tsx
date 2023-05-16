@@ -2,11 +2,11 @@ import { useContext, useState } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { WALLET_CONNECT_OPTIONS } from '~/constants/wallets';
-import { Modal } from '~/components';
+import { Icon, Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
 import { WalletOptionGroup } from './components/WalletOptionGroup';
 import { DefaultSelectionCheckbox } from './components/DefaultSelectionCheckbox';
-import { StyledButtonWrapper } from './styles';
+import { StyledButtonWrapper, StyledActionButton } from './styles';
 
 interface IExtensionSelectProps {
   handleClose: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -67,7 +67,20 @@ const ExtensionSelect: React.FC<IExtensionSelectProps> = ({
         onChange={handleWalletSelect}
         selectedWallet={selectedWallet}
       />
-      {!isDefaultSelect && (
+      {isDefaultSelect ? (
+        <StyledActionButton
+          marginTop={24}
+          disabled={!defaultExtension}
+          onClick={() => {
+            setDefaultExtension('');
+            localStorage.removeItem('defaultExtension');
+            handleClose();
+          }}
+        >
+          <Icon name="CloseIcon" size="24px" />
+          Remove Default
+        </StyledActionButton>
+      ) : (
         <DefaultSelectionCheckbox
           disabled={!selectedWallet}
           onChange={handleDefaultSelect}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import PolymeshContext from './context';
@@ -26,23 +26,48 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     'rpcUrl',
     import.meta.env.VITE_NODE_URL,
   );
+  const nodeUrlRef = useRef<string | null>(null);
+  const [middlewareUrl, setMiddlewareUrl] = useLocalStorage<string>(
+    'middlewareUrl',
+    import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL,
+  );
 
-  // Create the browser extension signing manager.
+  // Create the browser extension signing manager and connect to the Polymesh SDK.
   const connectWallet = useCallback(
     async ({ extensionName, isDefault }: IConnectOptions) => {
+      setConnecting(true);
+      setSdk(null);
+      setSigningManager(null);
       try {
-        setConnecting(true);
+        nodeUrlRef.current = nodeUrl;
         const signingManagerInstance =
           await BrowserExtensionSigningManager.create({
             appName: 'polymesh-user-portal',
             extensionName,
           });
+
+        const sdkInstance = await Polymesh.connect({
+          nodeUrl,
+          signingManager: signingManagerInstance,
+          middlewareV2: {
+            link: middlewareUrl,
+            key: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
+          },
+        });
+        signingManagerInstance.setGenesisHash(
+          // eslint-disable-next-line no-underscore-dangle
+          sdkInstance._polkadotApi.genesisHash.toString(),
+        );
         setSigningManager(signingManagerInstance);
         if (isDefault) {
           setDefaultExtension(extensionName);
         }
+        setSdk(sdkInstance);
+        setInitialized(true);
       } catch (error) {
         notifyGlobalError((error as Error).message);
+      } finally {
+        setConnecting(false);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -50,7 +75,12 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   );
 
   // Trigger signing manager initialization automatically when recent used extension data exists
+  // Or reload window when RPC url is changed
   useEffect(() => {
+    if (nodeUrlRef.current && nodeUrl !== nodeUrlRef.current) {
+      window.location.reload();
+    }
+
     if (
       !defaultExtension ||
       !injectedExtensions.includes(defaultExtension) ||
@@ -62,31 +92,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       extensionName: defaultExtension,
       isDefault: true,
     });
-  }, [connectWallet, initialized, defaultExtension]);
-
-  // Connect to the Polymesh SDK once signing manager is created
-  useEffect(() => {
-    if (!signingManager) return;
-    (async () => {
-      try {
-        const sdkInstance = await Polymesh.connect({
-          nodeUrl,
-          signingManager,
-          middlewareV2: {
-            link: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL,
-            key: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
-          },
-        });
-
-        setSdk(sdkInstance);
-        setInitialized(true);
-      } catch (error) {
-        notifyGlobalError((error as Error).message);
-      } finally {
-        setConnecting(false);
-      }
-    })();
-  }, [initialized, signingManager, nodeUrl]);
+  }, [connectWallet, initialized, defaultExtension, nodeUrl]);
 
   const contextValue = useMemo(
     () => ({
@@ -100,6 +106,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setDefaultExtension,
         nodeUrl,
         setNodeUrl,
+        middlewareUrl,
+        setMiddlewareUrl,
       },
       connectWallet,
     }),
@@ -113,6 +121,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       setDefaultExtension,
       nodeUrl,
       setNodeUrl,
+      middlewareUrl,
+      setMiddlewareUrl,
     ],
   );
 

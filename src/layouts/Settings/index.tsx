@@ -6,7 +6,7 @@ import { BlockedWallets } from './components/BlockedWallets';
 import { DefaultAddress } from './components/DefaultAddress';
 import { DefaultWallet } from './components/DefaultWallet';
 import { MenuItem } from './components/MenuItem';
-import { RpcUrl } from './components/RpcUrl';
+import { EndpointUrl, EndpointTypes } from './components/EndpointUrl';
 import { ThemeToggle } from './components/ThemeToggle';
 import { StyledMenuList, StyledSettings } from './styles';
 
@@ -77,7 +77,16 @@ const Settings = () => {
           description="Blocked Wallets"
           value={<BlockedWallets />}
         />
-        <MenuItem iconName="Link" description="RPC URL" value={<RpcUrl />} />
+        <MenuItem
+          iconName="Link"
+          description="RPC URL"
+          value={<EndpointUrl type={EndpointTypes.RPC} />}
+        />
+        <MenuItem
+          iconName="Link"
+          description="Middleware URL"
+          value={<EndpointUrl type={EndpointTypes.MIDDLEWARE} />}
+        />
       </StyledMenuList>
       <Text
         size="large"

@@ -50,9 +50,11 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
   // Get list of connected accounts when sdk is initialized with signing manager
   useEffect(() => {
-    if (!initialized || !signingManager) return;
+    if (!sdk || !initialized || !signingManager) return;
 
     (async () => {
+      setSelectedAccount('');
+      setPrimaryKey('');
       try {
         const connectedAccounts = await signingManager.getAccounts();
         const accountsWithMeta = await signingManager.getAccountsWithMeta();
@@ -62,7 +64,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
         notifyGlobalError((error as Error).message);
       }
     })();
-  }, [initialized, signingManager]);
+  }, [sdk, initialized, signingManager]);
 
   // Perform actions when account change occurs in extension
   useEffect(() => {
@@ -71,7 +73,11 @@ const AccountProvider = ({ children }: IProviderProps) => {
     const unsubCb = signingManager.onAccountChange(async (newAccounts) => {
       const [firstAccount] = newAccounts;
       signerRef.current = firstAccount.toString();
-      setAllAccounts((newAccounts as InjectedAccountWithMeta[]).map((acc) => acc.address.toString()));
+      setAllAccounts(
+        (newAccounts as InjectedAccountWithMeta[]).map((acc) =>
+          acc.address.toString(),
+        ),
+      );
       setAllAccountsWithMeta(newAccounts as InjectedAccountWithMeta[]);
     }, true);
 
@@ -103,7 +109,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
   // Set account instance when selected account changes
   useEffect(() => {
-    if (!selectedAccount || !sdk) return;
+    if (!signingManager || !sdk || !selectedAccount) return;
 
     (async () => {
       try {
@@ -120,7 +126,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
         notifyGlobalError((error as Error).message);
       }
     })();
-  }, [sdk, selectedAccount]);
+  }, [sdk, selectedAccount, signingManager]);
 
   // Get identity data when sdk is initialized
   useEffect(() => {

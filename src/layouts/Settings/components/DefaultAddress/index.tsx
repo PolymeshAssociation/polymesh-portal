@@ -1,9 +1,14 @@
 import { useContext, useState } from 'react';
-import { Modal } from '~/components';
+import { Icon, Modal } from '~/components';
 import { Heading, Button, DropdownSelect } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
 import { formatKey } from '~/helpers/formatters';
-import { StyledValue, StyledButtonWrapper, StyledLabel } from './styles';
+import {
+  StyledValue,
+  StyledButtonWrapper,
+  StyledLabel,
+  StyledActionButton,
+} from './styles';
 
 export const DefaultAddress = () => {
   const { defaultAccount, setDefaultAccount, allAccounts, blockedWallets } =
@@ -53,6 +58,18 @@ export const DefaultAddress = () => {
             truncateLength={14}
             error={undefined}
           />
+          <StyledActionButton
+            marginTop={24}
+            disabled={!defaultAccount}
+            onClick={() => {
+              setDefaultAccount('');
+              localStorage.removeItem('defaultAccount');
+              toggleModal();
+            }}
+          >
+            <Icon name="CloseIcon" size="24px" />
+            Remove Default
+          </StyledActionButton>
           <StyledButtonWrapper>
             <Button variant="modalSecondary" onClick={toggleModal}>
               Cancel

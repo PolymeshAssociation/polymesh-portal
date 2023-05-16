@@ -25,17 +25,18 @@ import { notifyError } from '~/helpers/notifications';
 
 const Sidebar = () => {
   const {
-    api: { signingManager },
+    api: { signingManager, sdk },
     settings: { nodeUrl },
   } = useContext(PolymeshContext);
   const [networkInfo, setNetworkInfo] = useState<NetworkInfo | null>(null);
+  const [networkLabel, setNetworkLabel] = useState<string>('');
   const [networkLoading, setNetworkLoading] = useState(true);
   const { count } = useNotifications();
   const [fullWidth, setFullWidth] = useState(true);
   const [linksExpanded, setLinksExpanded] = useState(false);
 
   useEffect(() => {
-    if (!signingManager) return undefined;
+    if (!signingManager || !sdk) return undefined;
 
     let unsubCb: UnsubCallback | undefined;
 
@@ -43,6 +44,13 @@ const Sidebar = () => {
       try {
         setNetworkLoading(true);
         const network = await signingManager.getCurrentNetwork();
+        const chainNetwork = await sdk.network.getNetworkProperties();
+        const chainNetworkLabel = chainNetwork.name.replace('Polymesh ', '');
+        setNetworkLabel(
+          chainNetworkLabel === network?.label
+            ? network.label
+            : chainNetworkLabel,
+        );
 
         unsubCb = signingManager.onNetworkChange((newNetwork) => {
           setNetworkInfo(newNetwork);
@@ -60,7 +68,7 @@ const Sidebar = () => {
       return unsubCb;
     }
     return undefined;
-  }, [signingManager]);
+  }, [signingManager, sdk]);
 
   const toggleSidebarWidth = () => setFullWidth((prev) => !prev);
   const expandPopup = () => setLinksExpanded(true);
@@ -80,7 +88,7 @@ const Sidebar = () => {
       <StyledNetworkWrapper fullWidth={fullWidth}>
         <StyledNetworkStatus fullWidth={fullWidth}>
           <StatusDot isLoading={networkLoading} fullWidth={fullWidth} />
-          {networkInfo ? <span>{networkInfo.label}</span> : ''}
+          {networkInfo ? <span>{networkLabel}</span> : ''}
         </StyledNetworkStatus>
         {nodeUrl !== import.meta.env.VITE_NODE_URL && (
           <WarningLabel className="warning">
