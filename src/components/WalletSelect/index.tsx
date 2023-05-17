@@ -29,7 +29,10 @@ const WalletSelect: React.FC<ISelectProps> = ({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!selectedAccount) return;
+    if (!selectedAccount) {
+      setSelected('');
+      return;
+    }
 
     setSelected(selectedAccount);
   }, [selectedAccount]);

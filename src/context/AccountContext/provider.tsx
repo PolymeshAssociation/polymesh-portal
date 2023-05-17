@@ -74,8 +74,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
     if (!initialized || !signingManager) return undefined;
 
     const unsubCb = signingManager.onAccountChange(async (newAccounts) => {
-      const [firstAccount] = newAccounts;
-      signerRef.current = firstAccount.toString();
+      const [firstAccount] = newAccounts as InjectedAccountWithMeta[];
+      signerRef.current = firstAccount?.address;
       setAllAccounts(
         (newAccounts as InjectedAccountWithMeta[]).map((acc) =>
           acc.address.toString(),
@@ -96,7 +96,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
   // Set selected account when account array changes
   useEffect(() => {
-    if (!allAccounts.length) return;
+    if (!allAccounts.length) {
+      setSelectedAccount('');
+      return;
+    }
 
     if (
       signerRef.current === defaultAccount &&
@@ -112,8 +115,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
   // Set account instance when selected account changes
   useEffect(() => {
-    if (!signingManager || !sdk || allAccounts.length || !selectedAccount)
+    if (!sdk || !selectedAccount) {
+      setAccount(null);
       return;
+    }
 
     (async () => {
       try {
@@ -130,11 +135,15 @@ const AccountProvider = ({ children }: IProviderProps) => {
         notifyGlobalError((error as Error).message);
       }
     })();
-  }, [sdk, selectedAccount, signingManager, allAccounts]);
+  }, [sdk, selectedAccount]);
 
   // Get identity data when sdk is initialized
   useEffect(() => {
-    if (!account || !sdk) return;
+    if (!account || !sdk) {
+      setIdentity(null);
+      setAllIdentities([]);
+      return;
+    }
 
     (async () => {
       try {

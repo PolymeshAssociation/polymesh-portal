@@ -25,6 +25,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     'rpcUrl',
     import.meta.env.VITE_NODE_URL,
   );
+  const sdkRef = useRef<Polymesh | null>(null);
   const nodeUrlRef = useRef<string | null>(null);
   const [middlewareUrl, setMiddlewareUrl] = useLocalStorage<string>(
     'middlewareUrl',
@@ -35,8 +36,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   const connectWallet = useCallback(
     async (extensionName: string) => {
       setConnecting(true);
-      setSdk(null);
-      setSigningManager(null);
       try {
         nodeUrlRef.current = nodeUrl;
         const signingManagerInstance =
@@ -44,22 +43,26 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
             appName: 'polymesh-user-portal',
             extensionName,
           });
-
-        const sdkInstance = await Polymesh.connect({
-          nodeUrl,
-          signingManager: signingManagerInstance,
-          middlewareV2: {
-            link: middlewareUrl,
-            key: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
-          },
-        });
+        if (!sdkRef.current) {
+          const sdkInstance = await Polymesh.connect({
+            nodeUrl,
+            signingManager: signingManagerInstance,
+            middlewareV2: {
+              link: middlewareUrl,
+              key: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
+            },
+          });
+          sdkRef.current = sdkInstance;
+        } else {
+          sdkRef.current.setSigningManager(signingManagerInstance);
+        }
         signingManagerInstance.setGenesisHash(
           // eslint-disable-next-line no-underscore-dangle
-          sdkInstance._polkadotApi.genesisHash.toString(),
+          sdkRef.current._polkadotApi.genesisHash.toString(),
         );
         setSigningManager(signingManagerInstance);
         setDefaultExtension(extensionName);
-        setSdk(sdkInstance);
+        setSdk(sdkRef.current);
         setInitialized(true);
       } catch (error) {
         notifyGlobalError((error as Error).message);
