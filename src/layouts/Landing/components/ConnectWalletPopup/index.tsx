@@ -7,6 +7,7 @@ import { Button, Heading } from '~/components/UiKit';
 import { WalletOptionGroup } from '../WalletOptionGroup';
 import { DefaultSelectionCheckbox } from '../DefaultSelectionCheckbox';
 import { StyledButtonWrapper } from './styles';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IConnectWalletPopupProps {
   handleClose: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -19,6 +20,7 @@ export const ConnectWalletPopup: React.FC<IConnectWalletPopupProps> = ({
   const { injectedExtensions } = useInjectedWeb3();
   const [selectedWallet, setSelectedWallet] = useState('');
   const [isDefault, setIsDefault] = useState(false);
+  const { isMobile } = useWindowWidth();
 
   // Check if any of available extensions are installed to display them accordingly
   const walletOptions = WALLET_CONNECT_OPTIONS.map((option) => {
@@ -59,9 +61,11 @@ export const ConnectWalletPopup: React.FC<IConnectWalletPopupProps> = ({
         onChange={handleDefaultSelect}
       />
       <StyledButtonWrapper>
-        <Button variant="modalSecondary" onClick={handleCancel}>
-          Cancel
-        </Button>
+        {!isMobile && (
+          <Button variant="modalSecondary" onClick={handleCancel}>
+            Cancel
+          </Button>
+        )}
         <Button
           variant="modalPrimary"
           disabled={!selectedWallet}

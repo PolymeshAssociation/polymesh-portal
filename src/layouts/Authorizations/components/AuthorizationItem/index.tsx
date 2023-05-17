@@ -18,11 +18,12 @@ import {
   StyledTextWithCopy,
 } from './styles';
 import { formatExpiry, renderDetails } from './helpers';
-import { formatDid } from '~/helpers/formatters';
+import { formatDid, splitByCapitalLetters } from '~/helpers/formatters';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import { AuthorizationsContext } from '~/context/AuthorizationsContext';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IAuthorizationItemProps {
   data: HumanReadable;
@@ -45,6 +46,9 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
   const { refreshAuthorizations } = useContext(AuthorizationsContext);
   const [searchParams] = useSearchParams();
   const direction = searchParams.get('direction');
+  const { isMobile, isTablet } = useWindowWidth();
+
+  const isSmallScreen = isMobile || isTablet;
 
   // Async render details for getting portfolio name
   useEffect(() => {
@@ -105,7 +109,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
         <StyledInfoItem>
           Auth Type
           <Text size="large" bold>
-            {data.data.type}
+            {splitByCapitalLetters(data.data.type)}
           </Text>
         </StyledInfoItem>
         {direction === EAuthorizationDirections.INCOMING ? (
@@ -134,7 +138,10 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
           </Text>
         </StyledInfoItem>
         {direction === EAuthorizationDirections.OUTGOING && (
-          <StyledLabel>Pending</StyledLabel>
+          <StyledInfoItem>
+            {isSmallScreen && 'Status'}
+            <StyledLabel>Pending</StyledLabel>
+          </StyledInfoItem>
         )}
       </StyledInfoWrapper>
       {detailsExpanded && details ? details : null}

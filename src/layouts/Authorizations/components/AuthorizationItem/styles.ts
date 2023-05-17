@@ -14,11 +14,36 @@ export const StyledInfoWrapper = styled.div`
   justify-content: space-between;
   padding: 0 12px;
   margin-bottom: 24px;
+
+  @media screen and (max-width: 1023px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 `;
 
 export const StyledInfoItem = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.colors.textSecondary};
+
+  @media screen and (max-width: 1023px) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+    & p {
+      text-align: right;
+    }
+  }
+
+  @media screen and (min-width: 1024px) and (max-width: 1199px) {
+    font-size: 10px;
+    & p {
+      font-size: 14px;
+      text-align: right;
+    }
+  }
 `;
 
 export const StyledDetailsWrapper = styled.div`
@@ -29,22 +54,30 @@ export const StyledDetailsWrapper = styled.div`
   margin-bottom: 24px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   border-radius: 24px;
+
+  @media screen and (max-width: 1023px) {
+    flex-direction: column;
+  }
 `;
 
 export const StyledDetailItem = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   font-size: 14px;
   color: ${({ theme }) => theme.colors.textSecondary};
 
-  &:not(:last-child)::after {
-    content: '';
-    display: block;
-    width: 1px;
-    height: 32px;
-    margin-left: 8px;
-    background-color: #e6e6e6;
+  @media screen and (min-width: 1024px) {
+    flex-wrap: nowrap;
+    &:not(:last-child)::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 32px;
+      margin-left: 8px;
+      background-color: #e6e6e6;
+    }
   }
 `;
 
@@ -68,11 +101,19 @@ export const StyledButtonsWrapper = styled.div<{ expanded: boolean }>`
     flex-grow: 1;
   }
   & button:last-child {
-    flex-grow: 0;
+    width: 100%;
+    @media screen and (min-width: 1024px) {
+      width: initial;
+      flex-grow: 0;
+    }
     & .expand-icon {
       transform: ${({ expanded }) =>
         expanded ? `rotate(180deg)` : `rotate(0)`};
     }
+  }
+
+  @media screen and (max-width: 1023px) {
+    flex-wrap: wrap-reverse;
   }
 `;
 

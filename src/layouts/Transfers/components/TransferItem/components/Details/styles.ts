@@ -10,6 +10,9 @@ export const StyledInfoItem = styled.div`
     justify-content: space-between;
     width: 100%;
     gap: 8px;
+    & p {
+      text-align: right;
+    }
   }
 
   @media screen and (min-width: 1024px) and (max-width: 1199px) {

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useBalance, useNetwork, useNotifications } from '~/hooks/polymesh';
 import { CopyToClipboard, Icon } from '~/components';
 import { NotificationCounter, SkeletonLoader, Text } from '../UiKit';
@@ -37,6 +37,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
   const { isMobile } = useWindowWidth();
   const [fullWidth, setFullWidth] = useState(!isMobile);
   const [linksExpanded, setLinksExpanded] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
 
   const toggleSidebarWidth = () => setFullWidth((prev) => !prev);
   const expandPopup = () => setLinksExpanded(true);
@@ -52,7 +53,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
   const sidebarExpanded = isMobile ? mobileMenuOpen : fullWidth;
 
   return (
-    <StyledSidebar fullWidth={sidebarExpanded}>
+    <StyledSidebar fullWidth={sidebarExpanded} ref={sidebarRef}>
       {sidebarExpanded || isMobile ? (
         <Icon name="PolymeshLogo" className="text-logo-icon" />
       ) : (
@@ -135,6 +136,12 @@ const Sidebar: React.FC<ISidebarProps> = ({
                         if (linksExpanded) {
                           collapsePopup();
                         } else {
+                          if (isMobile && sidebarRef.current) {
+                            sidebarRef.current.scroll({
+                              top: 0,
+                              behavior: 'smooth',
+                            });
+                          }
                           expandPopup();
                         }
 

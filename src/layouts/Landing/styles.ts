@@ -20,8 +20,14 @@ export const StyledInfoBox = styled.div`
 
 export const StyledAnimationBox = styled.div`
   position: fixed;
-  top: -230px;
-  right: 0;
-  width: 800px;
+  top: -150px;
+  right: -100px;
+  width: 500px;
   opacity: 0.8;
+
+  @media screen and (min-width: 1024px) {
+    top: -230px;
+    right: 0;
+    width: 800px;
+  }
 `;

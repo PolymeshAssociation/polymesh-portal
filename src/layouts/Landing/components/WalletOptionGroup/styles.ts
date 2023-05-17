@@ -33,4 +33,8 @@ export const StyledWrapper = styled.div`
   align-items: center;
   justify-content: center;
   gap: 24px;
+
+  @media screen and (max-width: 767px) {
+    flex-direction: column;
+  }
 `;

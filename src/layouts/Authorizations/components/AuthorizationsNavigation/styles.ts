@@ -5,6 +5,24 @@ export const StyledNavBar = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: 60px;
+  gap: 24px;
+`;
+
+export const StyledSelectWrapper = styled.div`
+  position: relative;
+  flex-grow: 1;
+  & div {
+    text-transform: capitalize;
+    & button {
+      text-transform: capitalize;
+    }
+  }
+
+  & .notification-counter {
+    position: absolute;
+    top: 12px;
+    left: 88px;
+  }
 `;
 
 export const StyledNavList = styled.ul`

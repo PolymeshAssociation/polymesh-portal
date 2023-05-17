@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { SkeletonLoader, Text } from '~/components/UiKit';
 import { StyledInfoItem, StyledVenueDetails, StyledVenueId } from './styles';
 import { toParsedDate } from '~/helpers/dateTime';
+import { splitByCapitalLetters } from '~/helpers/formatters';
 
 interface IDetailsProps {
   data: InstructionDetails | null;
@@ -104,7 +105,7 @@ export const Details: React.FC<IDetailsProps> = ({
         <StyledInfoItem>
           Settlement type
           <Text size="large" bold>
-            {data?.type}
+            {splitByCapitalLetters(data?.type || '')}
           </Text>
         </StyledInfoItem>
       )}

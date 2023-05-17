@@ -58,7 +58,7 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
           selected={type || undefined}
           borderRadius={24}
           error={undefined}
-          placeholder="Transfer Type"
+          placeholder={type || ''}
         />
       ) : (
         <StyledNavList>

@@ -3,10 +3,14 @@ import styled from 'styled-components';
 export const StyledTypeSelectWrapper = styled.div`
   position: relative;
   padding: 9px 16px;
-  width: 456px;
+  width: 100%;
   cursor: pointer;
   border: 1px solid #8f8f8f;
   border-radius: 8px;
+
+  @media screen and (min-width: 768px) {
+    min-width: 456px;
+  }
 `;
 
 export const StyledTypeSelect = styled.div<{
@@ -81,12 +85,21 @@ export const StyledButtonsWrapper = styled.div`
 `;
 
 export const StyledInputGroup = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  column-gap: 24px;
-  row-gap: 16px;
   margin-top: 16px;
+
+  @media screen and (max-width: 767px) {
+    & > div:not(:first-child) {
+      margin-top: 16px;
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    column-gap: 24px;
+    row-gap: 16px;
+  }
 `;
 
 export const InputWrapper = styled.div<{ isSelect: boolean }>`

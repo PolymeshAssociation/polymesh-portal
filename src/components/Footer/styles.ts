@@ -24,10 +24,12 @@ export const StyledContainer = styled.div<{ isLandingPage: boolean }>`
 
   @media screen and (max-width: 1023px) {
     justify-content: center;
+    gap: 8px;
   }
   & p {
     @media screen and (max-width: 1023px) {
       padding: 8px 0;
+      font-size: 12px;
     }
   }
 `;
@@ -47,5 +49,6 @@ export const StyledLink = styled.a`
 
   @media screen and (max-width: 1023px) {
     padding: 8px 0;
+    font-size: 12px;
   }
 `;

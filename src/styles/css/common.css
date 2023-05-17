@@ -27,10 +27,16 @@ input {
   outline: none;
 }
 
+input[type="date"] {
+  -webkit-appearance: none;
+}
+
 button {
   border: none;
   font-family: inherit;
   cursor: pointer;
+  color: inherit;
+  padding: 0;
 }
 
 button:disabled {

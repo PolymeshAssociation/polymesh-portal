@@ -4,11 +4,11 @@ import { AuthorizationsNavigation } from './components/AuthorizationsNavigation'
 import { AuthorizationItem } from './components/AuthorizationItem';
 import { StyledAuthorizationsList, AuthorizationPlaceholder } from './styles';
 import { EAuthorizationDirections } from './constants';
-import { AccountContext } from '~/context/AccountContext';
 import { AuthorizationsContext } from '~/context/AuthorizationsContext';
+import { SkeletonLoader } from '~/components/UiKit';
+import { useWindowWidth } from '~/hooks/utility';
 
 const Authorizations = () => {
-  const { identityLoading } = useContext(AccountContext);
   const {
     incomingAuthorizations,
     outgoingAuthorizations,
@@ -16,6 +16,8 @@ const Authorizations = () => {
   } = useContext(AuthorizationsContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const direction = searchParams.get('direction');
+  const { isMobile, isTablet } = useWindowWidth();
+  const isSmallScreen = isMobile || isTablet;
 
   useEffect(() => {
     if (
@@ -35,17 +37,16 @@ const Authorizations = () => {
   return (
     <>
       <AuthorizationsNavigation notificationsCount={notificationsCount} />
-      {(identityLoading || authorizationsLoading) && (
-        <AuthorizationPlaceholder>Loading</AuthorizationPlaceholder>
+      {authorizationsLoading && (
+        <SkeletonLoader height={isSmallScreen ? 312 : 162} />
       )}
-      {!identityLoading &&
-        !authorizationsLoading &&
+      {!authorizationsLoading &&
         !notificationsCount[direction as `${EAuthorizationDirections}`] && (
           <AuthorizationPlaceholder>
             No {direction} authorizations
           </AuthorizationPlaceholder>
         )}
-      {!identityLoading && !authorizationsLoading && (
+      {!authorizationsLoading && (
         <StyledAuthorizationsList>
           {direction === EAuthorizationDirections.INCOMING
             ? incomingAuthorizations.map((authorization) => (
