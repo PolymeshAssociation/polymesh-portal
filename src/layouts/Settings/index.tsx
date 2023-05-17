@@ -64,7 +64,7 @@ const Settings = () => {
       <StyledMenuList>
         <MenuItem
           iconName="Wallet"
-          description="Default Wallet"
+          description="Currently Selected Wallet"
           value={<DefaultWallet />}
         />
         <MenuItem

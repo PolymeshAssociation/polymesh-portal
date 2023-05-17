@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import {
-  NetworkInfo,
+  // NetworkInfo,
   UnsubCallback,
 } from '@polymeshassociation/browser-extension-signing-manager/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
@@ -28,7 +28,7 @@ const Sidebar = () => {
     api: { signingManager, sdk },
     settings: { nodeUrl },
   } = useContext(PolymeshContext);
-  const [networkInfo, setNetworkInfo] = useState<NetworkInfo | null>(null);
+  // const [networkInfo, setNetworkInfo] = useState<NetworkInfo | null>(null);
   const [networkLabel, setNetworkLabel] = useState<string>('');
   const [networkLoading, setNetworkLoading] = useState(true);
   const { count } = useNotifications();
@@ -43,20 +43,15 @@ const Sidebar = () => {
     (async () => {
       try {
         setNetworkLoading(true);
-        const network = await signingManager.getCurrentNetwork();
+        // const network = await signingManager.getCurrentNetwork();
         const chainNetwork = await sdk.network.getNetworkProperties();
+
         const chainNetworkLabel = chainNetwork.name.replace('Polymesh ', '');
-        setNetworkLabel(
-          chainNetworkLabel === network?.label
-            ? network.label
-            : chainNetworkLabel,
-        );
+        setNetworkLabel(chainNetworkLabel);
 
         unsubCb = signingManager.onNetworkChange((newNetwork) => {
-          setNetworkInfo(newNetwork);
+          setNetworkLabel(newNetwork.label);
         });
-
-        setNetworkInfo(network);
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
@@ -88,7 +83,7 @@ const Sidebar = () => {
       <StyledNetworkWrapper fullWidth={fullWidth}>
         <StyledNetworkStatus fullWidth={fullWidth}>
           <StatusDot isLoading={networkLoading} fullWidth={fullWidth} />
-          {networkInfo ? <span>{networkLabel}</span> : ''}
+          {networkLabel ? <span>{networkLabel}</span> : ''}
         </StyledNetworkStatus>
         {nodeUrl !== import.meta.env.VITE_NODE_URL && (
           <WarningLabel className="warning">

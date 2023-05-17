@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import PolymeshContext from './context';
-import { IConnectOptions } from './constants';
 import { useLocalStorage } from '~/hooks/utility';
 import { notifyGlobalError } from '~/helpers/notifications';
 
@@ -34,7 +33,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
 
   // Create the browser extension signing manager and connect to the Polymesh SDK.
   const connectWallet = useCallback(
-    async ({ extensionName, isDefault }: IConnectOptions) => {
+    async (extensionName: string) => {
       setConnecting(true);
       setSdk(null);
       setSigningManager(null);
@@ -59,9 +58,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
           sdkInstance._polkadotApi.genesisHash.toString(),
         );
         setSigningManager(signingManagerInstance);
-        if (isDefault) {
-          setDefaultExtension(extensionName);
-        }
+        setDefaultExtension(extensionName);
         setSdk(sdkInstance);
         setInitialized(true);
       } catch (error) {
@@ -88,10 +85,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     )
       return;
 
-    connectWallet({
-      extensionName: defaultExtension,
-      isDefault: true,
-    });
+    connectWallet(defaultExtension);
   }, [connectWallet, initialized, defaultExtension, nodeUrl]);
 
   const contextValue = useMemo(

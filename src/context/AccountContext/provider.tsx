@@ -21,6 +21,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const {
     api: { sdk, signingManager },
     state: { initialized },
+    settings: { defaultExtension },
   } = useContext(PolymeshContext);
   const [account, setAccount] = useState<Account | MultiSig | null>(null);
   const [selectedAccount, setSelectedAccount] = useState('');
@@ -52,9 +53,11 @@ const AccountProvider = ({ children }: IProviderProps) => {
   useEffect(() => {
     if (!sdk || !initialized || !signingManager) return;
 
+    setSelectedAccount('');
+    setPrimaryKey('');
+    setAllAccounts([]);
+    setAllAccountsWithMeta([]);
     (async () => {
-      setSelectedAccount('');
-      setPrimaryKey('');
       try {
         const connectedAccounts = await signingManager.getAccounts();
         const accountsWithMeta = await signingManager.getAccountsWithMeta();
@@ -89,7 +92,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
     if (!defaultAccount) return;
 
     signerRef.current = defaultAccount;
-  }, [defaultAccount]);
+  }, [defaultAccount, defaultExtension]);
 
   // Set selected account when account array changes
   useEffect(() => {
@@ -109,7 +112,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
   // Set account instance when selected account changes
   useEffect(() => {
-    if (!signingManager || !sdk || !selectedAccount) return;
+    if (!signingManager || !sdk || allAccounts.length || !selectedAccount)
+      return;
 
     (async () => {
       try {
@@ -126,7 +130,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
         notifyGlobalError((error as Error).message);
       }
     })();
-  }, [sdk, selectedAccount, signingManager]);
+  }, [sdk, selectedAccount, signingManager, allAccounts]);
 
   // Get identity data when sdk is initialized
   useEffect(() => {

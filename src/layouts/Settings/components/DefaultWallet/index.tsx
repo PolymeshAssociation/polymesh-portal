@@ -26,12 +26,7 @@ export const DefaultWallet = () => {
           'None'
         )}
       </StyledValue>
-      {modalOpen && (
-        <ExtensionSelect
-          handleClose={() => setModalOpen(false)}
-          isDefaultSelect
-        />
-      )}
+      {modalOpen && <ExtensionSelect handleClose={() => setModalOpen(false)} />}
     </>
   );
 };

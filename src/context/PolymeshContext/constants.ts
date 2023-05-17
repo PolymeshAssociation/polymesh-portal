@@ -1,11 +1,6 @@
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 
-export interface IConnectOptions {
-  extensionName: string;
-  isDefault: boolean;
-}
-
 export interface IPolymeshContext {
   state: {
     connecting: boolean;
@@ -23,7 +18,7 @@ export interface IPolymeshContext {
     middlewareUrl: string;
     setMiddlewareUrl: (url: string) => void;
   };
-  connectWallet: (data: IConnectOptions) => Promise<void>;
+  connectWallet: (extensionName: string) => Promise<void>;
 }
 
 export const initialState = {
