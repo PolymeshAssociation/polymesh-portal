@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, Suspense } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useInjectedWeb3 } from '~/hooks/polymesh';
-import { Footer, Header, Sidebar } from '~/components';
+import { Footer, Header, Sidebar, LoadingFallback } from '~/components';
 import { StyledMain, StyledPageWrapper } from './styles';
 import { useWindowWidth } from '~/hooks/utility';
 import { Heading } from '~/components/UiKit';
@@ -70,7 +70,7 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
                   {ROUTES.find(({ path }) => path === pathname)?.label || null}
                 </Heading>
               )}
-              {children}
+              <Suspense fallback={<LoadingFallback />}>{children}</Suspense>
             </StyledMain>
             <Footer isLandingPage={isLandingPage} />
           </div>

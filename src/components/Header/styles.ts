@@ -17,6 +17,7 @@ export const StyledHeaderContainer = styled.div`
   padding: 0 24px;
 
   @media screen and (min-width: 768px) {
+    height: auto;
     padding: 0 36px;
   }
   @media screen and (min-width: 1200px) {

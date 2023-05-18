@@ -34,7 +34,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
   const { networkName, networkLoading } = useNetwork();
   const { balance, balanceIsLoading } = useBalance();
   const { count } = useNotifications();
-  const { isMobile } = useWindowWidth();
+  const { isMobile, isTablet } = useWindowWidth();
   const [fullWidth, setFullWidth] = useState(!isMobile);
   const [linksExpanded, setLinksExpanded] = useState(false);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
@@ -47,8 +47,12 @@ const Sidebar: React.FC<ISidebarProps> = ({
   useEffect(() => {
     if (isMobile) return;
 
-    setFullWidth(true);
-  }, [isMobile]);
+    if (isTablet) {
+      setFullWidth(false);
+    } else {
+      setFullWidth(true);
+    }
+  }, [isMobile, isTablet]);
 
   const sidebarExpanded = isMobile ? mobileMenuOpen : fullWidth;
 

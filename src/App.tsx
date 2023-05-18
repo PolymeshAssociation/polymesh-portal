@@ -1,4 +1,4 @@
-import { createElement, Suspense, useContext } from 'react';
+import { createElement, lazy, Suspense, useContext } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { ApolloProvider } from '@apollo/client';
@@ -8,13 +8,15 @@ import { PolymeshProvider } from '~/context/PolymeshContext';
 import { AccountProvider } from '~/context/AccountContext';
 import { PortfolioProvider } from '~/context/PortfolioContext';
 import { AuthorizationsProvider } from '~/context/AuthorizationsContext';
-import { ClaimsProvider } from './context/ClaimsContext';
+import { ClaimsProvider } from '~/context/ClaimsContext';
 import { InstructionsProvider } from '~/context/InstructionsContext';
 import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
 import { ROUTES } from '~/constants/routes';
 import { gqlClient } from '~/config/graphql';
-import SharedLayout from '~/layouts/SharedLayout';
 import theme from '~/styles/theme';
+import { LoadingFallback } from '~/components';
+
+const SharedLayout = lazy(() => import('~/layouts/SharedLayout'));
 
 const App = () => {
   const { currentTheme } = useContext(ThemeContext);
@@ -22,17 +24,19 @@ const App = () => {
   return (
     <ThemeProvider theme={theme[currentTheme]}>
       <SkeletonTheme>
-        <SharedLayout>
-          <Routes>
-            {ROUTES.map(({ path, component }) => (
-              <Route
-                path={path}
-                element={createElement(component)}
-                key={path}
-              />
-            ))}
-          </Routes>
-        </SharedLayout>
+        <Suspense fallback={<LoadingFallback main />}>
+          <SharedLayout>
+            <Routes>
+              {ROUTES.map(({ path, component }) => (
+                <Route
+                  path={path}
+                  element={createElement(component)}
+                  key={path}
+                />
+              ))}
+            </Routes>
+          </SharedLayout>
+        </Suspense>
         <ToastContainer
           enableMultiContainer
           containerId="globalToast"
@@ -53,11 +57,9 @@ const WrappedApp = () => {
               <ClaimsProvider>
                 <AppThemeProvider>
                   <ApolloProvider client={gqlClient}>
-                    <Suspense fallback="loading...">
-                      <BrowserRouter>
-                        <App />
-                      </BrowserRouter>
-                    </Suspense>
+                    <BrowserRouter>
+                      <App />
+                    </BrowserRouter>
                   </ApolloProvider>
                 </AppThemeProvider>
               </ClaimsProvider>
