@@ -25,12 +25,18 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     'rpcUrl',
     import.meta.env.VITE_NODE_URL,
   );
-  const sdkRef = useRef<Polymesh | null>(null);
-  const nodeUrlRef = useRef<string | null>(null);
   const [middlewareUrl, setMiddlewareUrl] = useLocalStorage<string>(
     'middlewareUrl',
     import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL,
   );
+  const [middlewareKey, setMiddlewareKey] = useLocalStorage<string>(
+    'middlewareKey',
+    import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
+  );
+  const sdkRef = useRef<Polymesh | null>(null);
+  const nodeUrlRef = useRef<string | null>(null);
+  const middlewareUrlRef = useRef<string | null>(null);
+  const middlewareKeyRef = useRef<string | null>(null);
 
   // Create the browser extension signing manager and connect to the Polymesh SDK.
   const connectWallet = useCallback(
@@ -38,6 +44,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       setConnecting(true);
       try {
         nodeUrlRef.current = nodeUrl;
+        middlewareUrlRef.current = middlewareUrl;
+        middlewareKeyRef.current = middlewareKey;
         const signingManagerInstance =
           await BrowserExtensionSigningManager.create({
             appName: 'polymesh-user-portal',
@@ -49,7 +57,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
             signingManager: signingManagerInstance,
             middlewareV2: {
               link: middlewareUrl,
-              key: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
+              key: middlewareKey,
             },
           });
           sdkRef.current = sdkInstance;
@@ -75,9 +83,21 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   );
 
   // Trigger signing manager initialization automatically when recent used extension data exists
-  // Or reload window when RPC url is changed
+  // Or reload window when RPC or Middleware url is changed
   useEffect(() => {
     if (nodeUrlRef.current && nodeUrl !== nodeUrlRef.current) {
+      window.location.reload();
+    }
+    if (
+      middlewareUrlRef.current &&
+      middlewareUrl !== middlewareUrlRef.current
+    ) {
+      window.location.reload();
+    }
+    if (
+      middlewareKeyRef.current &&
+      middlewareKey !== middlewareKeyRef.current
+    ) {
       window.location.reload();
     }
 
@@ -89,7 +109,14 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       return;
 
     connectWallet(defaultExtension);
-  }, [connectWallet, initialized, defaultExtension, nodeUrl]);
+  }, [
+    connectWallet,
+    initialized,
+    defaultExtension,
+    nodeUrl,
+    middlewareUrl,
+    middlewareKey,
+  ]);
 
   const contextValue = useMemo(
     () => ({
@@ -105,6 +132,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setNodeUrl,
         middlewareUrl,
         setMiddlewareUrl,
+        middlewareKey,
+        setMiddlewareKey,
       },
       connectWallet,
     }),
@@ -120,6 +149,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       setNodeUrl,
       middlewareUrl,
       setMiddlewareUrl,
+      middlewareKey,
+      setMiddlewareKey,
     ],
   );
 

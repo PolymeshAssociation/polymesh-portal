@@ -64,3 +64,11 @@ export const StyledActionButton = styled.button<{ marginTop?: number }>`
     color: ${({ theme }) => theme.colors.textDisabled};
   }
 `;
+
+export const StyledEndpointWrapper = styled.div<{ marginTop?: number }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  ${({ marginTop }) => (marginTop ? `margin-top: ${marginTop}px;` : '')}
+`;
