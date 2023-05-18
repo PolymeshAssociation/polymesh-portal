@@ -59,7 +59,7 @@ export const StyledExpandedSelect = styled.div<{ borderRadius?: number }>`
   border-radius: ${({ borderRadius }) =>
     borderRadius ? `${borderRadius}px;` : '8px;'}
   overflow-y: scroll;
-  z-index: 1;
+  z-index: 2;
   box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
 `;
 

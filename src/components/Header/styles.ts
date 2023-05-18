@@ -44,8 +44,14 @@ export const StyledInfoItem = styled.li`
   display: flex;
   align-items: center;
   gap: 16px;
+  @media screen and (min-width: 768px) and (max-width: 1023px) {
+    gap: 8px;
+  }
   &:not(:first-child) {
     margin-left: 16px;
+    @media screen and (min-width: 768px) and (max-width: 1023px) {
+      margin-left: 8px;
+    }
   }
 
   &:not(:last-child)::after {

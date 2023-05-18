@@ -4,6 +4,10 @@ export const StyledScrollableWrapper = styled.div`
   padding: 24px 12px 24px 0;
   max-height: 60vh;
   overflow-y: scroll;
+
+  @media screen and (max-width: 767px) {
+    max-height: calc(100% - 116px);
+  }
 `;
 
 export const StyledButtonsWrapper = styled.div`

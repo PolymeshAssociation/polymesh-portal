@@ -11,8 +11,8 @@ import { CopyToClipboard, Icon } from '~/components';
 import { Text } from '~/components/UiKit';
 import { ClaimsContext } from '~/context/ClaimsContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { toParsedDateTime } from '~/helpers/dateTime';
-import { formatDid } from '~/helpers/formatters';
+import { toParsedDate } from '~/helpers/dateTime';
+import { formatDid, splitByCapitalLetters } from '~/helpers/formatters';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import { EClaimsType } from '../../constants';
@@ -23,6 +23,7 @@ import {
   RevokeButton,
 } from './styles';
 import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IClaimItemProps {
   claimData: ClaimData<Claim>;
@@ -37,6 +38,7 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
   const [revokeInProgress, setRevokeInProgress] = useState(false);
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
+  const { isMobile } = useWindowWidth();
   const { claim } = claimData;
 
   const handleRevoke = async () => {
@@ -73,14 +75,18 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
       <StyledClaimItem>
         Claim Type
         <Text bold size="large">
-          {claim.type}
+          {splitByCapitalLetters(claim.type)}
         </Text>
       </StyledClaimItem>
       {type === EClaimsType.RECEIVED ? (
         <StyledClaimItem>
           Issued by
           <StyledDidWrapper>
-            {formatDid(claimData.issuer.did, 7, 8)}
+            {formatDid(
+              claimData.issuer.did,
+              isMobile ? 4 : 7,
+              isMobile ? 5 : 8,
+            )}
             <CopyToClipboard value={claimData.issuer.did} />
           </StyledDidWrapper>
         </StyledClaimItem>
@@ -88,7 +94,11 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
         <StyledClaimItem>
           Target
           <StyledDidWrapper>
-            {formatDid(claimData.target.did, 7, 8)}
+            {formatDid(
+              claimData.target.did,
+              isMobile ? 4 : 7,
+              isMobile ? 5 : 8,
+            )}
             <CopyToClipboard value={claimData.target.did} />
           </StyledDidWrapper>
         </StyledClaimItem>
@@ -97,14 +107,14 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
         <StyledClaimItem>
           Expiry Date
           <Text bold size="large">
-            {toParsedDateTime(claimData.expiry.toISOString())}
+            {toParsedDate(claimData.expiry.toISOString())}
           </Text>
         </StyledClaimItem>
       )}
       <StyledClaimItem>
         Issued At
         <Text bold size="large">
-          {toParsedDateTime(claimData.issuedAt.toISOString())}
+          {toParsedDate(claimData.issuedAt.toISOString())}
         </Text>
       </StyledClaimItem>
       {claim.type === ClaimType.Jurisdiction && (

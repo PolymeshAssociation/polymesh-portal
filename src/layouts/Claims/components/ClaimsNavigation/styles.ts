@@ -5,6 +5,18 @@ export const StyledNavBar = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: 60px;
+
+  @media screen and (max-width: 767px) {
+    gap: 24px;
+    margin-bottom: 24px;
+    & > div:first-child {
+      flex-grow: 1;
+      text-transform: capitalize;
+      & button {
+        text-transform: capitalize;
+      }
+    }
+  }
 `;
 
 export const StyledNavList = styled.ul`
@@ -38,21 +50,40 @@ export const StyledActionsWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 24px;
+
+  @media screen and (min-width: 768px) and (max-width: 1199px) {
+    gap: 16px;
+  }
 `;
 
 export const StyledSort = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   color: ${({ theme }) => theme.colors.textSecondary};
   font-size: 14px;
+  margin-bottom: 24px;
 
-  &::after {
-    content: '';
-    display: block;
-    width: 1px;
-    height: 32px;
-    margin-left: 24px;
-    background-color: #e6e6e6;
+  @media screen and (min-width: 768px) and (max-width: 1023px) {
+    margin-bottom: 0;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  @media screen and (min-width: 1024px) {
+    align-items: center;
+    margin-bottom: 0;
+    &::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 32px;
+      margin-left: 24px;
+      background-color: #e6e6e6;
+      @media screen and (max-width: 1199px) {
+        margin-left: 16px;
+      }
+    }
   }
 `;
 
@@ -63,6 +94,10 @@ export const StyledSortSelect = styled.div`
   margin-left: 2px;
   padding-left: 2px;
   padding-right: 16px;
+  @media screen and (min-width: 768px) and (max-width: 1023px) {
+    margin-left: 0;
+    padding-left: 0;
+  }
 
   & .dropdown-icon {
     position: absolute;
