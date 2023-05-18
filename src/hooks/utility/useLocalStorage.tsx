@@ -20,7 +20,7 @@ const useLocalStorage = <T,>(
   });
 
   useEffect(() => {
-    if (!storedValue || typeof window === undefined) return;
+    if (storedValue == null || typeof window === undefined) return;
 
     window.localStorage.setItem(key, JSON.stringify(storedValue));
   }, [key, storedValue]);

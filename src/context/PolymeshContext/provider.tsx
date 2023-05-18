@@ -95,7 +95,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       window.location.reload();
     }
     if (
-      middlewareKeyRef.current &&
+      middlewareKeyRef.current != null &&
       middlewareKey !== middlewareKeyRef.current
     ) {
       window.location.reload();

@@ -55,7 +55,7 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
       setMiddlewareUrl(middlewareEndpoint.trim());
     }
     if (
-      middlewareEndpointKey &&
+      middlewareEndpointKey != null &&
       middlewareEndpointKey.trim() !== middlewareKey
     ) {
       setMiddlewareKey(middlewareEndpointKey.trim());
@@ -67,26 +67,34 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
     if (endpointType) {
       switch (endpointType) {
         case EndpointTypes.RPC:
-          setNodeUrl(import.meta.env.VITE_NODE_URL);
+          setNodeEndpoint(import.meta.env.VITE_NODE_URL);
           break;
         case EndpointTypes.MIDDLEWARE:
-          setMiddlewareUrl(import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL);
+          setMiddlewareEndpoint(import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL);
           break;
         case 'key':
-          setMiddlewareKey(import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '');
-          localStorage.removeItem('middlewareKey');
+          setMiddlewareEndpointKey(
+            import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
+          );
           break;
 
         default:
           break;
       }
     } else {
-      setNodeUrl(import.meta.env.VITE_NODE_URL);
-      setMiddlewareUrl(import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL);
-      setMiddlewareKey(import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '');
-      localStorage.removeItem('middlewareKey');
+      setNodeEndpoint(import.meta.env.VITE_NODE_URL);
+      setMiddlewareEndpoint(import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL);
+      setMiddlewareEndpointKey(
+        import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
+      );
     }
+  };
+
+  const handleCancel = () => {
     toggleModal();
+    setNodeEndpoint(nodeUrl);
+    setMiddlewareEndpoint(middlewareUrl);
+    setMiddlewareEndpointKey(middlewareKey);
   };
 
   return (
@@ -95,16 +103,19 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
         {configuredEndpoint.length > 28
           ? formatDid(configuredEndpoint, 12, 13)
           : configuredEndpoint}
-        {nodeUrl !== import.meta.env.VITE_NODE_URL &&
-          type === EndpointTypes.RPC && (
-            <StyledLabel>
-              <Icon name="Alert" size="18px" />
-              Custom URL
-            </StyledLabel>
-          )}
+        {((type === EndpointTypes.RPC &&
+          nodeUrl !== import.meta.env.VITE_NODE_URL) ||
+          (type === EndpointTypes.MIDDLEWARE &&
+            middlewareEndpoint !==
+              import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL)) && (
+          <StyledLabel>
+            <Icon name="Alert" size="18px" />
+            Custom
+          </StyledLabel>
+        )}
       </StyledValue>
       {editUrlExpanded && (
-        <Modal handleClose={toggleModal}>
+        <Modal handleClose={handleCancel}>
           <Heading type="h4" marginBottom={24}>
             Configure Endpoints
           </Heading>
@@ -119,7 +130,7 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
             </StyledActionButton>
           </StyledEndpointWrapper>
           <StyledInput
-            placeholder="https://example.com"
+            placeholder="wss://example.com"
             value={nodeEndpoint}
             onChange={({ target }) => setNodeEndpoint(target.value)}
           />
@@ -144,17 +155,7 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
           />
 
           <StyledEndpointWrapper marginTop={24}>
-            <Text
-              bold
-              color={
-                middlewareEndpoint.trim() ===
-                import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL
-                  ? 'secondary'
-                  : 'primary'
-              }
-            >
-              Middleware Key (Optional)
-            </Text>
+            <Text bold>Middleware Key (Optional)</Text>
             <StyledActionButton
               disabled={
                 middlewareEndpointKey.trim() ===
@@ -162,26 +163,22 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
               }
               onClick={() => handleResetToDefault('key')}
             >
-              <Icon name="CloseIcon" size="24px" />
-              Clear
+              <Icon name="Refresh" />
+              Reset to Default
             </StyledActionButton>
           </StyledEndpointWrapper>
           <StyledInput
-            placeholder="Enter Middleware Key if one is needed"
+            placeholder="Enter Middleware API key if required"
             value={middlewareEndpointKey}
-            disabled={
-              middlewareEndpoint.trim() ===
-              import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL
-            }
             onChange={({ target }) => setMiddlewareEndpointKey(target.value)}
           />
           <StyledActionButton
             marginTop={24}
             disabled={
-              middlewareUrl.trim() ===
+              middlewareEndpoint.trim() ===
                 import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL &&
-              nodeUrl.trim() === import.meta.env.VITE_NODE_URL &&
-              middlewareKey.trim() ===
+              nodeEndpoint.trim() === import.meta.env.VITE_NODE_URL &&
+              middlewareEndpointKey.trim() ===
                 import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY
             }
             onClick={() => handleResetToDefault()}
@@ -190,15 +187,17 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
             Reset All to Default
           </StyledActionButton>
           <StyledButtonWrapper>
-            <Button variant="modalSecondary" onClick={toggleModal}>
+            <Button variant="modalSecondary" onClick={handleCancel}>
               Cancel
             </Button>
             <Button
               variant="modalPrimary"
               disabled={
-                nodeUrl === nodeEndpoint.trim() &&
-                middlewareUrl === middlewareEndpoint.trim() &&
-                middlewareKey === middlewareEndpointKey.trim()
+                (nodeUrl === nodeEndpoint.trim() &&
+                  middlewareUrl === middlewareEndpoint.trim() &&
+                  middlewareKey === middlewareEndpointKey.trim()) ||
+                !nodeEndpoint ||
+                !middlewareEndpoint
               }
               onClick={handleApply}
             >
