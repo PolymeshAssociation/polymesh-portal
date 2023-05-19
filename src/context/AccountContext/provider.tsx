@@ -58,13 +58,29 @@ const AccountProvider = ({ children }: IProviderProps) => {
     setAllAccounts([]);
     setAllAccountsWithMeta([]);
     (async () => {
+      // This is only applicable to the polywallet as other wallets return `newAccounts` on initial subscription
+      if (defaultExtension !== 'polywallet') return;
       try {
         const connectedAccounts = await signingManager.getAccounts();
         const accountsWithMeta = await signingManager.getAccountsWithMeta();
 
+        if (!connectedAccounts.length) {
+          throw new Error('No injected accounts found in the connected wallet');
+        }
         const filteredAccounts = connectedAccounts.filter(
           (address) => !blockedWallets.includes(address),
         );
+        if (!filteredAccounts.length) {
+          throw new Error(
+            'All injected accounts are in your blocked accounts list',
+          );
+        }
+        if (blockedWallets.includes(connectedAccounts[0])) {
+          throw new Error(
+            'The Polymesh wallet selected account is in your list of blocked accounts. Please select another account',
+          );
+        }
+
         const filteredAccountsWithMeta = accountsWithMeta.filter(
           (accountWithMeta) =>
             !blockedWallets.includes(accountWithMeta.address),
@@ -75,37 +91,54 @@ const AccountProvider = ({ children }: IProviderProps) => {
         notifyGlobalError((error as Error).message);
       }
     })();
-  }, [sdk, initialized, signingManager, blockedWallets]);
+  }, [sdk, initialized, signingManager, blockedWallets, defaultExtension]);
 
   // Perform actions when account change occurs in extension
   useEffect(() => {
     if (!initialized || !signingManager) return undefined;
 
     const unsubCb = signingManager.onAccountChange(async (newAccounts) => {
-      if (
-        blockedWallets.includes(
-          (newAccounts as InjectedAccountWithMeta[])[0].address,
-        )
-      ) {
-        notifyGlobalError(
-          'The wallet selected account is in your list of blocked accounts',
-        );
-        return;
-      }
+      try {
+        if (!newAccounts.length) {
+          throw new Error('No injected accounts found in the connected wallet');
+        }
 
-      const filteredNewAccounts = (
-        newAccounts as InjectedAccountWithMeta[]
-      ).filter(
-        (accountWithMeta) => !blockedWallets.includes(accountWithMeta.address),
-      );
-      const [firstAccount] = filteredNewAccounts;
-      signerRef.current = firstAccount?.address;
-      setAllAccounts(filteredNewAccounts.map((acc) => acc.address.toString()));
-      setAllAccountsWithMeta(filteredNewAccounts);
+        const filteredNewAccounts = (
+          newAccounts as InjectedAccountWithMeta[]
+        ).filter(
+          (accountWithMeta) =>
+            !blockedWallets.includes(accountWithMeta.address),
+        );
+        if (!filteredNewAccounts.length) {
+          throw new Error(
+            'All injected accounts are in your blocked accounts list',
+          );
+        }
+
+        if (
+          defaultExtension === 'polywallet' &&
+          blockedWallets.includes(
+            (newAccounts as InjectedAccountWithMeta[])[0].address,
+          )
+        ) {
+          throw new Error(
+            'The Polymesh wallet selected account is in your list of blocked accounts. Please select another account',
+          );
+        }
+
+        const [firstAccount] = filteredNewAccounts;
+        signerRef.current = firstAccount?.address;
+        setAllAccounts(
+          filteredNewAccounts.map((acc) => acc.address.toString()),
+        );
+        setAllAccountsWithMeta(filteredNewAccounts);
+      } catch (error) {
+        notifyGlobalError((error as Error).message);
+      }
     }, true);
 
     return () => unsubCb();
-  }, [blockedWallets, initialized, signingManager]);
+  }, [blockedWallets, defaultExtension, initialized, signingManager]);
 
   // Update signerRef when default account value changes
   useEffect(() => {
