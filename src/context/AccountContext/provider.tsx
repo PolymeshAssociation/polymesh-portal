@@ -61,31 +61,51 @@ const AccountProvider = ({ children }: IProviderProps) => {
       try {
         const connectedAccounts = await signingManager.getAccounts();
         const accountsWithMeta = await signingManager.getAccountsWithMeta();
-        setAllAccounts(connectedAccounts);
-        setAllAccountsWithMeta(accountsWithMeta);
+
+        const filteredAccounts = connectedAccounts.filter(
+          (address) => !blockedWallets.includes(address),
+        );
+        const filteredAccountsWithMeta = accountsWithMeta.filter(
+          (accountWithMeta) =>
+            !blockedWallets.includes(accountWithMeta.address),
+        );
+        setAllAccounts(filteredAccounts);
+        setAllAccountsWithMeta(filteredAccountsWithMeta);
       } catch (error) {
         notifyGlobalError((error as Error).message);
       }
     })();
-  }, [sdk, initialized, signingManager]);
+  }, [sdk, initialized, signingManager, blockedWallets]);
 
   // Perform actions when account change occurs in extension
   useEffect(() => {
     if (!initialized || !signingManager) return undefined;
 
     const unsubCb = signingManager.onAccountChange(async (newAccounts) => {
-      const [firstAccount] = newAccounts as InjectedAccountWithMeta[];
-      signerRef.current = firstAccount?.address;
-      setAllAccounts(
-        (newAccounts as InjectedAccountWithMeta[]).map((acc) =>
-          acc.address.toString(),
-        ),
+      if (
+        blockedWallets.includes(
+          (newAccounts as InjectedAccountWithMeta[])[0].address,
+        )
+      ) {
+        notifyGlobalError(
+          'The wallet selected account is in your list of blocked accounts',
+        );
+        return;
+      }
+
+      const filteredNewAccounts = (
+        newAccounts as InjectedAccountWithMeta[]
+      ).filter(
+        (accountWithMeta) => !blockedWallets.includes(accountWithMeta.address),
       );
-      setAllAccountsWithMeta(newAccounts as InjectedAccountWithMeta[]);
+      const [firstAccount] = filteredNewAccounts;
+      signerRef.current = firstAccount?.address;
+      setAllAccounts(filteredNewAccounts.map((acc) => acc.address.toString()));
+      setAllAccountsWithMeta(filteredNewAccounts);
     }, true);
 
     return () => unsubCb();
-  }, [initialized, signingManager]);
+  }, [blockedWallets, initialized, signingManager]);
 
   // Update signerRef when default account value changes
   useEffect(() => {

@@ -1,7 +1,8 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Icon, Modal } from '~/components';
 import { Heading, Text, Button } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import { formatKey } from '~/helpers/formatters';
 import {
   InputWrapper,
@@ -16,10 +17,14 @@ import {
 export const BlockedWallets = () => {
   const { blockedWallets, blockWalletAddress, unblockWalletAddress } =
     useContext(AccountContext);
+  const {
+    api: { sdk },
+  } = useContext(PolymeshContext);
+
   const [modalExpanded, setModalExpanded] = useState(false);
   const [editBlockedWallet, setEditBlockedWallet] = useState(false);
   const [blockedAddress, setBlockedAddress] = useState<string>('');
-
+  const [isValidAddress, setIsValidAddress] = useState(false);
   const toggleModal = () => setModalExpanded((prev) => !prev);
 
   const handleBlock = () => {
@@ -28,11 +33,26 @@ export const BlockedWallets = () => {
     setEditBlockedWallet(false);
   };
 
+  const handleClose = () => {
+    toggleModal();
+    setEditBlockedWallet(false);
+    setBlockedAddress('');
+  };
+
+  useEffect(() => {
+    if (!sdk) return;
+    setIsValidAddress(
+      !sdk.accountManagement.isValidAddress({
+        address: blockedAddress,
+      }),
+    );
+  }, [blockedAddress, sdk]);
+
   return (
     <>
       <StyledValue onClick={toggleModal}>{blockedWallets.length}</StyledValue>
       {modalExpanded && (
-        <Modal handleClose={toggleModal}>
+        <Modal handleClose={handleClose}>
           <Heading type="h4" marginBottom={48}>
             Blocked Wallets
           </Heading>
@@ -62,11 +82,16 @@ export const BlockedWallets = () => {
                   onChange={({ target }) => setBlockedAddress(target.value)}
                 />
               </InputWrapper>
-              <StyledActionButton onClick={() => setEditBlockedWallet(false)}>
+              <StyledActionButton
+                onClick={() => {
+                  setEditBlockedWallet(false);
+                  setBlockedAddress('');
+                }}
+              >
                 Cancel
               </StyledActionButton>
               <StyledActionButton
-                disabled={!blockedAddress}
+                disabled={!blockedAddress || isValidAddress}
                 onClick={handleBlock}
               >
                 Block
@@ -81,7 +106,7 @@ export const BlockedWallets = () => {
             Block Wallet
           </StyledActionButton>
           <StyledButtonWrapper>
-            <Button variant="modalSecondary" onClick={toggleModal}>
+            <Button variant="modalSecondary" onClick={handleClose}>
               Close
             </Button>
           </StyledButtonWrapper>
