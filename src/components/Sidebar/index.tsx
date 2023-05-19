@@ -1,7 +1,17 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { useBalance, useNetwork, useNotifications } from '~/hooks/polymesh';
+import {
+  NetworkInfo,
+  UnsubCallback,
+} from '@polymeshassociation/browser-extension-signing-manager/types';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { useNotifications, useBalance } from '~/hooks/polymesh';
 import { CopyToClipboard, Icon } from '~/components';
-import { NotificationCounter, SkeletonLoader, Text } from '../UiKit';
+import {
+  NotificationCounter,
+  WarningLabel,
+  SkeletonLoader,
+  Text,
+} from '../UiKit';
 import {
   StyledSidebar,
   MenuButton,
@@ -13,10 +23,12 @@ import {
   ExpandedLinks,
   StyledExpandedLink,
   SoonLabel,
+  WarningLabelWrapper,
   StyledCloseMenuButton,
   StyledAccountInfo,
 } from './styles';
 import { NAV_LINKS } from '~/constants/routes';
+import { notifyError } from '~/helpers/notifications';
 import { useWindowWidth } from '~/hooks/utility';
 import { formatBalance, formatDid } from '~/helpers/formatters';
 import { AccountContext } from '~/context/AccountContext';
@@ -31,12 +43,54 @@ const Sidebar: React.FC<ISidebarProps> = ({
   toggleMobileMenu,
 }) => {
   const { identity, identityLoading } = useContext(AccountContext);
-  const { networkName, networkLoading } = useNetwork();
+  const {
+    api: { signingManager, sdk },
+    settings: { nodeUrl, defaultExtension },
+  } = useContext(PolymeshContext);
+  const [walletNetwork, setWalletNetwork] = useState<NetworkInfo | null>(null);
+  const [networkLabel, setNetworkLabel] = useState<string>('');
+  const [networkLoading, setNetworkLoading] = useState(true);
   const { balance, balanceIsLoading } = useBalance();
   const { count } = useNotifications();
   const { isMobile, isTablet } = useWindowWidth();
   const [fullWidth, setFullWidth] = useState(!isMobile);
   const [linksExpanded, setLinksExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!signingManager || !sdk) return undefined;
+
+    let unsubCb: UnsubCallback | undefined;
+
+    (async () => {
+      try {
+        setNetworkLoading(true);
+
+        if (defaultExtension === 'polywallet') {
+          const network = await signingManager.getCurrentNetwork();
+          setWalletNetwork(network);
+
+          unsubCb = signingManager.onNetworkChange((newNetwork) => {
+            setWalletNetwork(newNetwork);
+          });
+        } else {
+          setWalletNetwork(null);
+        }
+
+        const chainNetwork = await sdk.network.getNetworkProperties();
+        const chainNetworkLabel = chainNetwork.name.replace('Polymesh ', '');
+        setNetworkLabel(chainNetworkLabel);
+      } catch (error) {
+        notifyError((error as Error).message);
+      } finally {
+        setNetworkLoading(false);
+      }
+    })();
+
+    if (unsubCb) {
+      return unsubCb;
+    }
+    return undefined;
+  }, [signingManager, sdk, defaultExtension]);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
 
   const toggleSidebarWidth = () => setFullWidth((prev) => !prev);
@@ -113,10 +167,18 @@ const Sidebar: React.FC<ISidebarProps> = ({
                   isLoading={networkLoading}
                   fullWidth={sidebarExpanded}
                 />
-                {networkLoading ? '' : <span>{networkName}</span>}
+                {networkLabel ? <span>{networkLabel}</span> : ''}
               </>
             )}
           </StyledNetworkStatus>
+          <WarningLabelWrapper fullWidth={fullWidth}>
+            {walletNetwork && walletNetwork.label !== networkLabel && (
+              <WarningLabel caption="Different network is selected in wallet" />
+            )}
+            {nodeUrl !== import.meta.env.VITE_NODE_URL && (
+              <WarningLabel caption="Custom RPC URL" />
+            )}
+          </WarningLabelWrapper>
         </StyledNetworkWrapper>
         <nav>
           <StyledNavList fullWidth={sidebarExpanded}>

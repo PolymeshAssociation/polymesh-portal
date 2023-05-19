@@ -13,12 +13,17 @@ import { useWindowWidth } from '~/hooks/utility';
 export const KeyInfo = () => {
   const {
     selectedAccount,
+    allAccountsWithMeta,
     primaryKey,
     secondaryKeys,
     accountIsMultisigSigner,
     identityLoading,
   } = useContext(AccountContext);
   const { isMobile, isSmallDesktop } = useWindowWidth();
+
+  const selectedKeyName = allAccountsWithMeta.find(
+    ({ address }) => address === selectedAccount,
+  )?.meta.name;
 
   return (
     <StyledWrapper>
@@ -28,7 +33,14 @@ export const KeyInfo = () => {
         </IconWrapper>
       )}
       <div className="info-wrapper">
-        <Text marginBottom={4}>Selected key</Text>
+        <Text marginBottom={4}>
+          Selected key
+          {selectedKeyName ? (
+            <>
+              : <span className="key-name">{selectedKeyName}</span>
+            </>
+          ) : null}
+        </Text>
         <KeyInfoWrapper>
           {!identityLoading && (
             <>

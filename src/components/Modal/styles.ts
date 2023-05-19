@@ -9,7 +9,8 @@ export const StyledBackdrop = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(21, 41, 53, 0.3);
+  padding: 24px;
+  background-color: ${({ theme }) => theme.colors.backdrop};
   z-index: 2;
   overflow: scroll;
   @media screen and (min-width: 768px) {
@@ -44,7 +45,8 @@ export const StyledModal = styled.div<{
     border-radius: 8px;
   }
   background-color: ${({ theme }) => theme.colors.modalBackground};
-  box-shadow: 0px 20px 40px rgba(21, 41, 53, 0.1);
+  box-shadow: ${({ theme }) => `0px 20px 40px ${theme.colors.shadow}`};
+  border-radius: 8px;
   ${({ disableOverflow }) => (disableOverflow ? '' : `overflow-y: scroll;`)}
 
   animation: modal-animation 250ms ease-out;

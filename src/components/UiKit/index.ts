@@ -7,3 +7,4 @@ export { default as DropdownSelect } from './DropdownSelect';
 export { default as Toggler } from './Toggler';
 export { default as RefreshButton } from './RefreshButton';
 export { default as SkeletonLoader } from './SkeletonLoader';
+export { default as WarningLabel } from './WarningLabel';

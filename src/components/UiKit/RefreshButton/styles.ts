@@ -6,25 +6,22 @@ export const StyledButton = styled.button`
   justify-content: center;
   width: 48px;
   height: 48px;
-  color: #170087;
+  color: ${({ theme }) => theme.colors.textBlue};
   border-radius: 50%;
+  border: 1px solid transparent;
   background-color: transparent;
   padding: 0;
 
-  &:enabled:hover {
-    background-color: #170087;
-    color: ${({ theme }) => theme.colors.landingBackground};
-    box-shadow: 0px 24px 24px rgba(23, 0, 135, 0.12);
-  }
+  transition: border 250ms ease-out, box-shadow 250ms ease-out,
+    color 250ms ease-out;
 
-  &:enabled:active {
-    box-shadow: 0px 12px 24px transparent;
+  &:hover:enabled {
+    border: 1px solid ${({ theme }) => theme.colors.textBlue};
+  }
+  &:active:enabled {
+    box-shadow: 0px 24px 24px ${({ theme }) => theme.colors.shadow};
   }
   &:disabled {
-    color: #c8c8c8;
+    color: ${({ theme }) => theme.colors.textDisabled};
   }
-
-  transition-property: color, background-color, box-shadow;
-  transition-duration: 250ms;
-  transition-timing-function: ease-out;
 `;

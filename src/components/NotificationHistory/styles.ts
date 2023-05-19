@@ -13,8 +13,8 @@ export const StyledWrapper = styled.div<{ expanded: boolean }>`
   overflow-y: scroll;
   padding: ${({ expanded }) => (expanded ? '24px' : 0)};
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
-
+  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
+  border-radius: 24px;
   opacity: ${({ expanded }) => (expanded ? 1 : 0)};
   ${({ expanded }) => (expanded ? '' : 'transform: translateX(150%);')}
 
@@ -22,15 +22,26 @@ export const StyledWrapper = styled.div<{ expanded: boolean }>`
     opacity 250ms ease-out, max-height 250ms ease-out, padding 250ms ease-out;
 `;
 
+export const StyledTopContainer = styled.div`
+  position: relative;
+  margin-bottom: 32px;
+`;
+
 export const StyledCloseButton = styled.button`
   position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
-  top: 24px;
-  right: 24px;
+  top: 0;
+  right: 0;
   background-color: transparent;
   cursor: pointer;
+  color: ${({ theme }) => theme.colors.textPrimary};
+  transition: color 250ms ease-out;
+
+  &:hover {
+    color: #ff2e72;
+  }
 `;
 
 export const StyledNotificationItem = styled.div`
@@ -48,7 +59,7 @@ export const StyledNotificationItem = styled.div`
   }
 
   &:hover {
-    background-color: #ffebf1;
+    background-color: ${({ theme }) => theme.colors.pinkBackground};
   }
 `;
 

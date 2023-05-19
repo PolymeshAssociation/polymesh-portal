@@ -57,6 +57,15 @@ li {
   overflow: hidden;
 }
 
+input {
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+}
+input:focus {
+  background: transparent;
+}
+
 .skeleton-wrapper {
   flex-grow: 1;
   width: 100%;

@@ -7,7 +7,7 @@ export const StyledWrapper = styled.div`
   justify-content: space-between;
   padding: 24px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
 
   & .balance {

@@ -47,7 +47,7 @@ export const StyledExpandedTypeSelect = styled.div`
   border-radius: 8px;
   overflow-y: scroll;
   z-index: 1;
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
 `;
 
 export const StyledTypeOption = styled.button<{ isSelected?: boolean }>`
@@ -64,12 +64,13 @@ export const StyledTypeOption = styled.button<{ isSelected?: boolean }>`
   font-size: 14px;
   text-align: left;
   transition: background-color 250ms ease-out;
+  color: ${({ theme }) => theme.colors.textPrimary};
 
   &:hover:enabled {
     background-color: ${({ theme }) => theme.colors.dashboardBackground};
   }
   &:disabled {
-    color: #8f8f8f;
+    color: ${({ theme }) => theme.colors.textDisabled};
   }
   &:not(:first-child) {
     margin-top: 8px;

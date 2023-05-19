@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState, Suspense } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { useInjectedWeb3 } from '~/hooks/polymesh';
 import { Footer, Header, Sidebar, LoadingFallback } from '~/components';
 import { StyledMain, StyledPageWrapper } from './styles';
 import { useWindowWidth } from '~/hooks/utility';
@@ -15,11 +14,11 @@ interface ILayoutProps {
 const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
   const {
     state: { connecting, initialized },
+    settings: { defaultExtension },
   } = useContext(PolymeshContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isMobile } = useWindowWidth();
   const { pathname } = useLocation();
-  const { defaultExtension } = useInjectedWeb3();
   const isLandingPage = pathname === '/';
   const redirectToLanding =
     !defaultExtension && !isLandingPage && !connecting && !initialized;

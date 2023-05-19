@@ -13,7 +13,7 @@ import { InstructionsProvider } from '~/context/InstructionsContext';
 import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
 import { ROUTES } from '~/constants/routes';
 import { gqlClient } from '~/config/graphql';
-import theme from '~/styles/theme';
+import { theme, GlobalStyle } from '~/styles/theme';
 import { LoadingFallback } from '~/components';
 
 const SharedLayout = lazy(() => import('~/layouts/SharedLayout'));
@@ -25,6 +25,7 @@ const App = () => {
     <ThemeProvider theme={theme[currentTheme]}>
       <SkeletonTheme>
         <Suspense fallback={<LoadingFallback main />}>
+          <GlobalStyle />
           <SharedLayout>
             <Routes>
               {ROUTES.map(({ path, component }) => (
@@ -41,6 +42,7 @@ const App = () => {
           enableMultiContainer
           containerId="globalToast"
           position="top-center"
+          theme={currentTheme}
         />
       </SkeletonTheme>
     </ThemeProvider>

@@ -1,14 +1,17 @@
-import { useState, useEffect, useMemo, useContext } from 'react';
+import { useState, useEffect, useMemo, useContext, useRef } from 'react';
 import {
   Account,
   MultiSig,
   Identity,
   UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 import { PolymeshContext } from '../PolymeshContext';
 import AccountContext from './context';
-import { notifyError } from '~/helpers/notifications';
+import { notifyGlobalError } from '~/helpers/notifications';
 import { IBalanceByKey } from './constants';
+import { useLocalStorage } from '~/hooks/utility';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -18,10 +21,22 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const {
     api: { sdk, signingManager },
     state: { initialized },
+    settings: { defaultExtension },
   } = useContext(PolymeshContext);
   const [account, setAccount] = useState<Account | MultiSig | null>(null);
   const [selectedAccount, setSelectedAccount] = useState('');
   const [allAccounts, setAllAccounts] = useState<string[]>([]);
+  const [allAccountsWithMeta, setAllAccountsWithMeta] = useState<
+    InjectedAccountWithMeta[]
+  >([]);
+  const [defaultAccount, setDefaultAccount] = useLocalStorage(
+    'defaultAccount',
+    '',
+  );
+  const [blockedWallets, setBlockedWallets] = useLocalStorage<string[]>(
+    'blockedWallets',
+    [],
+  );
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [allIdentities, setAllIdentities] = useState<(Identity | null)[]>([]);
   const [primaryKey, setPrimaryKey] = useState<string>('');
@@ -32,41 +47,131 @@ const AccountProvider = ({ children }: IProviderProps) => {
     useState<boolean>(false);
   const [accountIsMultisigSigner, setAccountIsMultisigSigner] =
     useState<boolean>(false);
+  const signerRef = useRef<string>(defaultAccount);
 
   // Get list of connected accounts when sdk is initialized with signing manager
   useEffect(() => {
-    if (!initialized || !signingManager) return;
+    if (!sdk || !initialized || !signingManager) return;
 
+    setSelectedAccount('');
+    setPrimaryKey('');
+    setAllAccounts([]);
+    setAllAccountsWithMeta([]);
     (async () => {
+      // This is only applicable to the polywallet as other wallets return `newAccounts` on initial subscription
+      if (defaultExtension !== 'polywallet') return;
       try {
         const connectedAccounts = await signingManager.getAccounts();
-        setAllAccounts(connectedAccounts);
+        const accountsWithMeta = await signingManager.getAccountsWithMeta();
+
+        if (!connectedAccounts.length) {
+          throw new Error('No injected accounts found in the connected wallet');
+        }
+        const filteredAccounts = connectedAccounts.filter(
+          (address) => !blockedWallets.includes(address),
+        );
+        if (!filteredAccounts.length) {
+          throw new Error(
+            'All injected accounts are in your blocked accounts list',
+          );
+        }
+        if (blockedWallets.includes(connectedAccounts[0])) {
+          throw new Error(
+            'The Polymesh wallet selected account is in your list of blocked accounts. Please select another account',
+          );
+        }
+
+        const filteredAccountsWithMeta = accountsWithMeta.filter(
+          (accountWithMeta) =>
+            !blockedWallets.includes(accountWithMeta.address),
+        );
+        setAllAccounts(filteredAccounts);
+        setAllAccountsWithMeta(filteredAccountsWithMeta);
       } catch (error) {
-        notifyError((error as Error).message);
+        notifyGlobalError((error as Error).message);
       }
     })();
-  }, [initialized, signingManager]);
+  }, [sdk, initialized, signingManager, blockedWallets, defaultExtension]);
 
   // Perform actions when account change occurs in extension
   useEffect(() => {
     if (!initialized || !signingManager) return undefined;
 
     const unsubCb = signingManager.onAccountChange(async (newAccounts) => {
-      setAllAccounts(newAccounts);
-    });
+      try {
+        if (!newAccounts.length) {
+          throw new Error('No injected accounts found in the connected wallet');
+        }
+
+        const filteredNewAccounts = (
+          newAccounts as InjectedAccountWithMeta[]
+        ).filter(
+          (accountWithMeta) =>
+            !blockedWallets.includes(accountWithMeta.address),
+        );
+        if (!filteredNewAccounts.length) {
+          throw new Error(
+            'All injected accounts are in your blocked accounts list',
+          );
+        }
+
+        if (
+          defaultExtension === 'polywallet' &&
+          blockedWallets.includes(
+            (newAccounts as InjectedAccountWithMeta[])[0].address,
+          )
+        ) {
+          throw new Error(
+            'The Polymesh wallet selected account is in your list of blocked accounts. Please select another account',
+          );
+        }
+
+        const [firstAccount] = filteredNewAccounts;
+        signerRef.current = firstAccount?.address;
+        setAllAccounts(
+          filteredNewAccounts.map((acc) => acc.address.toString()),
+        );
+        setAllAccountsWithMeta(filteredNewAccounts);
+      } catch (error) {
+        notifyGlobalError((error as Error).message);
+      }
+    }, true);
 
     return () => unsubCb();
-  }, [initialized, signingManager]);
+  }, [blockedWallets, defaultExtension, initialized, signingManager]);
+
+  // Update signerRef when default account value changes
+  useEffect(() => {
+    if (!defaultAccount) return;
+
+    signerRef.current = defaultAccount;
+  }, [defaultAccount, defaultExtension]);
 
   // Set selected account when account array changes
   useEffect(() => {
-    if (!allAccounts.length) return;
-        setSelectedAccount(allAccounts[0]);
-  }, [allAccounts]);
+    if (!allAccounts.length) {
+      setSelectedAccount('');
+      return;
+    }
+
+    if (
+      signerRef.current === defaultAccount &&
+      allAccounts.includes(defaultAccount) &&
+      !blockedWallets.includes(defaultAccount)
+    ) {
+      setSelectedAccount(defaultAccount);
+      return;
+    }
+
+    setSelectedAccount(allAccounts[0]);
+  }, [allAccounts, defaultAccount, blockedWallets]);
 
   // Set account instance when selected account changes
   useEffect(() => {
-    if (!selectedAccount || !sdk) return;
+    if (!sdk || !selectedAccount) {
+      setAccount(null);
+      return;
+    }
 
     (async () => {
       try {
@@ -79,16 +184,19 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
         const multiSig = await accountInstance.getMultiSig();
         setAccountIsMultisigSigner(!!multiSig);
-
       } catch (error) {
-        notifyError((error as Error).message);
+        notifyGlobalError((error as Error).message);
       }
     })();
   }, [sdk, selectedAccount]);
 
   // Get identity data when sdk is initialized
   useEffect(() => {
-    if (!account || !sdk) return;
+    if (!account || !sdk) {
+      setIdentity(null);
+      setAllIdentities([]);
+      return;
+    }
 
     (async () => {
       try {
@@ -118,7 +226,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
         setIdentity(accIdentity);
         setAllIdentities(uniqueIdentities);
       } catch (error) {
-        notifyError((error as Error).message);
+        notifyGlobalError((error as Error).message);
       } finally {
         setIdentityLoading(false);
       }
@@ -164,10 +272,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
   // Check identity CDD status
   useEffect(() => {
-      if (!identity) {
-        setIdentityHasValidCdd(false);
-        return;
-      }
+    if (!identity) {
+      setIdentityHasValidCdd(false);
+      return;
+    }
 
     const fetchCddStatus = async () => {
       setIdentityHasValidCdd(await identity.hasValidCdd());
@@ -198,12 +306,34 @@ const AccountProvider = ({ children }: IProviderProps) => {
     })();
   }, [allAccounts, primaryKey, sdk, secondaryKeys]);
 
+  const blockWalletAddress = (address: string) => {
+    setBlockedWallets((prev) => {
+      return [...prev, address];
+    });
+  };
+
+  const unblockWalletAddress = (address: string) => {
+    setBlockedWallets((prev) =>
+      prev.filter((blockedAddress) => blockedAddress !== address),
+    );
+  };
+
   const contextValue = useMemo(
     () => ({
       account,
       selectedAccount,
-      allAccounts,
+      allAccounts: allAccounts.filter(
+        (address) => !blockedWallets.includes(address),
+      ),
+      allAccountsWithMeta: allAccountsWithMeta.filter(
+        ({ address }) => !blockedWallets.includes(address),
+      ),
       setSelectedAccount,
+      defaultAccount,
+      setDefaultAccount,
+      blockedWallets,
+      blockWalletAddress,
+      unblockWalletAddress,
       identity,
       allIdentities,
       primaryKey,
@@ -213,12 +343,17 @@ const AccountProvider = ({ children }: IProviderProps) => {
       identityHasValidCdd,
       accountIsMultisigSigner,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       account,
       selectedAccount,
       allAccounts,
+      allAccountsWithMeta,
       identity,
       allIdentities,
+      defaultAccount,
+      setDefaultAccount,
+      blockedWallets,
       primaryKey,
       secondaryKeys,
       identityLoading,

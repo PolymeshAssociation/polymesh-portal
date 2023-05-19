@@ -8,7 +8,7 @@ export const StyledWrapper = styled.div`
   padding: 24px;
   height: 196px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
 
   @media screen and (max-width: 1023px) {
@@ -45,8 +45,8 @@ export const IconWrapper = styled.div`
   min-width: 64px;
   min-height: 64px;
   border-radius: 50%;
-  background-color: #ffebf1;
-  color: #ff2e72;
+  background-color: ${({ theme }) => theme.colors.pinkBackground};
+  color: ${({ theme }) => theme.colors.textPink};
 
   @media screen and (max-width: 1023px) {
     min-width: 48px;
@@ -58,8 +58,7 @@ export const StyledPortfolioInfo = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #ff2e72;
-
+  color: ${({ theme }) => theme.colors.textPink};
   h1,
   h2,
   h3,
@@ -68,7 +67,6 @@ export const StyledPortfolioInfo = styled.div`
   h6 {
     color: initial;
   }
-
   @media screen and (min-width: 1024px) and (max-width: 1200px) {
     font-size: 12px;
   }

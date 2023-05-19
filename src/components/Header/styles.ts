@@ -59,7 +59,7 @@ export const StyledInfoItem = styled.li`
     content: '';
     width: 2px;
     height: 32px;
-    background-color: #f0f0f0;
+    background-color: ${({ theme }) => theme.colors.lightAccent};
   }
 
   &:last-child {

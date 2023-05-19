@@ -1,13 +1,15 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import PolymeshContext from './context';
-import { IConnectOptions } from './constants';
-import { useInjectedWeb3 } from '~/hooks/polymesh';
+import { useLocalStorage } from '~/hooks/utility';
+import { notifyGlobalError } from '~/helpers/notifications';
 
 interface IProviderProps {
   children: React.ReactNode;
 }
+
+const injectedExtensions = BrowserExtensionSigningManager.getExtensionList();
 
 const PolymeshProvider = ({ children }: IProviderProps) => {
   const [sdk, setSdk] = useState<Polymesh | null>(null);
@@ -15,95 +17,141 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     useState<BrowserExtensionSigningManager | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [initialized, setInitialized] = useState(false);
-  const [walletError, setWalletError] = useState('');
-  const { connectExtension, defaultExtension } = useInjectedWeb3();
-  const [connectOptions, setConnectOptions] = useState<IConnectOptions | null>(
-    () => {
-      if (defaultExtension) {
-        const { extensionName, isDefault } = defaultExtension;
-        return { extensionName, isDefault };
-      }
-      return null;
-    },
+  const [defaultExtension, setDefaultExtension] = useLocalStorage<string>(
+    'defaultExtension',
+    '',
   );
+  const [nodeUrl, setNodeUrl] = useLocalStorage<string>(
+    'rpcUrl',
+    import.meta.env.VITE_NODE_URL,
+  );
+  const [middlewareUrl, setMiddlewareUrl] = useLocalStorage<string>(
+    'middlewareUrl',
+    import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL,
+  );
+  const [middlewareKey, setMiddlewareKey] = useLocalStorage<string>(
+    'middlewareKey',
+    import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
+  );
+  const sdkRef = useRef<Polymesh | null>(null);
+  const nodeUrlRef = useRef<string | null>(null);
+  const middlewareUrlRef = useRef<string | null>(null);
+  const middlewareKeyRef = useRef<string | null>(null);
 
-  // Create the browser extension signing manager.
+  // Create the browser extension signing manager and connect to the Polymesh SDK.
   const connectWallet = useCallback(
-    async ({ extensionName, isDefault }: IConnectOptions) => {
+    async (extensionName: string) => {
+      setConnecting(true);
       try {
-        setConnecting(true);
-        setConnectOptions({ extensionName, isDefault });
+        nodeUrlRef.current = nodeUrl;
+        middlewareUrlRef.current = middlewareUrl;
+        middlewareKeyRef.current = middlewareKey;
         const signingManagerInstance =
           await BrowserExtensionSigningManager.create({
             appName: 'polymesh-user-portal',
             extensionName,
           });
-        setSigningManager(signingManagerInstance);
-      } catch (error) {
-        if (error instanceof Error) {
-          setWalletError(error.message);
+        if (!sdkRef.current) {
+          const sdkInstance = await Polymesh.connect({
+            nodeUrl,
+            signingManager: signingManagerInstance,
+            middlewareV2: {
+              link: middlewareUrl,
+              key: middlewareKey,
+            },
+          });
+          sdkRef.current = sdkInstance;
         } else {
-          throw error;
+          sdkRef.current.setSigningManager(signingManagerInstance);
         }
+        signingManagerInstance.setGenesisHash(
+          // eslint-disable-next-line no-underscore-dangle
+          sdkRef.current._polkadotApi.genesisHash.toString(),
+        );
+        setSigningManager(signingManagerInstance);
+        setDefaultExtension(extensionName);
+        setSdk(sdkRef.current);
+        setInitialized(true);
+      } catch (error) {
+        notifyGlobalError((error as Error).message);
+      } finally {
+        setConnecting(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 
   // Trigger signing manager initialization automatically when recent used extension data exists
+  // Or reload window when RPC or Middleware url is changed
   useEffect(() => {
-    if (!defaultExtension || initialized) return;
+    if (nodeUrlRef.current && nodeUrl !== nodeUrlRef.current) {
+      window.location.reload();
+    }
+    if (
+      middlewareUrlRef.current &&
+      middlewareUrl !== middlewareUrlRef.current
+    ) {
+      window.location.reload();
+    }
+    if (
+      middlewareKeyRef.current != null &&
+      middlewareKey !== middlewareKeyRef.current
+    ) {
+      window.location.reload();
+    }
 
-    const { extensionName, isDefault } = defaultExtension;
-    connectWallet({
-      extensionName,
-      isDefault,
-    });
-  }, [connectWallet, initialized, defaultExtension]);
+    if (
+      !defaultExtension ||
+      !injectedExtensions.includes(defaultExtension) ||
+      initialized
+    )
+      return;
 
-  // Connect to the Polymesh SDK once signing manager is created
-  useEffect(() => {
-    if (!signingManager || initialized) return;
-    (async () => {
-      try {
-        const sdkInstance = await Polymesh.connect({
-          nodeUrl: import.meta.env.VITE_NODE_URL,
-          signingManager,
-          middlewareV2: {
-            link: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL,
-            key: import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
-          },
-        });
-
-        setSdk(sdkInstance);
-        setInitialized(true);
-        connectExtension(
-          (connectOptions as IConnectOptions).extensionName as string,
-          (connectOptions as IConnectOptions).isDefault as boolean,
-        );
-      } catch (error) {
-        if (error instanceof Error) {
-          setWalletError(error.message);
-        } else {
-          throw error;
-        }
-      } finally {
-        setConnecting(false);
-      }
-    })();
-  }, [connectExtension, connectOptions, initialized, signingManager]);
+    connectWallet(defaultExtension);
+  }, [
+    connectWallet,
+    initialized,
+    defaultExtension,
+    nodeUrl,
+    middlewareUrl,
+    middlewareKey,
+  ]);
 
   const contextValue = useMemo(
     () => ({
       state: {
         connecting,
         initialized,
-        walletError,
       },
       api: { sdk, signingManager },
+      settings: {
+        defaultExtension,
+        setDefaultExtension,
+        nodeUrl,
+        setNodeUrl,
+        middlewareUrl,
+        setMiddlewareUrl,
+        middlewareKey,
+        setMiddlewareKey,
+      },
       connectWallet,
     }),
-    [connecting, initialized, walletError, sdk, signingManager, connectWallet],
+    [
+      connecting,
+      initialized,
+      sdk,
+      signingManager,
+      connectWallet,
+      defaultExtension,
+      setDefaultExtension,
+      nodeUrl,
+      setNodeUrl,
+      middlewareUrl,
+      setMiddlewareUrl,
+      middlewareKey,
+      setMiddlewareKey,
+    ],
   );
 
   return (

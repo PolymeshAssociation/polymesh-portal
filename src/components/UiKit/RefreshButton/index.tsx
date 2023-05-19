@@ -13,7 +13,12 @@ const RefreshButton: React.FC<IRefreshButtonProps> = ({
   disabled,
 }) => {
   return (
-    <StyledButton onClick={onClick} className={className} disabled={disabled}>
+    <StyledButton
+      onClick={onClick}
+      className={className}
+      type="button"
+      disabled={disabled}
+    >
       <Icon name="Refresh" />
     </StyledButton>
   );

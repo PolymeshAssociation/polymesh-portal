@@ -39,7 +39,7 @@ export const StyledNavLink = styled.button`
   &.active {
     border: 1px solid #c7c7c7;
     border-bottom: 1px solid transparent;
-    color: #000000;
+    color: ${({ theme }) => theme.colors.textPrimary};
   }
 `;
 
@@ -57,7 +57,7 @@ export const AddPortfolioButton = styled.button`
   color: #ff2e72;
 
   &:disabled {
-    color: #8f8f8f;
+    ${({ theme }) => theme.colors.textDisabled};
   }
 
   @media screen and (max-width: 1023px) {

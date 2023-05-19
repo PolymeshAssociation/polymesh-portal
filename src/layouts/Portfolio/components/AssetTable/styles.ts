@@ -19,7 +19,7 @@ export const IconWrapper = styled.div`
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background-color: #fbfbfb;
+  background-color: #ffffff;
   color: #727272;
 `;
 

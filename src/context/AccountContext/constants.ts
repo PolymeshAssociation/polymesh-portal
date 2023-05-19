@@ -3,6 +3,8 @@ import {
   Identity,
   MultiSig,
 } from '@polymeshassociation/polymesh-sdk/types';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 
 export interface IBalanceByKey {
   key: string;
@@ -14,7 +16,13 @@ export interface IAccountContext {
   account: Account | MultiSig | null;
   selectedAccount: string;
   allAccounts: string[];
+  allAccountsWithMeta: InjectedAccountWithMeta[];
   setSelectedAccount: (account: string) => void;
+  defaultAccount: string;
+  setDefaultAccount: (account: string) => void;
+  blockedWallets: string[];
+  blockWalletAddress: (account: string) => void;
+  unblockWalletAddress: (account: string) => void;
   identity: Identity | null;
   allIdentities: (Identity | null)[];
   primaryKey: string;
@@ -29,7 +37,13 @@ export const initialState = {
   account: null,
   selectedAccount: '',
   allAccounts: [],
+  allAccountsWithMeta: [],
   setSelectedAccount: () => {},
+  defaultAccount: '',
+  setDefaultAccount: () => {},
+  blockedWallets: [],
+  blockWalletAddress: () => {},
+  unblockWalletAddress: () => {},
   identity: null,
   allIdentities: [],
   primaryKey: '',
