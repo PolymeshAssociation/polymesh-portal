@@ -43,10 +43,6 @@ export const StyledNetworkWrapper = styled.div<{ fullWidth: boolean }>`
   border-radius: 100px;
   background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
 
-  & .warning {
-    transition: text-indent 250ms ease-out 100ms;
-  }
-
   ${({ fullWidth }) =>
     fullWidth
       ? ''
@@ -69,7 +65,7 @@ export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
   padding: 0 0 0 28px;
   border-radius: 100px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
-  color: ${({ theme }) => theme.colors.textPink};
+  color: ${({ theme }) => theme.colors.textPurple};
   font-weight: 500;
   font-size: 14px;
 
@@ -271,14 +267,13 @@ export const SoonLabel = styled.div`
   color: #43195b;
 `;
 
-export const WarningLabel = styled(SoonLabel)`
-  top: -90%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: max-content;
-  min-width: 24px;
-  padding: 0 6px;
-  gap: 4px;
-  background-color: #fbf3d0;
-  color: #e3a30c;
+export const WarningLabelWrapper = styled.div<{ fullWidth: boolean }>`
+  position: absolute;
+  top: -32px;
+  left: 0;
+  min-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: ${({ fullWidth }) => (fullWidth ? 'flex-start' : 'center')};
+  gap: 8px;
 `;

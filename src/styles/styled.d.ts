@@ -18,6 +18,7 @@ declare module 'styled-components' {
       textSecondary: string;
       textBlue: string;
       textPink: string;
+      textPurple: string;
       textDisabled: string;
       textSuccess: string;
       lightAccent: string;
