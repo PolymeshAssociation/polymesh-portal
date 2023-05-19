@@ -27,7 +27,7 @@ export const StyledWalletWrapper = styled.div`
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 16px 24px;
+  padding: 16px 24px 24px 24px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   border-radius: 24px;
 
@@ -54,6 +54,7 @@ export const StyledActionButton = styled.button<{ marginTop?: number }>`
 `;
 
 export const InputWrapper = styled.div`
+  position: relative;
   flex-grow: 1;
   margin-right: 24px;
 `;
@@ -77,4 +78,13 @@ export const StyledLabel = styled.label`
   font-weight: 500;
   font-size: 14px;
   color: ${({ theme }) => theme.colors.textPrimary};
+`;
+
+export const StyledErrorMessage = styled.span`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #db2c3e;
 `;

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Icon, Modal } from '~/components';
 import { Heading, Text, Button } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
@@ -12,6 +12,7 @@ import {
   StyledLabel,
   StyledValue,
   StyledWalletWrapper,
+  StyledErrorMessage,
 } from './styles';
 
 export const BlockedWallets = () => {
@@ -24,7 +25,8 @@ export const BlockedWallets = () => {
   const [modalExpanded, setModalExpanded] = useState(false);
   const [editBlockedWallet, setEditBlockedWallet] = useState(false);
   const [blockedAddress, setBlockedAddress] = useState<string>('');
-  const [isValidAddress, setIsValidAddress] = useState(false);
+  const [isValidAddress, setIsValidAddress] = useState(true);
+  const addressRef = useRef<string>('');
   const toggleModal = () => setModalExpanded((prev) => !prev);
 
   const handleBlock = () => {
@@ -40,9 +42,10 @@ export const BlockedWallets = () => {
   };
 
   useEffect(() => {
-    if (!sdk) return;
+    if (!sdk || !addressRef.current) return;
+
     setIsValidAddress(
-      !sdk.accountManagement.isValidAddress({
+      sdk.accountManagement.isValidAddress({
         address: blockedAddress,
       }),
     );
@@ -79,19 +82,29 @@ export const BlockedWallets = () => {
                   placeholder="Enter Wallet Address"
                   id="blockWallet"
                   value={blockedAddress}
-                  onChange={({ target }) => setBlockedAddress(target.value)}
+                  onChange={({ target }) => {
+                    setBlockedAddress(target.value);
+                    addressRef.current = 'edited';
+                  }}
                 />
+                {!isValidAddress && (
+                  <StyledErrorMessage>
+                    Address must be valid SS58 format
+                  </StyledErrorMessage>
+                )}
               </InputWrapper>
               <StyledActionButton
                 onClick={() => {
                   setEditBlockedWallet(false);
                   setBlockedAddress('');
+                  setIsValidAddress(true);
+                  addressRef.current = '';
                 }}
               >
                 Cancel
               </StyledActionButton>
               <StyledActionButton
-                disabled={!blockedAddress || isValidAddress}
+                disabled={!blockedAddress || !isValidAddress}
                 onClick={handleBlock}
               >
                 Block
