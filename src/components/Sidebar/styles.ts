@@ -42,6 +42,16 @@ export const StyledNetworkWrapper = styled.div<{ fullWidth: boolean }>`
   margin: 0 auto 34px auto;
   border-radius: 100px;
   background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
+
+  ${({ fullWidth }) =>
+    fullWidth
+      ? ''
+      : `
+      & .warning {
+        gap: 0;
+        text-indent: -300px;
+      }
+  `}
 `;
 export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
   position: absolute;
@@ -55,7 +65,7 @@ export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
   padding: 0 0 0 28px;
   border-radius: 100px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
-  color: #43195b;
+  color: ${({ theme }) => theme.colors.textPurple};
   font-weight: 500;
   font-size: 14px;
 
@@ -164,27 +174,26 @@ export const StyledNavLink = styled(NavLink)<{ disabled?: boolean }>`
   font-weight: 500;
   font-size: 14px;
   color: ${({ theme, disabled }) =>
-    disabled ? `#C7C7C7;` : theme.colors.textSecondary};
+    disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
   ${({ disabled }) => (disabled ? 'pointer-events: none;' : '')}
-
   transition: background-color 250ms ease-out, color 250ms ease-out,
     text-indent 250ms ease-out 100ms;
 
   &:hover {
-    background-color: #f0f0f0;
+    background-color: ${({ theme }) => theme.colors.lightAccent};
   }
 
   & .link-icon {
     color: ${({ theme, disabled }) =>
-      disabled ? `#C7C7C7;` : theme.colors.textSecondary};
+      disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
     transition: color 250ms ease-out;
   }
   &.active {
-    background-color: #ffebf1;
-    color: #1e1e1e;
+    background-color: ${({ theme }) => theme.colors.pinkBackground};
+    color: ${({ theme }) => theme.colors.textPrimary};
 
     & .link-icon {
-      color: #ff2e72;
+      color: ${({ theme }) => theme.colors.textPink};
     }
   }
   & span {
@@ -202,8 +211,8 @@ export const ExpandedLinks = styled.ul`
   width: 186px;
   padding: 8px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  box-shadow: 0px 15px 25px rgba(30, 30, 30, 0.15),
-    0px 5px 10px rgba(30, 30, 30, 0.05);
+  box-shadow: ${({ theme }) => `0px 15px 25px ${theme.colors.shadow},
+    0px 5px 10px rgba(30, 30, 30, 0.05)`};
   border-radius: 12px;
   z-index: 1;
 `;
@@ -219,26 +228,25 @@ export const StyledExpandedLink = styled.button<{ disabled?: boolean }>`
   font-size: 14px;
   background-color: transparent;
   color: ${({ theme, disabled }) =>
-    disabled ? `#C7C7C7;` : theme.colors.textSecondary};
+    disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
   ${({ disabled }) => (disabled ? 'pointer-events: none;' : '')}
 
   transition: background-color 250ms ease-out, color 250ms ease-out;
 
   &:hover {
-    background-color: #f0f0f0;
+    background-color: ${({ theme }) => theme.colors.shadow};
   }
 
   & .link-icon {
     color: ${({ theme, disabled }) =>
-      disabled ? `#C7C7C7;` : theme.colors.textSecondary};
+      disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
     transition: color 250ms ease-out;
   }
   &.active {
-    background-color: #ffebf1;
-    color: #1e1e1e;
-
+    background-color: ${({ theme }) => theme.colors.pinkBackground};
+    color: ${({ theme }) => theme.colors.textPrimary};
     & .link-icon {
-      color: #ff2e72;
+      color: ${({ theme }) => theme.colors.textPink};
     }
   }
 `;
@@ -257,4 +265,15 @@ export const SoonLabel = styled.div`
   font-weight: 500;
   font-size: 12px;
   color: #43195b;
+`;
+
+export const WarningLabelWrapper = styled.div<{ fullWidth: boolean }>`
+  position: absolute;
+  top: -32px;
+  left: 0;
+  min-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: ${({ fullWidth }) => (fullWidth ? 'flex-start' : 'center')};
+  gap: 8px;
 `;

@@ -25,7 +25,7 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
   sortBy,
   setSortBy,
 }) => {
-  const { createdVenues, refreshInstructions } =
+  const { createdVenues, refreshInstructions, instructionsLoading } =
     useContext(InstructionsContext);
   const [createVenueOpen, setCreateVenueOpen] = useState(false);
   const [sendAssetOpen, setSendAssetOpen] = useState(false);
@@ -84,7 +84,10 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
           <Icon name="ArrowTopRight" />
           Send Asset
         </Button>
-        <RefreshButton onClick={refreshInstructions} />
+        <RefreshButton
+          onClick={refreshInstructions}
+          disabled={instructionsLoading}
+        />
       </StyledWrapper>
       {createVenueOpen && <CreateVenue toggleModal={toggleCreateVenue} />}
       {sendAssetOpen && <SendAsset toggleModal={toggleSendAsset} />}

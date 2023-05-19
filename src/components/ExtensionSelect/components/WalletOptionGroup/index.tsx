@@ -16,11 +16,13 @@ interface IWalletOption {
 interface IWalletOptGroupProps {
   options: IWalletOption[];
   onChange: React.ChangeEventHandler;
+  selectedWallet: string;
 }
 
 export const WalletOptionGroup: React.FC<IWalletOptGroupProps> = ({
   options,
   onChange,
+  selectedWallet,
 }) => {
   // Sorting extension options to display installed ones first
   const recommendedOptions = options
@@ -58,6 +60,7 @@ export const WalletOptionGroup: React.FC<IWalletOptGroupProps> = ({
                 onChange={onChange}
                 disabled={!isInstalled}
                 value={extensionName}
+                checked={selectedWallet === extensionName}
               />
               <WalletOption
                 htmlFor={walletName}
@@ -92,6 +95,7 @@ export const WalletOptionGroup: React.FC<IWalletOptGroupProps> = ({
                 onChange={onChange}
                 disabled={!isInstalled}
                 value={extensionName}
+                checked={selectedWallet === extensionName}
               />
               <WalletOption
                 htmlFor={walletName}

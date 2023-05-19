@@ -5,7 +5,7 @@ export const StyledTableWrapper = styled.div`
   display: flex;
   flex-direction: column;
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
   overflow: hidden;
 `;
@@ -26,8 +26,8 @@ export const StyledTableBody = styled.table<{ colsNumber: number }>`
 
   & tr,
   & thead {
-    border-top: 1px solid rgba(0, 0, 0, 0.12);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    border-top: 1px solid ${({ theme }) => theme.colors.shadow};
+    border-bottom: 1px solid ${({ theme }) => theme.colors.shadow};
   }
 
   & th,
@@ -42,13 +42,13 @@ export const StyledTableBody = styled.table<{ colsNumber: number }>`
     & td {
       font-size: 16px;
       font-weight: 400;
-      color: rgba(0, 0, 0, 0.6);
+      color: ${({ theme }) => theme.colors.textSecondary};
     }
   }
   & td {
     font-size: 14px;
     font-weight: 500;
-    color: rgba(0, 0, 0, 0.87);
+    color: ${({ theme }) => theme.colors.textPrimary};
     text-transform: capitalize;
   }
 `;
@@ -139,5 +139,6 @@ export const StyledPerPageSelect = styled.div`
     border: none;
     outline: none;
     font-size: 14px;
+    color: ${({ theme }) => theme.colors.textPrimary};
   }
 `;

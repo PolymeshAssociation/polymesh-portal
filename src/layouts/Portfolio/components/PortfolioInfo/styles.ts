@@ -8,7 +8,7 @@ export const StyledWrapper = styled.div`
   padding: 24px;
   height: 196px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
 `;
 
@@ -29,24 +29,15 @@ export const IconWrapper = styled.div`
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background-color: #ffebf1;
-  color: #ff2e72;
+  background-color: ${({ theme }) => theme.colors.pinkBackground};
+  color: ${({ theme }) => theme.colors.textPink};
 `;
 
 export const StyledPortfolioInfo = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #ff2e72;
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    color: initial;
-  }
+  color: ${({ theme }) => theme.colors.textPink};
 `;
 
 export const StyledDetails = styled.div`

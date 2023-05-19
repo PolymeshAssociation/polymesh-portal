@@ -1,11 +1,13 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useContext } from 'react';
 import { ToastContainer } from 'react-toastify';
+import { ThemeContext } from '~/context/ThemeContext';
 import { useNotifications } from '~/hooks/polymesh';
 import { StyledWrapper, StyledNotificationCenter } from './styles';
 import { Icon, NotificationHistory } from '~/components';
 import { NotificationCounter, ToastCloseButton } from '~/components/UiKit';
 
 export const NotificationInfo = () => {
+  const { currentTheme } = useContext(ThemeContext);
   const { notificationsLoading, totalPending } = useNotifications();
   const [expanded, setExpanded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -38,6 +40,7 @@ export const NotificationInfo = () => {
       <StyledNotificationCenter>
         <NotificationHistory handleClose={handleClose} expanded={expanded} />
         <ToastContainer
+          theme={currentTheme}
           closeButton={<ToastCloseButton />}
           enableMultiContainer
           containerId="notification-center"

@@ -10,6 +10,8 @@ const Transfers = lazy(() => import('~/layouts/Transfers'));
 
 const Claims = lazy(() => import('~/layouts/Claims'));
 
+const Settings = lazy(() => import('~/layouts/Settings'));
+
 interface IRoute {
   path: string;
   label: string | null;
@@ -62,6 +64,7 @@ export const ROUTES = [
     label: 'Authorizations',
     component: Authorizations,
   },
+  { path: PATHS.SETTINGS, label: 'Settings', component: Settings },
   {
     path: PATHS.TRANSFERS,
     label: 'Transfers',

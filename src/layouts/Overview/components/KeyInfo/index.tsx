@@ -12,10 +12,15 @@ import {
 export const KeyInfo = () => {
   const {
     selectedAccount,
+    allAccountsWithMeta,
     primaryKey,
     secondaryKeys,
     accountIsMultisigSigner,
   } = useContext(AccountContext);
+
+  const selectedKeyName = allAccountsWithMeta.find(
+    ({ address }) => address === selectedAccount,
+  )?.meta.name;
 
   return (
     <StyledWrapper>
@@ -23,7 +28,14 @@ export const KeyInfo = () => {
         <Icon name="KeyIcon" className="key-icon" size="26px" />
       </IconWrapper>
       <div className="info-wrapper">
-        <Text marginBottom={4}>Selected key</Text>
+        <Text marginBottom={4}>
+          Selected key
+          {selectedKeyName ? (
+            <>
+              : <span className="key-name">{selectedKeyName}</span>
+            </>
+          ) : null}
+        </Text>
         <KeyInfoWrapper>
           {selectedAccount && selectedAccount === primaryKey && (
             <StyledLabel>Primary</StyledLabel>

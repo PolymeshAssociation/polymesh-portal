@@ -12,7 +12,7 @@ export const StyledWrapper = styled.div<{ expanded: boolean }>`
 
   ${({ expanded, theme }) =>
     expanded
-      ? `background-color: #FFEBF1; color: #FF2E72;`
+      ? `background-color: ${theme.colors.pinkBackground}; color: ${theme.colors.textPink};`
       : `background-color: transparent; color: ${theme.colors.textSecondary};`}
 
   transition: color 250ms ease-out, background-color 250ms ease-out;

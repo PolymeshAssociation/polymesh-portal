@@ -12,7 +12,7 @@ const getInitialTheme = () => {
     return isDarkTheme ? Themes.Dark : Themes.Light;
   }
 
-  return Themes.Light;
+  return themeFromLs as Themes;
 };
 
 interface IAppThemeProps {

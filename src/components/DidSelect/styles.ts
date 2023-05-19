@@ -17,12 +17,12 @@ export const StyledSelect = styled.div<{ expanded: boolean }>`
 
   font-weight: 500;
   font-size: 12px;
-  color: ${({ theme }) => theme.colors.dashboardBackground};
+  color: #ffffff;
   text-align: center;
 
   & div {
     right: 8px;
-    color: ${({ theme }) => theme.colors.dashboardBackground};
+    color: #ffffff;
     transition: transform 250ms ease-out;
     ${({ expanded }) =>
       expanded ? `transform: rotate(90deg);` : 'transform: rotate(0);'}
@@ -39,8 +39,8 @@ export const StyledExpandedSelect = styled.div`
   max-height: 300px;
   padding: 10px 8px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  box-shadow: 0px 15px 25px rgba(30, 30, 30, 0.15),
-    0px 5px 10px rgba(30, 30, 30, 0.05);
+  box-shadow: ${({ theme }) => `0px 15px 25px ${theme.colors.shadow},
+    0px 5px 10px ${theme.colors.shadow}`};
   border-radius: 12px;
   text-align: center;
   z-index: 1;
@@ -68,7 +68,8 @@ export const StyledLabel = styled.label<{ selected: boolean }>`
   padding: 12px 16px;
   border-radius: 62px;
   font-size: 14px;
-  ${({ selected }) => (selected ? `background-color: #ffebf1;` : '')}
+  ${({ selected, theme }) =>
+    selected ? `background-color: ${theme.colors.pinkBackground};` : ''}
   cursor: pointer;
   transition: background-color 250ms ease-out;
 
@@ -77,7 +78,7 @@ export const StyledLabel = styled.label<{ selected: boolean }>`
   }
 
   &:hover {
-    background-color: #ffebf1;
+    background-color: ${({ theme }) => theme.colors.pinkBackground};
   }
 `;
 

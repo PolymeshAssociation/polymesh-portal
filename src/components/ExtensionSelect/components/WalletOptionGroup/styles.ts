@@ -21,7 +21,7 @@ export const StyledInput = styled.input`
   }
 
   &:checked + label {
-    border: 1px solid #ff2e72;
+    border: 1px solid ${({ theme }) => theme.colors.textPink};
     & .selected-icon {
       opacity: 1;
     }

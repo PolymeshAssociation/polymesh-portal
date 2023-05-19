@@ -42,16 +42,16 @@ export const StyledSelect = styled.div<{
       }
       `
       : ''}
-  ${({ placement, theme }) =>
+  ${({ placement }) =>
     placement === ESelectPlacements.WIDGET
       ? `
       padding: 7px 28px 7px 8px;
-      color: ${theme.colors.dashboardBackground};
+      color: #ffffff;
       text-align: center;
 
       & div {
         right: 8px;
-        color: ${theme.colors.dashboardBackground};
+        color:  #ffffff;
       }
       `
       : ''}
@@ -75,8 +75,8 @@ export const StyledExpandedSelect = styled.div<{
   gap: 10px;
   padding: 10px 8px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  box-shadow: 0px 15px 25px rgba(30, 30, 30, 0.15),
-    0px 5px 10px rgba(30, 30, 30, 0.05);
+  box-shadow: ${({ theme }) => `0px 15px 25px ${theme.colors.shadow},
+    0px 5px 10px ${theme.colors.shadow}`};
   border-radius: 12px;
   ${({ placement }) =>
     placement === ESelectPlacements.HEADER
@@ -120,11 +120,11 @@ export const StyledLabel = styled.label<{
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 48px;
+  height: ${({ placement }) =>
+    placement === ESelectPlacements.HEADER ? '48px' : '56px'};
   gap: 10px;
   padding: 12px 16px;
   border-radius: 62px;
-  font-size: 14px;
   ${({ placement, theme, selected }) =>
     placement === ESelectPlacements.HEADER
       ? `${
@@ -132,7 +132,21 @@ export const StyledLabel = styled.label<{
             ? `background-color: ${theme.colors.dashboardBackground};`
             : ''
         }`
-      : `${selected ? `background-color: #ffebf1;` : ''}`}
+      : `${
+          selected ? `background-color: ${theme.colors.pinkBackground};` : ''
+        }`}
+
+  & > span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: ${({ placement }) =>
+      placement === ESelectPlacements.HEADER ? '12px' : '14px'};
+
+    & .meta {
+      color: ${({ theme }) => theme.colors.textSecondary};
+    }
+  }
 
   cursor: pointer;
   transition: background-color 250ms ease-out;
@@ -140,7 +154,7 @@ export const StyledLabel = styled.label<{
     ${({ theme, placement }) =>
       placement === ESelectPlacements.HEADER
         ? `background-color: ${theme.colors.dashboardBackground}`
-        : 'background-color: #ffebf1;'}
+        : `background-color: ${theme.colors.pinkBackground};`}
   }
 `;
 
@@ -163,8 +177,8 @@ export const StyledKeyLabel = styled.div<{ primary?: boolean }>`
   padding: 0 8px;
   border-radius: 100px;
   font-size: 12px;
-  ${({ primary }) =>
+  ${({ primary, theme }) =>
     primary
-      ? `border: 1px solid #fad1dc; color: #ec4673;`
-      : `border: 1px solid #F2EFFF; color: #43195B;`};
+      ? `border: 1px solid #fad1dc; color: ${theme.colors.textPink};`
+      : `border: 1px solid #F2EFFF; color: ${theme.colors.textBlue};`};
 `;

@@ -37,5 +37,6 @@ export const StyledSelectedIconBox = styled.div`
 `;
 
 export const StyledCaption = styled.span<{ installed?: boolean }>`
-  color: ${({ installed }) => (installed ? '#000000' : '#C7C7C7')};
+  color: ${({ installed, theme }) =>
+    installed ? theme.colors.textPrimary : theme.colors.textSecondary};
 `;

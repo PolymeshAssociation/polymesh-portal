@@ -3,9 +3,9 @@ import Lottie from 'lottie-react';
 import { Navigate } from 'react-router-dom';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { StyledLogoBox, StyledInfoBox, StyledAnimationBox } from './styles';
-import { Icon } from '~/components';
+import { Icon, ExtensionSelect } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
-import { ConnectWalletPopup } from './components/ConnectWalletPopup';
+// import { ConnectWalletPopup } from './components/ConnectWalletPopup';
 import landingAnimation from '~/assets/animations/landingAnimation.json';
 import { PATHS } from '~/constants/routes';
 
@@ -37,7 +37,7 @@ const Landing = () => {
       <StyledAnimationBox>
         <Lottie animationData={landingAnimation} loop />
       </StyledAnimationBox>
-      {modalOpen && <ConnectWalletPopup handleClose={toggleModal} />}
+      {modalOpen && <ExtensionSelect handleClose={toggleModal} />}
     </>
   );
 };

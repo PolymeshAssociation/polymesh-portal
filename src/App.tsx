@@ -13,13 +13,14 @@ import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
 import { ROUTES } from '~/constants/routes';
 import { gqlClient } from '~/config/graphql';
 import SharedLayout from '~/layouts/SharedLayout';
-import theme from '~/styles/theme';
+import { theme, GlobalStyle } from '~/styles/theme';
 
 const App = () => {
   const { currentTheme } = useContext(ThemeContext);
 
   return (
     <ThemeProvider theme={theme[currentTheme]}>
+      <GlobalStyle />
       <SharedLayout>
         <Routes>
           {ROUTES.map(({ path, component }) => (
@@ -31,6 +32,7 @@ const App = () => {
         enableMultiContainer
         containerId="globalToast"
         position="top-center"
+        theme={currentTheme}
       />
     </ThemeProvider>
   );

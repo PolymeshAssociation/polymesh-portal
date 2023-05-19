@@ -20,7 +20,7 @@ const WalletSelect: React.FC<ISelectProps> = ({
   const {
     selectedAccount,
     setSelectedAccount,
-    allAccounts,
+    allAccountsWithMeta,
     primaryKey,
     secondaryKeys,
   } = useContext(AccountContext);
@@ -29,7 +29,10 @@ const WalletSelect: React.FC<ISelectProps> = ({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!selectedAccount) return;
+    if (!selectedAccount) {
+      setSelected('');
+      return;
+    }
 
     setSelected(selectedAccount);
   }, [selectedAccount]);
@@ -78,27 +81,41 @@ const WalletSelect: React.FC<ISelectProps> = ({
       </StyledSelect>
       {expanded && (
         <StyledExpandedSelect placement={placement}>
-          {allAccounts
-            .sort((account) => (account === selectedAccount ? -1 : 1))
-            .map((option) => (
+          {allAccountsWithMeta
+            .sort(({ address }) => (address === selectedAccount ? -1 : 1))
+            .sort((a, b) => {
+              if (
+                a.address === primaryKey &&
+                !secondaryKeys.includes(b.address)
+              )
+                return -1;
+              if (secondaryKeys.includes(a.address) && b.address !== primaryKey)
+                return -1;
+
+              return 1;
+            })
+            .map(({ address, meta }) => (
               <StyledLabel
-                key={option}
-                htmlFor={option}
-                selected={selected === option}
+                key={address}
+                htmlFor={address}
+                selected={selected === address}
                 placement={placement}
               >
-                {trimValue ? formatKey(option) : formatKey(option, 7, 9)}
-                {option === primaryKey ? (
+                <span>
+                  {trimValue ? formatKey(address) : formatKey(address, 7, 9)}
+                  <span className="meta">{meta.name || ''}</span>
+                </span>
+                {address === primaryKey ? (
                   <StyledKeyLabel primary>Primary</StyledKeyLabel>
                 ) : null}
-                {secondaryKeys.includes(option) ? (
+                {secondaryKeys.includes(address) ? (
                   <StyledKeyLabel>Second.</StyledKeyLabel>
                 ) : null}
                 <StyledInput
                   type="radio"
                   name="key"
-                  value={option}
-                  id={option}
+                  value={address}
+                  id={address}
                   onChange={handleAccountChange}
                 />
               </StyledLabel>

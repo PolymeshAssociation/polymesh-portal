@@ -13,7 +13,7 @@ export const StyledAddButton = styled.button`
   color: #170087;
 
   &:disabled {
-    color: ${({ theme }) => theme.colors.textSecondary};
+    color: ${({ theme }) => theme.colors.textDisabled};
   }
 `;
 
