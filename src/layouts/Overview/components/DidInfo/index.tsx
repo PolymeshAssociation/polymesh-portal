@@ -242,7 +242,14 @@ export const DidInfo = () => {
             onClick={toggleModal}
             disabled={identityLoading}
           >
-            {identityLoading ? '' : 'Details'}
+            {identityLoading ? (
+              <SkeletonLoader
+                baseColor="rgba(255,255,255,0.05)"
+                highlightColor="rgba(255, 255, 255, 0.24)"
+              />
+            ) : (
+              'Details'
+            )}
           </Button>
         )}
       </StyledWrapper>

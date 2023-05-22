@@ -20,13 +20,12 @@ export const StyledButtonWrapper = styled.div`
   justify-content: flex-end;
   gap: 16px;
   margin-top: 48px;
-  width: 440px;
+  @media screen and (min-width: 768px) {
+    width: 440px;
+  }
 `;
 
 export const StyledWalletWrapper = styled.div`
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
   padding: 16px 24px 24px 24px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   border-radius: 24px;
@@ -34,6 +33,18 @@ export const StyledWalletWrapper = styled.div`
   &:not(:first-child) {
     margin-top: 16px;
   }
+
+  @media screen and (min-width: 768px) {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+`;
+
+export const StyledActionButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 export const StyledActionButton = styled.button<{ marginTop?: number }>`
@@ -56,7 +67,11 @@ export const StyledActionButton = styled.button<{ marginTop?: number }>`
 export const InputWrapper = styled.div`
   position: relative;
   flex-grow: 1;
-  margin-right: 24px;
+  margin-bottom: 16px;
+  @media screen and (min-width: 768px) {
+    margin-bottom: 0;
+    margin-right: 24px;
+  }
 `;
 
 export const StyledInput = styled.input`

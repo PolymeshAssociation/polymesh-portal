@@ -59,14 +59,7 @@ export const StyledPortfolioInfo = styled.div`
   align-items: center;
   justify-content: space-between;
   color: ${({ theme }) => theme.colors.textPink};
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    color: initial;
-  }
+
   @media screen and (min-width: 1024px) and (max-width: 1200px) {
     font-size: 12px;
   }

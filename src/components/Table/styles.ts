@@ -103,7 +103,7 @@ export const StyledMobileCell = styled.div`
   justify-content: space-between;
   font-size: 14px;
   & .header {
-    color: rgba(0, 0, 0, 0.6);
+    color: ${({ theme }) => theme.colors.textSecondary};
   }
   & .data {
     max-width: 70%;
@@ -144,8 +144,8 @@ export const StyledTablePlaceholder = styled.div`
   gap: 14px;
   width: 100%;
   min-height: 108px;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  border-top: 1px solid ${({ theme }) => theme.colors.shadow};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.shadow};
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
 

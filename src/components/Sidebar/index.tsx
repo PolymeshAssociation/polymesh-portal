@@ -155,22 +155,21 @@ const Sidebar: React.FC<ISidebarProps> = ({
           </>
         )}
         <StyledNetworkWrapper fullWidth={sidebarExpanded}>
-          <StyledNetworkStatus
-            fullWidth={sidebarExpanded}
-            isLoading={networkLoading}
-          >
-            {networkLoading ? (
-              <SkeletonLoader height="30px" />
-            ) : (
-              <>
-                <StatusDot
-                  isLoading={networkLoading}
-                  fullWidth={sidebarExpanded}
-                />
-                {networkLabel ? <span>{networkLabel}</span> : ''}
-              </>
-            )}
-          </StyledNetworkStatus>
+          {networkLoading ? (
+            <SkeletonLoader height="32px" containerClassName="loader" />
+          ) : (
+            <StyledNetworkStatus
+              fullWidth={sidebarExpanded}
+              isLoading={networkLoading}
+            >
+              <StatusDot
+                isLoading={networkLoading}
+                fullWidth={sidebarExpanded}
+              />
+              {networkLabel ? <span>{networkLabel}</span> : ''}
+            </StyledNetworkStatus>
+          )}
+
           <WarningLabelWrapper fullWidth={fullWidth}>
             {walletNetwork && walletNetwork.label !== networkLabel && (
               <WarningLabel caption="Different network is selected in wallet" />

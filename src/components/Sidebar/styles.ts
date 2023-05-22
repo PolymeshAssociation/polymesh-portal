@@ -28,6 +28,7 @@ export const StyledSidebar = styled.aside<{
   }
   & .logo-icon {
     width: 32px;
+    height: 32px;
     margin: 0 auto 48px auto;
   }
 
@@ -80,6 +81,7 @@ export const StyledNetworkWrapper = styled.div<{ fullWidth: boolean }>`
 
   @media screen and (max-width: 767px) {
     width: 100%;
+    margin-top: 40px;
   }
 `;
 export const StyledNetworkStatus = styled.div<{
@@ -116,6 +118,7 @@ export const StyledNetworkStatus = styled.div<{
       & span {
         opacity: 0;
       }
+    
   `}
   }
 `;
@@ -138,7 +141,7 @@ export const StatusDot = styled.div<{ fullWidth: boolean; isLoading: boolean }>`
   ${({ isLoading }) =>
     isLoading
       ? `
-      animation: loading-animation 2.2s ease-out infinite;
+      // animation: loading-animation 2.2s ease-out infinite;
   `
       : ''}
 
@@ -156,7 +159,7 @@ export const StatusDot = styled.div<{ fullWidth: boolean; isLoading: boolean }>`
     background-color: ${({ theme }) => theme.colors.dashboardBackground};
   }
 
-  @keyframes loading-animation {
+  /* @keyframes loading-animation {
     0% {
       transform: translateX(8px);
     }
@@ -166,7 +169,7 @@ export const StatusDot = styled.div<{ fullWidth: boolean; isLoading: boolean }>`
     100% {
       transform: translateX(8px);
     }
-  }
+  } */
 `;
 
 export const StyledNavList = styled.nav<{ fullWidth: boolean }>`

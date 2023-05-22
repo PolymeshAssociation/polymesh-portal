@@ -23,7 +23,10 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme[currentTheme]}>
-      <SkeletonTheme>
+      <SkeletonTheme
+        baseColor={theme[currentTheme].colors.skeletonBase}
+        highlightColor={theme[currentTheme].colors.skeletonHighlight}
+      >
         <Suspense fallback={<LoadingFallback main />}>
           <GlobalStyle />
           <SharedLayout>

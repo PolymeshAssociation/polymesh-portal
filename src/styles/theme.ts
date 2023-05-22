@@ -27,6 +27,8 @@ const light = {
     lightAccent: '#F0F0F0',
     shadow: 'rgba(30, 30, 30, 0.1)',
     backdrop: 'rgba(21, 41, 53, 0.3)',
+    skeletonBase: '#ebebeb',
+    skeletonHighlight: '#f5f5f5',
   },
 } as DefaultTheme;
 
@@ -49,6 +51,8 @@ const dark = {
     lightAccent: '#3A3A3A',
     shadow: 'rgba(120, 120, 120, 0.1)',
     backdrop: 'rgba(0, 0, 0, 0.5)',
+    skeletonBase: '#484848',
+    skeletonHighlight: '#727272',
   },
 } as DefaultTheme;
 

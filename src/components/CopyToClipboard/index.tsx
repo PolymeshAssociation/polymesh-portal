@@ -34,7 +34,11 @@ const CopyToClipboard: React.FC<ICopyProps> = ({ value }) => {
     <BaseCopyToClipboard text={value as string} onCopy={handleCopy}>
       <StyledCopyWrapper>
         {showNotification ? (
-          <Icon name="Check" className="check-icon" size="16px" />
+          <Icon
+            name={value ? 'Check' : 'CloseIcon'}
+            className={`check-icon ${value ? 'success' : 'failure'}`}
+            size="16px"
+          />
         ) : (
           <Icon name="CopyIcon" className="copy-icon" />
         )}

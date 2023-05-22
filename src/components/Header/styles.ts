@@ -16,9 +16,13 @@ export const StyledHeaderContainer = styled.div`
   height: 64px;
   padding: 0 24px;
 
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: 768px) and (max-width: 1023px) {
+    align-items: flex-start;
     height: auto;
     padding: 0 36px;
+    & h2 {
+      padding-top: 20px;
+    }
   }
   @media screen and (min-width: 1200px) {
     height: 72px;

@@ -9,7 +9,12 @@ export const StyledCopyWrapper = styled.div`
   & .check-icon {
     width: 16px;
     height: 16px;
-    color: #00aa5e;
     transform: scale(1.1);
+    &.success {
+      color: #00aa5e;
+    }
+    &.failure {
+      color: #db2c3e;
+    }
   }
 `;

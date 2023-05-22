@@ -3,6 +3,7 @@ import { Modal, Icon } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { formatDid } from '~/helpers/formatters';
+import { useWindowWidth } from '~/hooks/utility';
 import {
   StyledButtonWrapper,
   StyledValue,
@@ -39,6 +40,7 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
   const [middlewareEndpointKey, setMiddlewareEndpointKey] = useState(
     middlewareKey || '',
   );
+  const { isMobile } = useWindowWidth();
 
   const configuredEndpoint =
     type === EndpointTypes.MIDDLEWARE ? middlewareUrl : nodeUrl;
@@ -101,7 +103,11 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
     <>
       <StyledValue onClick={toggleModal}>
         {configuredEndpoint.length > 28
-          ? formatDid(configuredEndpoint, 12, 13)
+          ? formatDid(
+              configuredEndpoint,
+              isMobile ? 10 : 12,
+              isMobile ? 11 : 13,
+            )
           : configuredEndpoint}
         {((type === EndpointTypes.RPC &&
           nodeUrl !== import.meta.env.VITE_NODE_URL) ||
@@ -126,7 +132,7 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
               onClick={() => handleResetToDefault(EndpointTypes.RPC)}
             >
               <Icon name="Refresh" />
-              Reset to Default
+              {!isMobile && 'Reset to Default'}
             </StyledActionButton>
           </StyledEndpointWrapper>
           <StyledInput
@@ -145,7 +151,7 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
               onClick={() => handleResetToDefault(EndpointTypes.MIDDLEWARE)}
             >
               <Icon name="Refresh" />
-              Reset to Default
+              {!isMobile && 'Reset to Default'}
             </StyledActionButton>
           </StyledEndpointWrapper>
           <StyledInput
@@ -164,7 +170,7 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
               onClick={() => handleResetToDefault('key')}
             >
               <Icon name="Refresh" />
-              Reset to Default
+              {!isMobile && 'Reset to Default'}
             </StyledActionButton>
           </StyledEndpointWrapper>
           <StyledInput
@@ -187,9 +193,11 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
             Reset All to Default
           </StyledActionButton>
           <StyledButtonWrapper>
-            <Button variant="modalSecondary" onClick={handleCancel}>
-              Cancel
-            </Button>
+            {!isMobile && (
+              <Button variant="modalSecondary" onClick={handleCancel}>
+                Cancel
+              </Button>
+            )}
             <Button
               variant="modalPrimary"
               disabled={
