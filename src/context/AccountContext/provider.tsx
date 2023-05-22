@@ -48,6 +48,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [accountIsMultisigSigner, setAccountIsMultisigSigner] =
     useState<boolean>(false);
   const signerRef = useRef<string>(defaultAccount);
+  const [shouldRefreshIdentity, setShouldRefreshIdentity] = useState(true);
 
   // Get list of connected accounts when sdk is initialized with signing manager
   useEffect(() => {
@@ -184,6 +185,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
         const multiSig = await accountInstance.getMultiSig();
         setAccountIsMultisigSigner(!!multiSig);
+        setShouldRefreshIdentity(true);
       } catch (error) {
         notifyGlobalError((error as Error).message);
       }
@@ -197,6 +199,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
       setAllIdentities([]);
       return;
     }
+
+    if (!shouldRefreshIdentity) return;
 
     (async () => {
       try {
@@ -229,9 +233,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
         notifyGlobalError((error as Error).message);
       } finally {
         setIdentityLoading(false);
+        setShouldRefreshIdentity(false);
       }
     })();
-  }, [sdk, account]);
+  }, [sdk, account, shouldRefreshIdentity]);
 
   // Subscribe to primary identity keys
   useEffect(() => {
@@ -318,6 +323,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
     );
   };
 
+  const refreshAccountIdentity = () => {
+    setShouldRefreshIdentity(true);
+  };
+
   const contextValue = useMemo(
     () => ({
       account,
@@ -342,6 +351,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       allKeyBalances,
       identityHasValidCdd,
       accountIsMultisigSigner,
+      refreshAccountIdentity,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -360,6 +370,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       allKeyBalances,
       identityHasValidCdd,
       accountIsMultisigSigner,
+      refreshAccountIdentity,
     ],
   );
 

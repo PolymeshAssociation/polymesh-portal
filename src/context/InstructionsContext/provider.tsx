@@ -26,6 +26,8 @@ const InstructionsProvider = ({ children }: IProviderProps) => {
   useEffect(() => {
     if (identityLoading || !identity) {
       setShouldRefreshData(true);
+      setAllInstructions(null);
+      setPendingInstructions([]);
       return;
     }
 

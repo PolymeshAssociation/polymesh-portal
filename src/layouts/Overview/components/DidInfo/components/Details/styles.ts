@@ -109,6 +109,19 @@ export const StyledKeyData = styled.li`
   border-radius: 24px;
 `;
 
+export const KeyInfo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .name-container,
+  .status-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+`;
+
 export const KeyDetails = styled.div`
   display: flex;
   align-items: center;
@@ -174,4 +187,25 @@ export const StyledButtonsWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 16px;
+  margin-top: 24px;
+`;
+
+export const StyledSelect = styled.div<{ isSelected: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: ${({ isSelected, theme }) =>
+    isSelected ? theme.colors.textPink : 'transparent'};
+  border: 2px solid
+    ${({ isSelected, theme }) =>
+      isSelected ? theme.colors.textPink : theme.colors.textDisabled};
+  color: ${({ isSelected, theme }) =>
+    isSelected ? theme.colors.landingBackground : 'transparent'};
+  transition: background-color 250ms ease-out, border 250ms ease-out,
+    color 250ms ease-out;
+  cursor: pointer;
 `;
