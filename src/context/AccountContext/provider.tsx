@@ -7,10 +7,11 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import { MultiSig as MultiSigInstance } from '@polymeshassociation/polymesh-sdk/internal';
 import { PolymeshContext } from '../PolymeshContext';
 import AccountContext from './context';
 import { notifyGlobalError } from '~/helpers/notifications';
-import { IBalanceByKey } from './constants';
+import { IInfoByKey } from './constants';
 import { useLocalStorage } from '~/hooks/utility';
 
 interface IProviderProps {
@@ -42,7 +43,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [primaryKey, setPrimaryKey] = useState<string>('');
   const [secondaryKeys, setSecondaryKeys] = useState<string[]>([]);
   const [identityLoading, setIdentityLoading] = useState(true);
-  const [allKeyBalances, setAllKeyBalances] = useState<IBalanceByKey[]>([]);
+  const [allKeyInfo, setAllKeyInfo] = useState<IInfoByKey[]>([]);
   const [identityHasValidCdd, setIdentityHasValidCdd] =
     useState<boolean>(false);
   const [accountIsMultisigSigner, setAccountIsMultisigSigner] =
@@ -295,19 +296,33 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
     (async () => {
       const balancesByKey = await Promise.all(
-        [primaryKey, ...secondaryKeys].map(async (key) => ({
-          key,
-          totalBalance: (
-            await sdk.accountManagement.getAccountBalance({
-              account: key,
-            })
-          ).total?.toString(),
-          // Mark keys that are available in connected extension
-          available: !!allAccounts.includes(key),
-        })),
+        [primaryKey, ...secondaryKeys].map(async (key) => {
+          const acc = await sdk.accountManagement.getAccount({
+            address: key,
+          });
+          const isMultiSig = acc instanceof MultiSigInstance;
+          let multisigDetails = null;
+
+          if (isMultiSig) {
+            multisigDetails = await acc.details();
+          }
+
+          return {
+            key,
+            totalBalance: (
+              await sdk.accountManagement.getAccountBalance({
+                account: key,
+              })
+            ).total?.toString(),
+            // Mark keys that are available in connected extension
+            available: !!allAccounts.includes(key),
+            isMultiSig,
+            multisigDetails,
+          };
+        }),
       );
 
-      setAllKeyBalances(balancesByKey);
+      setAllKeyInfo(balancesByKey);
     })();
   }, [allAccounts, primaryKey, sdk, secondaryKeys]);
 
@@ -348,7 +363,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       primaryKey,
       secondaryKeys,
       identityLoading,
-      allKeyBalances,
+      allKeyInfo,
       identityHasValidCdd,
       accountIsMultisigSigner,
       refreshAccountIdentity,
@@ -367,7 +382,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       primaryKey,
       secondaryKeys,
       identityLoading,
-      allKeyBalances,
+      allKeyInfo,
       identityHasValidCdd,
       accountIsMultisigSigner,
       refreshAccountIdentity,

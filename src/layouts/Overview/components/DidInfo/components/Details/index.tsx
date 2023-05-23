@@ -47,7 +47,7 @@ export const Details: React.FC<IDetailsProps> = ({
     api: { sdk },
   } = useContext(PolymeshContext);
   const {
-    allKeyBalances,
+    allKeyInfo,
     primaryKey,
     allAccountsWithMeta,
     selectedAccount,
@@ -152,68 +152,76 @@ export const Details: React.FC<IDetailsProps> = ({
         Your keys
       </Text>
       <StyledKeysList>
-        {allKeyBalances
+        {allKeyInfo
           .sort((a, b) => {
             if (a.key === selectedAccount) return -1;
             if (b.key === selectedAccount) return 1;
             return 0;
           })
-          .map(({ key, totalBalance, available }) => {
-            const isPrimaryKey = key === primaryKey;
-            const keyName = allAccountsWithMeta.find(
-              ({ address }) => address === key,
-            )?.meta.name;
-            return (
-              <StyledKeyData key={key}>
-                <KeyInfo>
-                  <div className="name-container">
-                    {keyName && (
-                      <Text transform="uppercase" bold>
-                        {keyName}
-                      </Text>
-                    )}
-                  </div>
-                  <div className="status-container">
-                    {available && (
-                      <StyledLabel available>
-                        {key === selectedAccount ? (
-                          <>
-                            <Icon name="Check" size="16px" />
-                            Selected
-                          </>
-                        ) : (
-                          'Available'
-                        )}
-                      </StyledLabel>
-                    )}
-                    {primaryIsSelected && !isPrimaryKey && (
-                      <StyledSelect
-                        isSelected={selectedKeys.includes(key)}
-                        onClick={() => handleKeySelect(key)}
-                      >
-                        <Icon name="Check" size="16px" />
-                      </StyledSelect>
-                    )}
-                  </div>
-                </KeyInfo>
-                <KeyDetails>
-                  <StyledDidThumb className="key-wrapper">
-                    {formatKey(key)}
-                  </StyledDidThumb>
-                  <IconWrapper>
-                    <CopyToClipboard value={key} />
-                  </IconWrapper>
-                  <StyledBalance>
-                    {formatBalance(totalBalance)}
-                    <span> POLYX</span>
-                  </StyledBalance>
-                  <StyledLabel isPrimary={isPrimaryKey}>
-                    {isPrimaryKey ? 'Primary' : 'Secondary'}
-                  </StyledLabel>
-                </KeyDetails>
-              </StyledKeyData>
-            );
-          })}
+          .map(
+            ({ key, totalBalance, available, isMultiSig, multisigDetails }) => {
+              const isPrimaryKey = key === primaryKey;
+              const keyName = allAccountsWithMeta.find(
+                ({ address }) => address === key,
+              )?.meta.name;
+              return (
+                <StyledKeyData key={key}>
+                  <KeyInfo>
+                    <div className="name-container">
+                      {keyName && (
+                        <Text transform="uppercase" bold>
+                          {keyName}
+                        </Text>
+                      )}
+                    </div>
+                    <div className="status-container">
+                      {available && (
+                        <StyledLabel available>
+                          {key === selectedAccount ? (
+                            <>
+                              <Icon name="Check" size="16px" />
+                              Selected
+                            </>
+                          ) : (
+                            'Available'
+                          )}
+                        </StyledLabel>
+                      )}
+                      {isMultiSig && multisigDetails && (
+                        <StyledLabel>
+                          {multisigDetails.requiredSignatures.toNumber()} of{' '}
+                          {multisigDetails.signers.length} MultiSig
+                        </StyledLabel>
+                      )}
+                      {primaryIsSelected && !isPrimaryKey && (
+                        <StyledSelect
+                          isSelected={selectedKeys.includes(key)}
+                          onClick={() => handleKeySelect(key)}
+                        >
+                          <Icon name="Check" size="16px" />
+                        </StyledSelect>
+                      )}
+                    </div>
+                  </KeyInfo>
+                  <KeyDetails>
+                    <StyledDidThumb className="key-wrapper">
+                      {formatKey(key)}
+                    </StyledDidThumb>
+                    <IconWrapper>
+                      <CopyToClipboard value={key} />
+                    </IconWrapper>
+                    <StyledBalance>
+                      {formatBalance(totalBalance)}
+                      <span> POLYX</span>
+                    </StyledBalance>
+                    <StyledLabel isPrimary={isPrimaryKey}>
+                      {isPrimaryKey ? 'Primary' : 'Secondary'}
+                    </StyledLabel>
+                  </KeyDetails>
+                </StyledKeyData>
+              );
+            },
+          )}
       </StyledKeysList>
       <StyledButtonsWrapper>
         {primaryIsSelected ? (
