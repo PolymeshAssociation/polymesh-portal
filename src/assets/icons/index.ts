@@ -49,3 +49,4 @@ export { ReactComponent as Home } from './home-outline.svg';
 export { ReactComponent as Link } from './link.svg';
 export { ReactComponent as Brush } from './brush.svg';
 export { ReactComponent as Alert } from './alert.svg';
+export { ReactComponent as Bank } from './bank.svg';
