@@ -53,3 +53,4 @@ export { ReactComponent as BurgerMenu } from './burger-menu.svg';
 export { ReactComponent as Move } from './move.svg';
 export { ReactComponent as Edit } from './edit.svg';
 export { ReactComponent as Delete } from './delete.svg';
+export { ReactComponent as Network } from './network.svg';
