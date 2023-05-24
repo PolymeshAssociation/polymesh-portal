@@ -53,7 +53,7 @@ const App = () => {
 
 const WrappedApp = () => {
   const {
-    settings: { gqlClient },
+    api: { gqlClient },
   } = useContext(PolymeshContext);
   if (!gqlClient)
     return (

@@ -43,7 +43,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
   const [searchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
   const {
-    settings: { gqlClient },
+    api: { gqlClient },
   } = useContext(PolymeshContext);
   const { allPortfolios, totalAssetsAmount, portfolioLoading } =
     useContext(PortfolioContext);

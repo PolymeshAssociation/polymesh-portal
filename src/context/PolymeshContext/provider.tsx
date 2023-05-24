@@ -133,7 +133,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         connecting,
         initialized,
       },
-      api: { sdk, signingManager },
+      api: { sdk, signingManager, gqlClient },
       settings: {
         defaultExtension,
         setDefaultExtension,
@@ -143,7 +143,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setMiddlewareUrl,
         middlewareKey,
         setMiddlewareKey,
-        gqlClient,
       },
       connectWallet,
     }),

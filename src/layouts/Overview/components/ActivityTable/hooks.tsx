@@ -27,7 +27,7 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
     [],
   );
   const {
-    settings: { gqlClient },
+    api: { gqlClient },
   } = useContext(PolymeshContext);
   const { identity, identityLoading } = useContext(AccountContext);
   const { extrinsicHistory, dataLoading, extrinsicCount, fetchedPageIndex } =
