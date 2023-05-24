@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react';
 import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
+import { Account } from '@polymeshassociation/polymesh-sdk/internal';
 import { AccountContext } from '~/context/AccountContext';
 import { Modal, Icon, CopyToClipboard } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
@@ -21,6 +22,8 @@ import {
   KeyInfo,
   StyledButtonsWrapper,
   StyledSelect,
+  SignerDetails,
+  StyledSignerInfo,
 } from './styles';
 import { formatDid, formatBalance, formatKey } from '~/helpers/formatters';
 import { useWindowWidth } from '~/hooks/utility';
@@ -142,7 +145,7 @@ export const Details: React.FC<IDetailsProps> = ({
           <StyledBottomData>
             Expires on: <span>{expiry}</span>
           </StyledBottomData>
-          <Separator />
+          {!isMobile && <Separator />}
           <StyledBottomData>
             Verified by: <span>{formatDid(issuer)}</span>
           </StyledBottomData>
@@ -201,6 +204,11 @@ export const Details: React.FC<IDetailsProps> = ({
                           <Icon name="Check" size="16px" />
                         </StyledSelect>
                       )}
+                      {isMobile && (
+                        <StyledLabel isPrimary={isPrimaryKey}>
+                          {isPrimaryKey ? 'Primary' : 'Secondary'}
+                        </StyledLabel>
+                      )}
                     </div>
                   </KeyInfo>
                   <KeyDetails>
@@ -214,10 +222,57 @@ export const Details: React.FC<IDetailsProps> = ({
                       {formatBalance(totalBalance)}
                       <span> POLYX</span>
                     </StyledBalance>
-                    <StyledLabel isPrimary={isPrimaryKey}>
-                      {isPrimaryKey ? 'Primary' : 'Secondary'}
-                    </StyledLabel>
+                    {!isMobile && (
+                      <StyledLabel isPrimary={isPrimaryKey}>
+                        {isPrimaryKey ? 'Primary' : 'Secondary'}
+                      </StyledLabel>
+                    )}
                   </KeyDetails>
+                  {isMultiSig && multisigDetails && (
+                    <StyledSignerInfo>
+                      <Text bold color="secondary">
+                        MultiSig Signers
+                      </Text>
+                      {multisigDetails.signers.map((signer) => {
+                        if (signer instanceof Account) {
+                          const accountName = allAccountsWithMeta.find(
+                            ({ address }) => address === signer.address,
+                          )?.meta.name;
+                          return (
+                            <SignerDetails key={signer.address}>
+                              <Text>
+                                {!isMobile && 'Account:'}
+                                {accountName ? (
+                                  <span className="name"> {accountName}</span>
+                                ) : null}
+                              </Text>
+                              <KeyDetails>
+                                <StyledDidThumb className="key-wrapper">
+                                  {formatKey(signer.address)}
+                                </StyledDidThumb>
+                                <IconWrapper>
+                                  <CopyToClipboard value={signer.address} />
+                                </IconWrapper>
+                              </KeyDetails>
+                            </SignerDetails>
+                          );
+                        }
+                        return (
+                          <SignerDetails key={signer.did}>
+                            <Text size="small">Identity:</Text>
+                            <KeyDetails>
+                              <StyledDidThumb className="key-wrapper">
+                                {formatDid(signer.did, 8, 9)}
+                              </StyledDidThumb>
+                              <IconWrapper>
+                                <CopyToClipboard value={signer.did} />
+                              </IconWrapper>
+                            </KeyDetails>
+                          </SignerDetails>
+                        );
+                      })}
+                    </StyledSignerInfo>
+                  )}
                 </StyledKeyData>
               );
             },
