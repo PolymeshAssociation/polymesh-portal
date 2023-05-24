@@ -1,6 +1,5 @@
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { gql } from '@apollo/client';
-import { gqlClient } from '~/config/graphql';
+import { ApolloClient, NormalizedCacheObject, gql } from '@apollo/client';
 import {
   getExtrinsicTimestamp,
   getTimestampByBlockHash,
@@ -10,6 +9,7 @@ import { toParsedDateTime } from './dateTime';
 export const getExtrinsicTime = async (
   blockNumber: BigNumber,
   extrinsicIdx: BigNumber,
+  gqlClient: ApolloClient<NormalizedCacheObject>,
 ) => {
   const id = `${blockNumber.toString()}/${extrinsicIdx.toString()}`;
 
@@ -30,7 +30,10 @@ export const getExtrinsicTime = async (
   }
 };
 
-export const getTimeByBlockHash = async (hash: string) => {
+export const getTimeByBlockHash = async (
+  hash: string,
+  gqlClient: ApolloClient<NormalizedCacheObject>,
+) => {
   try {
     const response = await gqlClient.query({
       query: getTimestampByBlockHash,

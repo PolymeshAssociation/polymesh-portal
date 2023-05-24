@@ -1,5 +1,6 @@
 import { ExtrinsicData } from '@polymeshassociation/polymesh-sdk/types';
 import { balanceToBigNumber } from '@polymeshassociation/polymesh-sdk/utils/conversion';
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { ITransferEvent, IAddress } from '~/constants/queries/types';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import { splitByCapitalLetters } from '~/helpers/formatters';
@@ -8,12 +9,13 @@ import { IHistoricalItem, ITokenItem } from './constants';
 
 export const parseExtrinsicHistory = async (
   extrinsicHistory: ExtrinsicData[],
+  gqlClient: ApolloClient<NormalizedCacheObject>,
 ) => {
   const parsedData = await Promise.all(
     extrinsicHistory.map(
       async ({ blockNumber, extrinsicIdx, success, txTag }) => ({
         extrinsicId: `${blockNumber.toString()}-${extrinsicIdx.toString()}`,
-        dateTime: await getExtrinsicTime(blockNumber, extrinsicIdx),
+        dateTime: await getExtrinsicTime(blockNumber, extrinsicIdx, gqlClient),
         module: txTag.split('.')[0],
         call: splitByCapitalLetters(txTag.split('.')[1]),
         success,

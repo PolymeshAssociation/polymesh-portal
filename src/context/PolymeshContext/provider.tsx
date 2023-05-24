@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 import PolymeshContext from './context';
 import { useLocalStorage } from '~/hooks/utility';
 import { notifyGlobalError } from '~/helpers/notifications';
@@ -118,6 +119,14 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     middlewareKey,
   ]);
 
+  const gqlClient = useMemo(() => {
+    const client = new ApolloClient({
+      uri: middlewareUrl,
+      cache: new InMemoryCache(),
+    });
+    return client;
+  }, [middlewareUrl]);
+
   const contextValue = useMemo(
     () => ({
       state: {
@@ -134,6 +143,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setMiddlewareUrl,
         middlewareKey,
         setMiddlewareKey,
+        gqlClient,
       },
       connectWallet,
     }),
@@ -151,6 +161,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       setMiddlewareUrl,
       middlewareKey,
       setMiddlewareKey,
+      gqlClient,
     ],
   );
 

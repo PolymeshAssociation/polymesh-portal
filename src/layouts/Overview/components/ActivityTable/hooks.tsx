@@ -11,10 +11,10 @@ import { useHistoricData } from '~/hooks/polymesh';
 import { EActivityTableTabs, IHistoricalItem, ITokenItem } from './constants';
 import { columns } from './config';
 import { parseExtrinsicHistory, parseTokenActivity } from './helpers';
-import { gqlClient } from '~/config/graphql';
 import { transferEventsQuery } from '~/helpers/graphqlQueries';
 import { notifyError } from '~/helpers/notifications';
 import { ITransferQueryResponse } from '~/constants/queries/types';
+import { PolymeshContext } from '~/context/PolymeshContext';
 
 export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
@@ -26,6 +26,9 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
   const [tableData, setTableData] = useState<(IHistoricalItem | ITokenItem)[]>(
     [],
   );
+  const {
+    settings: { gqlClient },
+  } = useContext(PolymeshContext);
   const { identity, identityLoading } = useContext(AccountContext);
   const { extrinsicHistory, dataLoading, extrinsicCount, fetchedPageIndex } =
     useHistoricData({
@@ -53,7 +56,7 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
 
   // Update table data for Historical Activity tab
   useEffect(() => {
-    if (currentTab !== EActivityTableTabs.HISTORICAL_ACTIVITY) {
+    if (currentTab !== EActivityTableTabs.HISTORICAL_ACTIVITY || !gqlClient) {
       return;
     }
     setTableLoading(true);
@@ -68,7 +71,10 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
 
     (async () => {
       try {
-        const parsedData = await parseExtrinsicHistory(extrinsicHistory);
+        const parsedData = await parseExtrinsicHistory(
+          extrinsicHistory,
+          gqlClient,
+        );
         setTableData(parsedData);
         setTotalItems(extrinsicCount);
         setTotalPages(Math.ceil(extrinsicCount / pageSize));
@@ -86,6 +92,7 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
     extrinsicCount,
     extrinsicHistory,
     fetchedPageIndex,
+    gqlClient,
     identity?.did,
     pageIndex,
     pageSize,
@@ -95,7 +102,8 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
   useEffect(() => {
     if (
       currentTab !== EActivityTableTabs.TOKEN_ACTIVITY ||
-      (currentTab !== tabRef.current && pageIndex !== 0)
+      (currentTab !== tabRef.current && pageIndex !== 0) ||
+      !gqlClient
     ) {
       return;
     }
@@ -131,7 +139,7 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
         setTableLoading(false);
       }
     })();
-  }, [currentTab, identity, pageIndex, pageSize]);
+  }, [currentTab, gqlClient, identity, pageIndex, pageSize]);
 
   const pagination = useMemo(
     () => ({
