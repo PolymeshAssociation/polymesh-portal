@@ -130,7 +130,7 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
             <Text size="large" bold>
               {participantDetails
                 ? participantDetails.taxWithholdingPercentage.toString()
-                : distribution.defaultTaxWithholding.toString()}{' '}
+                : distribution.defaultTaxWithholding.toString()}
               %
             </Text>
           </StyledInfoItem>

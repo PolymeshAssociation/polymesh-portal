@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { DistributionsHeader } from './components/DistributionsHeader';
 import { DistributionsList } from './components/DistributionsList';
+import { DistributionsTable } from './components/DistributionsTable';
 import { ESortOptions, EDistributionTypes } from './types';
 
 const Distributions = () => {
@@ -20,7 +21,9 @@ const Distributions = () => {
       <DistributionsHeader sortBy={sortBy} setSortBy={setSortBy} />
       {type === EDistributionTypes.PENDING ? (
         <DistributionsList sortBy={sortBy} />
-      ) : null}
+      ) : (
+        <DistributionsTable />
+      )}
     </>
   );
 };

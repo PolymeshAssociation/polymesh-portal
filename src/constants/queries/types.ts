@@ -3,6 +3,25 @@ import { Balance } from '@polymeshassociation/polymesh-sdk/types';
 export interface IAddress {
   did: string;
 }
+export interface ITicker {
+  ticker: string;
+  localId: number;
+}
+export interface IDividend {
+  from: {
+    did: string;
+    kind: {
+      Default: null;
+    };
+  };
+  amount: number;
+  currency: string;
+  perShare: number;
+  expiresAt: number;
+  paymentAt: number;
+  reclaimed: boolean;
+  remaining: number;
+}
 
 export interface ITransferEvent {
   id: string;
@@ -12,7 +31,7 @@ export interface ITransferEvent {
     datetime: string;
   };
   attributes: {
-    value: string | Balance | IAddress;
+    value: string | Balance | IAddress | ITicker | IDividend | number;
   }[];
 }
 

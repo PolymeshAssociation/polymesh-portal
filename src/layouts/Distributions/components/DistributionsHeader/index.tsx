@@ -23,7 +23,8 @@ export const DistributionsHeader: React.FC<IDistributionsHeaderProps> = ({
   sortBy,
   setSortBy,
 }) => {
-  const { refreshDistributions } = useContext(DistributionsContext);
+  const { refreshDistributions, distributionsLoading } =
+    useContext(DistributionsContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const type = searchParams.get('type');
 
@@ -61,7 +62,10 @@ export const DistributionsHeader: React.FC<IDistributionsHeaderProps> = ({
               <Icon name="DropdownIcon" className="dropdown-icon" />
             </StyledSort>
           </StyledSortWrapper>
-          <RefreshButton onClick={refreshDistributions} />
+          <RefreshButton
+            onClick={refreshDistributions}
+            disabled={distributionsLoading}
+          />
         </StyledWrapper>
       )}
     </StyledHeader>

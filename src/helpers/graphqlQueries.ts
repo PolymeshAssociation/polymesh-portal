@@ -169,3 +169,53 @@ export const portfolioMovementsQuery = ({
 
   return query;
 };
+
+export const historicalDistributionsQuery = ({
+  offset,
+  pageSize,
+  did,
+}: {
+  offset: number;
+  pageSize: number;
+  did: string;
+}) => {
+  const query = gql`
+    query {
+      events(
+        first: ${pageSize}
+        offset: ${offset}
+        orderBy: CREATED_AT_DESC
+        filter: {
+          moduleId: { equalTo: capitaldistribution }
+          eventId: { equalTo: BenefitClaimed }
+          attributes: {
+            contains: [
+              {
+                value: "${did}"
+              }
+            ]
+          }
+        }
+      ) {
+        totalCount
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+        }
+        nodes {
+          id
+          blockId
+          moduleId
+          eventId
+          extrinsicIdx
+          attributes
+          block {
+            datetime
+          }
+        }
+      }
+    }
+  `;
+
+  return query;
+};

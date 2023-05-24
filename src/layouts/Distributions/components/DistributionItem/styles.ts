@@ -48,6 +48,10 @@ export const StyledButtonsWrapper = styled.div<{ expanded: boolean }>`
   & button {
     flex-grow: 1;
   }
+
+  & .expand-icon {
+    transform: ${({ expanded }) => (expanded ? `rotate(180deg)` : `rotate(0)`)};
+  }
 `;
 
 export const StyledDetails = styled.div`
