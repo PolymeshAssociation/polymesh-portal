@@ -10,6 +10,7 @@ export interface IPolymeshContext {
   api: {
     sdk: Polymesh | null;
     signingManager: BrowserExtensionSigningManager | null;
+    gqlClient: ApolloClient<NormalizedCacheObject> | null;
   };
   settings: {
     defaultExtension: string;
@@ -20,7 +21,6 @@ export interface IPolymeshContext {
     setMiddlewareUrl: (url: string) => void;
     middlewareKey: string;
     setMiddlewareKey: (key: string) => void;
-    gqlClient: ApolloClient<NormalizedCacheObject> | null;
   };
   connectWallet: (extensionName: string) => Promise<void>;
 }
