@@ -33,6 +33,7 @@ export const initialState = {
   api: {
     sdk: null,
     signingManager: null,
+    gqlClient: null,
   },
   settings: {
     defaultExtension: '',
@@ -43,7 +44,6 @@ export const initialState = {
     setMiddlewareUrl: () => {},
     middlewareKey: '',
     setMiddlewareKey: () => {},
-    gqlClient: null,
   },
   connectWallet: async () => {},
 };
