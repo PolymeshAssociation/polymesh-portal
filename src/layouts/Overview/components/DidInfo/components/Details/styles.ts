@@ -49,7 +49,7 @@ export const StyledDidThumb = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
+  min-height: 32px;
   border-radius: 32px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
   color: ${({ theme }) => theme.colors.textSecondary};
@@ -136,7 +136,7 @@ export const KeyDetails = styled.div`
 
   & .key-wrapper {
     flex-grow: initial;
-    padding: 0 12px;
+    padding: 5.5px 12px;
   }
 `;
 

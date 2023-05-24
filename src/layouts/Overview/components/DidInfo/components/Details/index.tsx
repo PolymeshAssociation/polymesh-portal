@@ -171,11 +171,7 @@ export const Details: React.FC<IDetailsProps> = ({
                 <StyledKeyData key={key}>
                   <KeyInfo>
                     <div className="name-container">
-                      {keyName && (
-                        <Text transform="uppercase" bold>
-                          {keyName}
-                        </Text>
-                      )}
+                      {keyName && <Text bold>{keyName}</Text>}
                     </div>
                     <div className="status-container">
                       {available && (
@@ -196,6 +192,11 @@ export const Details: React.FC<IDetailsProps> = ({
                           {multisigDetails.signers.length} MultiSig
                         </StyledLabel>
                       )}
+                      {isMobile && (
+                        <StyledLabel isPrimary={isPrimaryKey}>
+                          {isPrimaryKey ? 'Primary' : 'Secondary'}
+                        </StyledLabel>
+                      )}
                       {primaryIsSelected && !isPrimaryKey && (
                         <StyledSelect
                           isSelected={selectedKeys.includes(key)}
@@ -203,11 +204,6 @@ export const Details: React.FC<IDetailsProps> = ({
                         >
                           <Icon name="Check" size="16px" />
                         </StyledSelect>
-                      )}
-                      {isMobile && (
-                        <StyledLabel isPrimary={isPrimaryKey}>
-                          {isPrimaryKey ? 'Primary' : 'Secondary'}
-                        </StyledLabel>
                       )}
                     </div>
                   </KeyInfo>
@@ -240,13 +236,13 @@ export const Details: React.FC<IDetailsProps> = ({
                           )?.meta.name;
                           return (
                             <SignerDetails key={signer.address}>
-                              <Text>
-                                {!isMobile && 'Account:'}
-                                {accountName ? (
-                                  <span className="name"> {accountName}</span>
-                                ) : null}
-                              </Text>
+                              <Text>{!isMobile && 'Key:'}</Text>
                               <KeyDetails>
+                                {accountName && (
+                                  <StyledDidThumb className="key-wrapper">
+                                    <Text bold>{accountName}</Text>
+                                  </StyledDidThumb>
+                                )}
                                 <StyledDidThumb className="key-wrapper">
                                   {formatKey(signer.address)}
                                 </StyledDidThumb>
@@ -259,7 +255,7 @@ export const Details: React.FC<IDetailsProps> = ({
                         }
                         return (
                           <SignerDetails key={signer.did}>
-                            <Text size="small">Identity:</Text>
+                            <Text>Identity:</Text>
                             <KeyDetails>
                               <StyledDidThumb className="key-wrapper">
                                 {formatDid(signer.did, 8, 9)}
