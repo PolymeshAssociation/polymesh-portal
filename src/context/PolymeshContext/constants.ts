@@ -1,3 +1,4 @@
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 
@@ -19,6 +20,7 @@ export interface IPolymeshContext {
     setMiddlewareUrl: (url: string) => void;
     middlewareKey: string;
     setMiddlewareKey: (key: string) => void;
+    gqlClient: ApolloClient<NormalizedCacheObject> | null;
   };
   connectWallet: (extensionName: string) => Promise<void>;
 }
@@ -41,6 +43,7 @@ export const initialState = {
     setMiddlewareUrl: () => {},
     middlewareKey: '',
     setMiddlewareKey: () => {},
+    gqlClient: null,
   },
   connectWallet: async () => {},
 };

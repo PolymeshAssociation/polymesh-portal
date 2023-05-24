@@ -1,4 +1,3 @@
-/* eslint-disable no-case-declarations */
 import { useState, useRef, useEffect, useContext } from 'react';
 import { Asset, Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
@@ -256,7 +255,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     const id = combinedId.split('/')[0].trim();
 
     switch (role) {
-      case 'sender':
+      case 'sender': {
         setSelectedAmount('');
         if (handleResetAmount) {
           handleResetAmount(index);
@@ -270,8 +269,8 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           setSelectedSenderPortfolio(selectedSendingPortfolio);
         }
         break;
-
-      case 'receiver':
+      }
+      case 'receiver': {
         const selectedReceivingPortfolio = receiverPortfolios.find((item) => {
           return Number.isNaN(Number(id))
             ? item.id === 'default'
@@ -281,6 +280,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           setSelectedReceiverPortfolio(selectedReceivingPortfolio);
         }
         break;
+      }
 
       default:
         break;

@@ -28,7 +28,7 @@ import {
   transferEventsQuery,
   portfolioMovementsQuery,
 } from '~/helpers/graphqlQueries';
-import { gqlClient } from '~/config/graphql';
+import { PolymeshContext } from '~/context/PolymeshContext';
 
 const initialPaginationState = { pageIndex: 0, pageSize: 10 };
 
@@ -42,6 +42,9 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
   const [tableData, setTableData] = useState<AssetTableItem[]>([]);
   const [searchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
+  const {
+    settings: { gqlClient },
+  } = useContext(PolymeshContext);
   const { allPortfolios, totalAssetsAmount, portfolioLoading } =
     useContext(PortfolioContext);
   const { identity } = useContext(AccountContext);
@@ -61,7 +64,12 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
   // Get portfolio movements or asset transfers
   useEffect(() => {
     setTableData([]);
-    if (currentTab === EAssetsTableTabs.TOKENS || !identity || portfolioLoading)
+    if (
+      currentTab === EAssetsTableTabs.TOKENS ||
+      !identity ||
+      portfolioLoading ||
+      !gqlClient
+    )
       return;
 
     if (currentTab !== tabRef.current && pageIndex !== 0) return;
@@ -72,8 +80,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
 
       try {
         switch (currentTab) {
-          case EAssetsTableTabs.MOVEMENTS:
-            // eslint-disable-next-line no-case-declarations
+          case EAssetsTableTabs.MOVEMENTS: {
             const { data: movements } =
               await gqlClient.query<IMovementQueryResponse>({
                 query: portfolioMovementsQuery({
@@ -94,9 +101,8 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
               setTotalItems(movements.portfolioMovements.totalCount);
             }
             break;
-
-          case EAssetsTableTabs.TRANSACTIONS:
-            // eslint-disable-next-line no-case-declarations
+          }
+          case EAssetsTableTabs.TRANSACTIONS: {
             const { data: transfers } =
               await gqlClient.query<ITransferQueryResponse>({
                 query: transferEventsQuery({
@@ -113,7 +119,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
               setTotalItems(transfers.events.totalCount);
             }
             break;
-
+          }
           default:
             break;
         }
@@ -132,6 +138,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
     portfolioLoading,
     pageSize,
     pageIndex,
+    gqlClient,
   ]);
 
   // Get token table data

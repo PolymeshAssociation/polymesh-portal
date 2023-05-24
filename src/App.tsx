@@ -4,7 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import { ApolloProvider } from '@apollo/client';
 import { ToastContainer } from 'react-toastify';
 import { SkeletonTheme } from 'react-loading-skeleton';
-import { PolymeshProvider } from '~/context/PolymeshContext';
+import { PolymeshProvider, PolymeshContext } from '~/context/PolymeshContext';
 import { AccountProvider } from '~/context/AccountContext';
 import { PortfolioProvider } from '~/context/PortfolioContext';
 import { AuthorizationsProvider } from '~/context/AuthorizationsContext';
@@ -12,7 +12,6 @@ import { ClaimsProvider } from '~/context/ClaimsContext';
 import { InstructionsProvider } from '~/context/InstructionsContext';
 import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
 import { ROUTES } from '~/constants/routes';
-import { gqlClient } from '~/config/graphql';
 import { theme, GlobalStyle } from '~/styles/theme';
 import { LoadingFallback } from '~/components';
 
@@ -53,6 +52,27 @@ const App = () => {
 };
 
 const WrappedApp = () => {
+  const {
+    settings: { gqlClient },
+  } = useContext(PolymeshContext);
+  if (!gqlClient)
+    return (
+      <PolymeshProvider>
+        <AccountProvider>
+          <PortfolioProvider>
+            <AuthorizationsProvider>
+              <InstructionsProvider>
+                <ClaimsProvider>
+                  <BrowserRouter>
+                    <App />
+                  </BrowserRouter>
+                </ClaimsProvider>
+              </InstructionsProvider>
+            </AuthorizationsProvider>
+          </PortfolioProvider>
+        </AccountProvider>
+      </PolymeshProvider>
+    );
   return (
     <PolymeshProvider>
       <AccountProvider>
