@@ -36,7 +36,7 @@ const NotificationHistory: React.FC<INotificationHistoryProps> = ({
         data: null,
       })),
       ...pendingDistributions.map(({ distribution }) => ({
-        id: distribution.id.toString(),
+        id: `${distribution.asset.toHuman()}/${distribution.id.toString()}`,
         type: 'distributions',
         data: {
           type: 'Corporate Action',

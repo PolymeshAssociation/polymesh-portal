@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
   DistributionParticipant,
   DividendDistribution,
@@ -14,10 +14,13 @@ import {
   StyledInfoItem,
   StyledDetails,
   StyledInfoValue,
+  StyledLabel,
+  StyledExpandedErrors,
 } from './styles';
-
 import { toParsedDate } from '~/helpers/dateTime';
 import { notifyError } from '~/helpers/notifications';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { getDistributionErrors } from './helpers';
 
 interface IDistributionItemProps {
   distribution: DividendDistribution;
@@ -34,20 +37,37 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
   executeAction,
   actionInProgress,
 }) => {
+  const {
+    api: { sdk },
+  } = useContext(PolymeshContext);
   const [participantDetails, setParticipantDetails] =
     useState<DistributionParticipant | null>(null);
+  const [distributionErrors, setDistributionErrors] = useState<string[]>([]);
   const [detailsLoading, setDetailsLoading] = useState(true);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const [errorsExpanded, setErrorsExpanded] = useState(false);
 
   useEffect(() => {
-    if (!distribution) return;
+    if (!distribution || !sdk) return;
 
     (async () => {
       setDetailsLoading(true);
       try {
         const participant = await distribution.getParticipant();
+
         if (participant) {
           setParticipantDetails(participant);
+
+          const distributionAsset = await sdk.assets.getAsset({
+            ticker: distribution.currency,
+          });
+
+          const errors = await getDistributionErrors({
+            distribution,
+            distributionAsset,
+            participant,
+          });
+          setDistributionErrors(errors);
         }
       } catch (error) {
         notifyError((error as Error).message);
@@ -55,7 +75,7 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
         setDetailsLoading(false);
       }
     })();
-  }, [distribution]);
+  }, [distribution, sdk]);
 
   const toggleDetails = () => setDetailsExpanded((prev) => !prev);
 
@@ -78,13 +98,13 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
           </Text>
         </StyledInfoItem>
         <StyledInfoItem>
-          Amount
+          Claimable Amount
           <Text size="large" bold>
             {detailsLoading ? (
               'loading'
             ) : (
               <>
-                {participantDetails?.amount.toString() || null}{' '}
+                {participantDetails?.amountAfterTax.toString() || null}{' '}
                 {participantDetails ? distribution.currency : null}
               </>
             )}
@@ -110,14 +130,6 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
       {detailsExpanded && (
         <StyledDetails>
           <StyledInfoItem>
-            Distribution Asset
-            <StyledInfoValue>
-              <Text size="large" bold>
-                {distribution.currency}
-              </Text>
-            </StyledInfoValue>
-          </StyledInfoItem>
-          <StyledInfoItem>
             Amount
             <Text size="large" bold>
               {detailsLoading
@@ -133,16 +145,6 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
                 : distribution.defaultTaxWithholding.toString()}
               %
             </Text>
-          </StyledInfoItem>
-          <StyledInfoItem>
-            Amount After Tax
-            <StyledInfoValue>
-              <Text size="large" bold>
-                {detailsLoading
-                  ? 'loading'
-                  : participantDetails?.amountAfterTax.toString() || ''}
-              </Text>
-            </StyledInfoValue>
           </StyledInfoItem>
           <StyledInfoItem>
             Per share rate
@@ -166,13 +168,30 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
               </Text>
             </StyledInfoValue>
           </StyledInfoItem>
+          {!!distributionErrors.length && (
+            <StyledLabel
+              onMouseEnter={() => setErrorsExpanded(true)}
+              onMouseLeave={() => setErrorsExpanded(false)}
+            >
+              Error
+              {errorsExpanded && (
+                <StyledExpandedErrors>
+                  {distributionErrors.map((error) => (
+                    <li key={error}>{error}</li>
+                  ))}
+                </StyledExpandedErrors>
+              )}
+            </StyledLabel>
+          )}
         </StyledDetails>
       )}
       <StyledButtonsWrapper expanded={detailsExpanded}>
         <Button
           variant="success"
           onClick={() => executeAction(distribution.claim)}
-          disabled={actionInProgress}
+          disabled={
+            actionInProgress || detailsLoading || !!distributionErrors.length
+          }
         >
           <Icon name="Check" size="24px" />
           Claim

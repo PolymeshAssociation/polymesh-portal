@@ -83,6 +83,7 @@ export const StyledButtonsWrapper = styled.div<{ expanded: boolean }>`
 
 export const StyledDetails = styled.div`
   display: flex;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 8px;
   padding: 24px;
@@ -100,4 +101,40 @@ export const StyledInfoValue = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
+`;
+
+export const StyledLabel = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 16px;
+  background-color: #db2c3e;
+  border-radius: 100px;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: capitalize;
+  cursor: pointer;
+`;
+
+export const StyledExpandedErrors = styled.ul`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 128px;
+  max-width: 300px;
+  background-color: #fae6e8;
+  border-radius: 16px;
+  padding: 8px 16px;
+  color: #db2c3e;
+  text-transform: initial;
+  cursor: initial;
+  z-index: 1;
+
+  & li {
+    list-style: circle;
+    margin-left: 8px;
+  }
 `;
