@@ -19,8 +19,11 @@ const SharedLayout = lazy(() => import('~/layouts/SharedLayout'));
 
 const App = () => {
   const { currentTheme } = useContext(ThemeContext);
+  const {
+    api: { gqlClient },
+  } = useContext(PolymeshContext);
 
-  return (
+  const appComponentTree = (
     <ThemeProvider theme={theme[currentTheme]}>
       <SkeletonTheme
         baseColor={theme[currentTheme].colors.skeletonBase}
@@ -49,30 +52,15 @@ const App = () => {
       </SkeletonTheme>
     </ThemeProvider>
   );
+
+  return gqlClient ? (
+    <ApolloProvider client={gqlClient}>{appComponentTree}</ApolloProvider>
+  ) : (
+    appComponentTree
+  );
 };
 
 const WrappedApp = () => {
-  const {
-    api: { gqlClient },
-  } = useContext(PolymeshContext);
-  if (!gqlClient)
-    return (
-      <PolymeshProvider>
-        <AccountProvider>
-          <PortfolioProvider>
-            <AuthorizationsProvider>
-              <InstructionsProvider>
-                <ClaimsProvider>
-                  <BrowserRouter>
-                    <App />
-                  </BrowserRouter>
-                </ClaimsProvider>
-              </InstructionsProvider>
-            </AuthorizationsProvider>
-          </PortfolioProvider>
-        </AccountProvider>
-      </PolymeshProvider>
-    );
   return (
     <PolymeshProvider>
       <AccountProvider>
@@ -81,11 +69,9 @@ const WrappedApp = () => {
             <InstructionsProvider>
               <ClaimsProvider>
                 <AppThemeProvider>
-                  <ApolloProvider client={gqlClient}>
-                    <BrowserRouter>
-                      <App />
-                    </BrowserRouter>
-                  </ApolloProvider>
+                  <BrowserRouter>
+                    <App />
+                  </BrowserRouter>
                 </AppThemeProvider>
               </ClaimsProvider>
             </InstructionsProvider>
