@@ -151,18 +151,18 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
             </Text>
           </StyledInfoItem>
           <StyledInfoItem>
-            Description
-            <StyledInfoValue>
-              <Text size="large" bold>
-                {distribution.description}
-              </Text>
-            </StyledInfoValue>
-          </StyledInfoItem>
-          <StyledInfoItem>
             Declaration Date
             <StyledInfoValue>
               <Text size="large" bold>
                 {toParsedDate(distribution.declarationDate.toISOString())}
+              </Text>
+            </StyledInfoValue>
+          </StyledInfoItem>
+          <StyledInfoItem>
+            Description
+            <StyledInfoValue>
+              <Text size="large" bold>
+                {distribution.description}
               </Text>
             </StyledInfoValue>
           </StyledInfoItem>

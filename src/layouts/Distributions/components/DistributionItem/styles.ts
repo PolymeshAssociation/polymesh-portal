@@ -14,11 +14,38 @@ export const StyledInfoWrapper = styled.div`
   justify-content: space-between;
   padding: 0 12px;
   margin-bottom: 24px;
+  min-height: 40px;
+  gap: 8px;
+  @media screen and (max-width: 1023px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  & .select-placeholder {
+    display: flex;
+    align-items: center;
+    width: 20px;
+  }
 `;
 
 export const StyledInfoItem = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.colors.textSecondary};
+  @media screen and (max-width: 1023px) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+  }
+  @media screen and (min-width: 1024px) and (max-width: 1399px) {
+    & p {
+      font-size: 14px;
+    }
+    & svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
 `;
 
 export const StyledSelect = styled.div<{ isSelected: boolean }>`
@@ -56,12 +83,17 @@ export const StyledButtonsWrapper = styled.div<{ expanded: boolean }>`
 
 export const StyledDetails = styled.div`
   display: flex;
-  align-items: flex-end;
   justify-content: space-between;
+  gap: 8px;
   padding: 24px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   border-radius: 24px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
+  @media screen and (max-width: 1023px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 export const StyledInfoValue = styled.div`
