@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { ApolloClient, InMemoryCache } from '@apollo/client';
 import PolymeshContext from './context';
 import { useLocalStorage } from '~/hooks/utility';
 import { notifyGlobalError } from '~/helpers/notifications';
@@ -119,21 +118,18 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     middlewareKey,
   ]);
 
-  const gqlClient = useMemo(() => {
-    const client = new ApolloClient({
-      uri: middlewareUrl,
-      cache: new InMemoryCache(),
-    });
-    return client;
-  }, [middlewareUrl]);
-
   const contextValue = useMemo(
     () => ({
       state: {
         connecting,
         initialized,
       },
-      api: { sdk, signingManager, gqlClient },
+      api: {
+        sdk,
+        signingManager,
+        // eslint-disable-next-line no-underscore-dangle
+        gqlClient: sdk ? sdk._middlewareApiV2 : null,
+      },
       settings: {
         defaultExtension,
         setDefaultExtension,
@@ -160,11 +156,12 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       setMiddlewareUrl,
       middlewareKey,
       setMiddlewareKey,
-      gqlClient,
     ],
   );
 
   return (
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     <PolymeshContext.Provider value={contextValue}>
       {children}
     </PolymeshContext.Provider>
