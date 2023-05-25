@@ -1,2 +1,3 @@
-# polymesh-user-portal
-Polymesh User Portal
+# polymesh-portal
+
+Polymesh Portal

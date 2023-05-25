@@ -48,7 +48,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         middlewareKeyRef.current = middlewareKey;
         const signingManagerInstance =
           await BrowserExtensionSigningManager.create({
-            appName: 'polymesh-user-portal',
+            appName: 'polymesh-portal',
             extensionName,
           });
         if (!sdkRef.current) {
