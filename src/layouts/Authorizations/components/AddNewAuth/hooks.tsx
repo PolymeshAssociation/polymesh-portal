@@ -172,6 +172,28 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
           }),
         ),
       },
+      [AuthorizationType.RotatePrimaryKey]: {
+        mode: 'onTouched' as keyof ValidationMode,
+        defaultValues: {
+          [INPUT_NAMES.TARGET_ACCOUNT]: '',
+          [INPUT_NAMES.EXPIRY]: '',
+        },
+        resolver: yupResolver(
+          yup.object().shape({
+            [INPUT_NAMES.TARGET_ACCOUNT]: yup
+              .string()
+              .required('Address is required')
+              .test(
+                'is-valid-address',
+                'Address must be valid SS58 format',
+                async (value) => {
+                  const result = await checkAddressValidity(value);
+                  return result;
+                },
+              ),
+          }),
+        ),
+      },
     }),
     [checkAddressValidity],
   );
@@ -501,6 +523,41 @@ export const useSubmitHandler = () => {
         }
 
         const tx = await sdk.accountManagement.subsidizeAccount(args);
+        unsubCb = tx.onStatusChange(handleStatusChange);
+        await tx.run();
+        refreshAuthorizations();
+      } catch (error) {
+        notifyError((error as Error).message);
+      } finally {
+        if (unsubCb) {
+          unsubCb();
+        }
+      }
+    },
+
+    [AuthorizationType.RotatePrimaryKey]: async (data: FieldValues) => {
+      if (!sdk) return;
+      const targetAccount = data.targetAccount as string;
+      const utcExpiry = data.expiry as string | undefined;
+      const expiry = utcExpiry
+        ? removeTimezoneOffset(new Date(utcExpiry))
+        : null;
+
+      const args = expiry ? { expiry, targetAccount } : { targetAccount };
+
+      let unsubCb: UnsubCallback | undefined;
+      try {
+        const {
+          signerPermissions: { result },
+        } = await sdk.identities.rotatePrimaryKey.checkAuthorization(args);
+        if (!result) {
+          notifyWarning(
+            "The signing Account doesn't have the required permissions to execute this procedure",
+          );
+          return;
+        }
+
+        const tx = await sdk.identities.rotatePrimaryKey(args);
         unsubCb = tx.onStatusChange(handleStatusChange);
         await tx.run();
         refreshAuthorizations();
