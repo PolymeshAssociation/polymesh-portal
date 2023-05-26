@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { StyledBackdrop, StyledModal } from './styles';
+import { useWindowWidth } from '~/hooks/utility';
+import Icon from '../Icon';
+import { StyledBackdrop, StyledModal, StyledCloseButton } from './styles';
 
 interface KeyboardEvent {
   key: string;
@@ -19,6 +21,8 @@ const Modal: React.FC<IModalProps> = ({
   children,
   disableOverflow,
 }) => {
+  const { isMobile } = useWindowWidth();
+
   // Disabling page scroll when modal is open
   useEffect(() => {
     document.body.classList.add('no-scroll');
@@ -50,7 +54,14 @@ const Modal: React.FC<IModalProps> = ({
 
   return createPortal(
     <StyledBackdrop onMouseDown={handleBackdropClick}>
-      <StyledModal disableOverflow={disableOverflow}>{children}</StyledModal>
+      <StyledModal disableOverflow={disableOverflow}>
+        {isMobile && (
+          <StyledCloseButton onClick={handleClose}>
+            <Icon name="CloseIcon" size="24px" />
+          </StyledCloseButton>
+        )}
+        {children}
+      </StyledModal>
     </StyledBackdrop>,
     modalRoot,
   );

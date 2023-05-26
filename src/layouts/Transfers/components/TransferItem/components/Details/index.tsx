@@ -4,15 +4,17 @@ import {
   VenueType,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useEffect, useState } from 'react';
-import { Text } from '~/components/UiKit';
+import { SkeletonLoader, Text } from '~/components/UiKit';
 import { StyledInfoItem, StyledVenueDetails, StyledVenueId } from './styles';
 import { toParsedDate } from '~/helpers/dateTime';
+import { splitByCapitalLetters } from '~/helpers/formatters';
 
 interface IDetailsProps {
   data: InstructionDetails | null;
   affirmationsCount: number;
   instructionId: string;
   counterparties: number;
+  loading: boolean;
 }
 
 interface IVenueDetails {
@@ -25,6 +27,7 @@ export const Details: React.FC<IDetailsProps> = ({
   affirmationsCount,
   instructionId,
   counterparties,
+  loading,
 }) => {
   const [venueDetails, setVenueDetails] = useState<IVenueDetails | null>(null);
   const [blockNumber, setBlockNumber] = useState<string | null>(null);
@@ -47,49 +50,65 @@ export const Details: React.FC<IDetailsProps> = ({
 
   return (
     <>
-      <StyledInfoItem>
-        Instruction ID
-        <Text size="large" bold>
-          {instructionId}
-        </Text>
-      </StyledInfoItem>
-      <StyledVenueId
-        onMouseEnter={() => setDetailsExpanded(true)}
-        onMouseLeave={() => setDetailsExpanded(false)}
-      >
-        Venue ID
-        <Text size="large" bold>
-          {data?.venue.toHuman()}
-        </Text>
-        {!!venueDetails && detailsExpanded && (
-          <StyledVenueDetails>
-            <Text size="small" marginBottom={16}>
-              <span>Type: </span>
-              {venueDetails.type}
-            </Text>
-            <Text size="small">
-              <span>Description: </span>
-              {venueDetails.description}
-            </Text>
-          </StyledVenueDetails>
-        )}
-      </StyledVenueId>
-      <StyledInfoItem>
-        # counterparties
-        <Text size="large" bold>
-          {counterparties} (
-          {affirmationsCount
-            ? `affirmed by ${affirmationsCount}`
-            : 'no affirmations'}
-          )
-        </Text>
-      </StyledInfoItem>
-      <StyledInfoItem>
-        Settlement type
-        <Text size="large" bold>
-          {data?.type}
-        </Text>
-      </StyledInfoItem>
+      {loading ? (
+        <SkeletonLoader height={24} />
+      ) : (
+        <StyledInfoItem>
+          Instruction ID
+          <Text size="large" bold>
+            {instructionId}
+          </Text>
+        </StyledInfoItem>
+      )}
+      {loading ? (
+        <SkeletonLoader height={24} />
+      ) : (
+        <StyledVenueId
+          onMouseEnter={() => setDetailsExpanded(true)}
+          onMouseLeave={() => setDetailsExpanded(false)}
+        >
+          Venue ID
+          <Text size="large" bold>
+            {data?.venue.toHuman()}
+          </Text>
+          {!!venueDetails && detailsExpanded && (
+            <StyledVenueDetails>
+              <Text size="small" marginBottom={16}>
+                <span>Type: </span>
+                {venueDetails.type}
+              </Text>
+              <Text size="small">
+                <span>Description: </span>
+                {venueDetails.description}
+              </Text>
+            </StyledVenueDetails>
+          )}
+        </StyledVenueId>
+      )}
+      {loading ? (
+        <SkeletonLoader height={24} />
+      ) : (
+        <StyledInfoItem>
+          # counterparties
+          <Text size="large" bold>
+            {counterparties} (
+            {affirmationsCount
+              ? `affirmed by ${affirmationsCount}`
+              : 'no affirmations'}
+            )
+          </Text>
+        </StyledInfoItem>
+      )}
+      {loading ? (
+        <SkeletonLoader height={24} />
+      ) : (
+        <StyledInfoItem>
+          Settlement type
+          <Text size="large" bold>
+            {splitByCapitalLetters(data?.type || '')}
+          </Text>
+        </StyledInfoItem>
+      )}
       {blockNumber && (
         <StyledInfoItem>
           {data?.type === InstructionType.SettleOnBlock

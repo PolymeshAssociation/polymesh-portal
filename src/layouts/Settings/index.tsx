@@ -9,6 +9,7 @@ import { MenuItem } from './components/MenuItem';
 import { EndpointUrl, EndpointTypes } from './components/EndpointUrl';
 import { ThemeToggle } from './components/ThemeToggle';
 import { StyledMenuList, StyledSettings } from './styles';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IChainInfo {
   runtime: {
@@ -28,6 +29,7 @@ const Settings = () => {
   } = useContext(PolymeshContext);
   const [chainInfo, setChainInfo] = useState<IChainInfo | null>(null);
   const [infoLoading, setInfoLoading] = useState(true);
+  const { isMobile } = useWindowWidth();
   useEffect(() => {
     if (!sdk) return;
 
@@ -64,7 +66,9 @@ const Settings = () => {
       <StyledMenuList>
         <MenuItem
           iconName="Wallet"
-          description="Currently Selected Wallet"
+          description={
+            isMobile ? 'Selected Wallet' : 'Currently Selected Wallet'
+          }
           value={<DefaultWallet />}
         />
         <MenuItem

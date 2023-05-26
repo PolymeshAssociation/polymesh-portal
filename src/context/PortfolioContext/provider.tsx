@@ -31,7 +31,7 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
   const [combinedPortfolios, setCombinedPortfolios] =
     useState<ICombinedPortfolioData | null>(null);
   const [totalAssetsAmount, setTotalAssetsAmount] = useState(0);
-  const [portfolioLoading, setPortfolioLoading] = useState(false);
+  const [portfolioLoading, setPortfolioLoading] = useState(true);
   const [portfolioError, setPortfolioError] = useState('');
 
   const getPortfoliosData = useCallback(async () => {

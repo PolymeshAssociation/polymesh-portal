@@ -6,4 +6,10 @@ export const StyledButtonWrapper = styled.div`
   justify-content: flex-end;
   gap: 16px;
   margin-top: 40px;
+
+  @media screen and (max-width: 767px) {
+    & button {
+      flex-grow: 1;
+    }
+  }
 `;

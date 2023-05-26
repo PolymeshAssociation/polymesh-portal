@@ -6,6 +6,8 @@ import { ClaimsContext } from '~/context/ClaimsContext';
 import { ClaimPlaceholder, StyledClaimsList } from './styles';
 import { ScopeItem } from './components/ScopeItem';
 import { sortScopesBySortOption } from './helpers';
+import { SkeletonLoader } from '~/components/UiKit';
+import { useWindowWidth } from '~/hooks/utility';
 
 const Claims = () => {
   const { receivedScopes, issuedScopes, claimsLoading } =
@@ -15,6 +17,8 @@ const Claims = () => {
   );
   const [searchParams, setSearchParams] = useSearchParams();
   const type = searchParams.get('type');
+  const { isMobile, isTablet } = useWindowWidth();
+  const isSmallScreen = isMobile || isTablet;
 
   useEffect(() => {
     if (type === EClaimsType.RECEIVED || type === EClaimsType.ISSUED) return;
@@ -31,7 +35,7 @@ const Claims = () => {
     <>
       <ClaimsNavigation sortBy={sortBy} setSortBy={setSortBy} />
       {claimsLoading ? (
-        <ClaimPlaceholder>Loading</ClaimPlaceholder>
+        <SkeletonLoader height={isSmallScreen ? 158 : 96} />
       ) : (
         <>
           {!scopeTypes[type as EClaimsType]?.length && (

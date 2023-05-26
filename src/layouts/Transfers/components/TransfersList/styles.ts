@@ -5,6 +5,9 @@ export const StyledSelectionWrapper = styled.div`
   align-items: center;
   gap: 16px;
   margin-bottom: 24px;
+  @media screen and (max-width: 767px) {
+    justify-content: center;
+  }
 `;
 
 export const SelectAllButton = styled.button`
@@ -29,6 +32,10 @@ export const SelectAllButton = styled.button`
 
   &:disabled {
     color: ${({ theme }) => theme.colors.textDisabled};
+  }
+
+  @media screen and (max-width: 1023px) {
+    padding: 0 8px;
   }
 `;
 
@@ -57,6 +64,10 @@ export const StyledTransfersList = styled.ul`
   flex-direction: column;
   width: 100%;
   gap: 36px;
+
+  @media screen and (max-width: 767px) {
+    gap: 24px;
+  }
 `;
 
 export const StyledButtonWrapper = styled.div`

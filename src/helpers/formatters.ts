@@ -29,3 +29,12 @@ export const stringToColor = (str: string) => {
   }
   return color;
 };
+
+export const splitByCapitalLetters = (text: string) => {
+  return (
+    text
+      .match(/([A-Z]?[^A-Z]*)/g)
+      ?.slice(0, -1)
+      .join(' ') || text
+  );
+};

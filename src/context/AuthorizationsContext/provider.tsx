@@ -22,6 +22,8 @@ const AuthorizationsProvider = ({ children }: IAuthorizationsProviderProps) => {
   useEffect(() => {
     if (!account || identityLoading) {
       setShouldRefreshData(true);
+      setIncomingAuthorizations([]);
+      setOutgoingAuthorizations([]);
       return;
     }
 

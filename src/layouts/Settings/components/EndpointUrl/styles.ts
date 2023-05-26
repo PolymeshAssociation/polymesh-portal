@@ -1,9 +1,6 @@
 import styled from 'styled-components';
 
 export const StyledValue = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 16px;
   margin: 0;
   padding: 0;
   background: transparent;
@@ -11,6 +8,11 @@ export const StyledValue = styled.button`
   color: inherit;
   font-size: inherit;
   font-weight: inherit;
+  @media screen and (min-width: 1024px) {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
 `;
 
 export const StyledInput = styled.input`
@@ -32,13 +34,16 @@ export const StyledButtonWrapper = styled.div`
   justify-content: flex-end;
   gap: 16px;
   margin-top: 48px;
-  width: 400px;
+  @media screen and (min-width: 768px) {
+    width: 440px;
+  }
 `;
 
 export const StyledLabel = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  max-width: max-content;
   height: 24px;
   padding: 0 8px;
   gap: 8px;

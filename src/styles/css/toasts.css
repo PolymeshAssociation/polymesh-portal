@@ -7,9 +7,15 @@
 
 .Toastify__toast-container {
     position: static;
-    padding: 0;
-    width: auto;
-    max-width: 400px;
+    padding: 24px;
+    width: 100%;
+}
+@media screen and (min-width: 768px) {
+    .Toastify__toast-container {
+        padding: 0;
+        max-width: 400px;
+    }
+    
 }
 
 .Toastify__toast {

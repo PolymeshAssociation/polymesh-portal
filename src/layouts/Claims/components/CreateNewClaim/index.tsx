@@ -28,6 +28,7 @@ import { createClaimsData, createPlaceholderByScopeType } from './helpers';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import { ClaimsContext } from '~/context/ClaimsContext';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface ICreateNewClaimProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -50,6 +51,7 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
     [],
   );
   const { handleStatusChange } = useTransactionStatus();
+  const { isMobile } = useWindowWidth();
 
   const handleScopeChange = (option: string) => {
     setSelectedScope(option as ScopeType);
@@ -155,9 +157,11 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
         ))}
       </StyledScrollableWrapper>
       <StyledButtonsWrapper>
-        <Button variant="modalSecondary" onClick={toggleModal}>
-          Cancel
-        </Button>
+        {!isMobile && (
+          <Button variant="modalSecondary" onClick={toggleModal}>
+            Cancel
+          </Button>
+        )}
         <Button
           variant="modalPrimary"
           disabled={

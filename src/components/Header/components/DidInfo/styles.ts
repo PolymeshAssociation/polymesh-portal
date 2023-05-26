@@ -7,6 +7,12 @@ export const StyledWrapper = styled.div`
   min-width: 114px;
   gap: 4px;
 
+  & .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   & .id-icon {
     color: #ff2e72;
   }

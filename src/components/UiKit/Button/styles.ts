@@ -5,15 +5,16 @@ export const StyledButton = styled.button<{
   variant: `${EButtonVariants}`;
   marginTop?: number;
   marginBottom?: number;
+  round?: boolean;
 }>`
   ${({ variant, marginTop, marginBottom, theme }) => `
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-width: 128px;
-  height: 48px;
+  gap: 6px;
+  height: 40px;
   padding: 0 16px;
+  min-width: 96px;
   border-radius: 100px;
   ${
     variant === EButtonVariants.PRIMARY
@@ -167,4 +168,20 @@ export const StyledButton = styled.button<{
   transition-duration: 250ms;
   transition-timing-function: ease-out;
   `}
+
+  ${({ round }) =>
+    round
+      ? ` 
+  min-width: 48px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  `
+      : ''}
+
+  @media screen and (min-width: 480px) {
+    ${({ round }) => (round ? '' : 'min-width: 128px;')}
+    gap: 10px;
+    height: 48px;
+  }
 `;

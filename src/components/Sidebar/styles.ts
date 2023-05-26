@@ -1,7 +1,9 @@
 import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
-export const StyledSidebar = styled.aside<{ fullWidth: boolean }>`
+export const StyledSidebar = styled.aside<{
+  fullWidth: boolean;
+}>`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -16,10 +18,44 @@ export const StyledSidebar = styled.aside<{ fullWidth: boolean }>`
     padding-top: 6px;
     margin-left: 8px;
     margin-bottom: 54px;
+
+    @media screen and (max-width: 767px) {
+      justify-content: center;
+      margin-bottom: 50px;
+      margin-left: 0;
+      padding-top: 0;
+    }
   }
   & .logo-icon {
     width: 32px;
+    height: 32px;
     margin: 0 auto 48px auto;
+  }
+
+  @media screen and (max-width: 480px) {
+    & .container {
+      max-width: 320px;
+      margin: 0 auto;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    padding: 24px 16px;
+    transform: ${({ fullWidth }) =>
+      fullWidth ? 'translateX(0)' : 'translateX(-100%)'};
+    overflow-y: scroll;
+    z-index: 2;
+    transition: transform 250ms ease-out;
+
+    & .container {
+      width: 420px;
+      margin: 0 auto;
+    }
   }
 `;
 
@@ -43,17 +79,15 @@ export const StyledNetworkWrapper = styled.div<{ fullWidth: boolean }>`
   border-radius: 100px;
   background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
 
-  ${({ fullWidth }) =>
-    fullWidth
-      ? ''
-      : `
-      & .warning {
-        gap: 0;
-        text-indent: -300px;
-      }
-  `}
+  @media screen and (max-width: 767px) {
+    width: 100%;
+    margin-top: 40px;
+  }
 `;
-export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
+export const StyledNetworkStatus = styled.div<{
+  fullWidth: boolean;
+  isLoading: boolean;
+}>`
   position: absolute;
   top: 50%;
   left: 50%;
@@ -62,7 +96,7 @@ export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
   align-items: center;
   width: calc(100% - 2px);
   height: calc(100% - 2px);
-  padding: 0 0 0 28px;
+  padding: 0 0 0 ${({ isLoading }) => (isLoading ? '0' : '28px')};
   border-radius: 100px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   color: ${({ theme }) => theme.colors.textPurple};
@@ -75,15 +109,18 @@ export const StyledNetworkStatus = styled.div<{ fullWidth: boolean }>`
     transition: opacity 150ms linear;
   }
 
-  ${({ fullWidth }) =>
-    fullWidth
-      ? ''
-      : `
+  @media screen and (min-width: 768px) {
+    ${({ fullWidth }) =>
+      fullWidth
+        ? ''
+        : `
       text-indent: -300px;
       & span {
         opacity: 0;
       }
+    
   `}
+  }
 `;
 
 export const StatusDot = styled.div<{ fullWidth: boolean; isLoading: boolean }>`
@@ -104,7 +141,7 @@ export const StatusDot = styled.div<{ fullWidth: boolean; isLoading: boolean }>`
   ${({ isLoading }) =>
     isLoading
       ? `
-      animation: loading-animation 2.2s ease-out infinite;
+      // animation: loading-animation 2.2s ease-out infinite;
   `
       : ''}
 
@@ -122,7 +159,7 @@ export const StatusDot = styled.div<{ fullWidth: boolean; isLoading: boolean }>`
     background-color: ${({ theme }) => theme.colors.dashboardBackground};
   }
 
-  @keyframes loading-animation {
+  /* @keyframes loading-animation {
     0% {
       transform: translateX(8px);
     }
@@ -132,7 +169,7 @@ export const StatusDot = styled.div<{ fullWidth: boolean; isLoading: boolean }>`
     100% {
       transform: translateX(8px);
     }
-  }
+  } */
 `;
 
 export const StyledNavList = styled.nav<{ fullWidth: boolean }>`
@@ -140,16 +177,18 @@ export const StyledNavList = styled.nav<{ fullWidth: boolean }>`
   flex-direction: column;
   gap: 10px;
 
-  & a {
-    ${({ fullWidth }) =>
-      fullWidth
-        ? ''
-        : `
+  @media screen and (min-width: 768px) {
+    & a {
+      ${({ fullWidth }) =>
+        fullWidth
+          ? ''
+          : `
     text-indent: -300px;
     & span {
       opacity: 0;
     }
     `}
+    }
   }
 
   & .notification {
@@ -214,7 +253,15 @@ export const ExpandedLinks = styled.ul`
   box-shadow: ${({ theme }) => `0px 15px 25px ${theme.colors.shadow},
     0px 5px 10px rgba(30, 30, 30, 0.05)`};
   border-radius: 12px;
-  z-index: 1;
+  z-index: 2;
+
+  @media screen and (max-width: 767px) {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    padding: 24px;
+  }
 `;
 
 export const StyledExpandedLink = styled.button<{ disabled?: boolean }>`
@@ -276,4 +323,34 @@ export const WarningLabelWrapper = styled.div<{ fullWidth: boolean }>`
   align-items: center;
   justify-content: ${({ fullWidth }) => (fullWidth ? 'flex-start' : 'center')};
   gap: 8px;
+`;
+
+export const StyledCloseMenuButton = styled.button`
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: ${({ theme }) => theme.colors.textPrimary};
+  z-index: 2;
+`;
+
+export const StyledAccountInfo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 56px;
+  margin-bottom: 28px;
+  padding: 0 16px;
+  background-color: ${({ theme }) => theme.colors.landingBackground};
+  border-radius: 60px;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-weight: 500;
+  font-size: 14px;
+  & span {
+    color: ${({ theme }) => theme.colors.textSecondary};
+  }
 `;

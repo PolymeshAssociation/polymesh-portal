@@ -7,11 +7,13 @@ export const StyledWrapper = styled.li`
 `;
 
 export const StyledDescription = styled.div`
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
   color: ${({ theme }) => theme.colors.textPrimary};
   font-weight: 500;
+  flex-grow: 1;
+  @media screen and (min-width: 1024px) {
+    display: flex;
+    align-items: center;
+  }
 `;
 
 export const IconWrapper = styled.div`

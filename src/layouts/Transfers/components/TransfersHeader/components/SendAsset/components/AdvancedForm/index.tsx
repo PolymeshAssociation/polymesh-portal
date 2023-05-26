@@ -28,6 +28,7 @@ import {
   createAdvancedInstructionParams,
   updateLegsOnSelect,
 } from '../helpers';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IAdvancedFormProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -53,6 +54,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const [legIndexes, setLegIndexes] = useState<number[]>([0]);
   const [selectedLegs, setSelectedLegs] = useState<ISelectedLeg[]>([]);
+  const { isMobile } = useWindowWidth();
 
   useEffect(() => {
     if (instructionsLoading) return;
@@ -203,9 +205,11 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
         Add Leg
       </StyledAddButton>
       <StyledButtonsWrapper>
-        <Button variant="modalSecondary" onClick={toggleModal}>
-          Cancel
-        </Button>
+        {!isMobile && (
+          <Button variant="modalSecondary" onClick={toggleModal}>
+            Cancel
+          </Button>
+        )}
         <Button
           variant="modalPrimary"
           disabled={!isDataValid}

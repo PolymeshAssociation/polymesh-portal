@@ -10,12 +10,17 @@ export const StyledWrapper = styled.div`
 
 export const AssetWrapper = styled.div`
   display: flex;
-  align-items: center;
-  gap: 24px;
+  flex-direction: column;
+  gap: 8px;
   margin-bottom: 8px;
 
-  & > div {
-    width: 248px;
+  @media screen and (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+    & > div {
+      width: 248px;
+    }
   }
 `;
 

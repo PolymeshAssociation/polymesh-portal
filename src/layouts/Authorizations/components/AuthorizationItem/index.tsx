@@ -18,11 +18,12 @@ import {
   StyledTextWithCopy,
 } from './styles';
 import { formatExpiry, renderDetails } from './helpers';
-import { formatDid } from '~/helpers/formatters';
+import { formatDid, splitByCapitalLetters } from '~/helpers/formatters';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
-import { AuthorizationsContext } from '~/context/AuthorizationsContext';
+import { AccountContext } from '~/context/AccountContext';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IAuthorizationItemProps {
   data: HumanReadable;
@@ -42,9 +43,12 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
   const [acceptInProgress, setAcceptInProgress] = useState(false);
   const [rejectInProgress, setRejectInProgress] = useState(false);
   const { handleStatusChange } = useTransactionStatus();
-  const { refreshAuthorizations } = useContext(AuthorizationsContext);
+  const { refreshAccountIdentity } = useContext(AccountContext);
   const [searchParams] = useSearchParams();
   const direction = searchParams.get('direction');
+  const { isMobile, isTablet } = useWindowWidth();
+
+  const isSmallScreen = isMobile || isTablet;
 
   // Async render details for getting portfolio name
   useEffect(() => {
@@ -65,7 +69,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
       const acceptTx = await (accept as NoArgsProcedureMethod<void, void>)();
       unsubCb = await acceptTx.onStatusChange(handleStatusChange);
       await acceptTx.run();
-      refreshAuthorizations();
+      refreshAccountIdentity();
     } catch (error) {
       notifyError((error as Error).message);
     } finally {
@@ -82,7 +86,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
       const rejectTx = await reject();
       unsubCb = await rejectTx.onStatusChange(handleStatusChange);
       await rejectTx.run();
-      refreshAuthorizations();
+      refreshAccountIdentity();
     } catch (error) {
       notifyError((error as Error).message);
     } finally {
@@ -105,7 +109,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
         <StyledInfoItem>
           Auth Type
           <Text size="large" bold>
-            {data.data.type}
+            {splitByCapitalLetters(data.data.type)}
           </Text>
         </StyledInfoItem>
         {direction === EAuthorizationDirections.INCOMING ? (
@@ -134,7 +138,10 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
           </Text>
         </StyledInfoItem>
         {direction === EAuthorizationDirections.OUTGOING && (
-          <StyledLabel>Pending</StyledLabel>
+          <StyledInfoItem>
+            {isSmallScreen && 'Status'}
+            <StyledLabel>Pending</StyledLabel>
+          </StyledInfoItem>
         )}
       </StyledInfoWrapper>
       {detailsExpanded && details ? details : null}

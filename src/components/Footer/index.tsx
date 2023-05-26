@@ -19,12 +19,18 @@ const Footer: React.FC<IFooterProps> = ({ isLandingPage }) => {
         </Text>
         <StyledLinkList>
           <li>
-            <StyledLink href="https://somelink.com" target="_blank">
+            <StyledLink
+              href={import.meta.env.VITE_TERMS_OF_SERVICE_URL}
+              target="_blank"
+            >
               Terms of Service
             </StyledLink>
           </li>
           <li>
-            <StyledLink href="https://somelink.com" target="_blank">
+            <StyledLink
+              href={import.meta.env.VITE_PRIVACY_POLICY_URL}
+              target="_blank"
+            >
               Privacy Policy
             </StyledLink>
           </li>

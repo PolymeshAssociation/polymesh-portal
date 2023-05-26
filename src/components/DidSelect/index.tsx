@@ -12,6 +12,8 @@ import {
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
 import { notifyError } from '~/helpers/notifications';
+import { useWindowWidth } from '~/hooks/utility';
+import { SkeletonLoader } from '../UiKit';
 
 const DidSelect = () => {
   const { setSelectedAccount, allAccounts, identity, allIdentities } =
@@ -19,6 +21,7 @@ const DidSelect = () => {
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState<Identity | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+  const { windowWidth } = useWindowWidth();
 
   useEffect(() => {
     if (!identity) return;
@@ -79,20 +82,17 @@ const DidSelect = () => {
     setExpanded((prev) => !prev);
   };
 
-  return (
+  const truncateLength = Math.ceil(windowWidth / 77);
+
+  return selected ? (
     <StyledSelectWrapper ref={ref}>
       <StyledSelect onClick={handleDropdownToggle} expanded={expanded}>
-        {selected ? (
-          <>
-            {formatDid(selected?.did, 20, 20)}
-            <IconWrapper>
-              <Icon name="DropdownIcon" />
-            </IconWrapper>
-          </>
-        ) : (
-          'loading...'
-        )}
+        {formatDid(selected.did, truncateLength, truncateLength - 1)}
+        <IconWrapper>
+          <Icon name="DropdownIcon" />
+        </IconWrapper>
       </StyledSelect>
+
       {expanded && (
         <StyledExpandedSelect>
           {allIdentities.map((option) => (
@@ -101,7 +101,7 @@ const DidSelect = () => {
               htmlFor={option?.did}
               selected={selected?.did === option?.did}
             >
-              {formatDid(option?.did, 20, 20)}
+              {formatDid(option?.did, truncateLength, truncateLength)}
               <StyledInput
                 type="radio"
                 name="key"
@@ -114,6 +114,12 @@ const DidSelect = () => {
         </StyledExpandedSelect>
       )}
     </StyledSelectWrapper>
+  ) : (
+    <SkeletonLoader
+      height="32px"
+      baseColor="rgba(255,255,255,0.05)"
+      highlightColor="rgba(255, 255, 255, 0.24)"
+    />
   );
 };
 
