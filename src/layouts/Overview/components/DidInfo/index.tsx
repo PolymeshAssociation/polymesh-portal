@@ -216,10 +216,7 @@ export const DidInfo = () => {
             {/* todo: make url configutable */}
             <Button
               onClick={() =>
-                window.open(
-                  'https://testnet-onboarding.polymesh.live/',
-                  '_blank',
-                )
+                window.open(import.meta.env.VITE_ONBOARDING_URL, '_blank')
               }
             >
               Create account
@@ -227,10 +224,7 @@ export const DidInfo = () => {
             <Button
               variant="transparent"
               onClick={() =>
-                window.open(
-                  'https://polymath.network/polymesh-testnet/key-and-id-assignments',
-                  '_blank',
-                )
+                window.open(import.meta.env.VITE_ASSIGN_KEY_URL, '_blank')
               }
             >
               Assign key to account
