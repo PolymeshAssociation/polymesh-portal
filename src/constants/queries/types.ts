@@ -68,3 +68,37 @@ export interface IMovementQueryResponse {
 export interface ITransferQueryResponse {
   events: ITransferEvents;
 }
+
+export interface IDistribution {
+  targetId: string;
+  distributionId: string;
+  amount: string;
+  amountAfterTax: string;
+  tax: string;
+  distribution: {
+    amount: string;
+    currency: string;
+    portfolioId: string;
+    portfolio: {
+      name: string | null;
+    };
+    assetId: string;
+    localId: number;
+    perShare: string;
+  };
+  createdAt: string;
+  createdBlockId: string;
+  datetime: string;
+  eventId: string;
+  id: string;
+  nodeId: string;
+  updatedAt: string;
+  updatedBlockId: string;
+}
+
+export interface IDistributionsQueryResponse {
+  distributionPayments: {
+    nodes: IDistribution[];
+    totalCount: number;
+  };
+}

@@ -88,7 +88,7 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
         <StyledInfoItem>
           Corporate Action ID
           <Text size="large" bold>
-            {distribution.id.toString()}
+            {distribution.asset.toHuman()}/{distribution.id.toString()}
           </Text>
         </StyledInfoItem>
         <StyledInfoItem>

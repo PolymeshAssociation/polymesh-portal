@@ -1,7 +1,18 @@
 export interface IIdData {
   eventId: string;
   blockId: string;
-  extrinsicIdx: number | null;
+}
+
+export interface IDetails {
+  amount: number;
+  taxPercentage: number;
+  perShare: number;
+  distributionId: string;
+  portfolio: {
+    did: string;
+    id: number;
+    name: string | null;
+  };
 }
 
 export interface IHistoricalDistribution {
@@ -9,7 +20,6 @@ export interface IHistoricalDistribution {
   dateTime: string;
   asset: string;
   currency: string;
-  amount: number;
-  perShare: number;
-  tax: number;
+  amountAfterTax: number;
+  details: IDetails;
 }

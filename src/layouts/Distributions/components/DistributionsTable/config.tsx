@@ -2,26 +2,21 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { IIdData, IHistoricalDistribution } from './constants';
 import { IdCellWrapper, IconWrapper } from './styles';
 import { Icon } from '~/components';
+import { Details } from './components/Details';
 
 const createIdLink = (data: IIdData | undefined) => {
   if (!data) return '';
 
-  if (!data.extrinsicIdx) {
-    return `${import.meta.env.VITE_SUBSCAN_URL}block/${
-      data.blockId
-    }?tab=event&&event=${data.eventId}`;
-  }
-
-  return `${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${data.blockId}-${
-    data.extrinsicIdx
-  }?event=${data.eventId}`;
+  return `${import.meta.env.VITE_SUBSCAN_URL}block/${
+    data.blockId
+  }?tab=event&&event=${data.eventId}`;
 };
 
 const columnHelper = createColumnHelper<IHistoricalDistribution>();
 
 export const columns = [
   columnHelper.accessor('id', {
-    header: 'ID',
+    header: 'Event ID',
     cell: (info) => {
       const data = info.getValue();
       const handleClick = () =>
@@ -48,19 +43,16 @@ export const columns = [
     header: 'Distribution Asset',
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('amount', {
-    header: 'Amount',
+  columnHelper.accessor('amountAfterTax', {
+    header: 'Amount After Tax',
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor('perShare', {
-    header: 'Per Share',
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor('tax', {
-    header: 'Tax',
+  columnHelper.accessor('details', {
+    header: 'Details',
     cell: (info) => {
-      const tax = info.getValue();
-      return <>{tax ? tax * 100 : 0}%</>;
+      const data = info.getValue();
+      // return <>{tax ? tax * 100 : 0}%</>;
+      return data ? <Details data={data} /> : null;
     },
   }),
 ];

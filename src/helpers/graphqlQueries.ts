@@ -180,22 +180,16 @@ export const historicalDistributionsQuery = ({
   did: string;
 }) => {
   const query = gql`
-    query {
-      events(
-        first: ${pageSize}
-        offset: ${offset}
-        orderBy: CREATED_AT_DESC
-        filter: {
-          moduleId: { equalTo: capitaldistribution }
-          eventId: { equalTo: BenefitClaimed }
-          attributes: {
-            contains: [
-              {
-                value: "${did}"
-              }
-            ]
-          }
+  query {
+    distributionPayments(
+      first: ${pageSize}
+      offset: ${offset}
+      orderBy: CREATED_AT_DESC
+      filter: {
+        targetId: {
+          equalTo: "${did}"
         }
+      }
       ) {
         totalCount
         pageInfo {
@@ -203,19 +197,85 @@ export const historicalDistributionsQuery = ({
           hasPreviousPage
         }
         nodes {
-          id
-          blockId
-          moduleId
-          eventId
-          extrinsicIdx
-          attributes
-          block {
-            datetime
+          targetId
+          distributionId
+          amount
+          amountAfterTax
+          tax
+          distribution {
+            amount
+            currency
+            expiresAt
+            portfolioId
+            portfolio {
+              name
+            }
+            assetId
+            localId
+            paymentAt
+            perShare
           }
+          createdAt
+          createdBlockId
+          datetime
+          eventId
+          id
+          nodeId
+          updatedAt
+          updatedBlockId
         }
       }
     }
-  `;
+    `;
 
   return query;
 };
+// export const historicalDistributionsQuery = ({
+//   offset,
+//   pageSize,
+//   did,
+// }: {
+//   offset: number;
+//   pageSize: number;
+//   did: string;
+// }) => {
+//   const query = gql`
+//     query {
+//       events(
+//         first: ${pageSize}
+//         offset: ${offset}
+//         orderBy: CREATED_AT_DESC
+//         filter: {
+//           moduleId: { equalTo: capitaldistribution }
+//           eventId: { equalTo: BenefitClaimed }
+//           attributes: {
+//             contains: [
+//               {
+//                 value: "${did}"
+//               }
+//             ]
+//           }
+//         }
+//       ) {
+//         totalCount
+//         pageInfo {
+//           hasNextPage
+//           hasPreviousPage
+//         }
+//         nodes {
+//           id
+//           blockId
+//           moduleId
+//           eventId
+//           extrinsicIdx
+//           attributes
+//           block {
+//             datetime
+//           }
+//         }
+//       }
+//     }
+//   `;
+
+//   return query;
+// };

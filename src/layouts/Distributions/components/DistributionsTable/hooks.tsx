@@ -13,7 +13,7 @@ import { parseHistoricalDistributions } from './helpers';
 import { gqlClient } from '~/config/graphql';
 import { historicalDistributionsQuery } from '~/helpers/graphqlQueries';
 import { notifyError } from '~/helpers/notifications';
-import { ITransferQueryResponse } from '~/constants/queries/types';
+import { IDistributionsQueryResponse } from '~/constants/queries/types';
 
 export const useDistributionsTable = () => {
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
@@ -46,18 +46,22 @@ export const useDistributionsTable = () => {
 
     (async () => {
       try {
-        const { data } = await gqlClient.query<ITransferQueryResponse>({
+        const { data } = await gqlClient.query<IDistributionsQueryResponse>({
           query: historicalDistributionsQuery({
             did: identity.did,
             offset: pageIndex * pageSize,
             pageSize,
           }),
         });
-        const parsedData = parseHistoricalDistributions(data.events.nodes);
+        const parsedData = parseHistoricalDistributions(
+          data.distributionPayments.nodes,
+        );
 
         setTableData(parsedData);
-        setTotalItems(data.events.totalCount);
-        setTotalPages(Math.ceil(data.events.totalCount / pageSize));
+        setTotalItems(data.distributionPayments.totalCount);
+        setTotalPages(
+          Math.ceil(data.distributionPayments.totalCount / pageSize),
+        );
       } catch (error) {
         notifyError((error as Error).message);
       } finally {

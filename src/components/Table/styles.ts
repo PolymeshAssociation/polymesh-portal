@@ -7,7 +7,7 @@ export const StyledTableWrapper = styled.div`
   background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
-  overflow: hidden;
+  /* overflow: hidden; */
 `;
 
 export const StyledTableHeader = styled.div`
