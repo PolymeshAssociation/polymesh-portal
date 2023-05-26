@@ -21,10 +21,9 @@ export const TRANSFER_INPUTS = [
     placeholder: 'Enter Address',
   },
   {
-    label: 'Memo',
+    label: 'Memo (Optional - this will be public)',
     id: INPUT_NAMES.MEMO,
-    placeholder:
-      'Enter a memo for this transfer. Remember that this will be public.',
+    placeholder: 'Enter a memo for this transfer',
   },
 ];
 
