@@ -86,10 +86,10 @@ export const StyledDetailValue = styled.div`
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 32px;
-  padding: 0 12px;
+  min-height: 32px;
+  padding: 6px 12px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  border-radius: 100px;
+  border-radius: 24px;
 `;
 
 export const StyledButtonsWrapper = styled.div<{ expanded: boolean }>`
