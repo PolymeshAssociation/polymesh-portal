@@ -281,7 +281,7 @@ export const Details: React.FC<IDetailsProps> = ({
             disabled={!selectedKeys.length}
             onClick={handleRemoveAccounts}
           >
-            Remove Accounts
+            Remove Keys
           </Button>
         ) : (
           <Button variant="modalPrimary" onClick={handleLeaveIdentity}>
