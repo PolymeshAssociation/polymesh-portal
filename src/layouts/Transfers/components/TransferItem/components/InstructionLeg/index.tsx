@@ -179,7 +179,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
         const skeletons = [];
         for (let i = 0; i < 8; i += 1) {
           skeletons.push(
-            <StyledInfoItem isLoading>
+            <StyledInfoItem key={i} isLoading>
               <SkeletonLoader height={24} />
             </StyledInfoItem>,
           );
