@@ -31,7 +31,7 @@ export const TRANSFER_INPUTS = [
 interface IFormConfigData {
   maxAmount: number;
   selectedAccount: string;
-  checkAddressValidity: (address: string) => Promise<boolean>;
+  checkAddressValidity: (address: string) => boolean;
 }
 
 export const createFormConfig = (configData: IFormConfigData) => {
@@ -73,7 +73,7 @@ export const createFormConfig = (configData: IFormConfigData) => {
             'is-valid-address',
             'Address must be valid SS58 format',
             async (value) => {
-              const result = await checkAddressValidity(value);
+              const result = checkAddressValidity(value);
               return result;
             },
           ),

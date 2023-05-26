@@ -88,7 +88,7 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
                 'is-valid-address',
                 'Address must be valid SS58 format',
                 async (value) => {
-                  const result = await checkAddressValidity(value);
+                  const result = checkAddressValidity(value);
                   return result;
                 },
               ),
@@ -165,7 +165,7 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
                 'is-valid-address',
                 'Address must be valid SS58 format',
                 async (value) => {
-                  const result = await checkAddressValidity(value);
+                  const result = checkAddressValidity(value);
                   return result;
                 },
               ),
@@ -187,7 +187,7 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
                 'is-valid-address',
                 'Address must be valid SS58 format',
                 async (value) => {
-                  const result = await checkAddressValidity(value);
+                  const result = checkAddressValidity(value);
                   return result;
                 },
               ),
