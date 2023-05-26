@@ -18,14 +18,27 @@ export const StyledFooter = styled.footer<{ isLandingPage: boolean }>`
 export const StyledContainer = styled.div<{ isLandingPage: boolean }>`
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   padding: ${({ isLandingPage }) => (isLandingPage ? '0 64px' : '0 48px')};
+
+  @media screen and (max-width: 1023px) {
+    justify-content: center;
+    gap: 8px;
+  }
+  & p {
+    @media screen and (max-width: 1023px) {
+      padding: 8px 0;
+      font-size: 12px;
+    }
+  }
 `;
 
 export const StyledLinkList = styled.ul`
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 24px;
-  margin-left: auto;
 `;
 
 export const StyledLink = styled.a`
@@ -33,4 +46,9 @@ export const StyledLink = styled.a`
   padding: 16px 0;
   font-weight: 500;
   font-size: 14px;
+
+  @media screen and (max-width: 1023px) {
+    padding: 8px 0;
+    font-size: 12px;
+  }
 `;

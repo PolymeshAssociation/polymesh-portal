@@ -48,7 +48,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         middlewareKeyRef.current = middlewareKey;
         const signingManagerInstance =
           await BrowserExtensionSigningManager.create({
-            appName: 'polymesh-user-portal',
+            appName: 'polymesh-portal',
             extensionName,
           });
         if (!sdkRef.current) {
@@ -124,7 +124,12 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         connecting,
         initialized,
       },
-      api: { sdk, signingManager },
+      api: {
+        sdk,
+        signingManager,
+        // eslint-disable-next-line no-underscore-dangle
+        gqlClient: sdk ? sdk._middlewareApiV2 : null,
+      },
       settings: {
         defaultExtension,
         setDefaultExtension,
@@ -155,6 +160,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   );
 
   return (
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     <PolymeshContext.Provider value={contextValue}>
       {children}
     </PolymeshContext.Provider>

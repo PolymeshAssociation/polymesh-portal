@@ -3,6 +3,7 @@ import { Icon, Modal } from '~/components';
 import { Heading, Button, DropdownSelect } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
 import { formatKey } from '~/helpers/formatters';
+import { useWindowWidth } from '~/hooks/utility';
 import {
   StyledValue,
   StyledButtonWrapper,
@@ -15,6 +16,7 @@ export const DefaultAddress = () => {
     useContext(AccountContext);
   const [addressSelectExpanded, setAddressSelectExpanded] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<string>('');
+  const { isMobile } = useWindowWidth();
 
   const toggleModal = () => {
     setAddressSelectExpanded((prev) => !prev);
@@ -71,9 +73,11 @@ export const DefaultAddress = () => {
             Remove Default
           </StyledActionButton>
           <StyledButtonWrapper>
-            <Button variant="modalSecondary" onClick={toggleModal}>
-              Cancel
-            </Button>
+            {!isMobile && (
+              <Button variant="modalSecondary" onClick={toggleModal}>
+                Cancel
+              </Button>
+            )}
             <Button
               variant="modalPrimary"
               disabled={!selectedAddress || selectedAddress === defaultAccount}

@@ -15,6 +15,7 @@ import {
 import { formatBalance } from '~/helpers/formatters';
 import { TRANSFER_INPUTS, createFormConfig } from './constants';
 import { ITransfer } from '~/hooks/polymesh/useTransferPolyx';
+import { useWindowWidth } from '~/hooks/utility';
 
 export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
   toggleModal,
@@ -40,6 +41,7 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
       checkAddressValidity,
     }),
   );
+  const { isMobile } = useWindowWidth();
 
   const handleUseMax = () => {
     setValue('amount', availableMinusGasFee);
@@ -85,13 +87,15 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
           ),
         )}
         <StyledButtonWrapper>
-          <Button
-            variant="modalSecondary"
-            onClick={toggleModal}
-            disabled={transactionInProcess}
-          >
-            Cancel
-          </Button>
+          {!isMobile && (
+            <Button
+              variant="modalSecondary"
+              onClick={toggleModal}
+              disabled={transactionInProcess}
+            >
+              Cancel
+            </Button>
+          )}
           <Button
             variant="modalPrimary"
             disabled={!isValid || transactionInProcess}

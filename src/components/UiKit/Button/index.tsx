@@ -9,6 +9,7 @@ const Button: React.FC<IButtonProps> = ({
   onClick,
   disabled,
   className,
+  round,
 }) => {
   return (
     <StyledButton
@@ -19,6 +20,7 @@ const Button: React.FC<IButtonProps> = ({
       onClick={onClick}
       disabled={disabled}
       className={className}
+      round={round}
     >
       {children}
     </StyledButton>

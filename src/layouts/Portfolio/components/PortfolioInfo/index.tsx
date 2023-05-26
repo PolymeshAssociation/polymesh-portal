@@ -5,7 +5,7 @@ import { PortfolioContext } from '~/context/PortfolioContext';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 import { usePortfolio } from '~/hooks/polymesh';
 import { CopyToClipboard, Icon } from '~/components';
-import { Button, Heading } from '~/components/UiKit';
+import { Button, Heading, SkeletonLoader } from '~/components/UiKit';
 import { PortfolioModal } from '../PortfolioModal';
 import {
   StyledWrapper,
@@ -14,14 +14,16 @@ import {
   StyledPortfolioInfo,
   StyledDetails,
   StyledButtonWrapper,
+  StyledDeleteButton,
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
 import { MoveAssets } from '../MoveAssets';
+import { useWindowWidth } from '~/hooks/utility';
 
 export const PortfolioInfo = () => {
   const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolioData>();
   const { identity, identityHasValidCdd } = useContext(AccountContext);
-  const { allPortfolios } = useContext(PortfolioContext);
+  const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
   const { deletePortfolio, actionInProgress } = usePortfolio(
     selectedPortfolio?.portfolio,
   );
@@ -30,6 +32,7 @@ export const PortfolioInfo = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get('id');
   const notDefaultPortfolio = !!id && id !== 'default';
+  const { isMobile, isSmallDesktop } = useWindowWidth();
 
   useEffect(() => {
     if (!id) return;
@@ -47,62 +50,124 @@ export const PortfolioInfo = () => {
     <StyledWrapper>
       <StyledTopInfo>
         <IconWrapper>
-          <Icon name="PortfolioIcon" size="32px" />
+          {portfolioLoading ? (
+            <SkeletonLoader
+              circle
+              width={isMobile ? 48 : 64}
+              height={isMobile ? 48 : 64}
+            />
+          ) : (
+            <Icon name="PortfolioIcon" size="32px" />
+          )}
         </IconWrapper>
-        <div className="info">
-          <StyledPortfolioInfo>
-            <Heading type="h3" transform="capitalize">
-              {selectedPortfolio.name}
-            </Heading>
-            {selectedPortfolio.id === 'default' ? null : (
+        {portfolioLoading ? (
+          <SkeletonLoader height={isMobile ? 48 : 64} />
+        ) : (
+          <div className="info">
+            <StyledPortfolioInfo>
+              <Heading type="h3" transform="capitalize">
+                {selectedPortfolio.name}
+              </Heading>
+              {!isMobile &&
+                (selectedPortfolio.id === 'default' ? null : (
+                  <StyledDetails>
+                    Portfolio ID:
+                    <span>{selectedPortfolio.id || ''}</span>
+                  </StyledDetails>
+                ))}
+            </StyledPortfolioInfo>
+            <StyledPortfolioInfo>
+              {selectedPortfolio.assets.length} token(s)
               <StyledDetails>
-                Portfolio ID:
-                <span>{selectedPortfolio.id || ''}</span>
+                {!isMobile && (
+                  <>
+                    Custody by:
+                    <span>
+                      {formatDid(
+                        selectedPortfolio.custodian.did,
+                        isSmallDesktop ? 4 : 7,
+                        isSmallDesktop ? 4 : 8,
+                      )}
+                    </span>
+                    <CopyToClipboard value={selectedPortfolio.custodian.did} />
+                  </>
+                )}
               </StyledDetails>
-            )}
-          </StyledPortfolioInfo>
-          <StyledPortfolioInfo>
-            {selectedPortfolio.assets.length} token(s)
-            <StyledDetails>
-              Custody by:
-              <span>{formatDid(selectedPortfolio.custodian.did, 7, 8)}</span>
-              <CopyToClipboard value={selectedPortfolio.custodian.did} />
-            </StyledDetails>
-          </StyledPortfolioInfo>
-        </div>
+            </StyledPortfolioInfo>
+          </div>
+        )}
+        {isMobile && !portfolioLoading && (
+          <StyledDeleteButton
+            disabled={
+              !!selectedPortfolio.assets.length ||
+              actionInProgress ||
+              !identityHasValidCdd ||
+              selectedPortfolio.custodian.did !== identity?.did
+            }
+            onClick={deletePortfolio}
+          >
+            <Icon name="Delete" />
+          </StyledDeleteButton>
+        )}
       </StyledTopInfo>
+      {isMobile && (
+        <div className="details-bottom">
+          {selectedPortfolio.id === 'default' ? null : (
+            <StyledDetails>
+              Portfolio ID:
+              <span>{selectedPortfolio.id || ''}</span>
+            </StyledDetails>
+          )}
+          <StyledDetails>
+            Custody by:
+            <span>{formatDid(selectedPortfolio.custodian.did, 7, 8)}</span>
+            <CopyToClipboard value={selectedPortfolio.custodian.did} />
+          </StyledDetails>
+        </div>
+      )}
       <StyledButtonWrapper>
-        <Button
-          variant="primary"
-          onClick={toggleMoveModal}
-          disabled={
-            !identityHasValidCdd ||
-            selectedPortfolio.custodian.did !== identity?.did
-          }
-        >
-          Move
-        </Button>
-        {notDefaultPortfolio && (
+        {portfolioLoading ? (
+          <SkeletonLoader height={48} />
+        ) : (
           <>
             <Button
-              variant="secondary"
-              disabled={actionInProgress || !identityHasValidCdd}
-              onClick={toggleEditModal}
-            >
-              Rename
-            </Button>
-            <Button
-              variant="secondary"
+              variant="primary"
+              onClick={toggleMoveModal}
               disabled={
-                !!selectedPortfolio.assets.length ||
-                actionInProgress ||
                 !identityHasValidCdd ||
                 selectedPortfolio.custodian.did !== identity?.did
               }
-              onClick={deletePortfolio}
             >
-              Delete
+              <Icon name="Move" />
+              Move
             </Button>
+            {notDefaultPortfolio && (
+              <>
+                <Button
+                  variant="secondary"
+                  disabled={actionInProgress || !identityHasValidCdd}
+                  onClick={toggleEditModal}
+                >
+                  <Icon name="Edit" />
+                  Rename
+                </Button>
+                {!isMobile && (
+                  <Button
+                    variant="secondary"
+                    disabled={
+                      !!selectedPortfolio.assets.length ||
+                      actionInProgress ||
+                      !identityHasValidCdd ||
+                      selectedPortfolio.custodian.did !== identity?.did
+                    }
+                    onClick={deletePortfolio}
+                  >
+                    <Icon name="Delete" />
+                    Delete
+                  </Button>
+                )}
+              </>
+            )}
           </>
         )}
       </StyledButtonWrapper>
@@ -120,5 +185,21 @@ export const PortfolioInfo = () => {
         />
       )}
     </StyledWrapper>
-  ) : null;
+  ) : (
+    <StyledWrapper>
+      <StyledTopInfo>
+        <IconWrapper>
+          <SkeletonLoader
+            circle
+            width={isMobile ? 48 : 64}
+            height={isMobile ? 48 : 64}
+          />
+        </IconWrapper>
+        <SkeletonLoader height={isMobile ? 48 : 64} />
+      </StyledTopInfo>
+      <StyledButtonWrapper>
+        <SkeletonLoader height={48} />
+      </StyledButtonWrapper>
+    </StyledWrapper>
+  );
 };

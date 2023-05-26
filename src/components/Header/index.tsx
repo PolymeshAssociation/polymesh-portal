@@ -6,16 +6,24 @@ import {
   StyledHeaderContainer,
   StyledInfoList,
   StyledInfoItem,
+  StyledCloseMenuButton,
 } from './styles';
 import { Heading } from '../UiKit';
 import { BalanceInfo } from './components/BalanceInfo';
 import { DidInfo } from './components/DidInfo';
 import { KeysInfo } from './components/KeysInfo';
 import { NotificationInfo } from './components/NotificationInfo';
+import { useWindowWidth } from '~/hooks/utility';
+import Icon from '../Icon';
 
-const Header = () => {
+interface IHeaderProps {
+  toggleMobileMenu: () => void;
+}
+
+const Header: React.FC<IHeaderProps> = ({ toggleMobileMenu }) => {
   const [pageLabel, setPageLabel] = useState<string | null>(null);
   const { pathname } = useLocation();
+  const { isMobile } = useWindowWidth();
 
   useEffect(() => {
     const currentPage = ROUTES.find(({ path }) => path === pathname);
@@ -25,14 +33,24 @@ const Header = () => {
   return (
     <StyledHeader>
       <StyledHeaderContainer>
-        <Heading type="h2">{pageLabel}</Heading>
+        {isMobile ? (
+          <StyledCloseMenuButton onClick={toggleMobileMenu}>
+            <Icon name="BurgerMenu" size="24px" />
+          </StyledCloseMenuButton>
+        ) : (
+          <Heading type="h2">{pageLabel}</Heading>
+        )}
         <StyledInfoList>
-          <StyledInfoItem>
-            <BalanceInfo />
-          </StyledInfoItem>
-          <StyledInfoItem>
-            <DidInfo />
-          </StyledInfoItem>
+          {!isMobile && (
+            <>
+              <StyledInfoItem>
+                <BalanceInfo />
+              </StyledInfoItem>
+              <StyledInfoItem>
+                <DidInfo />
+              </StyledInfoItem>
+            </>
+          )}
           <StyledInfoItem>
             <KeysInfo />
           </StyledInfoItem>

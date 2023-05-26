@@ -10,12 +10,15 @@ import { AccountContext } from '~/context/AccountContext';
 import { IHistoricalDistribution } from './constants';
 import { columns } from './config';
 import { parseHistoricalDistributions } from './helpers';
-import { gqlClient } from '~/config/graphql';
 import { historicalDistributionsQuery } from '~/helpers/graphqlQueries';
 import { notifyError } from '~/helpers/notifications';
 import { IDistributionsQueryResponse } from '~/constants/queries/types';
+import { PolymeshContext } from '~/context/PolymeshContext';
 
 export const useDistributionsTable = () => {
+  const {
+    api: { gqlClient },
+  } = useContext(PolymeshContext);
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -36,7 +39,7 @@ export const useDistributionsTable = () => {
   }, [identity]);
 
   useEffect(() => {
-    if (!identity) {
+    if (!identity || !gqlClient) {
       setTableData([]);
       identityRef.current = undefined;
       return;
@@ -69,7 +72,7 @@ export const useDistributionsTable = () => {
         setTableLoading(false);
       }
     })();
-  }, [identity, pageIndex, pageSize]);
+  }, [identity, pageIndex, pageSize, gqlClient]);
 
   const pagination = useMemo(
     () => ({

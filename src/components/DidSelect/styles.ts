@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const StyledSelectWrapper = styled.div`
+  width: calc(100% - 8px - 32px);
   position: relative;
   cursor: pointer;
   flex-grow: 1;
@@ -10,7 +11,7 @@ export const StyledSelectWrapper = styled.div`
 `;
 
 export const StyledSelect = styled.div<{ expanded: boolean }>`
-  max-width: 95%;
+  width: 95%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

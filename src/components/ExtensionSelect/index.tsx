@@ -6,6 +6,7 @@ import { Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
 import { WalletOptionGroup } from './components/WalletOptionGroup';
 import { StyledButtonWrapper } from './styles';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IExtensionSelectProps {
   handleClose: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -18,6 +19,7 @@ const ExtensionSelect: React.FC<IExtensionSelectProps> = ({ handleClose }) => {
   } = useContext(PolymeshContext);
   const [selectedWallet, setSelectedWallet] = useState(defaultExtension);
   const injectedExtensions = BrowserExtensionSigningManager.getExtensionList();
+  const { isMobile } = useWindowWidth();
 
   // Check if any of available extensions are installed to display them accordingly
   const walletOptions = WALLET_CONNECT_OPTIONS.map((option) => {
@@ -52,9 +54,11 @@ const ExtensionSelect: React.FC<IExtensionSelectProps> = ({ handleClose }) => {
         selectedWallet={selectedWallet}
       />
       <StyledButtonWrapper>
-        <Button variant="modalSecondary" onClick={handleCancel}>
-          Cancel
-        </Button>
+        {!isMobile && (
+          <Button variant="modalSecondary" onClick={handleCancel}>
+            Cancel
+          </Button>
+        )}
         <Button
           variant="modalPrimary"
           disabled={!selectedWallet || selectedWallet === defaultExtension}

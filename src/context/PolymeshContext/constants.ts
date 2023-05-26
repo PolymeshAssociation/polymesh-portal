@@ -1,3 +1,4 @@
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 
@@ -9,6 +10,7 @@ export interface IPolymeshContext {
   api: {
     sdk: Polymesh | null;
     signingManager: BrowserExtensionSigningManager | null;
+    gqlClient: ApolloClient<NormalizedCacheObject> | null;
   };
   settings: {
     defaultExtension: string;
@@ -31,6 +33,7 @@ export const initialState = {
   api: {
     sdk: null,
     signingManager: null,
+    gqlClient: null,
   },
   settings: {
     defaultExtension: '',

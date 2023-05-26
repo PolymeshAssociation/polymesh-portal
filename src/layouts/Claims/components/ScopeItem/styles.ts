@@ -13,6 +13,11 @@ export const StyledScopeWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0 12px;
+
+  @media screen and (max-width: 1023px) {
+    flex-direction: column;
+    gap: 24px;
+  }
 `;
 
 export const StyledScopeInfo = styled.div`
@@ -21,6 +26,11 @@ export const StyledScopeInfo = styled.div`
   gap: 8px;
   color: ${({ theme }) => theme.colors.textSecondary};
   font-size: 14px;
+
+  @media screen and (max-width: 1023px) {
+    width: 100%;
+    justify-content: space-between;
+  }
 `;
 
 export const StyledScopeLabel = styled.div`
@@ -49,14 +59,18 @@ export const StyledSort = styled.div`
   align-items: center;
   color: ${({ theme }) => theme.colors.textSecondary};
   font-size: 14px;
+  margin-top: 24px;
 
-  &::after {
-    content: '';
-    display: block;
-    width: 1px;
-    height: 32px;
-    margin-left: 24px;
-    background-color: #e6e6e6;
+  @media screen and (min-width: 768px) {
+    margin-top: 0;
+    &::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 32px;
+      margin-left: 24px;
+      background-color: #e6e6e6;
+    }
   }
 `;
 
@@ -64,6 +78,13 @@ export const StyledActionsWrapper = styled.div<{ expanded: boolean }>`
   display: flex;
   align-items: center;
   gap: 24px;
+
+  @media screen and (max-width: 1023px) {
+    width: 100%;
+    & button {
+      flex-grow: 1;
+    }
+  }
 
   & button {
     & .expand-icon {

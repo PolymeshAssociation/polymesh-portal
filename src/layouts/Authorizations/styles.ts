@@ -5,6 +5,10 @@ export const StyledAuthorizationsList = styled.ul`
   flex-direction: column;
   width: 100%;
   gap: 36px;
+
+  @media screen and (max-width: 767px) {
+    gap: 24px;
+  }
 `;
 
 export const AuthorizationPlaceholder = styled.div`

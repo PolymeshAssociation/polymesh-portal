@@ -18,6 +18,7 @@ import {
   StyledSort,
   StyledSortSelect,
 } from './styles';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IScopeItemProps {
   scope: Scope | null;
@@ -31,6 +32,7 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
   );
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
+  const { isMobile, isSmallDesktop } = useWindowWidth();
 
   const claimTypes = {
     [EClaimsType.RECEIVED]: receivedClaims,
@@ -51,7 +53,11 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
               )}
               {scope.type === ScopeType.Identity ? (
                 <>
-                  {formatDid(scope.value, 10, 11)}
+                  {formatDid(
+                    scope.value,
+                    isMobile || isSmallDesktop ? 5 : 10,
+                    isMobile || isSmallDesktop ? 6 : 11,
+                  )}
                   <CopyToClipboard value={scope.value} />
                 </>
               ) : (
@@ -63,24 +69,26 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
           <StyledScopeInfo>Unscoped claims</StyledScopeInfo>
         )}
         <StyledActionsWrapper expanded={scopeExpanded}>
-          <StyledSort>
-            Sort by:
-            <StyledSortSelect>
-              <select
-                onChange={({ target }) => {
-                  setSortBy(target.value as EClaimSortOptions);
-                }}
-                value={sortBy}
-              >
-                {Object.values(EClaimSortOptions).map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              <Icon name="DropdownIcon" className="dropdown-icon" />
-            </StyledSortSelect>
-          </StyledSort>
+          {!isMobile && (
+            <StyledSort>
+              Sort by:
+              <StyledSortSelect>
+                <select
+                  onChange={({ target }) => {
+                    setSortBy(target.value as EClaimSortOptions);
+                  }}
+                  value={sortBy}
+                >
+                  {Object.values(EClaimSortOptions).map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <Icon name="DropdownIcon" className="dropdown-icon" />
+              </StyledSortSelect>
+            </StyledSort>
+          )}
           <Button
             variant="secondary"
             onClick={() => setScopeExpanded((prev) => !prev)}
@@ -92,6 +100,26 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
       </StyledScopeWrapper>
       {scopeExpanded && (
         <div>
+          {isMobile && (
+            <StyledSort>
+              Sort by:
+              <StyledSortSelect>
+                <select
+                  onChange={({ target }) => {
+                    setSortBy(target.value as EClaimSortOptions);
+                  }}
+                  value={sortBy}
+                >
+                  {Object.values(EClaimSortOptions).map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <Icon name="DropdownIcon" className="dropdown-icon" />
+              </StyledSortSelect>
+            </StyledSort>
+          )}
           {filterClaimsByScope(
             claimTypes[type as EClaimsType],
             scope,

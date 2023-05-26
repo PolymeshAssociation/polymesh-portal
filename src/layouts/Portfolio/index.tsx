@@ -8,11 +8,12 @@ import { PortfolioGrid } from './styles';
 const Portfolio = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get('id');
+
   return (
     <PortfolioGrid allAssets={!id}>
       <PortfolioNavigation />
-      <AssetAllocation />
       {!!id && <PortfolioInfo />}
+      <AssetAllocation />
       <AssetTable />
     </PortfolioGrid>
   );

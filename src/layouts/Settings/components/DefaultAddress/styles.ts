@@ -3,6 +3,7 @@ import styled from 'styled-components';
 export const StyledValue = styled.button`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
   margin: 0;
   padding: 0;
@@ -12,6 +13,9 @@ export const StyledValue = styled.button`
   font-size: inherit;
   font-weight: inherit;
   text-transform: capitalize;
+  @media screen and (max-width: 1023px) {
+    width: 100%;
+  }
 `;
 
 export const StyledButtonWrapper = styled.div`
@@ -20,7 +24,9 @@ export const StyledButtonWrapper = styled.div`
   justify-content: flex-end;
   gap: 16px;
   margin-top: 48px;
-  width: 360px;
+  @media screen and (min-width: 768px) {
+    width: 440px;
+  }
 `;
 
 export const StyledLabel = styled.div`

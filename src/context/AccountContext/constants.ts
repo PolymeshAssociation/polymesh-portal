@@ -2,14 +2,17 @@ import {
   Account,
   Identity,
   MultiSig,
+  MultiSigDetails,
 } from '@polymeshassociation/polymesh-sdk/types';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 
-export interface IBalanceByKey {
+export interface IInfoByKey {
   key: string;
   totalBalance: string;
   available: boolean;
+  isMultiSig: boolean;
+  multisigDetails: MultiSigDetails | null;
 }
 
 export interface IAccountContext {
@@ -28,9 +31,10 @@ export interface IAccountContext {
   primaryKey: string;
   secondaryKeys: string[];
   identityLoading: boolean;
-  allKeyBalances: IBalanceByKey[];
+  allKeyInfo: IInfoByKey[];
   identityHasValidCdd: boolean;
   accountIsMultisigSigner: boolean;
+  refreshAccountIdentity: () => void;
 }
 
 export const initialState = {
@@ -49,7 +53,8 @@ export const initialState = {
   primaryKey: '',
   secondaryKeys: [],
   identityLoading: true,
-  allKeyBalances: [],
+  allKeyInfo: [],
   identityHasValidCdd: false,
   accountIsMultisigSigner: false,
+  refreshAccountIdentity: () => {},
 };

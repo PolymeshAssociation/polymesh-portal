@@ -4,6 +4,7 @@ export const StyledWrapper = styled.div`
   grid-area: assets;
   padding: 24px;
   height: 196px;
+  width: 100%;
   background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
@@ -14,7 +15,6 @@ export const StyledPercentageBar = styled.div`
   align-items: center;
   width: 100%;
   height: 56px;
-  margin-top: 22px;
   border-radius: 8px;
   overflow: hidden;
 `;

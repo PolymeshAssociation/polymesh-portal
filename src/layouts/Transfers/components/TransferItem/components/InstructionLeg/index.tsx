@@ -6,7 +6,7 @@ import {
 import { NumberedPortfolio } from '@polymeshassociation/polymesh-sdk/internal';
 import { useSearchParams } from 'react-router-dom';
 import { AccountContext } from '~/context/AccountContext';
-import { Text } from '~/components/UiKit';
+import { SkeletonLoader, Text } from '~/components/UiKit';
 import { CopyToClipboard, Icon } from '~/components';
 import {
   StyledLeg,
@@ -21,6 +21,7 @@ import {
   getAffirmationStatus,
   getLegDirection,
 } from './helpers';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface ILegProps {
   data: {
@@ -48,7 +49,9 @@ export const InstructionLeg: React.FC<ILegProps> = ({
   const [legErrorExpanded, setLegErrorExpanded] = useState(false);
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
+  const { isMobile, isTablet } = useWindowWidth();
 
+  const isSmallScreen = isMobile || isTablet;
   useEffect(() => {
     if (!leg || !identity) return;
 
@@ -84,6 +87,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
       setLegDetails(parsedData);
     })();
   }, [affirmationsData, leg, identity]);
+
   return legDetails ? (
     <StyledLeg>
       <StyledInfoItem>
@@ -135,7 +139,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
       <StyledInfoItem>
         Asset
         <StyledInfoValue>
-          <Icon name="Coins" />
+          <Icon name="Coins" size="16px" />
           <Text size="large" bold>
             {legDetails.asset}
           </Text>
@@ -147,26 +151,41 @@ export const InstructionLeg: React.FC<ILegProps> = ({
           {legDetails.amount}
         </Text>
       </StyledInfoItem>
-      {errors.length ? (
-        <StyledLabel
-          isError
-          onMouseEnter={() => setLegErrorExpanded(true)}
-          onMouseLeave={() => setLegErrorExpanded(false)}
-        >
-          Error
-          {legErrorExpanded && (
-            <StyledExpandedErrors>
-              {errors.map((error) => (
-                <li key={error}>{error}</li>
-              ))}
-            </StyledExpandedErrors>
-          )}
-        </StyledLabel>
-      ) : (
-        <StyledLabel>{type}</StyledLabel>
-      )}
+      <StyledInfoItem>
+        {isSmallScreen && 'Status'}
+        {errors.length ? (
+          <StyledLabel
+            isError
+            onMouseEnter={() => setLegErrorExpanded(true)}
+            onMouseLeave={() => setLegErrorExpanded(false)}
+          >
+            Error
+            {legErrorExpanded && (
+              <StyledExpandedErrors>
+                {errors.map((error) => (
+                  <li key={error}>{error}</li>
+                ))}
+              </StyledExpandedErrors>
+            )}
+          </StyledLabel>
+        ) : (
+          <StyledLabel>{type}</StyledLabel>
+        )}
+      </StyledInfoItem>
     </StyledLeg>
   ) : (
-    <StyledLeg>Loading</StyledLeg>
+    <StyledLeg>
+      {(() => {
+        const skeletons = [];
+        for (let i = 0; i < 8; i += 1) {
+          skeletons.push(
+            <StyledInfoItem isLoading>
+              <SkeletonLoader height={24} />
+            </StyledInfoItem>,
+          );
+        }
+        return skeletons;
+      })()}
+    </StyledLeg>
   );
 };

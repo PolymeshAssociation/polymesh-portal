@@ -3,11 +3,13 @@ import styled from 'styled-components';
 export const StyledSelect = styled.div<{
   expanded: boolean;
   isSelected: boolean;
+  borderRadius?: number;
 }>`
   width: 100%;
   height: 36px;
   border: 1px solid #8f8f8f;
-  border-radius: 8px;
+  border-radius: ${({ borderRadius }) =>
+    borderRadius ? `${borderRadius}px;` : '8px;'}
   padding: 6px 16px;
   font-size: 14px;
   color: ${({ isSelected, theme }) =>
@@ -45,7 +47,7 @@ export const InputWrapper = styled.div`
   position: relative;
 `;
 
-export const StyledExpandedSelect = styled.div`
+export const StyledExpandedSelect = styled.div<{ borderRadius?: number }>`
   position: absolute;
   top: 110%;
   left: 0;
@@ -54,9 +56,10 @@ export const StyledExpandedSelect = styled.div`
   max-height: 200px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
   border: 1px solid #8f8f8f;
-  border-radius: 8px;
+  border-radius: ${({ borderRadius }) =>
+    borderRadius ? `${borderRadius}px;` : '8px;'}
   overflow-y: scroll;
-  z-index: 1;
+  z-index: 2;
   box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
 `;
 

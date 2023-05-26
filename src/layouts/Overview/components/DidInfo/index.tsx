@@ -3,7 +3,7 @@ import { Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { Icon, CopyToClipboard, DidSelect } from '~/components';
-import { Text, Button } from '~/components/UiKit';
+import { Text, Button, SkeletonLoader } from '~/components/UiKit';
 import {
   StyledWrapper,
   IconWrapper,
@@ -17,6 +17,7 @@ import {
 import { formatDid } from '~/helpers/formatters';
 import { Details } from './components/Details';
 import { systematicCddProviders } from './constants';
+import { useWindowWidth } from '~/hooks/utility';
 
 export const DidInfo = () => {
   const {
@@ -28,6 +29,7 @@ export const DidInfo = () => {
   const [issuer, setIssuer] = useState<string | null>(null);
   const [claimDetailsLoading, setClaimDetailsLoading] = useState(true);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const { isMobile, isSmallDesktop } = useWindowWidth();
 
   useEffect(() => {
     setClaimDetailsLoading(true);
@@ -98,6 +100,8 @@ export const DidInfo = () => {
 
   const toggleModal = () => setDetailsExpanded((prev) => !prev);
 
+  const isSmallScreen = isMobile || isSmallDesktop;
+
   const renderBottomInfo = (
     activeIdentity: Identity | null,
     expiryDate: Date | null | undefined,
@@ -139,7 +143,7 @@ export const DidInfo = () => {
           Expires on:
           <span>{date}</span>
         </div>
-        <Separator />
+        {!isSmallScreen && <Separator />}
         <div>
           Verified by:
           <span>
@@ -159,9 +163,11 @@ export const DidInfo = () => {
     <>
       <StyledWrapper>
         <StyledTopInfo>
-          <IconWrapper size="64px">
-            <Icon name="IdCard" size="32px" className="id-icon" />
-          </IconWrapper>
+          {!isMobile && !isSmallDesktop && (
+            <IconWrapper size="64px">
+              <Icon name="IdCard" size="32px" className="id-icon" />
+            </IconWrapper>
+          )}
           <div className="did-wrapper">
             {!identityLoading && !identity ? (
               <Text bold size="large" marginTop={22}>
@@ -176,7 +182,17 @@ export const DidInfo = () => {
                 <StyledDidWrapper>
                   <DidSelect />
                   <IconWrapper>
-                    <CopyToClipboard value={identity?.did} />
+                    {identityLoading ? (
+                      <SkeletonLoader
+                        circle
+                        height="32px"
+                        width="32px"
+                        baseColor="rgba(255,255,255,0.05)"
+                        highlightColor="rgba(255, 255, 255, 0.24)"
+                      />
+                    ) : (
+                      <CopyToClipboard value={identity?.did} />
+                    )}
                   </IconWrapper>
                 </StyledDidWrapper>
               </>
@@ -187,6 +203,13 @@ export const DidInfo = () => {
           {!identityLoading &&
             !claimDetailsLoading &&
             renderBottomInfo(identity, expiry, issuer)}
+          {identityLoading || claimDetailsLoading ? (
+            <SkeletonLoader
+              count={2}
+              baseColor="rgba(255,255,255,0.05)"
+              highlightColor="rgba(255, 255, 255, 0.24)"
+            />
+          ) : null}
         </StyledBottomInfo>
         {!identityLoading && !identity ? (
           <StyledButtonWrapper>
@@ -214,8 +237,19 @@ export const DidInfo = () => {
             </Button>
           </StyledButtonWrapper>
         ) : (
-          <Button variant="transparent" onClick={toggleModal}>
-            Details
+          <Button
+            variant="transparent"
+            onClick={toggleModal}
+            disabled={identityLoading}
+          >
+            {identityLoading ? (
+              <SkeletonLoader
+                baseColor="rgba(255,255,255,0.05)"
+                highlightColor="rgba(255, 255, 255, 0.24)"
+              />
+            ) : (
+              'Details'
+            )}
           </Button>
         )}
       </StyledWrapper>

@@ -20,12 +20,14 @@ const InstructionsProvider = ({ children }: IProviderProps) => {
     [],
   );
   const [createdVenues, setCreatedVenues] = useState<Venue[]>([]);
-  const [instructionsLoading, setInstructionsLoading] = useState(false);
+  const [instructionsLoading, setInstructionsLoading] = useState(true);
   const [shouldRefreshData, setShouldRefreshData] = useState(true);
 
   useEffect(() => {
     if (identityLoading || !identity) {
       setShouldRefreshData(true);
+      setAllInstructions(null);
+      setPendingInstructions([]);
       return;
     }
 

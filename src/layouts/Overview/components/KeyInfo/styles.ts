@@ -24,6 +24,10 @@ export const StyledWrapper = styled.div`
     font-weight: 500;
     text-transform: uppercase;
   }
+
+  @media screen and (max-width: 1024px) {
+    width: 100%;
+  }
 `;
 
 export const IconWrapper = styled.div<{ size?: string }>`
@@ -54,10 +58,15 @@ export const StyledLabel = styled.div`
   justify-content: center;
   min-width: 66px;
   height: 32px;
-  padding: 0 12px;
+  padding: 0 8px;
   border: 1px solid #fad1dc;
   border-radius: 100px;
   font-weight: 500;
-  font-size: 12px;
+  font-size: 10px;
   color: #ffffff;
+
+  @media screen and (min-width: 480px) {
+    padding: 0 12px;
+    font-size: 12px;
+  }
 `;

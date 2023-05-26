@@ -5,7 +5,6 @@ import { PolymeshContext } from '~/context/PolymeshContext';
 import { StyledLogoBox, StyledInfoBox, StyledAnimationBox } from './styles';
 import { Icon, ExtensionSelect } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
-// import { ConnectWalletPopup } from './components/ConnectWalletPopup';
 import landingAnimation from '~/assets/animations/landingAnimation.json';
 import { PATHS } from '~/constants/routes';
 
@@ -24,10 +23,10 @@ const Landing = () => {
         <Icon name="PolymeshLogo" />
       </StyledLogoBox>
       <StyledInfoBox>
-        <Heading marginBottom={16}>Welcome to the Polymesh Dashboard</Heading>
+        <Heading marginBottom={16}>Welcome to the Polymesh Portal</Heading>
         <Text>
-          The Polymesh Dashboard is where you can access Polymesh supported
-          dApps and manage your account, assets, and POLYX.
+          The Polymesh Portal is where you can access Polymesh supported dApps
+          and manage your account, assets, and POLYX.
         </Text>
         <Button onClick={toggleModal} variant="accent" marginTop={48}>
           <Icon name="Wallet" />

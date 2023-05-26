@@ -26,7 +26,7 @@ const useBalance = (): IUseBalance => {
     total: '',
   });
   const [balanceError, setBalanceError] = useState('');
-  const [balanceIsLoading, setBalanceIsLoading] = useState(false);
+  const [balanceIsLoading, setBalanceIsLoading] = useState(true);
 
   // Get balance data when accounts are set
   useEffect(() => {

@@ -32,6 +32,8 @@ import {
   AuthTypesWithRequiredEntity,
   EntityDataOptions,
 } from './constants';
+import { useWindowWidth } from '~/hooks/utility';
+import { splitByCapitalLetters } from '~/helpers/formatters';
 
 interface IAddNewAuthProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -58,6 +60,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
   const { submitHandler, entityData, typesWithRequiredEntityData } =
     useSubmitHandler();
   const typeRef = useRef<HTMLDivElement>(null);
+  const { isMobile } = useWindowWidth();
 
   // Adds one or more select dropdown containers to ref array
   const addRef = (element: Node | null) => {
@@ -114,12 +117,8 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
     });
   };
 
-  const handleAuthTypeSelect: React.ReactEventHandler = ({ target }) => {
-    setSelectedAuthType(
-      (target as HTMLButtonElement).textContent as
-        | `${AuthorizationType}`
-        | null,
-    );
+  const handleAuthTypeSelect = (option: AuthorizationType) => {
+    setSelectedAuthType(option);
     handleTypeDropdownToggle();
   };
 
@@ -144,7 +143,11 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
           expanded={typeDropdownExpanded}
           isSelected={!!selectedAuthType}
         >
-          <span>{selectedAuthType || 'Select Authorization Type'}</span>
+          <span>
+            {selectedAuthType
+              ? splitByCapitalLetters(selectedAuthType)
+              : 'Select Authorization Type'}
+          </span>
 
           <Icon name="ExpandIcon" size="18px" />
         </StyledTypeSelect>
@@ -162,10 +165,10 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
                 <StyledTypeOption
                   key={authType}
                   disabled={disabledAuthTypes.includes(authType)}
-                  onClick={handleAuthTypeSelect}
+                  onClick={() => handleAuthTypeSelect(authType)}
                   isSelected={authType === selectedAuthType}
                 >
-                  {authType}
+                  {splitByCapitalLetters(authType)}
                   {disabledAuthTypes.includes(authType) && (
                     <SoonLabel>Soon</SoonLabel>
                   )}
@@ -317,9 +320,11 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
         </StyledInputGroup>
       )}
       <StyledButtonsWrapper>
-        <Button variant="modalSecondary" onClick={toggleModal}>
-          Cancel
-        </Button>
+        {!isMobile && (
+          <Button variant="modalSecondary" onClick={toggleModal}>
+            Cancel
+          </Button>
+        )}
         <Button
           variant="modalPrimary"
           disabled={!selectedAuthType || !isValid}

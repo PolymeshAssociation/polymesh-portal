@@ -17,6 +17,10 @@ export const FlexInputWrapper = styled.div<{ marginBotom?: number }>`
   align-items: center;
   gap: 24px;
   margin-bottom: ${({ marginBotom }) => (marginBotom ? `${marginBotom}px` : 0)};
+
+  @media screen and (max-width: 767px) {
+    flex-direction: column;
+  }
 `;
 
 export const StyledErrorMessage = styled.span`
@@ -38,7 +42,7 @@ export const StyledAddButton = styled.button`
   height: 40px;
   padding: 0 16px;
   background-color: transparent;
-  color: #170087;
+  color: ${({ theme }) => theme.colors.textBlue};
 
   &:disabled {
     color: ${({ theme }) => theme.colors.textSecondary};

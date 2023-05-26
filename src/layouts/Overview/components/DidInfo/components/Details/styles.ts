@@ -49,7 +49,7 @@ export const StyledDidThumb = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
+  min-height: 32px;
   border-radius: 32px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
   color: ${({ theme }) => theme.colors.textSecondary};
@@ -86,6 +86,12 @@ export const StyledBottomInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
+
+  @media screen and (max-width: 767px) {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
 `;
 
 export const Separator = styled.div`
@@ -109,6 +115,19 @@ export const StyledKeyData = styled.li`
   border-radius: 24px;
 `;
 
+export const KeyInfo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .name-container,
+  .status-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+`;
+
 export const KeyDetails = styled.div`
   display: flex;
   align-items: center;
@@ -117,7 +136,7 @@ export const KeyDetails = styled.div`
 
   & .key-wrapper {
     flex-grow: initial;
-    padding: 0 12px;
+    padding: 5.5px 12px;
   }
 `;
 
@@ -174,4 +193,42 @@ export const StyledButtonsWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 16px;
+  margin-top: 24px;
+`;
+
+export const StyledSelect = styled.div<{ isSelected: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: ${({ isSelected, theme }) =>
+    isSelected ? theme.colors.textPink : 'transparent'};
+  border: 2px solid
+    ${({ isSelected, theme }) =>
+      isSelected ? theme.colors.textPink : theme.colors.textDisabled};
+  color: ${({ isSelected, theme }) =>
+    isSelected ? theme.colors.landingBackground : 'transparent'};
+  transition: background-color 250ms ease-out, border 250ms ease-out,
+    color 250ms ease-out;
+  cursor: pointer;
+`;
+
+export const SignerDetails = styled(KeyDetails)`
+  width: 100%;
+  justify-content: space-between;
+
+  & .name {
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+`;
+
+export const StyledSignerInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
 `;

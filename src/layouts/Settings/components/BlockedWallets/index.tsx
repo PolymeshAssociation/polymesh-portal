@@ -4,6 +4,7 @@ import { Heading, Text, Button } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { formatKey } from '~/helpers/formatters';
+import { useWindowWidth } from '~/hooks/utility';
 import {
   InputWrapper,
   StyledActionButton,
@@ -13,6 +14,7 @@ import {
   StyledValue,
   StyledWalletWrapper,
   StyledErrorMessage,
+  StyledActionButtonWrapper,
 } from './styles';
 
 export const BlockedWallets = () => {
@@ -27,6 +29,8 @@ export const BlockedWallets = () => {
   const [blockedAddress, setBlockedAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState(true);
   const addressRef = useRef<string>('');
+  const { isMobile } = useWindowWidth();
+
   const toggleModal = () => setModalExpanded((prev) => !prev);
 
   const handleBlock = () => {
@@ -93,22 +97,24 @@ export const BlockedWallets = () => {
                   </StyledErrorMessage>
                 )}
               </InputWrapper>
-              <StyledActionButton
-                onClick={() => {
-                  setEditBlockedWallet(false);
-                  setBlockedAddress('');
-                  setIsValidAddress(true);
-                  addressRef.current = '';
-                }}
-              >
-                Cancel
-              </StyledActionButton>
-              <StyledActionButton
-                disabled={!blockedAddress || !isValidAddress}
-                onClick={handleBlock}
-              >
-                Block
-              </StyledActionButton>
+              <StyledActionButtonWrapper>
+                <StyledActionButton
+                  onClick={() => {
+                    setEditBlockedWallet(false);
+                    setBlockedAddress('');
+                    setIsValidAddress(true);
+                    addressRef.current = '';
+                  }}
+                >
+                  Cancel
+                </StyledActionButton>
+                <StyledActionButton
+                  disabled={!blockedAddress || !isValidAddress}
+                  onClick={handleBlock}
+                >
+                  Block
+                </StyledActionButton>
+              </StyledActionButtonWrapper>
             </StyledWalletWrapper>
           )}
           <StyledActionButton
@@ -119,9 +125,11 @@ export const BlockedWallets = () => {
             Block Wallet
           </StyledActionButton>
           <StyledButtonWrapper>
-            <Button variant="modalSecondary" onClick={handleClose}>
-              Close
-            </Button>
+            {!isMobile && (
+              <Button variant="modalSecondary" onClick={handleClose}>
+                Close
+              </Button>
+            )}
           </StyledButtonWrapper>
         </Modal>
       )}

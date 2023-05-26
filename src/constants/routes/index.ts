@@ -121,29 +121,29 @@ export const NAV_LINKS = [
     expandable: true,
     nestedLinks: [
       {
-        nestedPath: '/',
+        nestedPath: import.meta.env.VITE_SUBSCAN_URL,
         nestedLabel: 'SubScan',
         nestedIcon: 'SubscanIcon',
       },
       {
-        nestedPath: '/',
-        nestedLabel: 'Polkassembly',
+        nestedPath: import.meta.env.VITE_POLKASSEMBLY_URL,
+        nestedLabel: 'Governance',
         nestedIcon: 'PolkassemblyIcon',
       },
       {
-        nestedPath: '/',
+        nestedPath: import.meta.env.VITE_BRIDGE_URL,
         nestedLabel: 'Bridge',
         nestedIcon: 'BridgeIcon',
       },
       {
-        nestedPath: '/',
+        nestedPath: import.meta.env.VITE_DEVELOPER_APP_URL,
         nestedLabel: 'Developer App',
         nestedIcon: 'DeveloperIcon',
       },
       {
-        nestedPath: '/',
-        nestedLabel: 'Governance',
-        nestedIcon: 'GovernanceIcon',
+        nestedPath: import.meta.env.VITE_ONBOARDING_URL,
+        nestedLabel: 'Onboarding',
+        nestedIcon: 'Network',
       },
     ],
   },

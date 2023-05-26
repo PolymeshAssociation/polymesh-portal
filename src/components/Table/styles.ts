@@ -8,6 +8,10 @@ export const StyledTableWrapper = styled.div`
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
   /* overflow: hidden; */
+
+  @media screen and (max-width: 1023px) {
+    width: 100%;
+  }
 `;
 
 export const StyledTableHeader = styled.div`
@@ -16,6 +20,23 @@ export const StyledTableHeader = styled.div`
   justify-content: space-between;
   padding: 24px;
   height: 84px;
+
+  @media screen and (max-width: 767px) {
+    & > div {
+      width: 100%;
+      text-transform: capitalize;
+      & button {
+        text-transform: capitalize;
+      }
+    }
+  }
+
+  @media screen and (max-width: 1023px) {
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+    gap: 16px;
+  }
 `;
 
 export const StyledTableBody = styled.table<{ colsNumber: number }>`
@@ -40,16 +61,58 @@ export const StyledTableBody = styled.table<{ colsNumber: number }>`
 
   & thead {
     & td {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 400;
       color: ${({ theme }) => theme.colors.textSecondary};
+
+      @media screen and (min-width: 1200px) {
+        font-size: 16px;
+      }
     }
   }
   & td {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
     color: ${({ theme }) => theme.colors.textPrimary};
     text-transform: capitalize;
+
+    @media screen and (min-width: 1200px) {
+      font-size: 14px;
+    }
+  }
+`;
+
+export const StyledMobileTable = styled.div`
+  flex-grow: 1;
+`;
+
+export const StyledMobileRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.shadow};
+  &:first-child {
+    border-top: 1px solid ${({ theme }) => theme.colors.shadow};
+  }
+`;
+
+export const StyledMobileCell = styled.div`
+  padding: 8px 24px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  & .header {
+    color: ${({ theme }) => theme.colors.textSecondary};
+  }
+  & .data {
+    max-width: 70%;
+    font-weight: 500;
+    text-transform: capitalize;
+    text-align: right;
+    & span {
+      justify-content: flex-end;
+    }
   }
 `;
 
@@ -59,6 +122,17 @@ export const StyledTableFooter = styled.div`
   justify-content: flex-end;
   height: 56px;
   padding-right: 24px;
+
+  @media screen and (max-width: 1023px) {
+    padding: 24px;
+    height: auto;
+    gap: 16px;
+    & button {
+      flex-grow: 1;
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
 `;
 
 export const StyledTablePlaceholder = styled.div`
@@ -70,8 +144,8 @@ export const StyledTablePlaceholder = styled.div`
   gap: 14px;
   width: 100%;
   min-height: 108px;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  border-top: 1px solid ${({ theme }) => theme.colors.shadow};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.shadow};
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
@@ -79,15 +153,25 @@ export const StyledTabsWrapper = styled.div`
   display: flex;
   align-items: center;
   height: 40px;
+  min-width: 160px;
   gap: 4px;
   padding: 4px;
   border: 1px solid #c7c7c7;
   border-radius: 60px;
+
+  @media screen and (max-width: 1023px) {
+    width: 100%;
+
+    & div {
+      flex-grow: 1;
+    }
+  }
 `;
 
 export const StyledTabItem = styled.div<{ selected: boolean }>`
   display: flex;
   align-items: center;
+  justify-content: center;
   height: 100%;
   padding: 0 16px;
   border-radius: 100px;

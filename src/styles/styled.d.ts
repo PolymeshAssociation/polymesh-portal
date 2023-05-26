@@ -24,6 +24,8 @@ declare module 'styled-components' {
       lightAccent: string;
       shadow: string;
       backdrop: string;
+      skeletonBase: string;
+      skeletonHighlight: string;
     };
   }
 }
