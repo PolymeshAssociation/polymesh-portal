@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { Icon } from '~/components';
 import { Button } from '~/components/UiKit';
 import { formatDid } from '~/helpers/formatters';
+import { useWindowWidth } from '~/hooks/utility';
 import { IDetails } from '../../constants';
 import {
   StyledWrapper,
@@ -16,6 +17,7 @@ interface IDetailsProps {
 export const Details: React.FC<IDetailsProps> = ({ data }) => {
   const [expanded, setExpanded] = useState(false);
   const ref = useRef<HTMLSpanElement | null>(null);
+  const { isSmallDesktop } = useWindowWidth();
 
   useEffect(() => {
     const handleClickOutside: EventListenerOrEventListenerObject = (event) => {
@@ -36,7 +38,9 @@ export const Details: React.FC<IDetailsProps> = ({ data }) => {
     <StyledWrapper isExpanded={expanded} ref={ref}>
       <Button variant="secondary" onClick={() => setExpanded((prev) => !prev)}>
         Expand
-        <Icon name="ExpandIcon" size="18px" className="expand-icon" />
+        {!isSmallDesktop && (
+          <Icon name="ExpandIcon" size="18px" className="expand-icon" />
+        )}
       </Button>
       {expanded && (
         <StyledExpandedDetails>

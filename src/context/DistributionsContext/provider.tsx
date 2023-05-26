@@ -18,6 +18,7 @@ const DistributionsProvider = ({ children }: IProviderProps) => {
 
   useEffect(() => {
     if (identityLoading || !identity) {
+      setPendingDistributions([]);
       setShouldRefreshData(true);
       return;
     }

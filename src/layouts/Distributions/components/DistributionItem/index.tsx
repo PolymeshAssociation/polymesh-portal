@@ -5,7 +5,7 @@ import {
   NoArgsProcedureMethod,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { Icon } from '~/components';
-import { Button, Text } from '~/components/UiKit';
+import { Button, SkeletonLoader, Text } from '~/components/UiKit';
 import {
   StyledItemWrapper,
   StyledInfoWrapper,
@@ -21,6 +21,7 @@ import { toParsedDate } from '~/helpers/dateTime';
 import { notifyError } from '~/helpers/notifications';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { getDistributionErrors } from './helpers';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IDistributionItemProps {
   distribution: DividendDistribution;
@@ -46,6 +47,9 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
   const [detailsLoading, setDetailsLoading] = useState(true);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [errorsExpanded, setErrorsExpanded] = useState(false);
+  const { isMobile, isTablet } = useWindowWidth();
+
+  const isSmallScreen = isMobile || isTablet;
 
   useEffect(() => {
     if (!distribution || !sdk) return;
@@ -101,7 +105,7 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
           Claimable Amount
           <Text size="large" bold>
             {detailsLoading ? (
-              'loading'
+              <SkeletonLoader width={120} />
             ) : (
               <>
                 {participantDetails?.amountAfterTax.toString() || null}{' '}
@@ -169,19 +173,22 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
             </StyledInfoValue>
           </StyledInfoItem>
           {!!distributionErrors.length && (
-            <StyledLabel
-              onMouseEnter={() => setErrorsExpanded(true)}
-              onMouseLeave={() => setErrorsExpanded(false)}
-            >
-              Error
-              {errorsExpanded && (
-                <StyledExpandedErrors>
-                  {distributionErrors.map((error) => (
-                    <li key={error}>{error}</li>
-                  ))}
-                </StyledExpandedErrors>
-              )}
-            </StyledLabel>
+            <StyledInfoItem>
+              {isSmallScreen && 'Status'}
+              <StyledLabel
+                onMouseEnter={() => setErrorsExpanded(true)}
+                onMouseLeave={() => setErrorsExpanded(false)}
+              >
+                Error
+                {errorsExpanded && (
+                  <StyledExpandedErrors>
+                    {distributionErrors.map((error) => (
+                      <li key={error}>{error}</li>
+                    ))}
+                  </StyledExpandedErrors>
+                )}
+              </StyledLabel>
+            </StyledInfoItem>
           )}
         </StyledDetails>
       )}

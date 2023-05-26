@@ -151,6 +151,9 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
 
   useEffect(() => {
     setAllPortfolios([]);
+    setDefaultPortfolio(null);
+    setNumberedPortfolios([]);
+    setCombinedPortfolios(null);
     setTotalAssetsAmount(0);
     setPortfolioError('');
 

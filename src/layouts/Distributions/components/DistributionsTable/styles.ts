@@ -4,6 +4,7 @@ export const IdCellWrapper = styled.span`
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: max-content;
 
   &:hover {
     color: ${({ theme }) => theme.colors.textBlue};

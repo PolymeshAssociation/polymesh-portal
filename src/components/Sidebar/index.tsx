@@ -147,8 +147,14 @@ const Sidebar: React.FC<ISidebarProps> = ({
               ) : (
                 <>
                   <Icon name="IdCard" size="24px" />
-                  <span>{formatDid(identity?.did, 10, 9)}</span>
-                  <CopyToClipboard value={identity?.did} />
+                  {identity ? (
+                    <>
+                      <span>{formatDid(identity.did, 10, 9)}</span>
+                      <CopyToClipboard value={identity.did} />
+                    </>
+                  ) : (
+                    'Key is not assigned to any Identity'
+                  )}
                 </>
               )}
             </StyledAccountInfo>

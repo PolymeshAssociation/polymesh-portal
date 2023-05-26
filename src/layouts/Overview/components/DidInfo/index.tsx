@@ -170,7 +170,7 @@ export const DidInfo = () => {
           )}
           <div className="did-wrapper">
             {!identityLoading && !identity ? (
-              <Text bold size="large" marginTop={22}>
+              <Text bold size="large" marginTop={isSmallScreen ? 0 : 22}>
                 Your account is incomplete
               </Text>
             ) : (

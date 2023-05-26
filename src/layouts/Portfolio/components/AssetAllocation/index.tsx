@@ -41,7 +41,7 @@ export const AssetAllocation = () => {
   const portfolioId = searchParams.get('id');
 
   useEffect(() => {
-    if (!assetOptions) return;
+    if (!assetOptions.length) return;
 
     smallAmountAssets = [];
     normalAmountAssets = [];
@@ -78,7 +78,11 @@ export const AssetAllocation = () => {
   }, [assetOptions]);
 
   useEffect(() => {
-    if (!allPortfolios) return;
+    if (!allPortfolios.length) {
+      setAssetOptions([]);
+      setReducedOptions([]);
+      return;
+    }
 
     setAssetOptions([]);
 
@@ -149,10 +153,10 @@ export const AssetAllocation = () => {
         <SkeletonLoader height={56} borderRadius={8} />
       ) : (
         <>
-          {!assetOptions && (
+          {!assetOptions.length && (
             <StyledPlaceholder>No assets available</StyledPlaceholder>
           )}
-          {!!assetOptions && (
+          {!!assetOptions.length && (
             <StyledPercentageBar>
               {reducedOptions.map(({ ticker, color, percentage }) => {
                 return (

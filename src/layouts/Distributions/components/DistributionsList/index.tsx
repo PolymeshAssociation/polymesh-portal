@@ -23,6 +23,8 @@ import {
 import { DistributionItem } from '../DistributionItem';
 import { notifyError } from '~/helpers/notifications';
 import { ESortOptions } from '../../types';
+import { SkeletonLoader } from '~/components/UiKit';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface IDistributionsListProps {
   sortBy: ESortOptions;
@@ -44,6 +46,9 @@ export const DistributionsList: React.FC<IDistributionsListProps> = ({
   const type = searchParams.get('type');
   const typeRef = useRef<string | null>(null);
   const [actionInProgress, setActionInProgress] = useState(false);
+  const { isMobile, isTablet } = useWindowWidth();
+
+  const isSmallScreen = isMobile || isTablet;
 
   useEffect(() => {
     if (!selectedItems.length || typeRef.current === type) return;
@@ -141,7 +146,7 @@ export const DistributionsList: React.FC<IDistributionsListProps> = ({
       <StyledSelectionWrapper>
         <SelectAllButton
           onClick={handleSelectAll}
-          disabled={!!pendingDistributions.length}
+          disabled={distributionsLoading || !pendingDistributions.length}
         >
           Select All
         </SelectAllButton>
@@ -169,7 +174,7 @@ export const DistributionsList: React.FC<IDistributionsListProps> = ({
       </StyledSelectionWrapper>
 
       {distributionsLoading ? (
-        <DistributionsPlaceholder>Loading</DistributionsPlaceholder>
+        <SkeletonLoader height={isSmallScreen ? 300 : 162} />
       ) : (
         <StyledDistributionsList>
           {pendingDistributions.length ? (

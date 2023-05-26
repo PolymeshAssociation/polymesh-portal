@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
-import { StyledWrapper } from './styles';
+import { StyledWrapper, StyledLabel } from './styles';
 import { Icon, CopyToClipboard } from '~/components';
 import { SkeletonLoader, Text } from '~/components/UiKit';
 import { formatDid } from '~/helpers/formatters';
@@ -18,16 +18,22 @@ export const DidInfo = () => {
         <Icon name="IdCard" className="id-icon" size="16px" />
       </div>
       {connecting || identityLoading ? (
-        <SkeletonLoader width="64px" />
+        <>
+          <SkeletonLoader width="64px" />
+          <SkeletonLoader circle width="24px" />
+        </>
       ) : (
-        <Text size="small" bold color="secondary">
-          {formatDid(identity?.did)}
-        </Text>
-      )}
-      {connecting || identityLoading ? (
-        <SkeletonLoader circle width="24px" />
-      ) : (
-        <CopyToClipboard value={identity?.did} />
+        <>
+          {!!identity && (
+            <>
+              <Text size="small" bold color="secondary">
+                {formatDid(identity.did)}
+              </Text>
+              <CopyToClipboard value={identity.did} />
+            </>
+          )}
+          {!identity && <StyledLabel>Unassigned</StyledLabel>}
+        </>
       )}
     </StyledWrapper>
   );
