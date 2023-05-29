@@ -9,6 +9,7 @@ import {
   StyledTableBody,
   StyledTableFooter,
   StyledTablePlaceholder,
+  StyledLoaderPlaceholder,
   StyledTabsWrapper,
   StyledTabItem,
   StyledPerPageWrapper,
@@ -170,6 +171,20 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
     );
   };
 
+  const renderTableSkeleton = () => {
+    const loaderRows = [];
+
+    for (let i = 0; i <= pageSize; i += 1) {
+      loaderRows.push(
+        <StyledLoaderPlaceholder key={i}>
+          <SkeletonLoader count={colsNumber} />
+        </StyledLoaderPlaceholder>,
+      );
+    }
+
+    return <StyledTablePlaceholder>{loaderRows}</StyledTablePlaceholder>;
+  };
+
   const isSmallScreen = isMobile || isTablet;
 
   return (
@@ -178,11 +193,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
         <Heading type="h3">{title}</Heading>
         {renderTabs()}
       </StyledTableHeader>
-      {loading ? (
-        <StyledTablePlaceholder>
-          <SkeletonLoader borderRadius={0} height="108px" />
-        </StyledTablePlaceholder>
-      ) : null}
+      {loading ? renderTableSkeleton() : null}
       {!loading && !rowsNumber && (
         <StyledTablePlaceholder>
           <Icon name="Coins" />
