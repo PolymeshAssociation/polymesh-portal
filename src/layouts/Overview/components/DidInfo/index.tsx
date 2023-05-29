@@ -211,41 +211,46 @@ export const DidInfo = () => {
             />
           ) : null}
         </StyledBottomInfo>
-        {!identityLoading && !identity ? (
-          <StyledButtonWrapper>
-            {/* todo: make url configutable */}
-            <Button
-              onClick={() =>
-                window.open(import.meta.env.VITE_ONBOARDING_URL, '_blank')
-              }
-            >
-              Create account
-            </Button>
-            <Button
-              variant="transparent"
-              onClick={() =>
-                window.open(import.meta.env.VITE_ASSIGN_KEY_URL, '_blank')
-              }
-            >
-              Assign key to account
-            </Button>
-          </StyledButtonWrapper>
-        ) : (
-          <Button
-            variant="transparent"
-            onClick={toggleModal}
-            disabled={identityLoading}
-          >
-            {identityLoading ? (
-              <SkeletonLoader
-                baseColor="rgba(255,255,255,0.05)"
-                highlightColor="rgba(255, 255, 255, 0.24)"
-              />
-            ) : (
-              'Details'
-            )}
-          </Button>
-        )}
+        <StyledButtonWrapper>
+          {!identityLoading && !identity ? (
+            <>
+              <Button
+                onClick={() =>
+                  window.open(import.meta.env.VITE_ONBOARDING_URL, '_blank')
+                }
+              >
+                Create account
+              </Button>
+              <Button
+                variant="transparent"
+                onClick={() =>
+                  window.open(import.meta.env.VITE_ASSIGN_KEY_URL, '_blank')
+                }
+              >
+                Assign key to account
+              </Button>
+            </>
+          ) : (
+            <>
+              {identityLoading && (
+                <SkeletonLoader
+                  height={48}
+                  baseColor="rgba(255,255,255,0.05)"
+                  highlightColor="rgba(255, 255, 255, 0.24)"
+                />
+              )}
+              {!identityLoading && (
+                <Button
+                  variant="transparent"
+                  onClick={toggleModal}
+                  disabled={identityLoading}
+                >
+                  Details
+                </Button>
+              )}
+            </>
+          )}
+        </StyledButtonWrapper>
       </StyledWrapper>
       {detailsExpanded && (
         <Details
