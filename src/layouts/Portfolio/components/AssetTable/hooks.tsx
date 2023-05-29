@@ -63,7 +63,6 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
 
   // Get portfolio movements or asset transfers
   useEffect(() => {
-    setTableData([]);
     if (
       currentTab === EAssetsTableTabs.TOKENS ||
       !identity ||
@@ -73,6 +72,8 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
       return;
 
     if (currentTab !== tabRef.current && pageIndex !== 0) return;
+
+    setTableData([]);
 
     (async () => {
       setTableDataLoading(true);
