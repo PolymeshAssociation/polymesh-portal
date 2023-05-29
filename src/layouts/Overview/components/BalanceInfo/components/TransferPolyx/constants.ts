@@ -21,17 +21,16 @@ export const TRANSFER_INPUTS = [
     placeholder: 'Enter Address',
   },
   {
-    label: 'Memo',
+    label: 'Memo (Optional - this will be public)',
     id: INPUT_NAMES.MEMO,
-    placeholder:
-      'Enter a memo for this transfer. Remember that this will be public.',
+    placeholder: 'Enter a memo for this transfer',
   },
 ];
 
 interface IFormConfigData {
   maxAmount: number;
   selectedAccount: string;
-  checkAddressValidity: (address: string) => Promise<boolean>;
+  checkAddressValidity: (address: string) => boolean;
 }
 
 export const createFormConfig = (configData: IFormConfigData) => {
@@ -73,7 +72,7 @@ export const createFormConfig = (configData: IFormConfigData) => {
             'is-valid-address',
             'Address must be valid SS58 format',
             async (value) => {
-              const result = await checkAddressValidity(value);
+              const result = checkAddressValidity(value);
               return result;
             },
           ),

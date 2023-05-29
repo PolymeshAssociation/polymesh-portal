@@ -225,7 +225,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
         expanded={memoExpanded}
       >
         <Text size="medium" bold>
-          Memo (Optional)
+          Memo (Optional - this will be public)
         </Text>
         <Icon name="ExpandIcon" className="icon" size="18px" />
       </StyledMemoLabel>

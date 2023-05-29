@@ -177,7 +177,9 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
         </InputWrapper>
       </FlexInputWrapper>
       <InputWrapper marginBotom={36}>
-        <StyledLabel htmlFor="memo">Memo (Optional)</StyledLabel>
+        <StyledLabel htmlFor="memo">
+          Memo (Optional - this will be public)
+        </StyledLabel>
         <StyledInput id="memo" placeholder="Enter memo" {...register('memo')} />
         {!!errors?.memo?.message && (
           <StyledErrorMessage>
