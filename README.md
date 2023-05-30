@@ -1,6 +1,4 @@
-# polymesh-portal
-
-Polymesh Portal
+# Polymesh Portal
 
 This website is built using [Vite](https://vitejs.dev/).
 
