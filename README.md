@@ -1,6 +1,14 @@
 # Polymesh Portal
 
-This website is built using [Vite](https://vitejs.dev/).
+The Polymesh Portal allows Polymesh users to manage their:  
+  - identities and keys
+  - portfolios
+  - asset transfers
+  - authorisations
+  - identity claims
+  - capital distributions
+
+It is also designed to allow others to easily see how to incorporate the SDK, GraphQL and UI components to allow users to easily interact with Polymesh.
 
 ### Installation
 
