@@ -139,7 +139,9 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
         )}
       </InputWrapper>
       <InputWrapper marginBotom={24}>
-        <StyledLabel htmlFor="memo">Memo (Optional)</StyledLabel>
+        <StyledLabel htmlFor="memo">
+          Memo (Optional - this will be public)
+        </StyledLabel>
         <StyledInput id="memo" placeholder="Enter memo" {...register('memo')} />
         {!!errors?.memo?.message && (
           <StyledErrorMessage>

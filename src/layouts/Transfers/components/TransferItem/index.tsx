@@ -22,7 +22,11 @@ import {
 import { Details } from './components/Details';
 import { InstructionLeg } from './components/InstructionLeg';
 import { EInstructionTypes } from '../../types';
-import { getLegErrors, isLastManualAffirmation } from './helpers';
+import {
+  getAffirmationStatus,
+  getLegErrors,
+  isLastManualAffirmation,
+} from './helpers';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
@@ -157,6 +161,21 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
 
   const legsHaveErrors = instructionLegs.some(({ errors }) => !!errors.length);
 
+  const affirmationStatus =
+    identity && getAffirmationStatus(instructionAffirmations, identity.did);
+
+  const isFailedCanBeAffirmed =
+    type === EInstructionTypes.FAILED &&
+    isSettleManual &&
+    affirmationStatus &&
+    affirmationStatus !== 'Affirmed';
+
+  const isFailedCanWithdrawAffirmation =
+    type === EInstructionTypes.FAILED &&
+    (isSettleManual ||
+      instructionDetails?.type === InstructionType.SettleOnAffirmation) &&
+    affirmationStatus === 'Affirmed';
+
   return (
     <StyledItemWrapper>
       <StyledInfoWrapper>
@@ -204,7 +223,8 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           <Icon name="CloseIcon" size="24px" />
           Reject
         </Button>
-        {type === EInstructionTypes.AFFIRMED && (
+        {(type === EInstructionTypes.AFFIRMED ||
+          isFailedCanWithdrawAffirmation) && (
           <>
             <Button
               disabled={detailsLoading || actionInProgress}
@@ -213,7 +233,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
               <Icon name="Check" size="24px" />
               Unapprove
             </Button>
-            {isAllowedToSettleManually && (
+            {isAllowedToSettleManually && type !== EInstructionTypes.FAILED && (
               <Button
                 variant="success"
                 disabled={actionInProgress || legsHaveErrors}
@@ -225,7 +245,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
             )}
           </>
         )}
-        {type === EInstructionTypes.PENDING && (
+        {(type === EInstructionTypes.PENDING || isFailedCanBeAffirmed) && (
           <>
             <Button
               variant="success"

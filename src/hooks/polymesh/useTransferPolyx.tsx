@@ -49,12 +49,12 @@ const useTransferPolyx = () => {
     return () => (unsubCb ? unsubCb() : undefined);
   }, [sdk, selectedAccount]);
 
-  const checkAddressValidity = async (address: string) => {
+  const checkAddressValidity = (address: string) => {
     if (!sdk) return false;
 
     try {
-      await sdk.accountManagement.getAccount({ address });
-      return true;
+      const isValid = sdk.accountManagement.isValidAddress({ address });
+      return isValid;
     } catch (error) {
       return false;
     }

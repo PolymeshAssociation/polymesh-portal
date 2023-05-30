@@ -148,6 +148,20 @@ export const configureInputs = (type: `${AuthorizationType}` | null) => {
           placeholder: 'Enter Account to subsidize',
         },
       ];
+    case AuthorizationType.RotatePrimaryKey:
+      return [
+        {
+          id: INPUT_NAMES.TARGET_ACCOUNT,
+          label: 'Target Account',
+          type: 'text',
+          placeholder: 'Enter Account key',
+        },
+        {
+          id: INPUT_NAMES.EXPIRY,
+          label: 'Expiry Date (Optional)',
+          type: 'date',
+        },
+      ];
 
     default:
       return [];
