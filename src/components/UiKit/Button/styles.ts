@@ -16,9 +16,17 @@ export const StyledButton = styled.button<{
   padding: 0 16px;
   min-width: 96px;
   border-radius: 100px;
+  border: 1px solid transparent;
+  &:disabled {
+    border: 1px solid ${theme.colors.textDisabled};
+    background: transparent;
+    color: ${theme.colors.textDisabled};
+    box-shadow: 0px 12px 24px transparent;
+  }
   ${
     variant === EButtonVariants.PRIMARY
       ? `
+    
     color: ${theme.colors.textPink};
     background: ${theme.colors.pinkBackground};  
 
@@ -26,14 +34,8 @@ export const StyledButton = styled.button<{
       background: ${theme.colors.textPink};
       color: ${theme.colors.pinkBackground};
     }
-    &:active:enabled {
 
-    }
-    &:disabled {
-      border: 1px solid ${theme.colors.textDisabled};
-      background: ${theme.colors.disabledBackground};
-      color: ${theme.colors.textDisabled};
-    }
+    
 
     `
       : ''
@@ -49,11 +51,6 @@ export const StyledButton = styled.button<{
     }
     &:active:enabled {
       background: #DCD3FF;
-    }
-    &:disabled {
-      border: 1px solid ${theme.colors.textDisabled};
-      background: ${theme.colors.disabledBackground};
-      color: ${theme.colors.textDisabled};
     }
     `
       : ''
@@ -71,12 +68,7 @@ export const StyledButton = styled.button<{
     &:active:enabled {
       box-shadow: 0px 12px 24px transparent;
     }
-    &:disabled {
-      border: 1px solid ${theme.colors.textDisabled};
-      background: ${theme.colors.disabledBackground};
-      color: ${theme.colors.textDisabled};
-      box-shadow: 0px 12px 24px transparent;
-    }
+
 
     `
       : ''
@@ -94,11 +86,7 @@ export const StyledButton = styled.button<{
     &:active:enabled {
       background: #DCD3FF;
     }
-    &:disabled {
-      background: ${theme.colors.disabledBackground};
-      border: 1px solid ${theme.colors.textDisabled};
-      color: ${theme.colors.textDisabled};
-    }
+
     `
       : ''
   }
@@ -115,11 +103,7 @@ export const StyledButton = styled.button<{
     &:active:enabled {
       box-shadow: 0px 12px 24px transparent;
     }
-    &:disabled {
-      background: ${theme.colors.disabledBackground};
-      color: ${theme.colors.textDisabled};
-      box-shadow: 0px 12px 24px transparent;
-    }
+
     `
       : ''
   }
@@ -132,13 +116,8 @@ export const StyledButton = styled.button<{
     &:hover:enabled, &:focus:enabled {
       background: rgba(255, 255, 255, 0.34);
     }
-    &:active:enabled {
-    }
-    &:disabled {
-      border: 1px solid ${theme.colors.textDisabled};
-      background: ${theme.colors.disabledBackground};
-      color: ${theme.colors.textDisabled};
-    }
+
+
     `
       : ''
   }
@@ -153,11 +132,7 @@ export const StyledButton = styled.button<{
       background: ${theme.colors.textSuccess};
     }
   
-    &:disabled {
-      border: 1px solid ${theme.colors.textDisabled};
-      background: ${theme.colors.disabledBackground};
-      color: ${theme.colors.textDisabled};
-    }
+
     `
       : ''
   }
