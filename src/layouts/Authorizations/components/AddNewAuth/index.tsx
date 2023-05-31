@@ -260,6 +260,10 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
                                             trigger(id as keyof IFieldValues);
                                           }}
                                         >
+                                          {entity.id &&
+                                          entity.id !== 'default' ? (
+                                            <>{entity.id} / </>
+                                          ) : null}
                                           {entity.name}
                                         </StyledTypeOption>
                                       ) : (

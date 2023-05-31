@@ -117,14 +117,15 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
           {toParsedDate(claimData.issuedAt.toISOString())}
         </Text>
       </StyledClaimItem>
-      {claimData.issuedAt.getTime() !== claimData.lastUpdatedAt.getTime() && (
-        <StyledClaimItem>
-          Last Updated
-          <Text bold size="large">
-            {toParsedDate(claimData.lastUpdatedAt.toISOString())}
-          </Text>
-        </StyledClaimItem>
-      )}
+      {!!claimData.lastUpdatedAt &&
+        claimData.issuedAt.getTime() !== claimData.lastUpdatedAt.getTime() && (
+          <StyledClaimItem>
+            Last Updated
+            <Text bold size="large">
+              {toParsedDate(claimData.lastUpdatedAt.toISOString())}
+            </Text>
+          </StyledClaimItem>
+        )}
       {claim.type === ClaimType.Jurisdiction && (
         <StyledClaimItem>
           Region

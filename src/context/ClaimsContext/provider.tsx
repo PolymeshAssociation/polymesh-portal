@@ -18,7 +18,7 @@ const ClaimsProvider = ({ children }: IProviderProps) => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identity } = useContext(AccountContext);
+  const { identity, identityLoading } = useContext(AccountContext);
   const [receivedClaims, setReceivedClaims] = useState<ClaimData<Claim>[]>([]);
   const [issuedClaims, setIssuedClaims] = useState<ClaimData<Claim>[]>([]);
   const [receivedScopes, setReceivedScopes] = useState<ClaimScope[]>([]);
@@ -28,10 +28,16 @@ const ClaimsProvider = ({ children }: IProviderProps) => {
   const identityRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!sdk || !identity) {
+    if (!sdk) {
       setShouldRefetchClaims(true);
       return;
     }
+    if (identityLoading || !identity) {
+      setShouldRefetchClaims(true);
+      setClaimsLoading(identityLoading);
+      return;
+    }
+
     if (!shouldRefetchClaims) return;
 
     (async () => {
@@ -59,7 +65,7 @@ const ClaimsProvider = ({ children }: IProviderProps) => {
         identityRef.current = identity.did;
       }
     })();
-  }, [sdk, shouldRefetchClaims, identity]);
+  }, [sdk, shouldRefetchClaims, identity, identityLoading]);
 
   useEffect(() => {
     if (shouldRefetchClaims) return;

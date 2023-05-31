@@ -102,7 +102,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
 
   return (
     <div>
-      <StyledLabel>{label}</StyledLabel>
+      {!!label && <StyledLabel>{label}</StyledLabel>}
       <InputWrapper ref={ref}>
         <StyledSelect
           onClick={() => handleDropdownToggle()}

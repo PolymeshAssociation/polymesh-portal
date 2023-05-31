@@ -57,7 +57,7 @@ export const AddPortfolioButton = styled.button`
   color: #ff2e72;
 
   &:disabled {
-    ${({ theme }) => theme.colors.textDisabled};
+    color: ${({ theme }) => theme.colors.textDisabled};
   }
 
   @media screen and (max-width: 1023px) {

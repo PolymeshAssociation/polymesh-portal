@@ -28,6 +28,7 @@ const InstructionsProvider = ({ children }: IProviderProps) => {
       setShouldRefreshData(true);
       setAllInstructions(null);
       setPendingInstructions([]);
+      setInstructionsLoading(identityLoading);
       return;
     }
 

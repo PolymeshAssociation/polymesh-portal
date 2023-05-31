@@ -7,7 +7,7 @@ export const StyledTableWrapper = styled.div`
   background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
-  overflow: hidden;
+  /* overflow: hidden; */
 
   @media screen and (max-width: 1023px) {
     width: 100%;
@@ -141,12 +141,29 @@ export const StyledTablePlaceholder = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  /* gap: 14px; */
   width: 100%;
   min-height: 108px;
   border-top: 1px solid ${({ theme }) => theme.colors.shadow};
   border-bottom: 1px solid ${({ theme }) => theme.colors.shadow};
   color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+export const StyledLoaderPlaceholder = styled.div`
+  height: 54px;
+  width: 100%;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  &:not(:last-child) {
+    border-bottom: 1px solid ${({ theme }) => theme.colors.shadow};
+  }
+
+  & .skeleton-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
 `;
 
 export const StyledTabsWrapper = styled.div`

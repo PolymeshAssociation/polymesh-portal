@@ -7,9 +7,8 @@ const Overview = lazy(() => import('~/layouts/Overview'));
 const Portfolio = lazy(() => import('~/layouts/Portfolio'));
 const Authorizations = lazy(() => import('~/layouts/Authorizations'));
 const Transfers = lazy(() => import('~/layouts/Transfers'));
-
 const Claims = lazy(() => import('~/layouts/Claims'));
-
+const Distributions = lazy(() => import('~/layouts/Distributions'));
 const Settings = lazy(() => import('~/layouts/Settings'));
 
 interface IRoute {
@@ -39,6 +38,7 @@ export const PATHS = {
   TRANSFERS: '/transfers',
   AUTHORIZATIONS: '/authorizations',
   CLAIMS: '/claims',
+  DISTRIBUTIONS: '/distributions',
   SETTINGS: '/settings',
   NOT_FOUND: '*',
 };
@@ -76,6 +76,11 @@ export const ROUTES = [
     component: Claims,
   },
   {
+    path: PATHS.DISTRIBUTIONS,
+    label: 'Capital Distributions',
+    component: Distributions,
+  },
+  {
     path: PATHS.NOT_FOUND,
     label: null,
     component: NotFound,
@@ -102,6 +107,12 @@ export const NAV_LINKS = [
     notifications: 'authorizations',
   },
   { path: PATHS.CLAIMS, label: 'Claims', icon: 'ClaimsIcon' },
+  {
+    path: PATHS.DISTRIBUTIONS,
+    label: 'Distributions',
+    icon: 'Bank',
+    notifications: 'distributions',
+  },
   { path: '', label: 'Staking', icon: 'StakingIcon', disabled: true },
   {
     path: '',

@@ -63,7 +63,6 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
 
   // Get portfolio movements or asset transfers
   useEffect(() => {
-    setTableData([]);
     if (
       currentTab === EAssetsTableTabs.TOKENS ||
       !identity ||
@@ -73,6 +72,8 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
       return;
 
     if (currentTab !== tabRef.current && pageIndex !== 0) return;
+
+    setTableData([]);
 
     (async () => {
       setTableDataLoading(true);
@@ -143,8 +144,12 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
 
   // Get token table data
   useEffect(() => {
-    if (currentTab !== EAssetsTableTabs.TOKENS || !allPortfolios || !identity) {
-      return undefined;
+    if (!identity || !allPortfolios) {
+      setTableData([]);
+      return;
+    }
+    if (currentTab !== EAssetsTableTabs.TOKENS) {
+      return;
     }
     tabRef.current = currentTab;
     portfolioRef.current = portfolioId;
@@ -157,7 +162,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
       );
       setTableData(parsedAssets);
       setTotalItems(parsedAssets.length);
-      return undefined;
+      return;
     }
 
     const selectedPortfolio = allPortfolios.find(
@@ -169,8 +174,6 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
       setTableData(parsedData);
       setTotalItems(parsedData.length);
     }
-
-    return undefined;
   }, [portfolioId, allPortfolios, totalAssetsAmount, currentTab, identity]);
 
   const pagination = useMemo(
