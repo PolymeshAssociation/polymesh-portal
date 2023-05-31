@@ -20,7 +20,7 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
     state: { initialized },
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identity } = useContext(AccountContext);
+  const { identity, identityLoading } = useContext(AccountContext);
 
   const [defaultPortfolio, setDefaultPortfolio] =
     useState<DefaultPortfolio | null>(null);
@@ -35,7 +35,10 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
   const [portfolioError, setPortfolioError] = useState('');
 
   const getPortfoliosData = useCallback(async () => {
-    if (!identity) return;
+    if (identityLoading || !identity) {
+      setPortfolioLoading(identityLoading);
+      return;
+    }
     setPortfolioLoading(true);
     try {
       const portfolios = await identity.portfolios.getPortfolios();
@@ -147,7 +150,7 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
     } finally {
       setPortfolioLoading(false);
     }
-  }, [identity]);
+  }, [identity, identityLoading]);
 
   useEffect(() => {
     setAllPortfolios([]);

@@ -20,6 +20,7 @@ const DistributionsProvider = ({ children }: IProviderProps) => {
     if (identityLoading || !identity) {
       setPendingDistributions([]);
       setShouldRefreshData(true);
+      setDistributionsLoading(identityLoading);
       return;
     }
 
