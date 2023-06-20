@@ -20,11 +20,15 @@ export const StyledContainer = styled.div<{ isLandingPage: boolean }>`
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  padding: ${({ isLandingPage }) => (isLandingPage ? '0 64px' : '0 48px')};
+  min-height: 75px;
+  padding: ${({ isLandingPage }) =>
+    isLandingPage ? '0px 164px 0px 64px' : '0px 164px 0px 48px'};
 
   @media screen and (max-width: 1023px) {
     justify-content: center;
     gap: 8px;
+    padding: ${({ isLandingPage }) =>
+      isLandingPage ? '0 64px 0 64px' : '0px 48px 0px 48px'};
   }
   & p {
     @media screen and (max-width: 1023px) {
