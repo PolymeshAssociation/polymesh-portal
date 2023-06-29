@@ -20,6 +20,10 @@ const ExtensionSelect: React.FC<IExtensionSelectProps> = ({ handleClose }) => {
   const [selectedWallet, setSelectedWallet] = useState(defaultExtension);
   const injectedExtensions = BrowserExtensionSigningManager.getExtensionList();
   const { isMobile } = useWindowWidth();
+  const isMobileDevice =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    );
 
   // Check if any of available extensions are installed to display them accordingly
   const walletOptions = WALLET_CONNECT_OPTIONS.map((option) => {
@@ -52,6 +56,7 @@ const ExtensionSelect: React.FC<IExtensionSelectProps> = ({ handleClose }) => {
         options={walletOptions}
         onChange={handleWalletSelect}
         selectedWallet={selectedWallet}
+        isMobileDevice={isMobileDevice}
       />
       <StyledButtonWrapper>
         {!isMobile && (
