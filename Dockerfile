@@ -51,11 +51,15 @@ RUN cat /srv/.env.production | \
 ################################################################
 ################################################################
 
-FROM nginx:stable-alpine3.17
+FROM nginx:stable-bullseye
 
 ################################################################
 
 COPY --chown=root:root --from=builder /srv/dist /usr/share/nginx/html
+
+################################################################
+
+COPY --from=builder /srv/env.var.list /srv/env.var.list
 COPY --chown=root:root replace-env-var-placeholders.sh /usr/local/bin/replace-env-var-placeholders.sh
 
 ################################################################
