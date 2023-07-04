@@ -18,8 +18,15 @@ FROM node:${NODE_CONTAINER_TAG} as builder
 ################################################################
 
 USER root
-RUN npm i -g npm
-RUN npm i -g yarn --force
+RUN npm i -g npm && \
+    npm i -g yarn --force && \
+    npm i -g node-gyp
+
+################################################################
+
+# npm package dependencies:
+
+RUN apt-get install -y git python3 python-is-python3 make g++
 
 ################################################################
 
