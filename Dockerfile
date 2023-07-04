@@ -26,7 +26,8 @@ RUN npm i -g npm && \
 
 # npm package dependencies:
 
-RUN apt-get install -y python3 python-is-python3 make g++
+RUN apt-get update && \
+    apt-get install -y python3 python-is-python3 make g++
 
 ################################################################
 
