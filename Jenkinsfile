@@ -115,7 +115,7 @@ node {
                     script: '''\
                             #!/bin/bash
 
-                            docker build -f Dockerfile -t "${CONTAINER_REGISTRY}/polymesh/polymesh-portal:${GIT_COMMIT}" .
+                            docker build -f Dockerfile -t "${CONTAINER_REGISTRY}/polymesh/portal:${GIT_COMMIT}" .
                             ''')
             }
 
@@ -127,7 +127,7 @@ node {
                             aws ecr get-login-password | \
                                 docker login "$CONTAINER_REGISTRY" --username AWS --password-stdin
 
-                            docker push "${CONTAINER_REGISTRY}/polymesh/polymesh-portal:${GIT_COMMIT}" || true
+                            docker push "${CONTAINER_REGISTRY}/polymesh/portal:${GIT_COMMIT}" || true
                             ''')
             }
 
