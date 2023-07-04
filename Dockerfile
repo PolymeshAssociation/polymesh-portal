@@ -69,6 +69,7 @@ COPY --chown=root:root --from=builder /srv/dist /usr/share/nginx/html
 
 COPY --from=builder /srv/env.var.list /srv/env.var.list
 COPY --chown=root:root replace-env-var-placeholders.sh /usr/local/bin/replace-env-var-placeholders.sh
+COPY --chown=root:root nginx.conf /etc/nginx/conf.d/default.conf
 
 ################################################################
 
