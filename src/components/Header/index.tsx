@@ -53,8 +53,6 @@ const Header: React.FC<IHeaderProps> = ({ toggleMobileMenu }) => {
           )}
           <StyledInfoItem>
             <KeysInfo />
-          </StyledInfoItem>
-          <StyledInfoItem>
             <NotificationInfo />
           </StyledInfoItem>
         </StyledInfoList>

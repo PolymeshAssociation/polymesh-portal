@@ -6,6 +6,8 @@ export const StyledWrapper = styled.div`
   justify-content: space-between;
   gap: 8px;
   min-width: 118px;
+  padding-left: 8px;
+  white-space: nowrap;
 `;
 
 export const StyledPriceLabel = styled.span`

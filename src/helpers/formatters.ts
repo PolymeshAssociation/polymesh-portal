@@ -1,16 +1,27 @@
 export const formatDid = (
   did: string | undefined | null,
-  startChars = 4,
-  endChars = 5,
+  startChars = 6,
+  endChars = 4,
 ) => {
   if (!did) return '';
-
-  return `${did.slice(0, startChars)}...${did.slice(did.length - endChars)}`;
+  // Ensure startChars and endChars are greater than mins
+  const formattedStartChars = Math.max(5, startChars);
+  const formattedEndChars = Math.max(3, endChars);
+  if (startChars + endChars >= did.length) return did;
+  return `${did.slice(0, formattedStartChars)}...${did.slice(
+    did.length - formattedEndChars,
+  )}`;
 };
 
-export const formatKey = (key: string, startChars = 4, endChars = 5) => {
-  return `${key.slice(0, startChars)}...${key.slice(key.length - endChars)}`;
+export const formatKey = (key: string, startChars = 5, endChars = 5) => {
+  const formattedStartChars = Math.max(3, startChars);
+  const formattedEndChars = Math.max(3, endChars);
+  if (startChars + endChars >= key.length) return key;
+  return `${key.slice(0, formattedStartChars)}...${key.slice(
+    key.length - formattedEndChars,
+  )}`;
 };
+
 export const formatBalance = (balance: string | number, decimals = 6) => {
   return Number(balance).toLocaleString(undefined, {
     maximumFractionDigits: decimals,

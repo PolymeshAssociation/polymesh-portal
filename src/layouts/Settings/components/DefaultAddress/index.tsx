@@ -33,7 +33,7 @@ export const DefaultAddress = () => {
       <StyledValue onClick={toggleModal}>
         {defaultAccount ? (
           <>
-            {formatKey(defaultAccount)}
+            {formatKey(defaultAccount, 8, 8)}
             {!allAccounts.includes(defaultAccount) &&
               !blockedWallets.includes(defaultAccount) && (
                 <StyledLabel>Not installed</StyledLabel>

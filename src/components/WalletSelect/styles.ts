@@ -10,7 +10,8 @@ export const StyledSelectWrapper = styled.div<{
     placement === ESelectPlacements.HEADER
       ? `
       padding-right: 16px;
-      min-width: 94px;
+      max-width: 150px;
+
       `
       : ''}
   ${({ placement }) =>
@@ -30,6 +31,9 @@ export const StyledSelect = styled.div<{
 }>`
   font-weight: 500;
   font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   ${({ placement, theme }) =>
     placement === ESelectPlacements.HEADER
@@ -82,24 +86,17 @@ export const StyledExpandedSelect = styled.div<{
     placement === ESelectPlacements.HEADER
       ? `
       top: 120%;
-      left: -56%;
-      width: 203px;
-      
+      right: -25px;
+      width: 250px;
       `
       : ''}
   ${({ placement }) =>
     placement === ESelectPlacements.WIDGET
       ? `
       top: 110%;
-      left: 0;
-      width: 100%;
-      @media screen and (max-width: 400px) {
-        left: -40%;
-        min-width: 260px;
-      }
-      @media screen and (max-width: 767px) {
-        width: 120%;
-      }
+      right: -40px;
+      width: calc(100% + 40px);
+      min-width: 280px;
       text-align: center;
       `
       : ''}
@@ -112,7 +109,6 @@ export const StyledInput = styled.input`
   margin: -1px;
   border: 0;
   padding: 0;
-
   white-space: nowrap;
   clip-path: inset(100%);
   clip: rect(0 0 0 0);
@@ -149,8 +145,16 @@ export const StyledLabel = styled.label<{
     align-items: flex-start;
     font-size: ${({ placement }) =>
       placement === ESelectPlacements.HEADER ? '12px' : '14px'};
+    max-width: calc(100% - 63px);
 
     & .meta {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    & .key {
       color: ${({ theme }) => theme.colors.textSecondary};
     }
   }

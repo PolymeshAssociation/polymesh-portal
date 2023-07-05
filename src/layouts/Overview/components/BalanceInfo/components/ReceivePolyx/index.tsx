@@ -35,7 +35,7 @@ export const ReceivePolyx: React.FC<IReceivePolyxProps> = ({ toggleModal }) => {
         <TextWithDelimeter>Or</TextWithDelimeter>
         <Text color="secondary">Copy your key</Text>
         <StyledAddressWrapper>
-          {formatKey(selectedAccount, 11, 12)}
+          {formatKey(selectedAccount, isMobile ? 15 : 24, isMobile ? 15 : 24)}
           <CopyToClipboard value={selectedAccount} />
         </StyledAddressWrapper>
       </StyledWrapper>
