@@ -35,7 +35,7 @@ export const columns = {
       enableSorting: true,
       cell: (info) => {
         const percentage = info.getValue();
-        return `${formatBalance(percentage)}%`;
+        return `${formatBalance(percentage, 2)}%`;
       },
     }),
     tokenColumnHelper.accessor('balance', {
