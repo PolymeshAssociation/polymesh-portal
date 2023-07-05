@@ -10,6 +10,7 @@ export const StyledText = styled.p<{
   size?: `${ETextSize}`;
   bold?: boolean;
   transform?: `${ETextTransform}`;
+  truncateOverflow?: boolean; // Renamed prop to truncate
 }>`
   ${({
     theme,
@@ -21,8 +22,9 @@ export const StyledText = styled.p<{
     size = ETextSize.MEDIUM,
     bold,
     transform,
+    truncateOverflow,
   }) => `
-        ${width ? `width: ${width}px` : ''};
+        ${width ? `width: ${width}px;` : ''}
         ${centered ? 'text-align: center;' : ''}
         ${marginTop ? `margin-top: ${marginTop}px;` : ''}
         ${marginBottom ? `margin-bottom: ${marginBottom}px;` : ''}
@@ -39,5 +41,14 @@ export const StyledText = styled.p<{
         font-weight: ${bold ? '500' : '400'};
         font-size: ${theme.textSize[size]};
         text-transform: ${transform || 'none'};
+        ${
+          truncateOverflow
+            ? `
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            `
+            : ''
+        }
     `}
 `;

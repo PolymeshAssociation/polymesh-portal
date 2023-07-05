@@ -10,6 +10,7 @@ const Text: React.FC<ITextProps> = ({
   size = ETextSize.MEDIUM,
   bold,
   transform,
+  truncateOverflow,
   children,
 }) => {
   return (
@@ -22,6 +23,7 @@ const Text: React.FC<ITextProps> = ({
       size={size}
       bold={bold}
       transform={transform}
+      truncateOverflow={truncateOverflow}
     >
       {children}
     </StyledText>

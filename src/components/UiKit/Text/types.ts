@@ -24,5 +24,6 @@ export interface ITextProps {
   size?: `${ETextSize}`;
   bold?: boolean;
   transform?: `${ETextTransform}`;
+  truncateOverflow?: boolean;
   children: React.ReactNode;
 }

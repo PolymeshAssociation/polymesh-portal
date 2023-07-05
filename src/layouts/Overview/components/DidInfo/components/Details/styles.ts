@@ -120,7 +120,11 @@ export const KeyInfo = styled.div`
   align-items: center;
   justify-content: space-between;
 
-  .name-container,
+  .name-container {
+    min-width: 100px;
+    padding-right: 8px;
+  }
+
   .status-container {
     display: flex;
     align-items: center;
