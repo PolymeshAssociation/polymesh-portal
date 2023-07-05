@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useEffect, useState, useContext, useRef } from 'react';
 import { AccountContext } from '~/context/AccountContext';
 import { Icon, CopyToClipboard, WalletSelect } from '~/components';
 import { SkeletonLoader, Text } from '~/components/UiKit';
@@ -9,6 +9,7 @@ import {
   StyledLabel,
 } from './styles';
 import { useWindowWidth } from '~/hooks/utility';
+import { truncateText } from '~/helpers/formatters';
 
 export const KeyInfo = () => {
   const {
@@ -20,10 +21,26 @@ export const KeyInfo = () => {
     identityLoading,
   } = useContext(AccountContext);
   const { isMobile, isSmallDesktop } = useWindowWidth();
+  const ref = useRef<HTMLDivElement>(null);
+  const [selectedKeyName, setSelectedKeyName] = useState('');
 
-  const selectedKeyName = allAccountsWithMeta.find(
-    ({ address }) => address === selectedAccount,
-  )?.meta.name;
+  useEffect(() => {
+    const updateWrapperWidth = () => {
+      const keyName = allAccountsWithMeta.find(
+        ({ address }) => address === selectedAccount,
+      )?.meta.name;
+      setSelectedKeyName(keyName ?? '');
+    };
+
+    updateWrapperWidth();
+  }, [selectedAccount, allAccountsWithMeta]);
+
+  const wrapperWidth = ref.current?.clientWidth ?? 150;
+  const truncateLength = Math.floor((wrapperWidth - 100) / 11);
+  const truncatedSelectedKeyName = truncateText(
+    selectedKeyName,
+    truncateLength,
+  );
 
   return (
     <StyledWrapper>
@@ -32,14 +49,10 @@ export const KeyInfo = () => {
           <Icon name="KeyIcon" className="key-icon" size="26px" />
         </IconWrapper>
       )}
-      <div className="info-wrapper">
+      <div className="info-wrapper" ref={ref}>
         <Text marginBottom={4}>
-          Selected key
-          {selectedKeyName ? (
-            <>
-              : <span className="key-name">{selectedKeyName}</span>
-            </>
-          ) : null}
+          Selected key:{' '}
+          <span className="key-name">{truncatedSelectedKeyName}</span>
         </Text>
         <KeyInfoWrapper>
           {!identityLoading && (
@@ -61,7 +74,7 @@ export const KeyInfo = () => {
                 )}
             </>
           )}
-          <WalletSelect placement="widget" trimValue={false} />
+          <WalletSelect placement="widget" />
           <IconWrapper>
             {selectedAccount ? (
               <CopyToClipboard value={selectedAccount} />
