@@ -13,6 +13,7 @@ export const StyledWrapper = styled.div`
 
   & .info-wrapper {
     flex-grow: 1;
+    white-space: nowrap;
 
     & > p {
       color: rgba(255, 255, 255, 0.82);
@@ -22,10 +23,9 @@ export const StyledWrapper = styled.div`
   & .key-name {
     color: #ffffff;
     font-weight: 500;
-    text-transform: uppercase;
   }
 
-  @media screen and (max-width: 1024px) {
+  @media screen and (max-width: 1023px) {
     width: 100%;
   }
 `;
