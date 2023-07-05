@@ -187,7 +187,7 @@ export const AssetAllocation = () => {
                 onMouseLeave={() => setOtherAssetsExpanded(false)}
               >
                 {ticker}
-                <span>{formatBalance(percentage)}%</span>
+                <span>{formatBalance(percentage, 2)}%</span>
                 {otherAssetsExpanded && (
                   <StyledExpandedOtherAssets>
                     {smallAmountAssets.map((option) => (
@@ -196,7 +196,7 @@ export const AssetAllocation = () => {
                         color={option.color}
                       >
                         {option.ticker}
-                        <span>{formatBalance(option.percentage)}%</span>
+                        <span>{formatBalance(option.percentage, 2)}%</span>
                       </StyledLegendItem>
                     ))}
                   </StyledExpandedOtherAssets>
@@ -205,7 +205,7 @@ export const AssetAllocation = () => {
             ) : (
               <StyledLegendItem key={ticker} color={color}>
                 {ticker}
-                <span>{formatBalance(percentage)}%</span>
+                <span>{formatBalance(percentage, 2)}%</span>
               </StyledLegendItem>
             );
           })

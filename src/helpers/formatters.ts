@@ -11,9 +11,11 @@ export const formatDid = (
 export const formatKey = (key: string, startChars = 4, endChars = 5) => {
   return `${key.slice(0, startChars)}...${key.slice(key.length - endChars)}`;
 };
-
-export const formatBalance = (balance: string | number, decimals = 2) =>
-  Number(balance).toFixed(decimals);
+export const formatBalance = (balance: string | number, decimals = 6) => {
+  return Number(balance).toLocaleString(undefined, {
+    maximumFractionDigits: decimals,
+  });
+};
 
 export const stringToColor = (str: string) => {
   let hash = 0;
@@ -25,7 +27,7 @@ export const stringToColor = (str: string) => {
   for (let i = 0; i < 3; i += 1) {
     // eslint-disable-next-line no-bitwise
     const value = (hash >> (i * 3)) & 0xff;
-    color += `00${value.toString(16)}`.substr(-2);
+    color += `00${value.toString(16)}`.slice(-2);
   }
   return color;
 };
