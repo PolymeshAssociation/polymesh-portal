@@ -12,13 +12,9 @@ import {
 } from './styles';
 import { formatKey } from '~/helpers/formatters';
 import { ESelectPlacements, ISelectProps } from './types';
-import { useWindowWidth } from '~/hooks/utility';
 import { SkeletonLoader } from '../UiKit';
 
-const WalletSelect: React.FC<ISelectProps> = ({
-  placement = 'header',
-  trimValue = true,
-}) => {
+const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
   const {
     selectedAccount,
     setSelectedAccount,
@@ -27,18 +23,20 @@ const WalletSelect: React.FC<ISelectProps> = ({
     secondaryKeys,
   } = useContext(AccountContext);
   const [expanded, setExpanded] = useState(false);
-  const [selected, setSelected] = useState('');
   const ref = useRef<HTMLDivElement>(null);
-  const { isMobile } = useWindowWidth();
+  const [selectedKeyName, setSelectedKeyName] = useState('');
 
   useEffect(() => {
     if (!selectedAccount) {
-      setSelected('');
+      setSelectedKeyName('');
       return;
     }
 
-    setSelected(selectedAccount);
-  }, [selectedAccount]);
+    const keyName = allAccountsWithMeta.find(
+      ({ address }) => address === selectedAccount,
+    )?.meta.name;
+    setSelectedKeyName(keyName || '');
+  }, [selectedAccount, allAccountsWithMeta]);
 
   // Close dropdown when clicked outside of it
   useEffect(() => {
@@ -56,7 +54,6 @@ const WalletSelect: React.FC<ISelectProps> = ({
 
   const handleAccountChange: React.ReactEventHandler = ({ target }) => {
     setSelectedAccount((target as HTMLInputElement).value);
-    setSelected((target as HTMLInputElement).value);
     setExpanded(false);
   };
 
@@ -64,16 +61,19 @@ const WalletSelect: React.FC<ISelectProps> = ({
     setExpanded((prev) => !prev);
   };
 
-  return selected ? (
+  const wrapperWidth = ref.current?.clientWidth ?? 150;
+  const truncateLength = Math.floor((wrapperWidth - 30) / 18);
+
+  return selectedAccount ? (
     <StyledSelectWrapper ref={ref} placement={placement}>
       <StyledSelect
         onClick={handleDropdownToggle}
         expanded={expanded}
         placement={placement}
       >
-        {trimValue
-          ? formatKey(selected)
-          : formatKey(selected, isMobile ? 6 : 8, isMobile ? 6 : 8)}
+        {placement === 'widget'
+          ? formatKey(selectedAccount, truncateLength, truncateLength)
+          : selectedKeyName}
         <IconWrapper>
           <Icon name="DropdownIcon" />
         </IconWrapper>
@@ -97,14 +97,12 @@ const WalletSelect: React.FC<ISelectProps> = ({
               <StyledLabel
                 key={address}
                 htmlFor={address}
-                selected={selected === address}
+                selected={selectedAccount === address}
                 placement={placement}
               >
                 <span>
-                  {trimValue
-                    ? formatKey(address)
-                    : formatKey(address, isMobile ? 6 : 8, isMobile ? 6 : 8)}
                   <span className="meta">{meta.name || ''}</span>
+                  <span className="key">{formatKey(address, 8, 7)}</span>
                 </span>
                 {address === primaryKey ? (
                   <StyledKeyLabel primary>Primary</StyledKeyLabel>

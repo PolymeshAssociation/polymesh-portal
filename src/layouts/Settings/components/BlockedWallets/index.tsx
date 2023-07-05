@@ -69,7 +69,7 @@ export const BlockedWallets = () => {
           {blockedWallets.map((wallet) => (
             <StyledWalletWrapper key={wallet}>
               <Text size="large" bold>
-                {formatKey(wallet)}
+                {formatKey(wallet, 10, 10)}
               </Text>
               <StyledActionButton onClick={() => unblockWalletAddress(wallet)}>
                 Unblock

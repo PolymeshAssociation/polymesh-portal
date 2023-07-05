@@ -33,13 +33,13 @@ export const StyledHeaderContainer = styled.div`
 export const StyledInfoList = styled.ul`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 
   @media screen and (max-width: 767px) {
     margin-left: auto;
   }
 
   @media screen and (max-width: 1023px) {
-    max-width: 300px;
     flex-wrap: wrap;
     justify-content: flex-end;
   }
@@ -49,11 +49,14 @@ export const StyledInfoItem = styled.li`
   display: flex;
   align-items: center;
   gap: 16px;
+
   @media screen and (min-width: 768px) and (max-width: 1023px) {
     gap: 8px;
   }
+
   &:not(:first-child) {
     margin-left: 16px;
+
     @media screen and (min-width: 768px) and (max-width: 1023px) {
       margin-left: 8px;
     }
@@ -68,12 +71,6 @@ export const StyledInfoItem = styled.li`
 
   &:last-child {
     margin-left: 4px;
-  }
-
-  @media screen and (max-width: 1024px) {
-    &:nth-child(2)::after {
-      display: none;
-    }
   }
 `;
 
