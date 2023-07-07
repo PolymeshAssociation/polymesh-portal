@@ -54,7 +54,7 @@ node {
 
                                 set -eu -o pipefail
 
-                                umask 077 # mode: 0600
+                                umask 0077 # mode: 0600
 
                                 cleanup() {
                                     { shred ssh.json; sync; rm -f ssh.json; } || true
@@ -86,6 +86,8 @@ node {
                                 export GIT_SSH_COMMAND+=' -o StrictHostKeyChecking=yes'
                                 export GIT_SSH_COMMAND+=' -o CertificateFile=id_ed25519-cert.pub'
                                 export GIT_SSH_COMMAND+=' -o IdentityFile=id_ed25519'
+
+                                umask 0022 # mode: 0644
 
                                 git clone \
                                     --depth=1 \
