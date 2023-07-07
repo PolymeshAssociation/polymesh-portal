@@ -6,4 +6,6 @@ export enum Themes {
 export const initialValues = {
   currentTheme: Themes.Light,
   toggleTheme: () => {},
+  systemThemeEnabled: true,
+  toggleUseSystemTheme: () => {},
 };

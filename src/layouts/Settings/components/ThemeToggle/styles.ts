@@ -2,10 +2,18 @@ import styled from 'styled-components';
 
 export const StyledWrapper = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  row-gap: 6px;
+  column-gap: 16px;
   text-transform: capitalize;
+
+  > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 `;
 
 export const StyledCheckboxWrapper = styled.label<{ isLight: boolean }>`
@@ -31,7 +39,8 @@ export const StyledCheckboxMark = styled.span<{ isLight: boolean }>`
   height: 16px;
   background-color: ${({ isLight }) => (isLight ? '#ffffff' : '#FF2E72')};
   border-radius: 50%;
-  box-shadow: ${({ theme }) => `0px 1px 3px ${theme.colors.shadow},
+  box-shadow: ${({ theme }) =>
+    `0px 1px 3px ${theme.colors.shadow},
     0px 1px 2px ${theme.colors.shadow}`};
   transition: background-color 250ms ease-out, left 250ms ease-out;
 
@@ -58,4 +67,21 @@ export const HiddenInput = styled.input`
   clip-path: inset(100%);
   clip: rect(0 0 0 0);
   overflow: hidden;
+`;
+
+export const StyledSelect = styled.div<{ isSelected: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: ${({ isSelected }) =>
+    isSelected ? '#FF2E72' : 'transparent'};
+  border: 2px solid
+    ${({ isSelected, theme }) =>
+      isSelected ? '#FF2E72' : theme.colors.textDisabled};
+  color: ${({ isSelected }) => (isSelected ? '#FFFFFF' : 'transparent')};
+  transition: background-color 250ms ease-out, color 250ms ease-out;
+  cursor: pointer;
 `;
