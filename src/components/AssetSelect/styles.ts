@@ -63,6 +63,7 @@ export const StyledExpandedSelect = styled.div`
   border-radius: 8px;
   z-index: 1;
   box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
+  overflow-y: auto;
 `;
 
 export const SelectedOption = styled.div`
