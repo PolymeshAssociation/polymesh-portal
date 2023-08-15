@@ -12,7 +12,7 @@ export const StyledMain = styled.main<{
       `
       : `
       flex-grow: 1;
-      min-height: calc(100vh - 16px - 72px - 55px);
+      min-height: calc(100vh - 16px - 72px - 77px);
       padding: 24px;
 
       @media screen and (min-width: 768px) {
@@ -33,7 +33,7 @@ export const StyledMain = styled.main<{
 
 export const StyledPageWrapper = styled.div`
   display: flex;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
 
   & .main-wrapper {

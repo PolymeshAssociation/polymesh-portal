@@ -10,6 +10,7 @@ const Transfers = lazy(() => import('~/layouts/Transfers'));
 const Claims = lazy(() => import('~/layouts/Claims'));
 const Distributions = lazy(() => import('~/layouts/Distributions'));
 const Settings = lazy(() => import('~/layouts/Settings'));
+const Staking = lazy(() => import('~/layouts/Staking'));
 
 interface IRoute {
   path: string;
@@ -40,6 +41,7 @@ export const PATHS = {
   CLAIMS: '/claims',
   DISTRIBUTIONS: '/distributions',
   SETTINGS: '/settings',
+  STAKING: '/staking',
   NOT_FOUND: '*',
 };
 
@@ -81,6 +83,11 @@ export const ROUTES = [
     component: Distributions,
   },
   {
+    path: PATHS.STAKING,
+    label: 'Staking',
+    component: Staking,
+  },
+  {
     path: PATHS.NOT_FOUND,
     label: null,
     component: NotFound,
@@ -113,7 +120,12 @@ export const NAV_LINKS = [
     icon: 'Bank',
     notifications: 'distributions',
   },
-  { path: '', label: 'Staking', icon: 'StakingIcon', disabled: true },
+  {
+    path: PATHS.STAKING,
+    label: 'Staking',
+    icon: 'StakingIcon',
+    disabled: false,
+  },
   {
     path: '',
     label: 'Resources',

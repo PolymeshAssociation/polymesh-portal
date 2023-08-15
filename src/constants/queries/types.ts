@@ -102,3 +102,23 @@ export interface IDistributionsQueryResponse {
     totalCount: number;
   };
 }
+
+export interface IStakingRewardEvent {
+  id: string;
+  blockId: number;
+  block: {
+    datetime: string;
+  };
+  eventArg0: string;
+  eventArg1: string;
+  eventArg2: string;
+  eventId: string;
+  moduleId: string;
+}
+
+export interface IRewardsQueryResponse {
+  events: {
+    nodes: IStakingRewardEvent[];
+    totalCount: number;
+  };
+}

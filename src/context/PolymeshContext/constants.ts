@@ -1,15 +1,17 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
-import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { EventRecord } from '@polymeshassociation/polymesh-sdk/types';
 
 export interface IPolymeshContext {
   state: {
-    connecting: boolean;
+    connecting: boolean | null;
     initialized: boolean;
   };
   api: {
     sdk: Polymesh | null;
     signingManager: BrowserExtensionSigningManager | null;
+    polkadotApi: Polymesh['_polkadotApi'] | null;
     gqlClient: ApolloClient<NormalizedCacheObject> | null;
   };
   settings: {
@@ -23,16 +25,22 @@ export interface IPolymeshContext {
     setMiddlewareKey: (key: string) => void;
   };
   connectWallet: (extensionName: string) => Promise<void>;
+  ss58Prefix: BigNumber | undefined;
+  subscribedEventRecords: {
+    events: EventRecord[];
+    blockHash: string;
+  };
 }
 
 export const initialState = {
   state: {
-    connecting: false,
+    connecting: null,
     initialized: false,
   },
   api: {
     sdk: null,
     signingManager: null,
+    polkadotApi: null,
     gqlClient: null,
   },
   settings: {
@@ -46,4 +54,6 @@ export const initialState = {
     setMiddlewareKey: () => {},
   },
   connectWallet: async () => {},
+  ss58Prefix: undefined,
+  subscribedEventRecords: { events: [], blockHash: '' },
 };
