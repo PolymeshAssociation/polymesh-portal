@@ -25,39 +25,34 @@ interface IChainInfo {
 
 const Settings = () => {
   const {
-    api: { sdk },
+    api: { polkadotApi },
   } = useContext(PolymeshContext);
   const [chainInfo, setChainInfo] = useState<IChainInfo | null>(null);
   const [infoLoading, setInfoLoading] = useState(true);
   const { isMobile } = useWindowWidth();
   useEffect(() => {
-    if (!sdk) return;
+    if (!polkadotApi) return;
 
     (async () => {
       setInfoLoading(true);
-      const runtimeVersion = sdk._polkadotApi.runtimeVersion.toHuman();
+      const runtimeVersion = polkadotApi.runtimeVersion.toHuman();
 
       const info = {
         runtime: {
           name: runtimeVersion.specName as string,
           version: runtimeVersion.specVersion as string,
         },
-        chain: sdk._polkadotApi.runtimeChain.toHuman(),
+        chain: polkadotApi.runtimeChain.toHuman(),
         system: {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          name: (await sdk._polkadotApi.rpc.system.name()).toHuman() as string,
-          version:
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            (await sdk._polkadotApi.rpc.system.version()).toHuman() as string,
+          name: (await polkadotApi.rpc.system.name()).toHuman() as string,
+          version: (await polkadotApi.rpc.system.version()).toHuman() as string,
         },
       };
 
       setChainInfo(info);
       setInfoLoading(false);
     })();
-  }, [sdk]);
+  }, [polkadotApi]);
   return (
     <StyledSettings>
       <Text size="large" bold color="secondary" marginBottom={28}>

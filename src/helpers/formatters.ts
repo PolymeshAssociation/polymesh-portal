@@ -1,3 +1,6 @@
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import { encodeAddress } from '@polkadot/util-crypto';
+
 export const formatDid = (
   did: string | undefined | null,
   startChars = 6,
@@ -61,4 +64,28 @@ export const truncateText = (
     return text;
   }
   return `${text.slice(0, maxLength)}...`;
+};
+
+export const formatMillisecondsToTime = (
+  milliseconds?: number,
+): string | null => {
+  if (milliseconds === undefined || milliseconds === null) return null;
+
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = Math.floor(totalSeconds % 60);
+
+  if (days > 0) return `${days} days ${hours} hr`;
+  if (hours > 0) return `${hours} hr ${minutes} mins`;
+  return `${minutes} min ${seconds} sec`;
+};
+
+export const accountKeyToAddress = (key: string, ss58Prefix: BigNumber) => {
+  let accountKey = key;
+  if (!accountKey.startsWith('0x')) {
+    accountKey = `0x${accountKey}`;
+  }
+  return encodeAddress(accountKey, ss58Prefix.toNumber());
 };

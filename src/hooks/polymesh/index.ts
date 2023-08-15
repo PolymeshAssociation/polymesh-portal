@@ -3,7 +3,10 @@
 export { default as useBalance } from './useBalance';
 export { default as useHistoricData } from './useHistoricData';
 export { default as useNotifications } from './useNotifications';
-// export { default as useNetwork } from './useNetwork';
 export { default as useTransferPolyx } from './useTransferPolyx';
 export { default as useTransactionStatus } from './useTransactionStatus';
 export { default as usePortfolio } from './usePortfolio';
+export { default as useEraStatus } from './useEraStatus';
+export { default as useStakingAccount } from './useStakingAccount';
+export { default as useStakingInfo } from './useStakingInfo';
+export { default as useOperatorInfo } from './useOperatorInfo';

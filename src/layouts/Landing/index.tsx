@@ -18,25 +18,29 @@ const Landing = () => {
 
   return (
     <>
-      {connecting && <Navigate to={PATHS.OVERVIEW} replace />}
-      <StyledLogoBox>
-        <Icon name="PolymeshLogo" />
-      </StyledLogoBox>
-      <StyledInfoBox>
-        <Heading marginBottom={16}>Welcome to the Polymesh Portal</Heading>
-        <Text>
-          The Polymesh Portal is where you can access Polymesh supported dApps
-          and manage your account, assets, and POLYX.
-        </Text>
-        <Button onClick={toggleModal} variant="accent" marginTop={48}>
-          <Icon name="Wallet" />
-          Connect wallet
-        </Button>
-      </StyledInfoBox>
-      <StyledAnimationBox>
-        <Lottie animationData={landingAnimation} loop />
-      </StyledAnimationBox>
-      {modalOpen && <ExtensionSelect handleClose={toggleModal} />}
+      {connecting === true && <Navigate to={PATHS.OVERVIEW} replace />}
+      {connecting === false && (
+        <>
+          <StyledLogoBox>
+            <Icon name="PolymeshLogo" />
+          </StyledLogoBox>
+          <StyledInfoBox>
+            <Heading marginBottom={16}>Welcome to the Polymesh Portal</Heading>
+            <Text>
+              The Polymesh Portal is where you can access Polymesh supported
+              dApps and manage your account, assets, and POLYX.
+            </Text>
+            <Button onClick={toggleModal} variant="accent" marginTop={48}>
+              <Icon name="Wallet" />
+              Connect wallet
+            </Button>
+          </StyledInfoBox>
+          <StyledAnimationBox>
+            <Lottie animationData={landingAnimation} loop />
+          </StyledAnimationBox>
+          {modalOpen && <ExtensionSelect handleClose={toggleModal} />}
+        </>
+      )}
     </>
   );
 };

@@ -30,6 +30,7 @@ export interface IAccountContext {
   allIdentities: (Identity | null)[];
   primaryKey: string;
   secondaryKeys: string[];
+  accountLoading: boolean;
   identityLoading: boolean;
   allKeyInfo: IInfoByKey[];
   identityHasValidCdd: boolean;
@@ -52,6 +53,7 @@ export const initialState = {
   allIdentities: [],
   primaryKey: '',
   secondaryKeys: [],
+  accountLoading: true,
   identityLoading: true,
   allKeyInfo: [],
   identityHasValidCdd: false,

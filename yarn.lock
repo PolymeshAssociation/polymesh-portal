@@ -869,7 +869,7 @@
     "@types/websocket" "^1.0.5"
     websocket "^1.0.34"
 
-"@polymeshassociation/browser-extension-signing-manager@^1.3.0":
+"@polymeshassociation/browser-extension-signing-manager@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@polymeshassociation/browser-extension-signing-manager/-/browser-extension-signing-manager-1.4.0.tgz#e67f1566c0c977ab40c70e33b5ea30802c452e57"
   integrity sha512-Wqx8CGhbhKAQbAVQtsp/42NZGwToR41SFVbS2dTN1fm41QB0jQrbJTSXUGlKBH6fEMHIIezsVXsmrbL2hfS+uw==
@@ -879,10 +879,17 @@
     "@polkadot/util-crypto" "^10.4.2"
     "@polymeshassociation/signing-manager-types" "^2.0.0"
 
+<<<<<<< HEAD
 "@polymeshassociation/polymesh-sdk@21.0.0-alpha.12":
   version "21.0.0-alpha.12"
   resolved "https://registry.yarnpkg.com/@polymeshassociation/polymesh-sdk/-/polymesh-sdk-21.0.0-alpha.12.tgz#89f9786c99f6c8a33f97bf54d0fc1fbf3e1b31b7"
   integrity sha512-BM3D+1+VTsqrLNWJ+KyEDH3NDU9yJlM7f1YYfd7jr1oEKn6Y1U/0VrkgJBkm5YbQ8XaxF3Mo0kyyqqxsc+pJ2g==
+=======
+"@polymeshassociation/polymesh-sdk@21.0.0":
+  version "21.0.0"
+  resolved "https://registry.yarnpkg.com/@polymeshassociation/polymesh-sdk/-/polymesh-sdk-21.0.0.tgz#0cc1a6114450418a559826b5da7a727adc96b021"
+  integrity sha512-kJjwZNsTPlq5w/WfqHhx0IuxdjEgQx/h6eI+w8gH/buGJNi9fMe6A4BbTE7DpQGHxuRfx1g6WM/3Gh7KHd6a1A==
+>>>>>>> 6cb7652 (Add feature - staking page)
   dependencies:
     "@apollo/client" "^3.7.10"
     "@polkadot/api" "9.14.2"

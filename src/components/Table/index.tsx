@@ -19,6 +19,11 @@ import {
   StyledMobileCell,
 } from './styles';
 
+interface IDownloadButton {
+  buttonText: string;
+  handleDownloadClick: () => void;
+  disabled: boolean;
+}
 interface ITableProps<T, S> {
   data: {
     tab?: string;
@@ -29,6 +34,7 @@ interface ITableProps<T, S> {
   setTab?: Dispatch<SetStateAction<S>>;
   loading: boolean;
   totalItems?: number;
+  downloadButton?: IDownloadButton;
 }
 
 const perPageOptions = [3, 5, 10, 20, 50];
@@ -43,12 +49,15 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
     setTab,
     loading,
     totalItems,
+    downloadButton,
   } = props;
+
   const colsNumber = table.getAllColumns().length;
   const rowsNumber = table.getExpandedRowModel().rows.length;
   const {
     pagination: { pageIndex, pageSize },
   } = table.getState();
+  const sizeOptions = [...new Set([pageSize, ...perPageOptions])];
 
   const getCurrentPageItems = () => {
     const { rows } = table.getPaginationRowModel();
@@ -207,24 +216,39 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
         {!loading && rowsNumber ? (
           <>
             {!isSmallScreen && (
-              <StyledPerPageWrapper>
-                Show:
-                <StyledPerPageSelect>
-                  <select
-                    onChange={({ target }) => {
-                      table.setPageSize(Number(target.value));
-                    }}
-                    value={pageSize}
+              <>
+                {downloadButton && (
+                  <Button
+                    className={`download ${
+                      downloadButton.disabled ? 'disabled' : ''
+                    }`}
+                    onClick={downloadButton.handleDownloadClick}
+                    variant="primary"
+                    disabled={downloadButton.disabled}
                   >
-                    {perPageOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  <Icon name="DropdownIcon" className="dropdown-icon" />
-                </StyledPerPageSelect>
-              </StyledPerPageWrapper>
+                    <Icon name="DownloadIcon" className="download-icon" />
+                    {downloadButton.buttonText}
+                  </Button>
+                )}
+                <StyledPerPageWrapper>
+                  Show:
+                  <StyledPerPageSelect>
+                    <select
+                      onChange={({ target }) => {
+                        table.setPageSize(Number(target.value));
+                      }}
+                      value={pageSize}
+                    >
+                      {sizeOptions.map((option) => (
+                        <option className="options" key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                    <Icon name="DropdownIcon" className="dropdown-icon" />
+                  </StyledPerPageSelect>
+                </StyledPerPageWrapper>
+              </>
             )}
             {isSmallScreen ? (
               <>
@@ -268,6 +292,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
 };
 
 Table.defaultProps = {
+  downloadButton: undefined,
   tabs: [],
   setTab: () => {},
   totalItems: 0,

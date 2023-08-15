@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 
 const toastConfig = {
-  autoClose: 3000,
+  autoClose: 4000,
   hideProgressBar: true,
   pauseOnHover: true,
   containerId: 'notification-center',
@@ -18,5 +18,5 @@ export const notifyGlobalError = (message: string) =>
     ...toastConfig,
     containerId: 'globalToast',
     toastId: message,
-    autoClose: 5000,
+    autoClose: 6000,
   });

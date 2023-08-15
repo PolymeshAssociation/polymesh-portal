@@ -120,17 +120,44 @@ export const StyledTableFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  height: 56px;
+  height: 60px;
   padding-right: 24px;
 
   @media screen and (max-width: 1023px) {
     padding: 24px;
     height: auto;
     gap: 16px;
+
     & button {
       flex-grow: 1;
       padding-left: 0;
       padding-right: 0;
+    }
+  }
+
+  & .download {
+    margin-right: auto;
+    margin-left: 24px;
+    padding-right: 30px;
+
+    & .download-icon {
+      & svg path {
+        fill: ${({ theme }) => theme.colors.textPink};
+        transition: fill 0.3s;
+      }
+      & svg rect {
+        fill: transparent;
+      }
+      transform: scale(1.5);
+    }
+
+    &:hover:enabled .download-icon svg path,
+    &:focus:enabled .download-icon svg path {
+      fill: ${({ theme }) => theme.colors.pinkBackground};
+    }
+
+    &:disabled .download-icon svg path {
+      fill: ${({ theme }) => theme.colors.textDisabled};
     }
   }
 `;
@@ -241,5 +268,9 @@ export const StyledPerPageSelect = styled.div`
     outline: none;
     font-size: 14px;
     color: ${({ theme }) => theme.colors.textPrimary};
+  }
+
+  & .options {
+    background-color: ${({ theme }) => theme.colors.modalBackground};
   }
 `;

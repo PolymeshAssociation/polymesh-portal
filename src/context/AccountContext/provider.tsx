@@ -42,6 +42,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [allIdentities, setAllIdentities] = useState<(Identity | null)[]>([]);
   const [primaryKey, setPrimaryKey] = useState<string>('');
   const [secondaryKeys, setSecondaryKeys] = useState<string[]>([]);
+  const [accountLoading, setAccountLoading] = useState(true);
   const [identityLoading, setIdentityLoading] = useState(true);
   const [allKeyInfo, setAllKeyInfo] = useState<IInfoByKey[]>([]);
   const [identityHasValidCdd, setIdentityHasValidCdd] =
@@ -165,6 +166,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       return;
     }
 
+    setAccountLoading(true);
     (async () => {
       try {
         const accountInstance = await sdk.accountManagement.getAccount({
@@ -181,6 +183,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
         notifyGlobalError((error as Error).message);
         setAccount(null);
         setAccountIsMultisigSigner(false);
+      } finally {
+        setAccountLoading(false);
       }
     })();
   }, [sdk, selectedAccount]);
@@ -352,6 +356,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       allIdentities,
       primaryKey,
       secondaryKeys,
+      accountLoading,
       identityLoading,
       allKeyInfo,
       identityHasValidCdd,
@@ -371,6 +376,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       blockedWallets,
       primaryKey,
       secondaryKeys,
+      accountLoading,
       identityLoading,
       allKeyInfo,
       identityHasValidCdd,

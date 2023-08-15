@@ -233,6 +233,68 @@ export const historicalDistributionsQuery = ({
 
   return query;
 };
+
+export const StakingRewardsQuery = ({
+  offset,
+  pageSize,
+  accountRawKey,
+  identityId,
+}: {
+  offset: number;
+  pageSize: number;
+  accountRawKey?: string;
+  identityId?: string;
+}) => {
+  if (!accountRawKey && !identityId) {
+    throw new Error('an accountRawKey or identityId must be provided');
+  }
+
+  const accountFilter = accountRawKey
+    ? `eventArg1: {equalTo: "${accountRawKey}" }`
+    : '';
+  const identityFilter = identityId
+    ? `eventArg0: {equalTo: "${identityId}" }`
+    : '';
+
+  const query = gql`
+    query {
+      events(
+        first: ${pageSize}
+        offset: ${offset}
+        orderBy: CREATED_AT_DESC
+        filter: {
+          moduleId: { equalTo: staking }
+          eventId: { equalTo: Reward }
+          ${accountFilter}
+          ${identityFilter}
+        }
+      ) {
+        totalCount
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+          startCursor
+          endCursor
+        }
+        nodes {
+          id
+          blockId
+          moduleId
+          eventId
+          eventArg0
+          eventArg1
+          eventArg2
+          block {
+            datetime
+          }
+        }
+      }
+    }
+  `;
+
+  return query;
+};
+
 // export const historicalDistributionsQuery = ({
 //   offset,
 //   pageSize,
