@@ -6,7 +6,6 @@ import {
   InstructionDetails,
   InstructionType,
   Leg,
-  NoArgsProcedureMethod,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
@@ -21,7 +20,7 @@ import {
 } from './styles';
 import { Details } from './components/Details';
 import { InstructionLeg } from './components/InstructionLeg';
-import { EInstructionTypes } from '../../types';
+import { EInstructionTypes, InstructionAction } from '../../types';
 import {
   getAffirmationStatus,
   getLegErrors,
@@ -45,11 +44,7 @@ interface IAuthorizationItemProps {
   instruction: Instruction;
   onSelect: () => void;
   isSelected: boolean;
-  executeAction: (
-    action:
-      | NoArgsProcedureMethod<Instruction, Instruction>
-      | NoArgsProcedureMethod<Instruction, Instruction>[],
-  ) => void;
+  executeAction: (action: InstructionAction) => void;
   actionInProgress: boolean;
 }
 

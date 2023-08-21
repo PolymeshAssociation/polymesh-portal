@@ -134,15 +134,6 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
           </Text>
         </StyledClaimItem>
       )}
-      {claim.type === ClaimType.InvestorUniqueness &&
-        (claim.cddId ? (
-          <StyledClaimItem>
-            CDD ID
-            <Text bold size="large">
-              {claim.cddId}
-            </Text>
-          </StyledClaimItem>
-        ) : null)}
       {type === EClaimsType.ISSUED && (
         <RevokeButton disabled={revokeInProgress} onClick={handleRevoke}>
           <Icon name="CloseIcon" size="24px" />

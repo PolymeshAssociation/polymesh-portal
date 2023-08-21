@@ -1,7 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
   Instruction,
-  NoArgsProcedureMethod,
   UnsubCallback,
   GroupedInstructions,
 } from '@polymeshassociation/polymesh-sdk/types';
@@ -24,7 +23,12 @@ import {
 } from './styles';
 import { TransferItem } from '../TransferItem';
 import { notifyError } from '~/helpers/notifications';
-import { EInstructionTypes, EActionTypes, ESortOptions } from '../../types';
+import {
+  EInstructionTypes,
+  EActionTypes,
+  ESortOptions,
+  InstructionAction,
+} from '../../types';
 import { createTransactionChunks, createTransactions } from './helpers';
 import { useWindowWidth } from '~/hooks/utility';
 import { SkeletonLoader } from '~/components/UiKit';
@@ -130,11 +134,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
     }
   };
 
-  const executeAction = async (
-    action:
-      | NoArgsProcedureMethod<Instruction, Instruction>
-      | NoArgsProcedureMethod<Instruction, Instruction>[],
-  ) => {
+  const executeAction = async (action: InstructionAction) => {
     if (!sdk) return;
 
     let unsubCb: UnsubCallback | undefined;
