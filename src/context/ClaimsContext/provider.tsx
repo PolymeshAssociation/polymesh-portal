@@ -44,13 +44,13 @@ const ClaimsProvider = ({ children }: IProviderProps) => {
       try {
         setClaimsLoading(true);
 
-        const { data: targeting } = await sdk.claims.getTargetingClaimsV2({
+        const { data: targeting } = await sdk.claims.getTargetingClaims({
           target: identity,
         });
         const targetingClaims = targeting.flatMap(({ claims }) => claims);
         setReceivedClaims(targetingClaims);
 
-        const { data: issued } = await sdk.claims.getIssuedClaimsV2({
+        const { data: issued } = await sdk.claims.getIssuedClaims({
           target: identity,
         });
         setIssuedClaims(issued);

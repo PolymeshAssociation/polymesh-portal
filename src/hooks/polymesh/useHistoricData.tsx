@@ -1,8 +1,9 @@
 import { useContext, useState, useEffect } from 'react';
 import {
   ExtrinsicData,
-  ExtrinsicsOrderBy,
   HistoricInstruction,
+  Order,
+  TransactionOrderFields,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { AccountContext } from '~/context/AccountContext';
@@ -31,8 +32,11 @@ const useHistoricData = ({ pageIndex, pageSize }: IPaginationState) => {
       try {
         setDataLoading(true);
 
-        const { data, count } = await account.getTransactionHistoryV2({
-          orderBy: ExtrinsicsOrderBy.CreatedAtDesc,
+        const { data, count } = await account.getTransactionHistory({
+          orderBy: {
+            field: TransactionOrderFields.BlockId,
+            order: Order.Desc,
+          },
           size: new BigNumber(pageSize),
           start: new BigNumber(pageIndex * pageSize),
         });
