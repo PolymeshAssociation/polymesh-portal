@@ -90,7 +90,7 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
               value={sortBy}
             >
               {Object.values(ESortOptions).map((option) => (
-                <option key={option} value={option}>
+                <option className="options" key={option} value={option}>
                   {option}
                 </option>
               ))}

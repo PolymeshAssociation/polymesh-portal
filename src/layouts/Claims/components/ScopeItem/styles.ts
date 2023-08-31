@@ -122,5 +122,11 @@ export const StyledSortSelect = styled.div`
     outline: none;
     font-size: 14px;
     color: ${({ theme }) => theme.colors.textPrimary};
+    padding: 0px 5px;
+    cursor: pointer;
+  }
+
+  & .options {
+    background-color: ${({ theme }) => theme.colors.modalBackground};
   }
 `;

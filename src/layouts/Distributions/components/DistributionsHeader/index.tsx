@@ -83,7 +83,7 @@ export const DistributionsHeader: React.FC<IDistributionsHeaderProps> = ({
                 value={sortBy}
               >
                 {Object.values(ESortOptions).map((option) => (
-                  <option key={option} value={option}>
+                  <option className="options" key={option} value={option}>
                     {option}
                   </option>
                 ))}

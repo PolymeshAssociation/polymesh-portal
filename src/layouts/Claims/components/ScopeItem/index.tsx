@@ -80,7 +80,7 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
                   value={sortBy}
                 >
                   {Object.values(EClaimSortOptions).map((option) => (
-                    <option key={option} value={option}>
+                    <option className="options" key={option} value={option}>
                       {option}
                     </option>
                   ))}
@@ -111,7 +111,7 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
                   value={sortBy}
                 >
                   {Object.values(EClaimSortOptions).map((option) => (
-                    <option key={option} value={option}>
+                    <option className="options" key={option} value={option}>
                       {option}
                     </option>
                   ))}

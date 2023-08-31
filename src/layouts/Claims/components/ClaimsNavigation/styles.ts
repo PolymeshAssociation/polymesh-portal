@@ -111,7 +111,7 @@ export const StyledSortSelect = styled.div`
     z-index: 1;
     appearance: none;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     width: 100%;
     height: 100%;
     background-color: transparent;
@@ -119,5 +119,11 @@ export const StyledSortSelect = styled.div`
     outline: none;
     font-size: 14px;
     color: ${({ theme }) => theme.colors.textPrimary};
+    padding: 0px 5px;
+    cursor: pointer;
+  }
+
+  & .options {
+    background-color: ${({ theme }) => theme.colors.modalBackground};
   }
 `;

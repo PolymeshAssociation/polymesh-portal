@@ -89,7 +89,7 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
                       value={sortBy}
                     >
                       {Object.values(EScopeSortOptions).map((option) => (
-                        <option key={option} value={option}>
+                        <option className="options" key={option} value={option}>
                           {option}
                         </option>
                       ))}
@@ -128,7 +128,7 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
                   value={sortBy}
                 >
                   {Object.values(EScopeSortOptions).map((option) => (
-                    <option key={option} value={option}>
+                    <option className="options" key={option} value={option}>
                       {option}
                     </option>
                   ))}

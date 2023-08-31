@@ -117,5 +117,10 @@ export const StyledSort = styled.div`
     outline: none;
     font-size: 14px;
     color: ${({ theme }) => theme.colors.textPrimary};
+    cursor: pointer;
+  }
+
+  & .options {
+    background-color: ${({ theme }) => theme.colors.modalBackground};
   }
 `;
