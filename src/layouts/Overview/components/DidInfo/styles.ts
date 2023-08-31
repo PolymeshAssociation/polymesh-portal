@@ -5,7 +5,7 @@ export const StyledWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 244px;
+  min-height: 244px;
   padding: 24px;
   background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
@@ -15,7 +15,7 @@ export const StyledWrapper = styled.div`
     width: 100%;
   }
 
-  @media screen and (max-width: 1200px) {
+  @media screen and (max-width: 1199px) {
     width: 100%;
   }
 `;
@@ -84,7 +84,7 @@ export const StyledBottomInfo = styled.div`
     align-items: center;
     gap: 16px;
   }
-  @media screen and (min-width: 1024px) and (max-width: 1200px) {
+  @media screen and (min-width: 1024px) and (max-width: 1199px) {
     gap: 8px;
     flex-direction: column;
     align-items: flex-start;
@@ -107,7 +107,7 @@ export const StyledBottomInfo = styled.div`
       justify-content: space-between;
     }
 
-    @media screen and (min-width: 1024px) and (max-width: 1200px) {
+    @media screen and (min-width: 1024px) and (max-width: 1199px) {
       width: 100%;
       justify-content: space-between;
     }

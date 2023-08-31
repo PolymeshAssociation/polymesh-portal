@@ -10,6 +10,7 @@ export const OverviewGrid = styled.div`
 
   @media screen and (min-width: 1024px) {
     display: grid;
+    align-items: stretch;
     grid-template-areas:
       'balance key'
       'balance did'
