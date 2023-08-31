@@ -24,7 +24,7 @@ const DonutProgressBar: React.FC<DonutProgressBarProps> = ({
   const progressOffset = circumference * progressRatio;
 
   return (
-    <DonutProgressBarContainer size={size}>
+    <DonutProgressBarContainer $size={size}>
       <svg width="100%" height="100%" viewBox="0 0 100 100">
         <DonutProgressBarCircle
           cx="50"

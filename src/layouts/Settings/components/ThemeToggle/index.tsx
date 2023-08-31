@@ -31,7 +31,7 @@ export const ThemeToggle = () => {
       <div>
         System Default
         <StyledSelect
-          isSelected={systemThemeEnabled}
+          $isSelected={systemThemeEnabled}
           onClick={handleSystemThemeCheckboxChange}
         >
           <Icon name="Check" size="16px" />
@@ -39,13 +39,13 @@ export const ThemeToggle = () => {
       </div>
       <div>
         {currentTheme}
-        <StyledCheckboxWrapper isLight={isLight} htmlFor="theme-toggle">
+        <StyledCheckboxWrapper $isLight={isLight} htmlFor="theme-toggle">
           <HiddenInput
             type="checkbox"
             id="theme-toggle"
             onChange={handleThemeCheckboxChange}
           />
-          <StyledCheckboxMark isLight={isLight}>
+          <StyledCheckboxMark $isLight={isLight}>
             <Icon
               name={isLight ? 'LightMode' : 'DarkMode'}
               size="12px"

@@ -15,15 +15,15 @@ const Text: React.FC<ITextProps> = ({
 }) => {
   return (
     <StyledText
-      centered={centered}
-      marginTop={marginTop}
-      marginBottom={marginBottom}
-      width={width}
-      color={color}
-      size={size}
-      bold={bold}
-      transform={transform}
-      truncateOverflow={truncateOverflow}
+      $centered={centered}
+      $marginTop={marginTop}
+      $marginBottom={marginBottom}
+      $width={width}
+      $color={color}
+      $size={size}
+      $bold={bold}
+      $transform={transform}
+      $truncateOverflow={truncateOverflow}
     >
       {children}
     </StyledText>

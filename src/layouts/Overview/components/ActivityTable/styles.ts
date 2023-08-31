@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const StatusLabel = styled.div<{ success?: boolean }>`
+export const StatusLabel = styled.div<{ $success?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9,8 +9,8 @@ export const StatusLabel = styled.div<{ success?: boolean }>`
   border-radius: 100px;
   font-weight: 500;
   font-size: 12px;
-  ${({ success, theme }) =>
-    success
+  ${({ $success, theme }) =>
+    $success
       ? `
         background-color: ${theme.colors.successBackground};
         color: ${theme.colors.textSuccess};`

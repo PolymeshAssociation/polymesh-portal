@@ -81,7 +81,7 @@ export const StyledButtonWrapper = styled.div`
     background-color: #e6e6e6;
   }
 `;
-export const StyledActionButton = styled.button<{ isReject?: boolean }>`
+export const StyledActionButton = styled.button<{ $isReject?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,10 +89,10 @@ export const StyledActionButton = styled.button<{ isReject?: boolean }>`
   padding: 0 16px;
   height: 32px;
   border-radius: 100px;
-  background-color: ${({ isReject, theme }) =>
-    isReject ? theme.colors.pinkBackground : theme.colors.successBackground};
-  color: ${({ isReject, theme }) =>
-    isReject ? theme.colors.textPink : theme.colors.textSuccess};
+  background-color: ${({ $isReject, theme }) =>
+    $isReject ? theme.colors.pinkBackground : theme.colors.successBackground};
+  color: ${({ $isReject, theme }) =>
+    $isReject ? theme.colors.textPink : theme.colors.textSuccess};
   box-shadow: ${({ theme }) => `0px 1px 3px ${theme.colors.shadow},
     0px 1px 2px ${theme.colors.shadow}`};
   transition: background-color 250ms ease-out, color 250ms ease-out,
@@ -103,10 +103,10 @@ export const StyledActionButton = styled.button<{ isReject?: boolean }>`
   }
 
   &:enabled:hover {
-    background-color: ${({ isReject, theme }) =>
-      isReject ? theme.colors.textPink : theme.colors.textSuccess};
-    color: ${({ isReject, theme }) =>
-      isReject ? theme.colors.pinkBackground : theme.colors.successBackground};
+    background-color: ${({ $isReject, theme }) =>
+      $isReject ? theme.colors.textPink : theme.colors.textSuccess};
+    color: ${({ $isReject, theme }) =>
+      $isReject ? theme.colors.pinkBackground : theme.colors.successBackground};
   }
 
   &:enabled:active {

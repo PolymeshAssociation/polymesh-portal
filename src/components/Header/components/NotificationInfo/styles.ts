@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const StyledWrapper = styled.div<{ expanded: boolean }>`
+export const StyledWrapper = styled.div<{ $expanded: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
@@ -10,8 +10,8 @@ export const StyledWrapper = styled.div<{ expanded: boolean }>`
   width: 40px;
   height: 40px;
 
-  ${({ expanded, theme }) =>
-    expanded
+  ${({ $expanded, theme }) =>
+    $expanded
       ? `background-color: ${theme.colors.pinkBackground}; color: ${theme.colors.textPink};`
       : `background-color: transparent; color: ${theme.colors.textSecondary};`}
 

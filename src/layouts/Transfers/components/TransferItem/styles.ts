@@ -29,20 +29,20 @@ export const StyledInfoWrapper = styled.div`
   }
 `;
 
-export const StyledSelect = styled.div<{ isSelected: boolean }>`
+export const StyledSelect = styled.div<{ $isSelected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: ${({ isSelected, theme }) =>
-    isSelected ? theme.colors.textPink : 'transparent'};
+  background-color: ${({ $isSelected, theme }) =>
+    $isSelected ? theme.colors.textPink : 'transparent'};
   border: 2px solid
-    ${({ isSelected, theme }) =>
-      isSelected ? theme.colors.textPink : theme.colors.textDisabled};
-  color: ${({ isSelected, theme }) =>
-    isSelected ? theme.colors.landingBackground : 'transparent'};
+    ${({ $isSelected, theme }) =>
+      $isSelected ? theme.colors.textPink : theme.colors.textDisabled};
+  color: ${({ $isSelected, theme }) =>
+    $isSelected ? theme.colors.landingBackground : 'transparent'};
   transition: background-color 250ms ease-out, border 250ms ease-out,
     color 250ms ease-out;
   cursor: pointer;
@@ -68,7 +68,7 @@ export const StyledMemo = styled.div`
   }
 `;
 
-export const StyledButtonsWrapper = styled.div<{ expanded: boolean }>`
+export const StyledButtonsWrapper = styled.div<{ $expanded: boolean }>`
   display: flex;
   align-items: center;
   gap: 24px;
@@ -83,8 +83,8 @@ export const StyledButtonsWrapper = styled.div<{ expanded: boolean }>`
       flex-grow: 0;
     }
     & .expand-icon {
-      transform: ${({ expanded }) =>
-        expanded ? `rotate(180deg)` : `rotate(0)`};
+      transform: ${({ $expanded }) =>
+        $expanded ? `rotate(180deg)` : `rotate(0)`};
     }
   }
 

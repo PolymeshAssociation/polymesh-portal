@@ -10,7 +10,7 @@ export const StyledSelectWrapper = styled.div`
   border-radius: 32px;
 `;
 
-export const StyledSelect = styled.div<{ expanded: boolean }>`
+export const StyledSelect = styled.div<{ $expanded: boolean }>`
   width: 95%;
   overflow: hidden;
   white-space: nowrap;
@@ -25,8 +25,8 @@ export const StyledSelect = styled.div<{ expanded: boolean }>`
     right: 8px;
     color: #ffffff;
     transition: transform 250ms ease-out;
-    ${({ expanded }) =>
-      expanded ? `transform: rotate(90deg);` : 'transform: rotate(0);'}
+    ${({ $expanded }) =>
+      $expanded ? `transform: rotate(90deg);` : 'transform: rotate(0);'}
   }
 `;
 
@@ -60,7 +60,7 @@ export const StyledInput = styled.input`
   overflow: hidden;
 `;
 
-export const StyledLabel = styled.label<{ selected: boolean }>`
+export const StyledLabel = styled.label<{ $selected: boolean }>`
   display: block;
   max-width: 100%;
   overflow: hidden;
@@ -69,8 +69,8 @@ export const StyledLabel = styled.label<{ selected: boolean }>`
   padding: 12px 16px;
   border-radius: 62px;
   font-size: 14px;
-  ${({ selected, theme }) =>
-    selected ? `background-color: ${theme.colors.pinkBackground};` : ''}
+  ${({ $selected, theme }) =>
+    $selected ? `background-color: ${theme.colors.pinkBackground};` : ''}
   cursor: pointer;
   transition: background-color 250ms ease-out;
 

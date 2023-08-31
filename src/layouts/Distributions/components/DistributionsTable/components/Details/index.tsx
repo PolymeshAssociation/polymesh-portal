@@ -35,7 +35,7 @@ export const Details: React.FC<IDetailsProps> = ({ data }) => {
   const { amount, perShare, taxPercentage, distributionId, portfolio } = data;
 
   return (
-    <StyledWrapper isExpanded={expanded} ref={ref}>
+    <StyledWrapper $expanded={expanded} ref={ref}>
       <Button variant="secondary" onClick={() => setExpanded((prev) => !prev)}>
         Expand
         {!isSmallDesktop && (

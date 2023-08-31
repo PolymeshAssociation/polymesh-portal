@@ -10,7 +10,7 @@ interface ITogglerProps {
 
 const Toggler: React.FC<ITogglerProps> = ({ id, isEnabled, handleChange }) => {
   return (
-    <StyledCheckboxWrapper htmlFor={id} isEnabled={isEnabled}>
+    <StyledCheckboxWrapper htmlFor={id} $isEnabled={isEnabled}>
       <HiddenInput
         type="checkbox"
         id={id}

@@ -73,7 +73,7 @@ export const PortfolioSelect: React.FC<IPortfolioSelectProps> = ({
       <PortfolioSelectWrapper ref={ref}>
         <StyledPortfolioSelect
           onClick={togglePortfolioSelectDropdown}
-          expanded={portfolioSelectExpanded}
+          $expanded={portfolioSelectExpanded}
         >
           {selectedPortfolio ? (
             selectedPortfolioName

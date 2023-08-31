@@ -20,10 +20,10 @@ export const StyledLeg = styled.div`
   }
 `;
 
-export const StyledInfoItem = styled.div<{ isLoading?: boolean }>`
+export const StyledInfoItem = styled.div<{ $isLoading?: boolean }>`
   font-size: 12px;
   color: ${({ theme }) => theme.colors.textSecondary};
-  ${({ isLoading }) => (isLoading ? 'width: 10%;' : '')}
+  ${({ $isLoading }) => ($isLoading ? 'width: 10%;' : '')}
   @media screen and (max-width: 1023px) {
     display: flex;
     align-items: center;
@@ -44,13 +44,13 @@ export const StyledInfoItem = styled.div<{ isLoading?: boolean }>`
 `;
 
 export const StyledInfoValue = styled.div<{
-  affirmationStatus?: AffirmationStatus;
+  $affirmationStatus?: AffirmationStatus;
 }>`
   display: flex;
   align-items: center;
   gap: 4px;
-  ${({ affirmationStatus }) => {
-    if (!affirmationStatus) return '';
+  ${({ $affirmationStatus }) => {
+    if (!$affirmationStatus) return '';
 
     return `
     &::before {
@@ -60,7 +60,9 @@ export const StyledInfoValue = styled.div<{
       width: 8px;
       height: 8px;
       background-color: ${
-        affirmationStatus === AffirmationStatus.Affirmed ? '#00AA5E' : '#E3A30C'
+        $affirmationStatus === AffirmationStatus.Affirmed
+          ? '#00AA5E'
+          : '#E3A30C'
       };
     }
     
@@ -68,20 +70,20 @@ export const StyledInfoValue = styled.div<{
   }}
 `;
 
-export const StyledLabel = styled.div<{ isError?: boolean }>`
+export const StyledLabel = styled.div<{ $isError?: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 24px;
   padding: 0 16px;
-  background-color: ${({ isError }) => (isError ? '#DB2C3E' : '#170087')};
+  background-color: ${({ $isError }) => ($isError ? '#DB2C3E' : '#170087')};
   border-radius: 100px;
   color: #ffffff;
   font-weight: 500;
   font-size: 12px;
   text-transform: capitalize;
-  ${({ isError }) => (isError ? `cursor: pointer;` : '')}
+  ${({ $isError }) => ($isError ? `cursor: pointer;` : '')}
 `;
 
 export const StyledExpandedErrors = styled.ul`

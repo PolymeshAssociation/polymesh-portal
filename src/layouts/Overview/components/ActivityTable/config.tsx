@@ -60,7 +60,7 @@ export const columns = {
 
           if (key === 'success') {
             return data ? (
-              <StatusLabel success>Success</StatusLabel>
+              <StatusLabel $success>Success</StatusLabel>
             ) : (
               <StatusLabel>Failure</StatusLabel>
             );

@@ -39,7 +39,7 @@ export const StyledTableHeader = styled.div`
   }
 `;
 
-export const StyledTableBody = styled.table<{ colsNumber: number }>`
+export const StyledTableBody = styled.table<{ $colsNumber: number }>`
   flex-grow: 1;
   width: 100%;
   border-collapse: collapse;
@@ -53,7 +53,7 @@ export const StyledTableBody = styled.table<{ colsNumber: number }>`
 
   & th,
   & td {
-    width: ${({ colsNumber }) => `calc(100% / ${colsNumber})`};
+    width: ${({ $colsNumber }) => `calc(100% / ${$colsNumber})`};
     height: 54px;
     padding-left: 24px;
     vertical-align: center;
@@ -212,7 +212,7 @@ export const StyledTabsWrapper = styled.div`
   }
 `;
 
-export const StyledTabItem = styled.div<{ selected: boolean }>`
+export const StyledTabItem = styled.div<{ $selected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -225,8 +225,8 @@ export const StyledTabItem = styled.div<{ selected: boolean }>`
 
   transition: color 250ms ease-out, background-color 250ms ease-out;
 
-  ${({ selected }) =>
-    selected
+  ${({ $selected }) =>
+    $selected
       ? `
       background-color: #FF2E72;
       color: #ffffff;`

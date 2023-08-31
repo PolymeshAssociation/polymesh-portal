@@ -32,8 +32,8 @@ const WarningLabel: React.FC<IWarningLabelProps> = ({ caption, className }) => {
   return (
     <StyledLabel
       ref={labelRef}
-      isExpanded={expanded}
-      onClick={() => setExpanded(true)}
+      $expanded={expanded}
+      onClick={() => setExpanded(!expanded)}
       onMouseOver={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
       className={className}

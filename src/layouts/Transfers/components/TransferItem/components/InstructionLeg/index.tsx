@@ -93,7 +93,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
       <StyledInfoItem>
         Sending DID
         <StyledInfoValue
-          affirmationStatus={getAffirmationStatus(
+          $affirmationStatus={getAffirmationStatus(
             affirmationsData,
             legDetails.sendingDid,
           )}
@@ -113,7 +113,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
       <StyledInfoItem>
         Receiving DID
         <StyledInfoValue
-          affirmationStatus={getAffirmationStatus(
+          $affirmationStatus={getAffirmationStatus(
             affirmationsData,
             legDetails.receivingDid,
           )}
@@ -155,7 +155,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
         {isSmallScreen && 'Status'}
         {errors.length ? (
           <StyledLabel
-            isError
+            $isError
             onMouseEnter={() => setLegErrorExpanded(true)}
             onMouseLeave={() => setLegErrorExpanded(false)}
           >
@@ -179,7 +179,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
         const skeletons = [];
         for (let i = 0; i < 8; i += 1) {
           skeletons.push(
-            <StyledInfoItem key={i} isLoading>
+            <StyledInfoItem key={i} $isLoading>
               <SkeletonLoader height={24} />
             </StyledInfoItem>,
           );

@@ -162,8 +162,8 @@ export const AssetAllocation = () => {
                 return (
                   <StyledFraction
                     key={ticker}
-                    percentage={percentage}
-                    color={color}
+                    $percentage={percentage}
+                    $color={color}
                   />
                 );
               })}
@@ -181,8 +181,8 @@ export const AssetAllocation = () => {
             return isOther ? (
               <StyledLegendItem
                 key={ticker}
-                color={color}
-                expandable
+                $color={color}
+                $expandable
                 onMouseEnter={() => setOtherAssetsExpanded(true)}
                 onMouseLeave={() => setOtherAssetsExpanded(false)}
               >
@@ -193,7 +193,7 @@ export const AssetAllocation = () => {
                     {smallAmountAssets.map((option) => (
                       <StyledLegendItem
                         key={option.ticker}
-                        color={option.color}
+                        $color={option.color}
                       >
                         {option.ticker}
                         <span>{formatBalance(option.percentage, 2)}%</span>
@@ -203,7 +203,7 @@ export const AssetAllocation = () => {
                 )}
               </StyledLegendItem>
             ) : (
-              <StyledLegendItem key={ticker} color={color}>
+              <StyledLegendItem key={ticker} $color={color}>
                 {ticker}
                 <span>{formatBalance(percentage, 2)}%</span>
               </StyledLegendItem>

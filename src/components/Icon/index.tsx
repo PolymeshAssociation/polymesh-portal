@@ -36,7 +36,7 @@ const Icon: React.FC<IIconProps> = ({ name, size, className }) => {
   if (typeof icon === 'string') {
     if (isSupportedImageFile(icon)) {
       return (
-        <IconWrapper size={size} className={className}>
+        <IconWrapper $size={size} className={className}>
           <img src={icon} alt={name} style={{ width: size, height: size }} />
         </IconWrapper>
       );
@@ -45,7 +45,7 @@ const Icon: React.FC<IIconProps> = ({ name, size, className }) => {
   }
 
   return (
-    <IconWrapper size={size} className={className}>
+    <IconWrapper $size={size} className={className}>
       {createElement(icon)}
     </IconWrapper>
   );

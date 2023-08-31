@@ -7,7 +7,7 @@ interface IFallbackProps {
 
 const LoadingFallback: React.FC<IFallbackProps> = ({ main }) => {
   return (
-    <StyledWrapper main={main}>
+    <StyledWrapper $main={main}>
       <SkeletonLoader
         circle
         width={36}

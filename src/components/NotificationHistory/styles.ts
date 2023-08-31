@@ -1,21 +1,21 @@
 import styled from 'styled-components';
 
-export const StyledWrapper = styled.div<{ expanded: boolean }>`
+export const StyledWrapper = styled.div<{ $expanded: boolean }>`
   @media screen and (max-width: 767px) {
     width: 100vw;
-    height: ${({ expanded }) => (expanded ? '100vh' : 0)};
+    height: ${({ $expanded }) => ($expanded ? '100vh' : 0)};
   }
   width: 320px;
   @media screen and (min-width: 768px) {
-    max-height: ${({ expanded }) => (expanded ? '70vh' : 0)};
+    max-height: ${({ $expanded }) => ($expanded ? '70vh' : 0)};
     border-radius: 24px;
   }
   overflow-y: scroll;
-  padding: ${({ expanded }) => (expanded ? '24px' : 0)};
+  padding: ${({ $expanded }) => ($expanded ? '24px' : 0)};
   background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
-  opacity: ${({ expanded }) => (expanded ? 1 : 0)};
-  ${({ expanded }) => (expanded ? '' : 'transform: translateX(150%);')}
+  opacity: ${({ $expanded }) => ($expanded ? 1 : 0)};
+  ${({ $expanded }) => ($expanded ? '' : 'transform: translateX(150%);')}
 
   transition: transform ease-out 250ms,
     opacity 250ms ease-out, max-height 250ms ease-out, padding 250ms ease-out;

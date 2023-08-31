@@ -12,7 +12,7 @@ export const TickerCell: React.FC<ICellProps> = ({ info }) => {
   const ticker = info?.getValue() || '';
   return (
     <StyledCell>
-      <StyledIconWrapper background={stringToColor(ticker)}>
+      <StyledIconWrapper $background={stringToColor(ticker)}>
         <Icon name="Coins" size="20px" />
       </StyledIconWrapper>
       {ticker}

@@ -45,7 +45,7 @@ export const KeyInfo = () => {
   return (
     <StyledWrapper>
       {!isMobile && !isSmallDesktop && (
-        <IconWrapper size="64px">
+        <IconWrapper $size="64px">
           <Icon name="KeyIcon" className="key-icon" size="26px" />
         </IconWrapper>
       )}

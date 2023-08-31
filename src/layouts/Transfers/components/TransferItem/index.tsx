@@ -182,7 +182,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
             containerClassName="select-placeholder"
           />
         ) : (
-          <StyledSelect isSelected={isSelected} onClick={onSelect}>
+          <StyledSelect $isSelected={isSelected} onClick={onSelect}>
             <Icon name="Check" size="16px" />
           </StyledSelect>
         )}
@@ -210,7 +210,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           ) : null}
         </StyledLegsWrapper>
       )}
-      <StyledButtonsWrapper expanded={detailsExpanded}>
+      <StyledButtonsWrapper $expanded={detailsExpanded}>
         <Button
           disabled={detailsLoading || actionInProgress}
           onClick={() => executeAction(instruction.reject)}

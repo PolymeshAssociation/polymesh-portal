@@ -61,7 +61,7 @@ export const DefaultAddress = () => {
             error={undefined}
           />
           <StyledActionButton
-            marginTop={24}
+            $marginTop={24}
             disabled={!defaultAccount}
             onClick={() => {
               setDefaultAccount('');

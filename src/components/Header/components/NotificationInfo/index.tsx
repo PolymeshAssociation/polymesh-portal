@@ -31,7 +31,7 @@ export const NotificationInfo = () => {
 
   return (
     <div ref={ref}>
-      <StyledWrapper onClick={toggleDropdown} expanded={expanded}>
+      <StyledWrapper onClick={toggleDropdown} $expanded={expanded}>
         <Icon name="NotificationIcon" />
         {!notificationsLoading && totalPending ? (
           <NotificationCounter count={totalPending} className="notification" />

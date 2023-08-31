@@ -35,7 +35,7 @@ export const AssetSelectWrapper = styled.div`
   position: relative;
 `;
 
-export const StyledAssetSelect = styled.div<{ expanded: boolean }>`
+export const StyledAssetSelect = styled.div<{ $expanded: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -47,7 +47,8 @@ export const StyledAssetSelect = styled.div<{ expanded: boolean }>`
   cursor: pointer;
 
   & .expand-icon {
-    transform: ${({ expanded }) => (expanded ? `rotate(180deg)` : `rotate(0)`)};
+    transform: ${({ $expanded }) =>
+      $expanded ? `rotate(180deg)` : `rotate(0)`};
   }
 `;
 
@@ -87,14 +88,14 @@ export const StyledSelectOption = styled(SelectedOption)`
   }
 `;
 
-export const IconWrapper = styled.div<{ background: string }>`
+export const IconWrapper = styled.div<{ $background: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: ${({ background }) => background};
+  background-color: ${({ $background }) => $background};
   color: #ffffff;
 `;
 
@@ -155,15 +156,16 @@ export const UseMaxButton = styled.button`
   color: #170087;
 `;
 
-export const StyledMemoLabel = styled.div<{ expanded: boolean }>`
+export const StyledMemoLabel = styled.div<{ $expanded: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;
   margin-top: 12px;
-  margin-bottom: ${({ expanded }) => (expanded ? '3px' : 0)};
+  margin-bottom: ${({ $expanded }) => ($expanded ? '3px' : 0)};
   cursor: pointer;
 
   & .icon {
-    transform: ${({ expanded }) => (expanded ? 'rotate(180deg)' : 'rotate(0)')};
+    transform: ${({ $expanded }) =>
+      $expanded ? 'rotate(180deg)' : 'rotate(0)'};
   }
 `;

@@ -61,7 +61,7 @@ export const CreateVenue: React.FC<ICreateVenueProps> = ({ toggleModal }) => {
       <Heading type="h4" marginBottom={32}>
         Create New Venue
       </Heading>
-      <InputWrapper marginBotom={24}>
+      <InputWrapper $marginBottom={24}>
         <StyledLabel htmlFor="description">Description</StyledLabel>
         <StyledInput id="description" {...register('description')} />
         {!!errors?.description?.message && (

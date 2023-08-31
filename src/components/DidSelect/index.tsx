@@ -87,7 +87,7 @@ const DidSelect = () => {
 
   return selected ? (
     <StyledSelectWrapper ref={ref}>
-      <StyledSelect onClick={handleDropdownToggle} expanded={expanded}>
+      <StyledSelect onClick={handleDropdownToggle} $expanded={expanded}>
         {formatDid(selected.did, truncateLength, truncateLength - 2)}
         <IconWrapper>
           <Icon name="DropdownIcon" />
@@ -100,7 +100,7 @@ const DidSelect = () => {
             <StyledLabel
               key={option?.did}
               htmlFor={option?.did}
-              selected={selected?.did === option?.did}
+              $selected={selected?.did === option?.did}
             >
               {formatDid(option?.did, truncateLength - 2, truncateLength - 2)}
               <StyledInput

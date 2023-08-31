@@ -369,7 +369,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
         </CloseButton>
       )}
 
-      <FlexWrapper marginBottom={16}>
+      <FlexWrapper $marginBottom={16}>
         <InputWrapper>
           <StyledLabel>Sender</StyledLabel>
           <StyledInput
@@ -395,7 +395,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           />
         ) : (
           <InputWrapper>
-            <StyledPlaceholder isAbsolute>
+            <StyledPlaceholder $isAbsolute>
               {portfolioLoading.sender ? (
                 <SkeletonLoader height={16} />
               ) : (
@@ -405,7 +405,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           </InputWrapper>
         )}
       </FlexWrapper>
-      <FlexWrapper marginBottom={16}>
+      <FlexWrapper $marginBottom={16}>
         <InputWrapper>
           <StyledLabel>Receiver</StyledLabel>
           <StyledInput
@@ -431,7 +431,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           />
         ) : (
           <InputWrapper>
-            <StyledPlaceholder isAbsolute>
+            <StyledPlaceholder $isAbsolute>
               {portfolioLoading.receiver ? (
                 <SkeletonLoader height={16} />
               ) : (
@@ -449,8 +449,8 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           <AssetSelectWrapper ref={ref}>
             <StyledAssetSelect
               onClick={toggleAssetSelectDropdown}
-              expanded={assetSelectExpanded}
-              isDisabled={
+              $expanded={assetSelectExpanded}
+              $isDisabled={
                 !selectedSenderPortfolio || !selectedReceiverPortfolio
               }
             >
@@ -459,7 +459,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
               selectedAsset ? (
                 <SelectedOption>
                   <IconWrapper
-                    background={stringToColor(selectedAsset.toHuman())}
+                    $background={stringToColor(selectedAsset.toHuman())}
                   >
                     <Icon name="Coins" size="16px" />
                   </IconWrapper>
@@ -478,7 +478,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
                       key={asset.toHuman()}
                       onClick={() => handleAssetSelect(asset, free)}
                     >
-                      <IconWrapper background={stringToColor(asset.toHuman())}>
+                      <IconWrapper $background={stringToColor(asset.toHuman())}>
                         <Icon name="Coins" size="16px" />
                       </IconWrapper>{' '}
                       {asset.toHuman()}

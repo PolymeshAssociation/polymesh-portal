@@ -19,10 +19,13 @@ export const StyledPercentageBar = styled.div`
   overflow: hidden;
 `;
 
-export const StyledFraction = styled.div<{ percentage: number }>`
+export const StyledFraction = styled.div<{
+  $percentage: number;
+  $color: string;
+}>`
   height: 100%;
-  width: ${({ percentage }) => percentage}%;
-  background-color: ${({ color }) => color};
+  width: ${({ $percentage }) => $percentage}%;
+  background-color: ${({ $color }) => $color};
 `;
 
 export const StyledLegendList = styled.ul`
@@ -33,8 +36,8 @@ export const StyledLegendList = styled.ul`
 `;
 
 export const StyledLegendItem = styled.li<{
-  color: string;
-  expandable?: boolean;
+  $color: string;
+  $expandable?: boolean;
 }>`
   position: relative;
   display: flex;
@@ -42,7 +45,7 @@ export const StyledLegendItem = styled.li<{
   font-weight: 500;
   font-size: 12px;
   color: ${({ theme }) => theme.colors.textPrimary};
-  cursor: ${({ expandable }) => (expandable ? 'pointer' : 'initial')};
+  cursor: ${({ $expandable }) => ($expandable ? 'pointer' : 'initial')};
 
   & span {
     margin-left: 4px;
@@ -56,7 +59,7 @@ export const StyledLegendItem = styled.li<{
     height: 12px;
     margin-right: 8px;
     border-radius: 50%;
-    background-color: ${({ color }) => color};
+    background-color: ${({ $color }) => $color};
   }
 `;
 

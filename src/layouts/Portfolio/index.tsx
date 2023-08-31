@@ -10,7 +10,7 @@ const Portfolio = () => {
   const id = searchParams.get('id');
 
   return (
-    <PortfolioGrid allAssets={!id}>
+    <PortfolioGrid $allAssets={!id}>
       <PortfolioNavigation />
       {!!id && <PortfolioInfo />}
       <AssetAllocation />

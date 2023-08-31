@@ -140,8 +140,8 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
       <StyledTypeSelectWrapper ref={typeRef}>
         <StyledTypeSelect
           onClick={handleTypeDropdownToggle}
-          expanded={typeDropdownExpanded}
-          isSelected={!!selectedAuthType}
+          $expanded={typeDropdownExpanded}
+          $isSelected={!!selectedAuthType}
         >
           <span>
             {selectedAuthType
@@ -166,7 +166,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
                   key={authType}
                   disabled={disabledAuthTypes.includes(authType)}
                   onClick={() => handleAuthTypeSelect(authType)}
-                  isSelected={authType === selectedAuthType}
+                  $isSelected={authType === selectedAuthType}
                 >
                   {splitByCapitalLetters(authType)}
                   {disabledAuthTypes.includes(authType) && (
@@ -185,7 +185,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
             }
             if (id === 'groupId' && watch('permissions') === 'Custom') {
               return (
-                <InputWrapper key={id} isSelect={type === 'select'}>
+                <InputWrapper key={id} $isSelect={type === 'select'}>
                   <StyledLabel htmlFor={id}>{label}</StyledLabel>
                   <StyledInput
                     // eslint-disable-next-line react/jsx-props-no-spreading
@@ -204,13 +204,13 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
             }
 
             return (
-              <InputWrapper key={id} isSelect={type === 'select'}>
+              <InputWrapper key={id} $isSelect={type === 'select'}>
                 {type === 'select' ? (
                   <StyledSelectWrapper ref={addRef}>
                     <StyledLabel htmlFor={id}>{label}</StyledLabel>
                     <StyledSelect
-                      expanded={selectExpanded[id]}
-                      isSelected={!watch(id as keyof IFieldValues)}
+                      $expanded={selectExpanded[id]}
+                      $isSelected={!watch(id as keyof IFieldValues)}
                       onClick={() => handleSelectToggle(id)}
                     >
                       {selectExpanded[id] && (

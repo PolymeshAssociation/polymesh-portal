@@ -86,7 +86,7 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
   return (
     <StyledItemWrapper>
       <StyledInfoWrapper>
-        <StyledSelect isSelected={isSelected} onClick={onSelect}>
+        <StyledSelect $isSelected={isSelected} onClick={onSelect}>
           <Icon name="Check" size="16px" />
         </StyledSelect>
         <StyledInfoItem>
@@ -192,7 +192,7 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
           )}
         </StyledDetails>
       )}
-      <StyledButtonsWrapper expanded={detailsExpanded}>
+      <StyledButtonsWrapper $expanded={detailsExpanded}>
         <Button
           variant="success"
           onClick={() => executeAction(distribution.claim)}

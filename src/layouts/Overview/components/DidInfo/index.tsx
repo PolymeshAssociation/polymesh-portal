@@ -164,7 +164,7 @@ export const DidInfo = () => {
       <StyledWrapper>
         <StyledTopInfo>
           {!isMobile && !isSmallDesktop && (
-            <IconWrapper size="64px">
+            <IconWrapper $size="64px">
               <Icon name="IdCard" size="32px" className="id-icon" />
             </IconWrapper>
           )}

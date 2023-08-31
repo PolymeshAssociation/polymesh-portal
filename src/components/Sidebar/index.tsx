@@ -111,7 +111,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
   const sidebarExpanded = isMobile ? mobileMenuOpen : fullWidth;
 
   return (
-    <StyledSidebar fullWidth={sidebarExpanded} ref={sidebarRef}>
+    <StyledSidebar $fullWidth={sidebarExpanded} ref={sidebarRef}>
       {sidebarExpanded || isMobile ? (
         <Icon name="PolymeshLogo" className="text-logo-icon" />
       ) : (
@@ -122,7 +122,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
           <Icon name="CloseIcon" size="24px" />
         </StyledCloseMenuButton>
       ) : (
-        <MenuButton fullWidth={sidebarExpanded} onClick={toggleSidebarWidth}>
+        <MenuButton $fullWidth={sidebarExpanded} onClick={toggleSidebarWidth}>
           <Icon name="MenuIcon" />
         </MenuButton>
       )}
@@ -160,23 +160,23 @@ const Sidebar: React.FC<ISidebarProps> = ({
             </StyledAccountInfo>
           </>
         )}
-        <StyledNetworkWrapper fullWidth={sidebarExpanded}>
+        <StyledNetworkWrapper $fullWidth={sidebarExpanded}>
           {networkLoading ? (
             <SkeletonLoader height="32px" containerClassName="loader" />
           ) : (
             <StyledNetworkStatus
-              fullWidth={sidebarExpanded}
-              isLoading={networkLoading}
+              $fullWidth={sidebarExpanded}
+              $isLoading={networkLoading}
             >
               <StatusDot
-                isLoading={networkLoading}
-                fullWidth={sidebarExpanded}
+                $isLoading={networkLoading}
+                $fullWidth={sidebarExpanded}
               />
               {networkLabel ? <span>{networkLabel}</span> : ''}
             </StyledNetworkStatus>
           )}
 
-          <WarningLabelWrapper fullWidth={fullWidth}>
+          <WarningLabelWrapper $fullWidth={fullWidth}>
             {walletNetwork && walletNetwork.label !== networkLabel && (
               <WarningLabel caption="Different network is selected in wallet" />
             )}
@@ -186,7 +186,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
           </WarningLabelWrapper>
         </StyledNetworkWrapper>
         <nav>
-          <StyledNavList fullWidth={sidebarExpanded}>
+          <StyledNavList $fullWidth={sidebarExpanded}>
             {NAV_LINKS.map(
               ({
                 path,
@@ -200,7 +200,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
                 <li key={label}>
                   <StyledNavLink
                     to={path}
-                    disabled={disabled}
+                    $disabled={disabled}
                     onClick={(e) => {
                       if (expandable) {
                         e.preventDefault();

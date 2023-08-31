@@ -44,14 +44,14 @@ export const StyledScopeLabel = styled.div`
   color: ${({ theme }) => theme.colors.textPrimary};
 `;
 
-export const StyledIconWrapper = styled.div<{ color: string }>`
+export const StyledIconWrapper = styled.div<{ $color: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background-color: ${({ color }) => color};
+  background-color: ${({ $color }) => $color};
 `;
 
 export const StyledSort = styled.div`
@@ -74,7 +74,7 @@ export const StyledSort = styled.div`
   }
 `;
 
-export const StyledActionsWrapper = styled.div<{ expanded: boolean }>`
+export const StyledActionsWrapper = styled.div<{ $expanded: boolean }>`
   display: flex;
   align-items: center;
   gap: 24px;
@@ -88,8 +88,8 @@ export const StyledActionsWrapper = styled.div<{ expanded: boolean }>`
 
   & button {
     & .expand-icon {
-      transform: ${({ expanded }) =>
-        expanded ? `rotate(180deg)` : `rotate(0)`};
+      transform: ${({ $expanded }) =>
+        $expanded ? `rotate(180deg)` : `rotate(0)`};
     }
   }
 `;

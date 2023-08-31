@@ -116,7 +116,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
 
   return (
     <>
-      <InputWrapper marginBotom={24}>
+      <InputWrapper $marginBottom={24}>
         <DropdownSelect
           label="Venue"
           placeholder="Select venue"
@@ -125,7 +125,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
           error={errors?.venue?.message}
         />
       </InputWrapper>
-      <InputWrapper marginBotom={24}>
+      <InputWrapper $marginBottom={24}>
         <StyledLabel htmlFor="recipient">Recipient</StyledLabel>
         <StyledInput
           id="recipient"
@@ -138,7 +138,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
           </StyledErrorMessage>
         )}
       </InputWrapper>
-      <InputWrapper marginBotom={24}>
+      <InputWrapper $marginBottom={24}>
         <StyledLabel htmlFor="memo">
           Memo (Optional - this will be public)
         </StyledLabel>

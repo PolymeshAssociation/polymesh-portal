@@ -65,11 +65,11 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
   const truncateLength = Math.floor((wrapperWidth - 30) / 18);
 
   return selectedAccount ? (
-    <StyledSelectWrapper ref={ref} placement={placement}>
+    <StyledSelectWrapper ref={ref} $placement={placement}>
       <StyledSelect
         onClick={handleDropdownToggle}
-        expanded={expanded}
-        placement={placement}
+        $expanded={expanded}
+        $placement={placement}
       >
         {placement === 'widget'
           ? formatKey(selectedAccount, truncateLength, truncateLength)
@@ -79,7 +79,7 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
         </IconWrapper>
       </StyledSelect>
       {expanded && (
-        <StyledExpandedSelect placement={placement}>
+        <StyledExpandedSelect $placement={placement}>
           {allAccountsWithMeta
             .sort(({ address }) => (address === selectedAccount ? -1 : 1))
             .sort((a, b) => {
@@ -98,14 +98,14 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
                 key={address}
                 htmlFor={address}
                 selected={selectedAccount === address}
-                placement={placement}
+                $placement={placement}
               >
                 <span>
                   <span className="meta">{meta.name || ''}</span>
                   <span className="key">{formatKey(address, 8, 7)}</span>
                 </span>
                 {address === primaryKey ? (
-                  <StyledKeyLabel primary>Primary</StyledKeyLabel>
+                  <StyledKeyLabel $primary>Primary</StyledKeyLabel>
                 ) : null}
                 {secondaryKeys.includes(address) ? (
                   <StyledKeyLabel>Second.</StyledKeyLabel>

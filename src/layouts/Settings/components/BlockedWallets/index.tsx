@@ -118,7 +118,7 @@ export const BlockedWallets = () => {
             </StyledWalletWrapper>
           )}
           <StyledActionButton
-            marginTop={24}
+            $marginTop={24}
             onClick={() => setEditBlockedWallet(true)}
           >
             <Icon name="MinusCircle" />

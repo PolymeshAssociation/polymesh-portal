@@ -47,7 +47,7 @@ const NotificationHistory: React.FC<INotificationHistoryProps> = ({
   }, [pendingAuthorizations, pendingInstructions, pendingDistributions]);
 
   return (
-    <StyledWrapper expanded={expanded}>
+    <StyledWrapper $expanded={expanded}>
       <StyledTopContainer>
         <StyledCloseButton onClick={handleClose}>
           <Icon name="CloseIcon" size="24px" />

@@ -41,13 +41,13 @@ export const StyledLabel = styled.div`
   font-size: 12px;
 `;
 
-export const StyledActionButton = styled.button<{ marginTop?: number }>`
+export const StyledActionButton = styled.button<{ $marginTop?: number }>`
   display: flex;
   align-items: center;
   justify-content: center;
   height: 32px;
   gap: 8px;
-  margin-top: ${({ marginTop }) => (marginTop ? `${marginTop}px` : 0)};
+  margin-top: ${({ $marginTop }) => ($marginTop ? `${$marginTop}px` : 0)};
   padding: 0 16px;
   background-color: transparent;
   font-weight: 500;

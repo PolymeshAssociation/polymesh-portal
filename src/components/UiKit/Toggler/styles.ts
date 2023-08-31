@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
-export const StyledCheckboxWrapper = styled.label<{ isEnabled: boolean }>`
+export const StyledCheckboxWrapper = styled.label<{ $isEnabled: boolean }>`
   position: relative;
   display: block;
   width: 48px;
   height: 24px;
-  background-color: ${({ isEnabled }) => (isEnabled ? '#00AA5E' : '#565656')};
+  background-color: ${({ $isEnabled }) => ($isEnabled ? '#00AA5E' : '#565656')};
   border-radius: 12px;
   cursor: pointer;
   transition: background-color 250ms ease-out;
@@ -14,7 +14,7 @@ export const StyledCheckboxWrapper = styled.label<{ isEnabled: boolean }>`
     content: '';
     position: absolute;
     top: 3px;
-    left: ${({ isEnabled }) => (isEnabled ? '27px' : '3px')};
+    left: ${({ $isEnabled }) => ($isEnabled ? '27px' : '3px')};
     display: block;
     width: 18px;
     height: 18px;

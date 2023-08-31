@@ -12,10 +12,10 @@ const Heading: React.FC<IHeadingProps> = ({
   return (
     <StyledHeading
       as={type}
-      centered={centered}
-      marginTop={marginTop}
-      marginBottom={marginBottom}
-      transform={transform}
+      $centered={centered}
+      $marginTop={marginTop}
+      $marginBottom={marginBottom}
+      $transform={transform}
     >
       {children}
     </StyledHeading>

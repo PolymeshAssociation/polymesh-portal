@@ -52,7 +52,7 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
     <>
       {isLandingPage ? (
         <>
-          <StyledMain isLandingPage={isLandingPage}>{children}</StyledMain>
+          <StyledMain $isLandingPage={isLandingPage}>{children}</StyledMain>
           <Footer isLandingPage={isLandingPage} />
         </>
       ) : (
@@ -63,7 +63,7 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
           />
           <div className="main-wrapper">
             <Header toggleMobileMenu={toggleMobileMenu} />
-            <StyledMain isLandingPage={isLandingPage}>
+            <StyledMain $isLandingPage={isLandingPage}>
               {isMobile && (
                 <Heading type="h2" marginBottom={24}>
                   {ROUTES.find(({ path }) => path === pathname)?.label || null}

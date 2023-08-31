@@ -9,7 +9,7 @@ export const PortfolioSelectWrapper = styled.div`
   position: relative;
 `;
 
-export const StyledPortfolioSelect = styled.div<{ expanded: boolean }>`
+export const StyledPortfolioSelect = styled.div<{ $expanded: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -21,7 +21,8 @@ export const StyledPortfolioSelect = styled.div<{ expanded: boolean }>`
   cursor: pointer;
 
   & .expand-icon {
-    transform: ${({ expanded }) => (expanded ? `rotate(180deg)` : `rotate(0)`)};
+    transform: ${({ $expanded }) =>
+      $expanded ? `rotate(180deg)` : `rotate(0)`};
   }
 `;
 

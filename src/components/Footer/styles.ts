@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
-export const StyledFooter = styled.footer<{ isLandingPage: boolean }>`
+export const StyledFooter = styled.footer<{ $isLandingPage: boolean }>`
   border-top: 2px solid ${({ theme }) => theme.colors.lightAccent};
   color: ${({ theme }) => theme.colors.textSecondary};
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
-  ${({ isLandingPage }) =>
-    isLandingPage &&
+  ${({ $isLandingPage }) =>
+    $isLandingPage &&
     `
     position: fixed;
     left: 0;
@@ -15,20 +15,20 @@ export const StyledFooter = styled.footer<{ isLandingPage: boolean }>`
   `}
 `;
 
-export const StyledContainer = styled.div<{ isLandingPage: boolean }>`
+export const StyledContainer = styled.div<{ $isLandingPage: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   min-height: 75px;
-  padding: ${({ isLandingPage }) =>
-    isLandingPage ? '0px 164px 0px 64px' : '0px 164px 0px 48px'};
+  padding: ${({ $isLandingPage }) =>
+    $isLandingPage ? '0px 164px 0px 64px' : '0px 164px 0px 48px'};
 
   @media screen and (max-width: 1023px) {
     justify-content: center;
     gap: 8px;
-    padding: ${({ isLandingPage }) =>
-      isLandingPage ? '0 64px 0 64px' : '0px 48px 0px 48px'};
+    padding: ${({ $isLandingPage }) =>
+      $isLandingPage ? '0 64px 0 64px' : '0px 48px 0px 48px'};
   }
   & p {
     @media screen and (max-width: 1023px) {

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const PortfolioGrid = styled.div<{ allAssets?: boolean }>`
+export const PortfolioGrid = styled.div<{ $allAssets?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -11,8 +11,8 @@ export const PortfolioGrid = styled.div<{ allAssets?: boolean }>`
     display: grid;
     grid-template-areas:
       'nav nav'
-      ${({ allAssets }) =>
-        allAssets ? `'assets assets'` : `'portfolio assets'`}
+      ${({ $allAssets }) =>
+        $allAssets ? `'assets assets'` : `'portfolio assets'`}
       'table table';
     grid-template-columns: 1fr 1fr;
     grid-auto-rows: min-content;

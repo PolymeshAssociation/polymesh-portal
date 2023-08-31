@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const StyledWrapper = styled.span<{ isExpanded: boolean }>`
+export const StyledWrapper = styled.span<{ $expanded: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
@@ -11,8 +11,8 @@ export const StyledWrapper = styled.span<{ isExpanded: boolean }>`
   }
 
   & .expand-icon {
-    transform: ${({ isExpanded }) =>
-      isExpanded ? 'rotate(180deg)' : 'rotate(0)'};
+    transform: ${({ $expanded }) =>
+      $expanded ? 'rotate(180deg)' : 'rotate(0)'};
     transition: transform 250ms ease-out;
   }
 `;

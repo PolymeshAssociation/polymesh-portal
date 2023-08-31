@@ -2,20 +2,20 @@ import styled from 'styled-components';
 import { ESelectPlacements } from './types';
 
 export const StyledSelectWrapper = styled.div<{
-  placement: `${ESelectPlacements}`;
+  $placement: `${ESelectPlacements}`;
 }>`
   position: relative;
   cursor: pointer;
-  ${({ placement }) =>
-    placement === ESelectPlacements.HEADER
+  ${({ $placement }) =>
+    $placement === ESelectPlacements.HEADER
       ? `
       padding-right: 16px;
       max-width: 150px;
 
       `
       : ''}
-  ${({ placement }) =>
-    placement === ESelectPlacements.WIDGET
+  ${({ $placement }) =>
+    $placement === ESelectPlacements.WIDGET
       ? `
       flex-grow: 1;
       background-color: rgba(255, 255, 255, 0.24);
@@ -26,8 +26,8 @@ export const StyledSelectWrapper = styled.div<{
 `;
 
 export const StyledSelect = styled.div<{
-  placement: `${ESelectPlacements}`;
-  expanded: boolean;
+  $placement: `${ESelectPlacements}`;
+  $expanded: boolean;
 }>`
   font-weight: 500;
   font-size: 12px;
@@ -35,8 +35,8 @@ export const StyledSelect = styled.div<{
   overflow: hidden;
   text-overflow: ellipsis;
 
-  ${({ placement, theme }) =>
-    placement === ESelectPlacements.HEADER
+  ${({ $placement, theme }) =>
+    $placement === ESelectPlacements.HEADER
       ? `
       color: ${theme.colors.textPrimary};
       text-align: center;
@@ -46,8 +46,8 @@ export const StyledSelect = styled.div<{
       }
       `
       : ''}
-  ${({ placement }) =>
-    placement === ESelectPlacements.WIDGET
+  ${({ $placement }) =>
+    $placement === ESelectPlacements.WIDGET
       ? `
       padding: 7px 28px 7px 8px;
       color: #ffffff;
@@ -61,13 +61,13 @@ export const StyledSelect = styled.div<{
       : ''}
     & div {
     transition: transform 250ms ease-out;
-    ${({ expanded }) =>
-      expanded ? `transform: rotate(90deg);` : 'transform: rotate(0);'}
+    ${({ $expanded }) =>
+      $expanded ? `transform: rotate(90deg);` : 'transform: rotate(0);'}
   }
 `;
 
 export const StyledExpandedSelect = styled.div<{
-  placement: `${ESelectPlacements}`;
+  $placement: `${ESelectPlacements}`;
 }>`
   position: absolute;
   z-index: 2;
@@ -82,16 +82,16 @@ export const StyledExpandedSelect = styled.div<{
   box-shadow: ${({ theme }) => `0px 15px 25px ${theme.colors.shadow},
     0px 5px 10px ${theme.colors.shadow}`};
   border-radius: 12px;
-  ${({ placement }) =>
-    placement === ESelectPlacements.HEADER
+  ${({ $placement }) =>
+    $placement === ESelectPlacements.HEADER
       ? `
       top: 120%;
       right: -25px;
       width: 250px;
       `
       : ''}
-  ${({ placement }) =>
-    placement === ESelectPlacements.WIDGET
+  ${({ $placement }) =>
+    $placement === ESelectPlacements.WIDGET
       ? `
       top: 110%;
       right: -40px;
@@ -116,20 +116,20 @@ export const StyledInput = styled.input`
 `;
 
 export const StyledLabel = styled.label<{
-  placement: `${ESelectPlacements}`;
+  $placement: `${ESelectPlacements}`;
   selected?: boolean;
 }>`
   color: ${({ theme }) => theme.colors.textPrimary};
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: ${({ placement }) =>
-    placement === ESelectPlacements.HEADER ? '48px' : '56px'};
+  height: ${({ $placement }) =>
+    $placement === ESelectPlacements.HEADER ? '48px' : '56px'};
   gap: 10px;
   padding: 12px 16px;
   border-radius: 62px;
-  ${({ placement, theme, selected }) =>
-    placement === ESelectPlacements.HEADER
+  ${({ $placement, theme, selected }) =>
+    $placement === ESelectPlacements.HEADER
       ? `${
           selected
             ? `background-color: ${theme.colors.dashboardBackground};`
@@ -143,8 +143,8 @@ export const StyledLabel = styled.label<{
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    font-size: ${({ placement }) =>
-      placement === ESelectPlacements.HEADER ? '12px' : '14px'};
+    font-size: ${({ $placement }) =>
+      $placement === ESelectPlacements.HEADER ? '12px' : '14px'};
     max-width: calc(100% - 63px);
 
     & .meta {
@@ -162,8 +162,8 @@ export const StyledLabel = styled.label<{
   cursor: pointer;
   transition: background-color 250ms ease-out;
   &:hover {
-    ${({ theme, placement }) =>
-      placement === ESelectPlacements.HEADER
+    ${({ theme, $placement }) =>
+      $placement === ESelectPlacements.HEADER
         ? `background-color: ${theme.colors.dashboardBackground}`
         : `background-color: ${theme.colors.pinkBackground};`}
   }
@@ -179,7 +179,7 @@ export const IconWrapper = styled.div`
   justify-content: center;
 `;
 
-export const StyledKeyLabel = styled.div<{ primary?: boolean }>`
+export const StyledKeyLabel = styled.div<{ $primary?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -188,8 +188,8 @@ export const StyledKeyLabel = styled.div<{ primary?: boolean }>`
   padding: 0 8px;
   border-radius: 100px;
   font-size: 12px;
-  ${({ primary, theme }) =>
-    primary
+  ${({ $primary, theme }) =>
+    $primary
       ? `border: 1px solid #fad1dc; color: ${theme.colors.textPink};`
       : `border: 1px solid #F2EFFF; color: ${theme.colors.textBlue};`};
 `;

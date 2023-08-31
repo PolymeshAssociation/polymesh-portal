@@ -6,13 +6,13 @@ export const StyledCell = styled.div`
   gap: 10px;
 `;
 
-export const StyledIconWrapper = styled.div<{ background: string }>`
+export const StyledIconWrapper = styled.div<{ $background: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background-color: ${({ background }) => background};
+  background-color: ${({ $background }) => $background};
   color: #ffffff;
 `;

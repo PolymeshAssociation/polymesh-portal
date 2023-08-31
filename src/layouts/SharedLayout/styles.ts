@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
 export const StyledMain = styled.main<{
-  isLandingPage: boolean;
+  $isLandingPage: boolean;
 }>`
-  ${({ theme, isLandingPage }) => `
+  ${({ theme, $isLandingPage }) => `
   ${
-    isLandingPage
+    $isLandingPage
       ? `
       width: 100vw;
       height: 100vh;
@@ -24,7 +24,7 @@ export const StyledMain = styled.main<{
       `
   }
   background-color: ${
-    isLandingPage
+    $isLandingPage
       ? theme.colors.landingBackground
       : theme.colors.dashboardBackground
   };

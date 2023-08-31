@@ -47,7 +47,7 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
             Scope - {scope.type}
             <StyledScopeLabel>
               {scope.type === ScopeType.Ticker && (
-                <StyledIconWrapper color={stringToColor(scope.value)}>
+                <StyledIconWrapper $color={stringToColor(scope.value)}>
                   <Icon name="Coins" size="12px" />
                 </StyledIconWrapper>
               )}
@@ -68,7 +68,7 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
         ) : (
           <StyledScopeInfo>Unscoped claims</StyledScopeInfo>
         )}
-        <StyledActionsWrapper expanded={scopeExpanded}>
+        <StyledActionsWrapper $expanded={scopeExpanded}>
           {!isMobile && (
             <StyledSort>
               Sort by:

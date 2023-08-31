@@ -64,14 +64,14 @@ const TransactionToast: React.FC<ITxToastProps> = ({
           {isTxBatch && (
             <StyledBatchLabel>Batch size: {batchSize}</StyledBatchLabel>
           )}
-          <StyledStatusLabel status={status}>{status}</StyledStatusLabel>
+          <StyledStatusLabel $status={status}>{status}</StyledStatusLabel>
         </StyledStatusWrapper>
       </StyledInfoWrapper>
       {!!message && <Text>{message}</Text>}
       {!!txHash && (
         <StyledDetailsWrapper>
           <StyledDetail>{formatDid(txHash, 10, 9)}</StyledDetail>
-          <StyledDetail isIcon>
+          <StyledDetail $isIcon>
             <CopyToClipboard value={txHash} />
           </StyledDetail>
           <StyledLink

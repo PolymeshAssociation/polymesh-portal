@@ -9,12 +9,12 @@ export const StyledAccountWrapper = styled.div`
   border-radius: 24px;
 `;
 
-export const IconWrapper = styled.div<{ size?: string }>`
+export const IconWrapper = styled.div<{ $size?: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: ${({ size }) => size || '32px'};
-  height: ${({ size }) => size || '32px'};
+  width: ${({ $size }) => $size || '32px'};
+  height: ${({ $size }) => $size || '32px'};
   border-radius: 50%;
   background-color: ${({ theme }) => theme.colors.landingBackground};
 
@@ -157,8 +157,8 @@ export const StyledBalance = styled.p`
 `;
 
 export const StyledLabel = styled.div<{
-  isPrimary?: boolean;
-  available?: boolean;
+  $isPrimary?: boolean;
+  $available?: boolean;
 }>`
   /* position: absolute;
   top: 24px;
@@ -172,8 +172,8 @@ export const StyledLabel = styled.div<{
   border-radius: 100px;
   font-weight: 500;
   font-size: 12px;
-  ${({ isPrimary, theme }) =>
-    isPrimary
+  ${({ $isPrimary, theme }) =>
+    $isPrimary
       ? `
     border: 1px solid #FAD1DC;
     color: ${theme.colors.textPink};
@@ -182,8 +182,8 @@ export const StyledLabel = styled.div<{
     border: 1px solid #DCD3FF;
     color: ${theme.colors.textBlue};
   `}
-  ${({ available, theme }) =>
-    available
+  ${({ $available, theme }) =>
+    $available
       ? `
     place-self: flex-end;
     border: 1px solid ${theme.colors.successBackground};
@@ -201,20 +201,20 @@ export const StyledButtonsWrapper = styled.div`
   margin-top: 24px;
 `;
 
-export const StyledSelect = styled.div<{ isSelected: boolean }>`
+export const StyledSelect = styled.div<{ $isSelected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: ${({ isSelected, theme }) =>
-    isSelected ? theme.colors.textPink : 'transparent'};
+  background-color: ${({ $isSelected, theme }) =>
+    $isSelected ? theme.colors.textPink : 'transparent'};
   border: 2px solid
-    ${({ isSelected, theme }) =>
-      isSelected ? theme.colors.textPink : theme.colors.textDisabled};
-  color: ${({ isSelected, theme }) =>
-    isSelected ? theme.colors.landingBackground : 'transparent'};
+    ${({ $isSelected, theme }) =>
+      $isSelected ? theme.colors.textPink : theme.colors.textDisabled};
+  color: ${({ $isSelected, theme }) =>
+    $isSelected ? theme.colors.landingBackground : 'transparent'};
   transition: background-color 250ms ease-out, border 250ms ease-out,
     color 250ms ease-out;
   cursor: pointer;

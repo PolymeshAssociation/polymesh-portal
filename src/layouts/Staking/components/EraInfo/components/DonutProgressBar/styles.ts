@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
-export const DonutProgressBarContainer = styled.div<{ size?: string }>`
+export const DonutProgressBarContainer = styled.div<{ $size?: string }>`
   position: relative;
-  width: ${({ size }) => size};
-  height: ${({ size }) => size};
+  width: ${({ $size }) => $size};
+  height: ${({ $size }) => $size};
   flex-grow: 1;
 `;
 

@@ -147,7 +147,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
 
   return (
     <>
-      <InputWrapper marginBotom={24}>
+      <InputWrapper $marginBottom={24}>
         <DropdownSelect
           label="Venue"
           placeholder="Select venue"
@@ -156,7 +156,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
           error={errors?.venue?.message}
         />
       </InputWrapper>
-      <FlexInputWrapper marginBotom={24}>
+      <FlexInputWrapper $marginBottom={24}>
         <InputWrapper>
           <StyledLabel htmlFor="valueDate">Value Date (Optional)</StyledLabel>
           <StyledInput
@@ -176,7 +176,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
           />
         </InputWrapper>
       </FlexInputWrapper>
-      <InputWrapper marginBotom={36}>
+      <InputWrapper $marginBottom={36}>
         <StyledLabel htmlFor="memo">
           Memo (Optional - this will be public)
         </StyledLabel>

@@ -6,17 +6,19 @@ export const StyledNavigation = styled.div`
   margin-bottom: 24px;
 `;
 
-export const InputWrapper = styled.div<{ marginBotom?: number }>`
+export const InputWrapper = styled.div<{ $marginBottom?: number }>`
   position: relative;
   width: 100%;
-  margin-bottom: ${({ marginBotom }) => (marginBotom ? `${marginBotom}px` : 0)};
+  margin-bottom: ${({ $marginBottom }) =>
+    $marginBottom ? `${$marginBottom}px` : 0};
 `;
 
-export const FlexInputWrapper = styled.div<{ marginBotom?: number }>`
+export const FlexInputWrapper = styled.div<{ $marginBottom?: number }>`
   display: flex;
   align-items: center;
   gap: 24px;
-  margin-bottom: ${({ marginBotom }) => (marginBotom ? `${marginBotom}px` : 0)};
+  margin-bottom: ${({ $marginBottom }) =>
+    $marginBottom ? `${$marginBottom}px` : 0};
 
   @media screen and (max-width: 767px) {
     flex-direction: column;

@@ -14,8 +14,8 @@ export const StyledTypeSelectWrapper = styled.div`
 `;
 
 export const StyledTypeSelect = styled.div<{
-  isSelected: boolean;
-  expanded: boolean;
+  $isSelected: boolean;
+  $expanded: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -24,14 +24,14 @@ export const StyledTypeSelect = styled.div<{
 
   & span {
     font-size: 14px;
-    color: ${({ theme, isSelected }) =>
-      isSelected ? theme.colors.textPrimary : theme.colors.textSecondary};
+    color: ${({ theme, $isSelected }) =>
+      $isSelected ? theme.colors.textPrimary : theme.colors.textSecondary};
   }
   & div {
     color: ${({ theme }) => theme.colors.textSecondary};
     transition: transform 250ms ease-out;
-    ${({ expanded }) =>
-      expanded ? `transform: rotate(180deg);` : 'transform: rotate(0);'}
+    ${({ $expanded }) =>
+      $expanded ? `transform: rotate(180deg);` : 'transform: rotate(0);'}
   }
 `;
 
@@ -50,15 +50,15 @@ export const StyledExpandedTypeSelect = styled.div`
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
 `;
 
-export const StyledTypeOption = styled.button<{ isSelected?: boolean }>`
+export const StyledTypeOption = styled.button<{ $isSelected?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   padding: 8px 16px;
   border-radius: 16px;
-  background-color: ${({ theme, isSelected }) =>
-    isSelected
+  background-color: ${({ theme, $isSelected }) =>
+    $isSelected
       ? theme.colors.dashboardBackground
       : theme.colors.landingBackground};
   font-size: 14px;
@@ -103,8 +103,8 @@ export const StyledInputGroup = styled.div`
   }
 `;
 
-export const InputWrapper = styled.div<{ isSelect: boolean }>`
-  ${({ isSelect }) => (isSelect ? `grid-column: 1 / 3;` : '')}
+export const InputWrapper = styled.div<{ $isSelect: boolean }>`
+  ${({ $isSelect }) => ($isSelect ? `grid-column: 1 / 3;` : '')}
   position: relative;
   /* width: 216px; */
 `;
@@ -133,8 +133,8 @@ export const StyledSelectWrapper = styled.div`
 `;
 
 export const StyledSelect = styled.div<{
-  expanded: boolean;
-  isSelected: boolean;
+  $expanded: boolean;
+  $isSelected: boolean;
 }>`
   width: 100%;
   height: 36px;
@@ -142,8 +142,8 @@ export const StyledSelect = styled.div<{
   border-radius: 8px;
   padding: 6px 16px;
   font-size: 14px;
-  color: ${({ isSelected, theme }) =>
-    isSelected ? theme.colors.textSecondary : theme.colors.textPrimary};
+  color: ${({ $isSelected, theme }) =>
+    $isSelected ? theme.colors.textSecondary : theme.colors.textPrimary};
 
   & .icon {
     position: absolute;
@@ -151,8 +151,8 @@ export const StyledSelect = styled.div<{
     right: 16px;
     color: ${({ theme }) => theme.colors.textSecondary};
     transition: transform 250ms ease-out;
-    ${({ expanded }) =>
-      expanded ? `transform: rotate(180deg);` : 'transform: rotate(0);'}
+    ${({ $expanded }) =>
+      $expanded ? `transform: rotate(180deg);` : 'transform: rotate(0);'}
   }
 `;
 

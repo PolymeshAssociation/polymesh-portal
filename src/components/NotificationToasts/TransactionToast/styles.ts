@@ -51,14 +51,16 @@ const handleStatusType = (status: `${TransactionStatus}`) => {
   }
 };
 
-export const StyledStatusLabel = styled.div<{ status: `${TransactionStatus}` }>`
+export const StyledStatusLabel = styled.div<{
+  $status: `${TransactionStatus}`;
+}>`
   max-width: fit-content;
   padding: 1px 8px;
   border-radius: 100px;
   font-weight: 500;
   font-size: 10px;
   text-align: center;
-  ${({ status }) => handleStatusType(status)}
+  ${({ $status }) => handleStatusType($status)}
 `;
 
 export const StyledBatchLabel = styled.div`
@@ -85,15 +87,15 @@ export const StyledDetailsWrapper = styled.div`
   gap: 8px;
 `;
 
-export const StyledDetail = styled.div<{ isIcon?: boolean }>`
+export const StyledDetail = styled.div<{ $isIcon?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   height: 32px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   color: ${({ theme }) => theme.colors.textSecondary};
-  ${({ isIcon }) =>
-    isIcon
+  ${({ $isIcon }) =>
+    $isIcon
       ? `
     width: 32px;
     border-radius: 50%;

@@ -29,7 +29,7 @@ export const StyledBackdrop = styled.div`
 `;
 
 export const StyledModal = styled.div<{
-  disableOverflow?: boolean;
+  $disableOverflow?: boolean;
 }>`
   position: relative;
   padding: 24px;
@@ -45,7 +45,7 @@ export const StyledModal = styled.div<{
   }
   background-color: ${({ theme }) => theme.colors.modalBackground};
   box-shadow: ${({ theme }) => `0px 20px 40px ${theme.colors.shadow}`};
-  ${({ disableOverflow }) => (disableOverflow ? '' : `overflow-y: scroll;`)}
+  ${({ $disableOverflow }) => ($disableOverflow ? '' : `overflow-y: scroll;`)}
 
   animation: modal-animation 250ms ease-out;
   @keyframes modal-animation {

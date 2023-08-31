@@ -106,9 +106,9 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
       <InputWrapper ref={ref}>
         <StyledSelect
           onClick={() => handleDropdownToggle()}
-          expanded={selectExpanded}
-          isSelected={options.includes(selectedOption)}
-          borderRadius={borderRadius}
+          $expanded={selectExpanded}
+          $isSelected={options.includes(selectedOption)}
+          $borderRadius={borderRadius}
         >
           {enableSearch ? (
             <StyledSearch
@@ -128,7 +128,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
           <Icon name="ExpandIcon" size="18px" className="icon" />
         </StyledSelect>
         {!!dropdownOptions.length && selectExpanded && (
-          <StyledExpandedSelect borderRadius={borderRadius}>
+          <StyledExpandedSelect $borderRadius={borderRadius}>
             {dropdownOptions.map((option) => (
               <StyledOption
                 ref={option === selectedOption ? selectedRef : null}
@@ -138,7 +138,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
                   setSearchFilter('');
                   handleDropdownToggle(option);
                 }}
-                isSelected={option === selectedOption}
+                $isSelected={option === selectedOption}
               >
                 {truncateOption
                   ? formatKey(

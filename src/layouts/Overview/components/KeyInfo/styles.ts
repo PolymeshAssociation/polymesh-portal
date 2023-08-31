@@ -30,12 +30,12 @@ export const StyledWrapper = styled.div`
   }
 `;
 
-export const IconWrapper = styled.div<{ size?: string }>`
+export const IconWrapper = styled.div<{ $size?: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: ${({ size }) => size || '32px'};
-  height: ${({ size }) => size || '32px'};
+  width: ${({ $size }) => $size || '32px'};
+  height: ${({ $size }) => $size || '32px'};
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.24);
 

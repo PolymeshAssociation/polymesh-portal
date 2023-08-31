@@ -16,28 +16,28 @@ export const StyledWrapper = styled.div`
   }
 `;
 
-export const StyledCheckboxWrapper = styled.label<{ isLight: boolean }>`
+export const StyledCheckboxWrapper = styled.label<{ $isLight: boolean }>`
   position: relative;
   display: block;
   width: 48px;
   height: 24px;
-  background-color: ${({ isLight }) => (isLight ? '#FF2E72' : 'transparent')};
+  background-color: ${({ $isLight }) => ($isLight ? '#FF2E72' : 'transparent')};
   border: 1px solid #ff2e72;
   border-radius: 12px;
   cursor: pointer;
   transition: background-color 250ms ease-out;
 `;
 
-export const StyledCheckboxMark = styled.span<{ isLight: boolean }>`
+export const StyledCheckboxMark = styled.span<{ $isLight: boolean }>`
   position: absolute;
   top: 3px;
-  left: ${({ isLight }) => (isLight ? '27px' : '3px')};
+  left: ${({ $isLight }) => ($isLight ? '27px' : '3px')};
   display: flex;
   align-items: center;
   justify-content: center;
   width: 16px;
   height: 16px;
-  background-color: ${({ isLight }) => (isLight ? '#ffffff' : '#FF2E72')};
+  background-color: ${({ $isLight }) => ($isLight ? '#ffffff' : '#FF2E72')};
   border-radius: 50%;
   box-shadow: ${({ theme }) =>
     `0px 1px 3px ${theme.colors.shadow},
@@ -49,10 +49,10 @@ export const StyledCheckboxMark = styled.span<{ isLight: boolean }>`
   }
 
   & .icon.dark {
-    color: ${({ isLight }) => (isLight ? 'transparent' : '#ffffff')};
+    color: ${({ $isLight }) => ($isLight ? 'transparent' : '#ffffff')};
   }
   & .icon.light {
-    color: ${({ isLight }) => (isLight ? '#FF2E72' : 'transparent')};
+    color: ${({ $isLight }) => ($isLight ? '#FF2E72' : 'transparent')};
   }
 `;
 
@@ -69,19 +69,19 @@ export const HiddenInput = styled.input`
   overflow: hidden;
 `;
 
-export const StyledSelect = styled.div<{ isSelected: boolean }>`
+export const StyledSelect = styled.div<{ $isSelected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: ${({ isSelected }) =>
-    isSelected ? '#FF2E72' : 'transparent'};
+  background-color: ${({ $isSelected }) =>
+    $isSelected ? '#FF2E72' : 'transparent'};
   border: 2px solid
-    ${({ isSelected, theme }) =>
-      isSelected ? '#FF2E72' : theme.colors.textDisabled};
-  color: ${({ isSelected }) => (isSelected ? '#FFFFFF' : 'transparent')};
+    ${({ $isSelected, theme }) =>
+      $isSelected ? '#FF2E72' : theme.colors.textDisabled};
+  color: ${({ $isSelected }) => ($isSelected ? '#FFFFFF' : 'transparent')};
   transition: background-color 250ms ease-out, color 250ms ease-out;
   cursor: pointer;
 `;

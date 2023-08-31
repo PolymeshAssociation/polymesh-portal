@@ -2,12 +2,12 @@ import styled from 'styled-components';
 import { EButtonVariants } from './types';
 
 export const StyledButton = styled.button<{
-  variant: `${EButtonVariants}`;
-  marginTop?: number;
-  marginBottom?: number;
-  round?: boolean;
+  $variant: `${EButtonVariants}`;
+  $marginTop?: number;
+  $marginBottom?: number;
+  $round?: boolean;
 }>`
-  ${({ variant, marginTop, marginBottom, theme }) => `
+  ${({ $variant, $marginTop, $marginBottom, theme }) => `
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -24,7 +24,7 @@ export const StyledButton = styled.button<{
     box-shadow: 0px 12px 24px transparent;
   }
   ${
-    variant === EButtonVariants.PRIMARY
+    $variant === EButtonVariants.PRIMARY
       ? `
     
     color: ${theme.colors.textPink};
@@ -41,7 +41,7 @@ export const StyledButton = styled.button<{
       : ''
   }
   ${
-    variant === EButtonVariants.SECONDARY
+    $variant === EButtonVariants.SECONDARY
       ? `
     color: #727272;
     background: #F5F5F5;
@@ -56,7 +56,7 @@ export const StyledButton = styled.button<{
       : ''
   }
   ${
-    variant === EButtonVariants.MODAL_PRIMARY
+    $variant === EButtonVariants.MODAL_PRIMARY
       ? `
     color: white;
     background: #170087;  
@@ -74,7 +74,7 @@ export const StyledButton = styled.button<{
       : ''
   }
   ${
-    variant === EButtonVariants.MODAL_SECONDARY
+    $variant === EButtonVariants.MODAL_SECONDARY
       ? `
     color: #170087;
     background: #ffffff;
@@ -91,7 +91,7 @@ export const StyledButton = styled.button<{
       : ''
   }
   ${
-    variant === EButtonVariants.ACCENT
+    $variant === EButtonVariants.ACCENT
       ? `
     color: white;
     background: linear-gradient(248.54deg, #FF2E72 0%, #4A125E 156.07%);
@@ -108,7 +108,7 @@ export const StyledButton = styled.button<{
       : ''
   }
   ${
-    variant === EButtonVariants.TRANSPARENT
+    $variant === EButtonVariants.TRANSPARENT
       ? `
     color: #ffffff;
     background: rgba(255, 255, 255, 0.24);
@@ -122,7 +122,7 @@ export const StyledButton = styled.button<{
       : ''
   }
   ${
-    variant === EButtonVariants.SUCCESS
+    $variant === EButtonVariants.SUCCESS
       ? `
     color: ${theme.colors.textSuccess};
     background: ${theme.colors.successBackground};
@@ -136,16 +136,16 @@ export const StyledButton = styled.button<{
     `
       : ''
   }
-  ${marginTop ? `margin-top: ${marginTop}px;` : ''}
-  ${marginBottom ? `margin-bottom: ${marginBottom}px;` : ''}
+  ${$marginTop ? `margin-top: ${$marginTop}px;` : ''}
+  ${$marginBottom ? `margin-bottom: ${$marginBottom}px;` : ''}
 
   transition-property: color, background, box-shadow, border;
   transition-duration: 250ms;
   transition-timing-function: ease-out;
   `}
 
-  ${({ round }) =>
-    round
+  ${({ $round }) =>
+    $round
       ? ` 
   min-width: 48px;
   width: 48px;
@@ -155,7 +155,7 @@ export const StyledButton = styled.button<{
       : ''}
 
   @media screen and (min-width: 480px) {
-    ${({ round }) => (round ? '' : 'min-width: 128px;')}
+    ${({ $round }) => ($round ? '' : 'min-width: 128px;')}
     gap: 10px;
     height: 48px;
   }

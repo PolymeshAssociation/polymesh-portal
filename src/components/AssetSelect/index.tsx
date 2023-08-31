@@ -150,12 +150,12 @@ const AssetSelect: React.FC<IAssetSelectProps> = ({
           <AssetSelectWrapper ref={ref}>
             <StyledAssetSelect
               onClick={toggleAssetSelectDropdown}
-              expanded={assetSelectExpanded}
+              $expanded={assetSelectExpanded}
             >
               {portfolio.assets.length && selectedAsset ? (
                 <SelectedOption>
                   <IconWrapper
-                    background={stringToColor(selectedAsset.toHuman())}
+                    $background={stringToColor(selectedAsset.toHuman())}
                   >
                     <Icon name="Coins" size="16px" />
                   </IconWrapper>
@@ -174,7 +174,7 @@ const AssetSelect: React.FC<IAssetSelectProps> = ({
                       key={asset.toHuman()}
                       onClick={() => handleAssetSelect(asset, free)}
                     >
-                      <IconWrapper background={stringToColor(asset.toHuman())}>
+                      <IconWrapper $background={stringToColor(asset.toHuman())}>
                         <Icon name="Coins" size="16px" />
                       </IconWrapper>{' '}
                       {asset.toHuman()}

@@ -54,7 +54,7 @@ const Modal: React.FC<IModalProps> = ({
 
   return createPortal(
     <StyledBackdrop onMouseDown={handleBackdropClick}>
-      <StyledModal disableOverflow={disableOverflow}>
+      <StyledModal $disableOverflow={disableOverflow}>
         {isMobile && (
           <StyledCloseButton onClick={handleClose}>
             <Icon name="CloseIcon" size="24px" />

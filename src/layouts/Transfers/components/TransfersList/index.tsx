@@ -190,7 +190,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
         {!!selectedItems.length && (
           <StyledButtonWrapper>
             <StyledActionButton
-              isReject
+              $isReject
               disabled={actionInProgress}
               onClick={() => executeBatch(EActionTypes.REJECT)}
             >
@@ -199,7 +199,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
             </StyledActionButton>
             {type === EInstructionTypes.AFFIRMED && (
               <StyledActionButton
-                isReject
+                $isReject
                 disabled={actionInProgress}
                 onClick={() => executeBatch(EActionTypes.WITHDRAW)}
               >

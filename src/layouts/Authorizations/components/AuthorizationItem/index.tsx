@@ -145,7 +145,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
         )}
       </StyledInfoWrapper>
       {detailsExpanded && details ? details : null}
-      <StyledButtonsWrapper expanded={detailsExpanded}>
+      <StyledButtonsWrapper $expanded={detailsExpanded}>
         {direction === EAuthorizationDirections.INCOMING ? (
           <>
             <Button onClick={handleReject} disabled={rejectInProgress}>

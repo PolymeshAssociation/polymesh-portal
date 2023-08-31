@@ -110,7 +110,7 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
         Create New Claim
       </Heading>
       <StyledScrollableWrapper>
-        <StyledInputWrapper marginBottom={16}>
+        <StyledInputWrapper $marginBottom={16}>
           <StyledLabel htmlFor="targetDid">Target DID</StyledLabel>
           <StyledInput
             placeholder="Enter DID"
@@ -129,7 +129,7 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
           error={errors.scopeType?.message}
         />
         {selectedScope && (
-          <StyledInputWrapper marginTop={16}>
+          <StyledInputWrapper $marginTop={16}>
             <StyledLabel htmlFor="scopeValue">Scope Value</StyledLabel>
             <StyledInput
               placeholder={createPlaceholderByScopeType(selectedScope)}

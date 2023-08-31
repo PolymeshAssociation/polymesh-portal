@@ -92,7 +92,7 @@ export const StyledDetailValue = styled.div`
   border-radius: 24px;
 `;
 
-export const StyledButtonsWrapper = styled.div<{ expanded: boolean }>`
+export const StyledButtonsWrapper = styled.div<{ $expanded: boolean }>`
   display: flex;
   align-items: center;
   gap: 24px;
@@ -107,8 +107,8 @@ export const StyledButtonsWrapper = styled.div<{ expanded: boolean }>`
       flex-grow: 0;
     }
     & .expand-icon {
-      transform: ${({ expanded }) =>
-        expanded ? `rotate(180deg)` : `rotate(0)`};
+      transform: ${({ $expanded }) =>
+        $expanded ? `rotate(180deg)` : `rotate(0)`};
     }
   }
 

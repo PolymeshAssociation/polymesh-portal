@@ -19,13 +19,13 @@ export const StyledButtonsWrapper = styled.div`
 `;
 
 export const StyledInputWrapper = styled.div<{
-  marginBottom?: number;
-  marginTop?: number;
+  $marginBottom?: number;
+  $marginTop?: number;
 }>`
   position: relative;
-  margin-bottom: ${({ marginBottom }) =>
-    marginBottom ? `${marginBottom}px` : 0};
-  margin-top: ${({ marginTop }) => (marginTop ? `${marginTop}px` : 0)};
+  margin-bottom: ${({ $marginBottom }) =>
+    $marginBottom ? `${$marginBottom}px` : 0};
+  margin-top: ${({ $marginTop }) => ($marginTop ? `${$marginTop}px` : 0)};
 `;
 
 export const StyledLabel = styled.label`

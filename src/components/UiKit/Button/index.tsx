@@ -13,14 +13,14 @@ const Button: React.FC<IButtonProps> = ({
 }) => {
   return (
     <StyledButton
-      variant={variant}
-      marginTop={marginTop}
-      marginBottom={marginBottom}
+      $variant={variant}
+      $marginTop={marginTop}
+      $marginBottom={marginBottom}
       type="button"
       onClick={onClick}
       disabled={disabled}
       className={className}
-      round={round}
+      $round={round}
     >
       {children}
     </StyledButton>

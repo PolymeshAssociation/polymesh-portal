@@ -2,12 +2,12 @@ import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
 export const StyledSidebar = styled.aside<{
-  fullWidth: boolean;
+  $fullWidth: boolean;
 }>`
   position: relative;
   display: flex;
   flex-direction: column;
-  width: ${({ fullWidth }) => (fullWidth ? '256px' : '88px')};
+  width: ${({ $fullWidth }) => ($fullWidth ? '256px' : '88px')};
   padding: 36px 16px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
 
@@ -46,10 +46,10 @@ export const StyledSidebar = styled.aside<{
     width: 100vw;
     height: 100vh;
     padding: 24px 16px;
-    transform: ${({ fullWidth }) =>
-      fullWidth ? 'translateX(0)' : 'translateX(-100%)'};
+    transform: ${({ $fullWidth }) =>
+      $fullWidth ? 'translateX(0)' : 'translateX(-100%)'};
     overflow-y: scroll;
-    z-index: 2;
+    z-index: 10;
     transition: transform 250ms ease-out;
 
     & .container {
@@ -59,21 +59,21 @@ export const StyledSidebar = styled.aside<{
   }
 `;
 
-export const MenuButton = styled.button<{ fullWidth: boolean }>`
+export const MenuButton = styled.button<{ $fullWidth: boolean }>`
   position: absolute;
   display: flex;
   top: 40px;
-  right: ${({ fullWidth }) => (fullWidth ? '16px' : '-16px')};
+  right: ${({ $fullWidth }) => ($fullWidth ? '16px' : '-16px')};
   padding: 0;
   background-color: transparent;
   cursor: pointer;
-  ${({ fullWidth }) => (fullWidth ? 'transform: rotate(180deg);' : '')}
+  ${({ $fullWidth }) => ($fullWidth ? 'transform: rotate(180deg);' : '')}
   transition: transform 250ms ease-out;
 `;
 
-export const StyledNetworkWrapper = styled.div<{ fullWidth: boolean }>`
+export const StyledNetworkWrapper = styled.div<{ $fullWidth: boolean }>`
   position: relative;
-  width: ${({ fullWidth }) => (fullWidth ? '208px' : '100%')};
+  width: ${({ $fullWidth }) => ($fullWidth ? '208px' : '100%')};
   height: 32px;
   margin: 0 auto 34px auto;
   border-radius: 100px;
@@ -85,8 +85,8 @@ export const StyledNetworkWrapper = styled.div<{ fullWidth: boolean }>`
   }
 `;
 export const StyledNetworkStatus = styled.div<{
-  fullWidth: boolean;
-  isLoading: boolean;
+  $fullWidth: boolean;
+  $isLoading: boolean;
 }>`
   position: absolute;
   top: 50%;
@@ -96,7 +96,7 @@ export const StyledNetworkStatus = styled.div<{
   align-items: center;
   width: calc(100% - 2px);
   height: calc(100% - 2px);
-  padding: 0 0 0 ${({ isLoading }) => (isLoading ? '0' : '28px')};
+  padding: 0 0 0 ${({ $isLoading }) => ($isLoading ? '0' : '28px')};
   border-radius: 100px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   color: ${({ theme }) => theme.colors.textPurple};
@@ -110,8 +110,8 @@ export const StyledNetworkStatus = styled.div<{
   }
 
   @media screen and (min-width: 768px) {
-    ${({ fullWidth }) =>
-      fullWidth
+    ${({ $fullWidth }) =>
+      $fullWidth
         ? ''
         : `
       text-indent: -300px;
@@ -123,11 +123,14 @@ export const StyledNetworkStatus = styled.div<{
   }
 `;
 
-export const StatusDot = styled.div<{ fullWidth: boolean; isLoading: boolean }>`
+export const StatusDot = styled.div<{
+  $fullWidth: boolean;
+  $isLoading: boolean;
+}>`
   position: absolute;
   left: 0;
-  ${({ fullWidth }) =>
-    fullWidth
+  ${({ $fullWidth }) =>
+    $fullWidth
       ? `
       transform: translateX(8px);
       `
@@ -138,8 +141,8 @@ export const StatusDot = styled.div<{ fullWidth: boolean; isLoading: boolean }>`
   height: 12px;
   border-radius: 50%;
   background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
-  ${({ isLoading }) =>
-    isLoading
+  ${({ $isLoading }) =>
+    $isLoading
       ? `
       // animation: loading-animation 2.2s ease-out infinite;
   `
@@ -172,15 +175,15 @@ export const StatusDot = styled.div<{ fullWidth: boolean; isLoading: boolean }>`
   } */
 `;
 
-export const StyledNavList = styled.nav<{ fullWidth: boolean }>`
+export const StyledNavList = styled.nav<{ $fullWidth: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 10px;
 
   @media screen and (min-width: 768px) {
     & a {
-      ${({ fullWidth }) =>
-        fullWidth
+      ${({ $fullWidth }) =>
+        $fullWidth
           ? ''
           : `
     text-indent: -300px;
@@ -196,13 +199,13 @@ export const StyledNavList = styled.nav<{ fullWidth: boolean }>`
     text-indent: 0px;
     top: 0;
     right: 0;
-    transform: ${({ fullWidth }) =>
-      fullWidth ? 'translate(-19px, 19px)' : 'translate(-8px, 8px)'};
+    transform: ${({ $fullWidth }) =>
+      $fullWidth ? 'translate(-19px, 19px)' : 'translate(-8px, 8px)'};
     transition: transform 250ms ease-out;
   }
 `;
 
-export const StyledNavLink = styled(NavLink)<{ disabled?: boolean }>`
+export const StyledNavLink = styled(NavLink)<{ $disabled?: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
@@ -212,9 +215,9 @@ export const StyledNavLink = styled(NavLink)<{ disabled?: boolean }>`
   border-radius: 62px;
   font-weight: 500;
   font-size: 14px;
-  color: ${({ theme, disabled }) =>
-    disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
-  ${({ disabled }) => (disabled ? 'pointer-events: none;' : '')}
+  color: ${({ theme, $disabled }) =>
+    $disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
+  ${({ $disabled }) => ($disabled ? 'pointer-events: none;' : '')}
   transition: background-color 250ms ease-out, color 250ms ease-out,
     text-indent 250ms ease-out 100ms;
 
@@ -223,8 +226,8 @@ export const StyledNavLink = styled(NavLink)<{ disabled?: boolean }>`
   }
 
   & .link-icon {
-    color: ${({ theme, disabled }) =>
-      disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
+    color: ${({ theme, $disabled }) =>
+      $disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
     transition: color 250ms ease-out;
   }
   &.active {
@@ -264,7 +267,7 @@ export const ExpandedLinks = styled.ul`
   }
 `;
 
-export const StyledExpandedLink = styled.button<{ disabled?: boolean }>`
+export const StyledExpandedLink = styled.button<{ $disabled?: boolean }>`
   display: flex;
   align-items: center;
   width: 100%;
@@ -274,9 +277,9 @@ export const StyledExpandedLink = styled.button<{ disabled?: boolean }>`
   font-weight: 500;
   font-size: 14px;
   background-color: transparent;
-  color: ${({ theme, disabled }) =>
-    disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
-  ${({ disabled }) => (disabled ? 'pointer-events: none;' : '')}
+  color: ${({ theme, $disabled }) =>
+    $disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
+  ${({ $disabled }) => ($disabled ? 'pointer-events: none;' : '')}
 
   transition: background-color 250ms ease-out, color 250ms ease-out;
 
@@ -285,8 +288,8 @@ export const StyledExpandedLink = styled.button<{ disabled?: boolean }>`
   }
 
   & .link-icon {
-    color: ${({ theme, disabled }) =>
-      disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
+    color: ${({ theme, $disabled }) =>
+      $disabled ? theme.colors.textDisabled : theme.colors.textSecondary};
     transition: color 250ms ease-out;
   }
   &.active {
@@ -314,14 +317,15 @@ export const SoonLabel = styled.div`
   color: #43195b;
 `;
 
-export const WarningLabelWrapper = styled.div<{ fullWidth: boolean }>`
+export const WarningLabelWrapper = styled.div<{ $fullWidth: boolean }>`
   position: absolute;
   top: -32px;
   left: 0;
   min-width: 100%;
   display: flex;
   align-items: center;
-  justify-content: ${({ fullWidth }) => (fullWidth ? 'flex-start' : 'center')};
+  justify-content: ${({ $fullWidth }) =>
+    $fullWidth ? 'flex-start' : 'center'};
   gap: 8px;
 `;
 

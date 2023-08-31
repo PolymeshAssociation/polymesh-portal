@@ -86,7 +86,7 @@ export const NewClaimItem: React.FC<INewClaimItem> = ({
       {isSelected && (
         <>
           {value === ClaimType.Jurisdiction && (
-            <StyledInputWrapper marginTop={20}>
+            <StyledInputWrapper $marginTop={20}>
               <DropdownSelect
                 label="Country"
                 placeholder="Select Country"
@@ -97,7 +97,7 @@ export const NewClaimItem: React.FC<INewClaimItem> = ({
               />
             </StyledInputWrapper>
           )}
-          <StyledInputWrapper marginTop={20}>
+          <StyledInputWrapper $marginTop={20}>
             <StyledLabel>Expiry Date (Optional)</StyledLabel>
             <StyledInput
               type="date"

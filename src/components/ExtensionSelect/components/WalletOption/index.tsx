@@ -25,7 +25,7 @@ export const WalletOption: React.FC<IWalletOptionProps> = ({
 }) => {
   return (
     <StyledWrapper onClick={onClick} htmlFor={htmlFor}>
-      <StyledWalletIconBox installed={isInstalled}>
+      <StyledWalletIconBox $installed={isInstalled}>
         <Icon name={iconName} size="56px" />
       </StyledWalletIconBox>
       <StyledSelectedIconBox className="selected-icon">
@@ -36,7 +36,7 @@ export const WalletOption: React.FC<IWalletOptionProps> = ({
           <Icon name="DownloadIcon" />
         </StyledStatusIconBox>
       )}
-      <StyledCaption installed={isInstalled}>{walletName}</StyledCaption>
+      <StyledCaption $installed={isInstalled}>{walletName}</StyledCaption>
     </StyledWrapper>
   );
 };

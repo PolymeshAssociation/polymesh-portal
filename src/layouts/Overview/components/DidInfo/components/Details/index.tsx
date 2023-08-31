@@ -125,7 +125,7 @@ export const Details: React.FC<IDetailsProps> = ({
       </Heading>
       <StyledAccountWrapper>
         <StyledTopInfo>
-          <IconWrapper size="64px">
+          <IconWrapper $size="64px">
             <Icon name="AuthorizationsIcon" className="id-icon" />
           </IconWrapper>
           <div className="did-wrapper">
@@ -179,7 +179,7 @@ export const Details: React.FC<IDetailsProps> = ({
                     </div>
                     <div className="status-container">
                       {available && (
-                        <StyledLabel available>
+                        <StyledLabel $available>
                           {key === selectedAccount ? (
                             <>
                               <Icon name="Check" size="16px" />
@@ -197,13 +197,13 @@ export const Details: React.FC<IDetailsProps> = ({
                         </StyledLabel>
                       )}
                       {isMobile && (
-                        <StyledLabel isPrimary={isPrimaryKey}>
+                        <StyledLabel $isPrimary={isPrimaryKey}>
                           {isPrimaryKey ? 'Primary' : 'Secondary'}
                         </StyledLabel>
                       )}
                       {primaryIsSelected && !isPrimaryKey && (
                         <StyledSelect
-                          isSelected={selectedKeys.includes(key)}
+                          $isSelected={selectedKeys.includes(key)}
                           onClick={() => handleKeySelect(key)}
                         >
                           <Icon name="Check" size="16px" />
@@ -223,7 +223,7 @@ export const Details: React.FC<IDetailsProps> = ({
                       <span> POLYX</span>
                     </StyledBalance>
                     {!isMobile && (
-                      <StyledLabel isPrimary={isPrimaryKey}>
+                      <StyledLabel $isPrimary={isPrimaryKey}>
                         {isPrimaryKey ? 'Primary' : 'Secondary'}
                       </StyledLabel>
                     )}

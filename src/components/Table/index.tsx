@@ -104,7 +104,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
   );
 
   const renderDesktopTable = () => (
-    <StyledTableBody colsNumber={colsNumber}>
+    <StyledTableBody $colsNumber={colsNumber}>
       <thead>
         <tr>
           {tableHeaders.map((header) => (
@@ -167,7 +167,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
           ) : (
             <StyledTabItem
               key={tabItem}
-              selected={tabItem === tab}
+              $selected={tabItem === tab}
               onClick={() =>
                 (setTab as Dispatch<SetStateAction<S>>)(tabItem as S)
               }

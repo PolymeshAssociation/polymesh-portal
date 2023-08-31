@@ -141,7 +141,7 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
             onChange={({ target }) => setNodeEndpoint(target.value)}
           />
 
-          <StyledEndpointWrapper marginTop={24}>
+          <StyledEndpointWrapper $marginTop={24}>
             <Text bold>Middleware URL</Text>
             <StyledActionButton
               disabled={
@@ -160,7 +160,7 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
             onChange={({ target }) => setMiddlewareEndpoint(target.value)}
           />
 
-          <StyledEndpointWrapper marginTop={24}>
+          <StyledEndpointWrapper $marginTop={24}>
             <Text bold>Middleware Key (Optional)</Text>
             <StyledActionButton
               disabled={
@@ -179,7 +179,7 @@ export const EndpointUrl: React.FC<IEndpointUrlProps> = ({ type }) => {
             onChange={({ target }) => setMiddlewareEndpointKey(target.value)}
           />
           <StyledActionButton
-            marginTop={24}
+            $marginTop={24}
             disabled={
               middlewareEndpoint.trim() ===
                 import.meta.env.VITE_SUBQUERY_MIDDLEWARE_URL &&
