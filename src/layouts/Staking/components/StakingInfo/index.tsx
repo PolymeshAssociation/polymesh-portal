@@ -34,7 +34,7 @@ export const StakingInfo = () => {
                   Average APR
                   <Tooltip
                     position="top"
-                    caption="Average Annual Percentage Rate, before operator commission is subtracted"
+                    caption="Average Annual Percentage Rate, before operator commission is subtracted."
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
                 </span>
@@ -55,7 +55,7 @@ export const StakingInfo = () => {
                     position={
                       cardWidth && cardWidth < 400 ? 'top-right' : 'top-left'
                     }
-                    caption="Average Annual Percentage Yield, for stakers that are compounding staking rewards, before operator commission is subtracted"
+                    caption="Average Annual Percentage Yield, for stakers that are compounding staking rewards, before operator commission is subtracted."
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
                 </span>
@@ -70,7 +70,14 @@ export const StakingInfo = () => {
               <SkeletonLoader height={45} width={150} />
             ) : (
               <>
-                <div className="item-label">Total Staked</div>
+                <div className="item-label">
+                  Total Staked
+                  <Tooltip
+                    position={cardWidth < 400 ? 'top-right' : 'top'}
+                    caption="Total POLYX staked and Percentage of total supply staked"
+                    maxWidth={cardWidth < 400 ? 200 : undefined}
+                  />
+                </div>
                 <Text size="large" bold>
                   <>
                     {formatBalance(totalStaked.toString(), 0)} POLYX (
@@ -89,7 +96,7 @@ export const StakingInfo = () => {
                   Inflation
                   <Tooltip
                     position={cardWidth < 400 ? 'top-right' : 'top'}
-                    caption="The annual inflation rate is variable and is a function of the percent of total POLYX that is staked"
+                    caption="The annual inflation rate is variable and is a function of the percent of total POLYX that is staked."
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
                 </span>
@@ -108,7 +115,7 @@ export const StakingInfo = () => {
                   Operators / Waiting
                   <Tooltip
                     position={windowWidth > 1024 ? 'top-left' : 'top'}
-                    caption="Waiting Operators are available for election but were not elected in the current Era"
+                    caption="Number of elected and waiting Node Operators. Waiting Operators are available for election but are not elected in the current Era."
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
                 </span>
@@ -124,10 +131,10 @@ export const StakingInfo = () => {
             ) : (
               <>
                 <span className="item-label">
-                  Filled Operators Slots
+                  Filled Operator Slots
                   <Tooltip
                     position={cardWidth < 400 ? 'top' : 'top-left'}
-                    caption="The number of operators that have been elected out of the maximum allowable number of operators"
+                    caption="The number of operators that have been elected out of the maximum allowable number of operators."
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
                 </span>

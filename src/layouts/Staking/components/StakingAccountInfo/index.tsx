@@ -82,7 +82,7 @@ export const StakingAccountInfo = () => {
           Your key must be linked to a Polymesh Account before you can start
           staking. To stake with this key, you can either onboard it through a
           Polymesh Customer Due Diligence Provider to create a new Polymesh
-          Account, or have the key assigned to an existing Polymesh Account.
+          Account, or assign the key to an existing Polymesh Account.
         </Text>
       </StyledTextWrapper>
       <StyledButtonWrapper $cardWidth={cardWidth}>
@@ -150,7 +150,7 @@ export const StakingAccountInfo = () => {
             Stash Key
             <Tooltip
               position="top"
-              caption="The Stash key is the key that POLYX is bonded to when staking. It can bond tokens and set the Controller key"
+              caption="The Stash key is the key that POLYX is bonded to when staking. It can bond tokens and set the Controller key."
               maxWidth={cardWidth < 420 ? 200 : undefined}
             />
           </Label>
@@ -168,7 +168,7 @@ export const StakingAccountInfo = () => {
             Controller Key
             <Tooltip
               position={cardWidth < 420 ? 'top' : 'top-left'}
-              caption="The Controller key is responsible for actions such as nominating node operators, setting the reward destination, initiating unbonding of tokens, rebonding tokens and withdrawing unbonded tokens to the Stash key"
+              caption="The Controller key is responsible for actions such as nominating Node Operators, setting the reward destination, initiating unbonding of tokens, rebonding tokens, and withdrawing unbonded tokens to the Stash key."
               maxWidth={cardWidth < 420 ? 200 : undefined}
             />
           </Label>
@@ -186,7 +186,7 @@ export const StakingAccountInfo = () => {
             Reward Destination
             <Tooltip
               position={cardWidth < 600 ? 'top' : 'top-left'}
-              caption='The key your staking rewards will be distributed to. "Staked" means the rewards will be bonded to the Stash key. For all other destinations rewards will not be bonded'
+              caption='The key your staking rewards will be distributed to. "Staked" means the rewards will be bonded to the Stash key. For all other destinations, rewards will not be bonded.'
               maxWidth={cardWidth < 420 ? 200 : undefined}
             />
           </Label>
@@ -210,7 +210,7 @@ export const StakingAccountInfo = () => {
               Bonded
               <Tooltip
                 position="top"
-                caption="The total number of tokens you have bonded, including active, unbonding and available to withdraw tokens"
+                caption="The total number of tokens you have bonded, including active, unbonding, and available to withdraw tokens."
                 maxWidth={cardWidth < 420 ? 200 : undefined}
               />
             </Label>
@@ -220,10 +220,10 @@ export const StakingAccountInfo = () => {
         {amountActive && (
           <div className="staking-account-item">
             <Label>
-              Active
+              Stakeable
               <Tooltip
                 position="top-right"
-                caption="The total number of tokens available for nomination to node operators"
+                caption="The number of Bonded tokens that can be staked with Node Operators."
                 maxWidth={cardWidth < 420 ? 200 : undefined}
               />
             </Label>
@@ -238,7 +238,7 @@ export const StakingAccountInfo = () => {
             />
             <Tooltip
               position={cardWidth < 420 ? 'top' : 'top-left'}
-              caption="Currently nominated node operators. A maximum of 16 operators can be nominated"
+              caption="Currently nominated Node Operators. A maximum of 16 operators can be nominated."
               maxWidth={cardWidth < 420 ? 200 : undefined}
             />
           </Label>
@@ -252,7 +252,7 @@ export const StakingAccountInfo = () => {
             />
             <Tooltip
               position="top"
-              caption="Allocations are the Node Operators and corresponding POLYX amount, that have been assigned from your stash, for the active staking period. Allocations are selected from your nominations by the election algorithm"
+              caption="List of Node Operators and their corresponding POLYX allocations from your stash for the active staking period. Allocations are determined by the election algorithm based on your nominations."
               maxWidth={cardWidth < 420 ? 200 : undefined}
             />
           </Label>
@@ -264,7 +264,7 @@ export const StakingAccountInfo = () => {
               <Unbonding unbondingLots={unbondingLots} />{' '}
               <Tooltip
                 position={cardWidth < 420 ? 'top' : 'top-left'}
-                caption="Unbonding tokens have not yet completed the waiting period required before they can be withdrawn and transferred freely"
+                caption="Unbonding tokens have not yet completed the waiting period required before they can be withdrawn and transferred freely."
                 maxWidth={cardWidth < 420 ? 200 : undefined}
               />{' '}
             </Label>
@@ -277,7 +277,7 @@ export const StakingAccountInfo = () => {
               Ready to Withdraw
               <Tooltip
                 position={readyToWithdrawTipPosition()}
-                caption="Tokens that have completed their unbonding period and are available to withdraw to the stash account"
+                caption="Tokens that have completed their unbonding period and are available to withdraw to the Stash account."
                 maxWidth={cardWidth < 420 ? 200 : undefined}
               />
             </Label>
@@ -308,15 +308,14 @@ export const StakingAccountInfo = () => {
             </IconWrapper>
           )}
           <div className="heading-wrapper">
-            <Heading type="h4">No staking account information</Heading>
+            <Heading type="h4">No staking information</Heading>
           </div>
         </StyledTopInfo>
         <StyledTextWrapper>
           <Text size="medium">
             The selected key is not currently staking. Click the button below to
-            open the staking interface where you can Bond POLYX to a Stash
-            Account, Nominated them to Node Operators and start earning staking
-            rewards.
+            open the staking interface where you can Bond POLYX to a Stash key,
+            Nominated them to Node Operators and start earning staking rewards.
           </Text>
         </StyledTextWrapper>
         {goToStakingButton}
