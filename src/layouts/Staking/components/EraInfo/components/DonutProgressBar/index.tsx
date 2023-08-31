@@ -28,7 +28,7 @@ const DonutProgressBar: React.FC<DonutProgressBarProps> = ({
           cx="50"
           cy="50"
           r={radius}
-          stroke="rgba(120, 120, 120, 0.2)"
+          stroke="rgba(250, 209, 220, 1)"
           strokeWidth="13.8"
         />
 
@@ -36,7 +36,7 @@ const DonutProgressBar: React.FC<DonutProgressBarProps> = ({
           cx="50"
           cy="50"
           r={radius}
-          stroke="#FAD1DC"
+          stroke="#ff2e72"
           strokeWidth="14"
           strokeDasharray={`${progressOffset} ${
             circumference - progressOffset
