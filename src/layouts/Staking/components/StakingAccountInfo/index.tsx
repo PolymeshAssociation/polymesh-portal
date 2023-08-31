@@ -1,4 +1,5 @@
 import { useContext, useRef } from 'react';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { Text, Heading, Button, SkeletonLoader } from '~/components/UiKit';
 import {
   StyledWrapper,
@@ -64,6 +65,10 @@ export const StakingAccountInfo = () => {
     const position = cardWidth < 420 ? 'top' : 'top-left';
     return position;
   };
+
+  const staked = activelyStakedOperators.reduce((total, operator) => {
+    return total.plus(operator.value);
+  }, new BigNumber(0));
 
   const noIdentity = (
     <>
@@ -233,26 +238,26 @@ export const StakingAccountInfo = () => {
         <div className="staking-account-item">
           <Label>
             <ExpandableOperators
-              nominations={nominations}
-              label="Nominations"
+              nominations={activelyStakedOperators}
+              label="Staked"
             />
             <Tooltip
               position={cardWidth < 420 ? 'top' : 'top-left'}
-              caption="Currently nominated Node Operators. A maximum of 16 operators can be nominated."
+              caption="Amount staked in the active staking period and Node Operator allocations. Allocations are determined by the election algorithm based on your nominations."
               maxWidth={cardWidth < 420 ? 200 : undefined}
             />
           </Label>
-          <Value />
+          <Value>{formatBalance(staked?.toString())} POLYX</Value>
         </div>
         <div className="staking-account-item">
           <Label>
             <ExpandableOperators
-              nominations={activelyStakedOperators}
-              label="Era Allocations"
+              nominations={nominations}
+              label="Nominations"
             />
             <Tooltip
               position="top"
-              caption="List of Node Operators and their corresponding POLYX allocations from your stash for the active staking period. Allocations are determined by the election algorithm based on your nominations."
+              caption="Currently nominated Node Operators. A maximum of 16 operators can be nominated."
               maxWidth={cardWidth < 420 ? 200 : undefined}
             />
           </Label>
