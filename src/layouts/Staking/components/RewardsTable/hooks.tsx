@@ -14,6 +14,8 @@ import {
   PaginationState,
 } from '@tanstack/react-table';
 import { Account, MultiSig } from '@polymeshassociation/polymesh-sdk/internal';
+import type { ApolloQueryResult } from '@apollo/client';
+import type { Subscription } from 'zen-observable-ts';
 import { AccountContext } from '~/context/AccountContext';
 
 import {
@@ -89,12 +91,12 @@ export const useRewardTable = (
       !gqlClient ||
       !ss58Prefix
     ) {
-      return;
+      return undefined;
     }
     setTableLoading(true);
 
     if (identityLoading) {
-      return;
+      return undefined;
     }
 
     if (!identity) {
@@ -102,33 +104,51 @@ export const useRewardTable = (
       tabRef.current = currentTab;
       identityRef.current = undefined;
       setTableLoading(false);
-      return;
+      return undefined;
     }
+
+    let querySubscription: Subscription;
 
     (async () => {
       try {
-        const { data } = await gqlClient.query<IRewardsQueryResponse>({
-          query: StakingRewardsQuery({
-            offset: pageIndex * pageSize,
-            pageSize,
-            identityId: identity?.did,
-          }),
-          // fetchPolicy: 'cache-first',
-        });
+        querySubscription = gqlClient
+          .watchQuery({
+            query: StakingRewardsQuery({
+              offset: pageIndex * pageSize,
+              pageSize,
+              identityId: identity?.did,
+            }),
+            fetchPolicy: 'cache-and-network',
+          })
+          .subscribe(
+            ({ data, error }: ApolloQueryResult<IRewardsQueryResponse>) => {
+              setTableLoading(false);
+              if (error) {
+                notifyError(error.message);
+                return;
+              }
+              const parsedData = parseIdentityRewards(
+                data.events.nodes,
+                ss58Prefix,
+              );
 
-        const parsedData = parseIdentityRewards(data.events.nodes, ss58Prefix);
-
-        setTableData(parsedData);
-        setTotalItems(data.events.totalCount);
-        setTotalPages(Math.ceil(data.events.totalCount / pageSize));
+              setTableData(parsedData);
+              setTotalItems(data.events.totalCount);
+              setTotalPages(Math.ceil(data.events.totalCount / pageSize));
+            },
+          );
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
         tabRef.current = currentTab;
         identityRef.current = identity.did;
-        setTableLoading(false);
       }
     })();
+    return () => {
+      if (querySubscription) {
+        querySubscription.unsubscribe();
+      }
+    };
   }, [
     currentTab,
     gqlClient,
@@ -146,12 +166,12 @@ export const useRewardTable = (
       (tabRef.current && currentTab !== tabRef.current && pageIndex !== 0) ||
       !gqlClient
     ) {
-      return;
+      return undefined;
     }
 
     setTableLoading(true);
     if (accountLoading) {
-      return;
+      return undefined;
     }
 
     if (!account) {
@@ -160,33 +180,48 @@ export const useRewardTable = (
       accountRef.current = null;
       setTableLoading(false);
 
-      return;
+      return undefined;
     }
+
+    let querySubscription: Subscription;
 
     (async () => {
       try {
-        const { data } = await gqlClient.query<IRewardsQueryResponse>({
-          query: StakingRewardsQuery({
-            offset: pageIndex * pageSize,
-            pageSize,
-            accountRawKey: account.key,
-          }),
-          // fetchPolicy: 'cache-first',
-        });
+        querySubscription = gqlClient
+          .watchQuery({
+            query: StakingRewardsQuery({
+              offset: pageIndex * pageSize,
+              pageSize,
+              accountRawKey: account.key,
+            }),
+            fetchPolicy: 'cache-and-network',
+          })
+          .subscribe(
+            ({ data, error }: ApolloQueryResult<IRewardsQueryResponse>) => {
+              setTableLoading(false);
+              if (error) {
+                notifyError(error.message);
+                return;
+              }
+              const parsedData = parseAccountRewards(data.events.nodes);
 
-        const parsedData = parseAccountRewards(data.events.nodes);
-
-        setTableData(parsedData);
-        setTotalItems(data.events.totalCount);
-        setTotalPages(Math.ceil(data.events.totalCount / pageSize));
+              setTableData(parsedData);
+              setTotalItems(data.events.totalCount);
+              setTotalPages(Math.ceil(data.events.totalCount / pageSize));
+            },
+          );
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
         tabRef.current = currentTab;
         accountRef.current = account;
-        setTableLoading(false);
       }
     })();
+    return () => {
+      if (querySubscription) {
+        querySubscription.unsubscribe();
+      }
+    };
   }, [account, accountLoading, currentTab, gqlClient, pageIndex, pageSize]);
 
   const pagination = useMemo(
