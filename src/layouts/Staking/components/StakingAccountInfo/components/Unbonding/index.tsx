@@ -9,10 +9,10 @@ import {
   Label,
   StyledExpandable,
   StyledUnbonding,
+  StyledUnbondingLots,
 } from './styles';
 
 interface UnbondingDropdownProps {
-  amountUnbonding: BigNumber;
   unbondingLots: UnbondingLot[];
 }
 
@@ -22,10 +22,7 @@ interface UnbondingLot {
   amount: BigNumber;
 }
 
-const Unbonding: React.FC<UnbondingDropdownProps> = ({
-  amountUnbonding,
-  unbondingLots,
-}) => {
+const Unbonding: React.FC<UnbondingDropdownProps> = ({ unbondingLots }) => {
   const {
     eraStatus: { getTimeUntilEraStart },
   } = useContext(StakingContext);
@@ -48,21 +45,17 @@ const Unbonding: React.FC<UnbondingDropdownProps> = ({
 
   return (
     <StyledUnbonding ref={ref}>
-      <div className="unbonding">
+      <StyledExpandable
+        onClick={() => setShowExpanded(!showExpanded)}
+        $expanded={showExpanded}
+      >
         <Label>Unbonding ({unbondingLots.length})</Label>
-        <StyledExpandable
-          onClick={() => setShowExpanded(!showExpanded)}
-          expanded={showExpanded}
-        >
-          {formatBalance(amountUnbonding?.toString())} POLYX
-          <IconWrapper>
-            <Icon name="DropdownIcon" />
-          </IconWrapper>
-        </StyledExpandable>
-      </div>
-
+        <IconWrapper>
+          <Icon name="DropdownIcon" />
+        </IconWrapper>
+      </StyledExpandable>
       {showExpanded && (
-        <div className="unbonding-lots">
+        <StyledUnbondingLots>
           {unbondingLots.map((lot) => (
             <ExpandedItem key={lot.id}>
               {formatBalance(lot.amount.toString())} POLYX in{' '}
@@ -72,7 +65,7 @@ const Unbonding: React.FC<UnbondingDropdownProps> = ({
               (Era {lot.era.toString()})
             </ExpandedItem>
           ))}
-        </div>
+        </StyledUnbondingLots>
       )}
     </StyledUnbonding>
   );

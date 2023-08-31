@@ -1,6 +1,14 @@
 import { useContext } from 'react';
 import { Heading, SkeletonLoader, Text } from '~/components/UiKit';
-import { DetailsContainer, Label, StyledWrapper, Value } from './styles';
+import {
+  DetailsContainer,
+  ElectionInfoWrapper,
+  Label,
+  StyledElectionItem,
+  StyledEraEpochWrapper,
+  StyledWrapper,
+  Value,
+} from './styles';
 import { formatMillisecondsToTime } from '~/helpers/formatters';
 import { StakingContext } from '~/context/StakingContext';
 import DonutProgressBar from './components/DonutProgressBar';
@@ -27,118 +35,162 @@ export const EraInfo = () => {
 
   return (
     <StyledWrapper>
-      {!eraDurationBlocks || !eraProgress ? (
-        <>
-          <SkeletonLoader height="100px" width="100px" circle />
-          <SkeletonLoader height={16} count={5} containerClassName="info" />
-        </>
-      ) : (
-        <>
-          <DonutProgressBar
-            duration={eraDurationBlocks.toNumber()}
-            progress={eraProgress.toNumber()}
-          />
-          <DetailsContainer>
-            <Heading type="h4">
-              Era #{activeEra.index && activeEra.index.toString()}
-            </Heading>
-            <div>
-              <Label>Start: </Label>
-              <Value>
-                {activeEra.start &&
-                  new Date(activeEra.start.toNumber()).toLocaleString()}
-              </Value>
-            </div>
-            <div>
-              <Label>Duration: </Label>
-              <Value>
-                {eraDurationTime &&
-                  formatMillisecondsToTime(eraDurationTime.toNumber())}
-              </Value>
-            </div>
-            <div>
-              <Label>Progress: </Label>
-              <Value>
-                {eraProgress && eraDurationBlocks && eraProgress.toString()}/
-                {eraDurationBlocks?.toString()}
-              </Value>
-            </div>
-            <div>
-              <Label>Next Era: </Label>
-              <Value>
-                {eraTimeRemaining &&
-                  formatMillisecondsToTime(eraTimeRemaining.toNumber())}
-              </Value>
-            </div>
-          </DetailsContainer>
-        </>
-      )}
+      <StyledEraEpochWrapper>
+        {!eraDurationBlocks || !eraProgress ? (
+          <>
+            <SkeletonLoader
+              height="100px"
+              width="100px"
+              circle
+              baseColor="rgba(255,255,255,0.05)"
+              highlightColor="rgba(255, 255, 255, 0.24)"
+            />
+            <DetailsContainer>
+              <SkeletonLoader
+                height={124}
+                width={285}
+                containerClassName="info"
+                baseColor="rgba(255,255,255,0.05)"
+                highlightColor="rgba(255, 255, 255, 0.24)"
+              />
+            </DetailsContainer>
+          </>
+        ) : (
+          <>
+            <DonutProgressBar
+              duration={eraDurationBlocks.toNumber()}
+              progress={eraProgress.toNumber()}
+            />
+            <DetailsContainer>
+              <Heading type="h4">
+                Era #{activeEra.index && activeEra.index.toString()}
+              </Heading>
+              <div>
+                <Label>Start: </Label>
+                <Value>
+                  {activeEra.start &&
+                    new Date(activeEra.start.toNumber()).toLocaleString()}
+                </Value>
+              </div>
+              <div>
+                <Label>Duration: </Label>
+                <Value>
+                  {eraDurationTime &&
+                    formatMillisecondsToTime(eraDurationTime.toNumber())}
+                </Value>
+              </div>
+              <div>
+                <Label>Progress: </Label>
+                <Value>
+                  {eraProgress && eraDurationBlocks && eraProgress.toString()}/
+                  {eraDurationBlocks?.toString()}
+                </Value>
+              </div>
+              <div>
+                <Label>Next Era: </Label>
+                <Value>
+                  {eraTimeRemaining &&
+                    formatMillisecondsToTime(eraTimeRemaining.toNumber())}
+                </Value>
+              </div>
+            </DetailsContainer>
+          </>
+        )}
 
-      {!epochDurationBlocks || !epochProgress ? (
-        <>
-          <SkeletonLoader height="100px" width="100px" circle />
-          <SkeletonLoader height={16} count={5} containerClassName="info" />
-        </>
-      ) : (
-        <>
-          <DonutProgressBar
-            duration={epochDurationBlocks.toNumber()}
-            progress={epochProgress.toNumber()}
-          />
-          <DetailsContainer>
-            <Heading type="h4">Session #{epochIndex?.toNumber()}</Heading>
-            <div>
-              <Label>Era Session: </Label>
-              <Value>
-                {eraSessionNumber?.toString()} of {sessionsPerEra?.toNumber()}
-              </Value>
-            </div>
-            <div>
-              <Label>Duration: </Label>
-              <Value>
-                {epochDurationTime &&
-                  formatMillisecondsToTime(epochDurationTime.toNumber())}
-              </Value>
-            </div>
-            <div>
-              <Label>Progress: </Label>
-              <Value>
-                {epochProgress &&
-                  epochDurationBlocks &&
-                  epochProgress.toString()}
-                /{epochDurationBlocks?.toString()}
-              </Value>
-            </div>
-            <div>
-              <Label>Next Session: </Label>
-              <Value>
-                {epochTimeRemaining &&
-                  formatMillisecondsToTime(epochTimeRemaining.toNumber())}
-              </Value>
-            </div>
-          </DetailsContainer>
-        </>
-      )}
-      <div>
-        <Label>Election Status</Label>
-        <Text size="large" bold>
-          {electionInProgress == null ? (
-            <SkeletonLoader />
-          ) : (
-            <>{electionInProgress} </>
-          )}
-        </Text>
-      </div>
-      <div>
-        <Label>Next Operators Election</Label>
-        <Text size="large" bold>
+        {!epochDurationBlocks || !epochProgress ? (
+          <>
+            <SkeletonLoader
+              height="100px"
+              width="100px"
+              circle
+              baseColor="rgba(255,255,255,0.05)"
+              highlightColor="rgba(255, 255, 255, 0.24)"
+            />
+            <DetailsContainer>
+              <SkeletonLoader
+                height={124}
+                width={285}
+                containerClassName="info"
+                baseColor="rgba(255,255,255,0.05)"
+                highlightColor="rgba(255, 255, 255, 0.24)"
+              />
+            </DetailsContainer>
+          </>
+        ) : (
+          <>
+            <DonutProgressBar
+              duration={epochDurationBlocks.toNumber()}
+              progress={epochProgress.toNumber()}
+            />
+            <DetailsContainer>
+              <Heading type="h4">Session #{epochIndex?.toNumber()}</Heading>
+              <div>
+                <Label>Era Session: </Label>
+                <Value>
+                  {eraSessionNumber?.toString()} of {sessionsPerEra?.toNumber()}
+                </Value>
+              </div>
+              <div>
+                <Label>Duration: </Label>
+                <Value>
+                  {epochDurationTime &&
+                    formatMillisecondsToTime(epochDurationTime.toNumber())}
+                </Value>
+              </div>
+              <div>
+                <Label>Progress: </Label>
+                <Value>
+                  {epochProgress &&
+                    epochDurationBlocks &&
+                    epochProgress.toString()}
+                  /{epochDurationBlocks?.toString()}
+                </Value>
+              </div>
+              <div>
+                <Label>Next Session: </Label>
+                <Value>
+                  {epochTimeRemaining &&
+                    formatMillisecondsToTime(epochTimeRemaining.toNumber())}
+                </Value>
+              </div>
+            </DetailsContainer>
+          </>
+        )}
+      </StyledEraEpochWrapper>
+      <ElectionInfoWrapper>
+        <div>
           {!timeToNextElection ? (
-            <SkeletonLoader />
+            <SkeletonLoader
+              width={194}
+              height={48}
+              baseColor="rgba(255,255,255,0.05)"
+              highlightColor="rgba(255, 255, 255, 0.24)"
+            />
           ) : (
-            <>{formatMillisecondsToTime(timeToNextElection.toNumber())} </>
+            <StyledElectionItem>
+              Next Election
+              <Text size="large">
+                <>{formatMillisecondsToTime(timeToNextElection.toNumber())}</>
+              </Text>
+            </StyledElectionItem>
           )}
-        </Text>
-      </div>
+        </div>
+        <div>
+          {electionInProgress == null ? (
+            <SkeletonLoader
+              width={122}
+              height={48}
+              baseColor="rgba(255,255,255,0.05)"
+              highlightColor="rgba(255, 255, 255, 0.24)"
+            />
+          ) : (
+            <StyledElectionItem>
+              Election Status
+              <Text size="large">{electionInProgress}</Text>
+            </StyledElectionItem>
+          )}
+        </div>
+      </ElectionInfoWrapper>
     </StyledWrapper>
   );
 };

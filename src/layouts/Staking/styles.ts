@@ -10,14 +10,13 @@ export const OverviewGrid = styled.div`
 
   @media screen and (min-width: 1200px) {
     display: grid;
-    grid-template-columns: auto auto;
-    align-items: center;
+    grid-template-columns: minmax(468px, auto) minmax(350px, auto); //minmax(468px, auto) auto;
+    align-items: stretch;
     gap: 16px;
     grid-template-areas:
       'account-info era-info '
       'staking-info staking-info '
       'table table';
-
     grid-auto-rows: max-content;
   }
 `;

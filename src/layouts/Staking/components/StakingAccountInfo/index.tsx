@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useRef } from 'react';
 import { Text, Heading, Button, SkeletonLoader } from '~/components/UiKit';
 import {
   StyledWrapper,
@@ -8,6 +8,8 @@ import {
   StyledTextWrapper,
   Label,
   StyledNameOrKey,
+  StyledAccountItemWrapper,
+  Value,
 } from './styles';
 import { formatBalance, formatKey } from '~/helpers/formatters';
 import { StakingContext } from '~/context/StakingContext';
@@ -17,6 +19,7 @@ import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import Unbonding from './components/Unbonding';
 import ExpandableOperators from './components/ExpandableOperators';
+import Tooltip from '~/components/UiKit/Tooltip';
 
 export const StakingAccountInfo = () => {
   const { stakingAccountInfo } = useContext(StakingContext);
@@ -39,6 +42,7 @@ export const StakingAccountInfo = () => {
     activelyStakedOperators,
   } = stakingAccountInfo;
   const { isMobile } = useWindowWidth();
+  const ref = useRef<HTMLDivElement>(null);
 
   const getKeyName = (key: string) => {
     const keyName = allAccountsWithMeta.find(({ address }) => address === key)
@@ -46,11 +50,26 @@ export const StakingAccountInfo = () => {
     return keyName || '';
   };
 
+  const cardWidth = ref.current?.clientWidth;
+
+  // To position the tooltip correctly we need to consider if amountUnbonding is shown
+  const readyToWithdrawTipPosition = () => {
+    if (!amountAvailableToWithdraw?.gt(0) || !cardWidth) {
+      return undefined;
+    }
+    if (amountUnbonding?.gt(0)) {
+      const position = cardWidth < 600 ? 'top' : 'top-left';
+      return position;
+    }
+    const position = cardWidth < 420 ? 'top' : 'top-left';
+    return position;
+  };
+
   const noIdentity = (
     <>
       <StyledTopInfo>
         {!isMobile && (
-          <IconWrapper size="48px">
+          <IconWrapper $size="48px">
             <Icon name="IdCard" size="32px" className="id-icon" />
           </IconWrapper>
         )}
@@ -59,14 +78,14 @@ export const StakingAccountInfo = () => {
         </div>
       </StyledTopInfo>
       <StyledTextWrapper>
-        <Text size="large">
+        <Text size="medium">
           Your key must be linked to a Polymesh Account before you can start
           staking. To stake with this key, you can either onboard it through a
           Polymesh Customer Due Diligence Provider to create a new Polymesh
           Account, or have the key assigned to an existing Polymesh Account.
         </Text>
       </StyledTextWrapper>
-      <StyledButtonWrapper>
+      <StyledButtonWrapper $cardWidth={cardWidth}>
         <Button
           onClick={() =>
             window.open(import.meta.env.VITE_ONBOARDING_URL, '_blank')
@@ -87,7 +106,7 @@ export const StakingAccountInfo = () => {
   );
 
   const goToStakingButton = (
-    <StyledButtonWrapper>
+    <StyledButtonWrapper $cardWidth={cardWidth}>
       <Button
         variant="primary"
         onClick={() =>
@@ -99,14 +118,25 @@ export const StakingAccountInfo = () => {
       >
         Go to Staking
       </Button>
+      <Button
+        variant="secondary"
+        onClick={() =>
+          window.open(
+            `https://community.polymesh.live/hc/en-us/articles/6827378456220-How-to-stake-with-the-Polymesh-App`,
+            '_blank',
+          )
+        }
+      >
+        Learn how to Stake
+      </Button>
     </StyledButtonWrapper>
   );
 
-  const accountDetails = (
+  const accountDetails = cardWidth && (
     <>
       <StyledTopInfo>
         {!isMobile && (
-          <IconWrapper size="48px">
+          <IconWrapper $size="48px">
             <Icon name="StakingIcon" size="32px" className="staking-icon" />
           </IconWrapper>
         )}
@@ -114,85 +144,156 @@ export const StakingAccountInfo = () => {
           <Heading type="h4">Staking Account Details</Heading>
         </div>
       </StyledTopInfo>
-      <div className="staking-account-item">
-        <Label>Stash Key</Label>
-        {stashAddress && (
-          <>
-            <StyledNameOrKey>
-              {getKeyName(stashAddress) || formatKey(stashAddress)}
-            </StyledNameOrKey>
-            <CopyToClipboard value={stashAddress} />
-          </>
-        )}
-      </div>
-      <div className="staking-account-item">
-        <Label>Controller Key</Label>
-        {controllerAddress && (
-          <>
-            <StyledNameOrKey>
-              {getKeyName(controllerAddress) || formatKey(controllerAddress)}
-            </StyledNameOrKey>
-            <CopyToClipboard value={controllerAddress} />
-          </>
-        )}
-      </div>
-      <div className="staking-account-item">
-        <Label>Reward Destination</Label>
-        {rewardDestination &&
-        sdk?.accountManagement.isValidAddress({
-          address: rewardDestination,
-        }) ? (
-          <>
-            {getKeyName(rewardDestination) || formatKey(rewardDestination)}
-            <CopyToClipboard value={rewardDestination} />
-          </>
-        ) : (
-          rewardDestination
-        )}
-      </div>
-      {totalBonded && (
+      <StyledAccountItemWrapper $cardWidth={cardWidth}>
         <div className="staking-account-item">
-          <Label>Bonded</Label>
-          {formatBalance(totalBonded?.toString())} POLYX
+          <Label>
+            Stash Key
+            <Tooltip
+              position="top"
+              caption="The Stash key is the key that POLYX is bonded to when staking. It can bond tokens and set the Controller key"
+              maxWidth={cardWidth < 420 ? 200 : undefined}
+            />
+          </Label>
+          {stashAddress && (
+            <Value>
+              <StyledNameOrKey>
+                {getKeyName(stashAddress) || formatKey(stashAddress)}
+              </StyledNameOrKey>
+              <CopyToClipboard value={stashAddress} />
+            </Value>
+          )}
         </div>
-      )}
-      {amountActive && (
         <div className="staking-account-item">
-          <Label>Active</Label>
-          {formatBalance(amountActive?.toString())} POLYX
+          <Label>
+            Controller Key
+            <Tooltip
+              position={cardWidth < 420 ? 'top' : 'top-left'}
+              caption="The Controller key is responsible for actions such as nominating node operators, setting the reward destination, initiating unbonding of tokens, rebonding tokens and withdrawing unbonded tokens to the Stash key"
+              maxWidth={cardWidth < 420 ? 200 : undefined}
+            />
+          </Label>
+          {controllerAddress && (
+            <Value>
+              <StyledNameOrKey>
+                {getKeyName(controllerAddress) || formatKey(controllerAddress)}
+              </StyledNameOrKey>
+              <CopyToClipboard value={controllerAddress} />
+            </Value>
+          )}
         </div>
-      )}
-      <ExpandableOperators nominations={nominations} label="Nominations" />
-      <ExpandableOperators
-        nominations={activelyStakedOperators}
-        label="Active Era Allocations"
-      />
-      {amountUnbonding?.gt(0) && (
-        <Unbonding
-          amountUnbonding={amountUnbonding}
-          unbondingLots={unbondingLots}
-        />
-      )}
-      {amountAvailableToWithdraw?.gt(0) && (
         <div className="staking-account-item">
-          <Label>Ready to Withdraw</Label>
-          {formatBalance(amountAvailableToWithdraw?.toString())} POLYX
+          <Label>
+            Reward Destination
+            <Tooltip
+              position={cardWidth < 600 ? 'top' : 'top-left'}
+              caption='The key your staking rewards will be distributed to. "Staked" means the rewards will be bonded to the Stash key. For all other destinations rewards will not be bonded'
+              maxWidth={cardWidth < 420 ? 200 : undefined}
+            />
+          </Label>
+          <Value>
+            {rewardDestination &&
+            sdk?.accountManagement.isValidAddress({
+              address: rewardDestination,
+            }) ? (
+              <>
+                {getKeyName(rewardDestination) || formatKey(rewardDestination)}
+                <CopyToClipboard value={rewardDestination} />
+              </>
+            ) : (
+              rewardDestination
+            )}
+          </Value>
         </div>
-      )}
-
+        {totalBonded && (
+          <div className="staking-account-item">
+            <Label>
+              Bonded
+              <Tooltip
+                position="top"
+                caption="The total number of tokens you have bonded, including active, unbonding and available to withdraw tokens"
+                maxWidth={cardWidth < 420 ? 200 : undefined}
+              />
+            </Label>
+            <Value>{formatBalance(totalBonded?.toString())} POLYX</Value>
+          </div>
+        )}
+        {amountActive && (
+          <div className="staking-account-item">
+            <Label>
+              Active
+              <Tooltip
+                position="top-right"
+                caption="The total number of tokens available for nomination to node operators"
+                maxWidth={cardWidth < 420 ? 200 : undefined}
+              />
+            </Label>
+            <Value>{formatBalance(amountActive?.toString())} POLYX </Value>
+          </div>
+        )}
+        <div className="staking-account-item">
+          <Label>
+            <ExpandableOperators
+              nominations={nominations}
+              label="Nominations"
+            />
+            <Tooltip
+              position={cardWidth < 420 ? 'top' : 'top-left'}
+              caption="Currently nominated node operators. A maximum of 16 operators can be nominated"
+              maxWidth={cardWidth < 420 ? 200 : undefined}
+            />
+          </Label>
+          <Value />
+        </div>
+        <div className="staking-account-item">
+          <Label>
+            <ExpandableOperators
+              nominations={activelyStakedOperators}
+              label="Era Allocations"
+            />
+            <Tooltip
+              position="top"
+              caption="Allocations are the Node Operators and corresponding POLYX amount, that have been assigned from your stash, for the active staking period. Allocations are selected from your nominations by the election algorithm"
+              maxWidth={cardWidth < 420 ? 200 : undefined}
+            />
+          </Label>
+          <Value />
+        </div>
+        {amountUnbonding?.gt(0) && (
+          <div className="staking-account-item">
+            <Label>
+              <Unbonding unbondingLots={unbondingLots} />{' '}
+              <Tooltip
+                position={cardWidth < 420 ? 'top' : 'top-left'}
+                caption="Unbonding tokens have not yet completed the waiting period required before they can be withdrawn and transferred freely"
+                maxWidth={cardWidth < 420 ? 200 : undefined}
+              />{' '}
+            </Label>
+            <Value> {formatBalance(amountUnbonding.toString())} POLYX</Value>
+          </div>
+        )}
+        {amountAvailableToWithdraw?.gt(0) && (
+          <div className="staking-account-item">
+            <Label>
+              Ready to Withdraw
+              <Tooltip
+                position={readyToWithdrawTipPosition()}
+                caption="Tokens that have completed their unbonding period and are available to withdraw to the stash account"
+                maxWidth={cardWidth < 420 ? 200 : undefined}
+              />
+            </Label>
+            <Value>
+              {formatBalance(amountAvailableToWithdraw?.toString())} POLYX
+            </Value>
+          </div>
+        )}
+      </StyledAccountItemWrapper>
       {goToStakingButton}
     </>
   );
 
   const stakingAccountDetails = () => {
     if (stakingAccountIsLoading) {
-      return (
-        <SkeletonLoader
-          height="100%"
-          baseColor="rgba(255,255,255,0.05)"
-          highlightColor="rgba(255, 255, 255, 0.24)"
-        />
-      );
+      return <SkeletonLoader height="100%" />;
     }
     if (stashAddress) {
       return accountDetails;
@@ -202,7 +303,7 @@ export const StakingAccountInfo = () => {
       <>
         <StyledTopInfo>
           {!isMobile && (
-            <IconWrapper size="48px">
+            <IconWrapper $size="48px">
               <Icon name="StakingIcon" size="32px" className="staking-icon" />
             </IconWrapper>
           )}
@@ -211,7 +312,7 @@ export const StakingAccountInfo = () => {
           </div>
         </StyledTopInfo>
         <StyledTextWrapper>
-          <Text size="large">
+          <Text size="medium">
             The selected key is not currently staking. Click the button below to
             open the staking interface where you can Bond POLYX to a Stash
             Account, Nominated them to Node Operators and start earning staking
@@ -224,14 +325,8 @@ export const StakingAccountInfo = () => {
   };
 
   return (
-    <StyledWrapper>
-      {identityLoading && (
-        <SkeletonLoader
-          height="100%"
-          baseColor="rgba(255,255,255,0.05)"
-          highlightColor="rgba(255, 255, 255, 0.24)"
-        />
-      )}
+    <StyledWrapper ref={ref}>
+      {identityLoading && <SkeletonLoader height="100%" />}
       {!identityLoading && (identity ? stakingAccountDetails() : noIdentity)}
     </StyledWrapper>
   );

@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTheme } from 'styled-components';
 import {
   DonutProgressBarCircle,
   DonutProgressBarContainer,
@@ -17,7 +16,6 @@ const DonutProgressBar: React.FC<DonutProgressBarProps> = ({
   duration,
   size,
 }) => {
-  const theme = useTheme();
   const radius = 43;
   const circumference = 2 * Math.PI * radius;
   const progressRatio = progress / duration;
@@ -30,7 +28,7 @@ const DonutProgressBar: React.FC<DonutProgressBarProps> = ({
           cx="50"
           cy="50"
           r={radius}
-          stroke={theme.colors.shadow}
+          stroke="rgba(120, 120, 120, 0.2)"
           strokeWidth="13.8"
         />
 
@@ -38,7 +36,7 @@ const DonutProgressBar: React.FC<DonutProgressBarProps> = ({
           cx="50"
           cy="50"
           r={radius}
-          stroke={theme.colors.textPink}
+          stroke="#FAD1DC"
           strokeWidth="14"
           strokeDasharray={`${progressOffset} ${
             circumference - progressOffset

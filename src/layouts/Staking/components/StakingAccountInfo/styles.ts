@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 export const StyledWrapper = styled.div`
   display: flex;
@@ -6,47 +6,94 @@ export const StyledWrapper = styled.div`
   flex-direction: column;
   justify-content: space-between;
   padding: 24px;
-  background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
+  background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
-  height: 100%;
-  color: rgba(255, 255, 255, 0.82);
+  gap: 10px;
+  min-height: 310px;
 
   @media screen and (max-width: 1200px) {
     width: 100%;
   }
+`;
 
-  & button {
-    width: 100%;
-  }
+export const StyledAccountItemWrapper = styled.div<{
+  $cardWidth?: number;
+}>`
+  display: grid;
+  grid-template-columns: auto;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-evenly;
+  grid-template-columns: auto auto auto;
+
+  ${({ $cardWidth }) => {
+    if (!$cardWidth) {
+      return css`
+        display: flex;
+      `;
+    }
+    if ($cardWidth < 420) {
+      return css`
+        grid-template-columns: auto;
+        justify-content: left;
+      `;
+    }
+    if ($cardWidth < 600) {
+      return css`
+        grid-template-columns: auto auto;
+      `;
+    }
+    return css`
+      grid-template-columns: auto auto auto;
+    `;
+  }}
 
   & .staking-account-item {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
+    display: inline-flex;
+    white-space: nowrap;
+    flex-direction: column;
+    font-size: 14px;
   }
 `;
 
 export const Label = styled.span`
-  font-weight: bold;
-  min-width: 160px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  font-size: 12px;
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;
+export const Value = styled.span`
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  gap: 10px;
+  font-weight: 500;
+  @media screen and (min-width: 1199px) {
+    font-size: 16px;
+  }
 `;
 
-export const StyledButtonWrapper = styled.div`
+export const StyledButtonWrapper = styled.div<{ $cardWidth?: number }>`
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   padding-top: 12px;
+  flex-direction: ${({ $cardWidth }) =>
+    $cardWidth && $cardWidth < 420 ? 'column' : 'row'};
+  & button {
+    width: 100%;
+  }
 `;
 
-export const IconWrapper = styled.div<{ size?: string }>`
+export const IconWrapper = styled.div<{ $size?: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: ${({ size }) => size || '32px'};
-  height: ${({ size }) => size || '32px'};
+  width: ${({ $size }) => $size || '32px'};
+  height: ${({ $size }) => $size || '32px'};
   border-radius: 50%;
   background-color: ${({ theme }) => theme.colors.pinkBackground};
 
@@ -70,18 +117,11 @@ export const StyledTopInfo = styled.div`
     align-items: center;
     display: flex;
     flex-grow: 1;
-
-    & h4 {
-      color: rgba(255, 255, 255, 0.82);
-    }
   }
 `;
 
 export const StyledTextWrapper = styled.div`
   padding: 30px 0px;
-  & p {
-    color: rgba(255, 255, 255, 0.82);
-  }
 `;
 
 export const StyledNameOrKey = styled.div`

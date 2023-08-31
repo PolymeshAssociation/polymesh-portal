@@ -11,6 +11,7 @@ import {
 } from './styles';
 import { operatorsNames } from '~/layouts/Staking/constants';
 import { formatBalance, formatKey } from '~/helpers/formatters';
+import { useWindowWidth } from '~/hooks/utility';
 
 interface ExpandableOperatorProps {
   nominations:
@@ -26,6 +27,7 @@ const ExpandableOperators: React.FC<ExpandableOperatorProps> = ({
   nominations,
   label,
 }) => {
+  const { isMobile } = useWindowWidth();
   const [showExpanded, setShowExpanded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -54,7 +56,11 @@ const ExpandableOperators: React.FC<ExpandableOperatorProps> = ({
       <OperatorEntry key={operatorAccount}>
         {operatorsNames[operatorAccount] || formatKey(operatorAccount)}
         <CopyToClipboard value={operatorAccount} />
-        {value && <>{formatBalance(value.toString())} POLYX</>}
+        {value && (
+          <>
+            {formatBalance(value.toString())} POLYX {'\u00A0'}
+          </>
+        )}
       </OperatorEntry>
     );
   };
@@ -63,19 +69,20 @@ const ExpandableOperators: React.FC<ExpandableOperatorProps> = ({
     <StyledExpandableOperatorList ref={ref}>
       <StyledExpandable
         onClick={() => setShowExpanded(!showExpanded)}
-        expanded={showExpanded}
+        $expanded={showExpanded}
+        disabled={nominations.length < 1}
       >
-        <span className="clickable-content">
-          <Label>
-            {label} ({nominations.length})
-          </Label>
+        <Label>
+          {label} ({nominations.length})
+        </Label>
+        {nominations.length > 0 && (
           <IconWrapper>
             <Icon name="DropdownIcon" />
           </IconWrapper>
-        </span>
+        )}
       </StyledExpandable>
       {showExpanded && (
-        <StyledOperatorList>
+        <StyledOperatorList $isMobile={isMobile}>
           {nominations.map((entry) => renderOperator(entry))}
         </StyledOperatorList>
       )}
