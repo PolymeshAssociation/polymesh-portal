@@ -58,7 +58,7 @@ const StakingProvider = ({ children }: IProviderProps) => {
           (e.event.section === 'staking' &&
             (e.event.method === 'Bonded' ||
               e.event.method === 'Nominated' ||
-              e.event.method === 'UnBonded' ||
+              e.event.method === 'Unbonded' ||
               e.event.method === 'Withdrawn' ||
               e.event.method === 'Slash' ||
               e.event.method === 'StakingElection' ||
