@@ -157,6 +157,11 @@ export const NAV_LINKS = [
         nestedLabel: 'Onboarding',
         nestedIcon: 'Network',
       },
+      {
+        nestedPath: import.meta.env.VITE_TOKENSTUDIO_URL,
+        nestedLabel: 'Token Studio',
+        nestedIcon: 'BridgeIcon',
+      },
     ],
   },
   { path: PATHS.SETTINGS, label: 'Settings', icon: 'SettingsIcon' },
