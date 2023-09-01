@@ -96,7 +96,7 @@ export const StakingInfo = () => {
                   Inflation
                   <Tooltip
                     position={cardWidth < 400 ? 'top-right' : 'top'}
-                    caption="The annual inflation rate is variable and is a function of the percent of total POLYX that is staked."
+                    caption="The variable annual inflation rate that is a function of the percent of total POLYX that is staked."
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
                 </span>
