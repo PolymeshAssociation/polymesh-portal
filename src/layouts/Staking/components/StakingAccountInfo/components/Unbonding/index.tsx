@@ -48,11 +48,14 @@ const Unbonding: React.FC<UnbondingDropdownProps> = ({ unbondingLots }) => {
       <StyledExpandable
         onClick={() => setShowExpanded(!showExpanded)}
         $expanded={showExpanded}
+        disabled={unbondingLots.length < 1}
       >
         <Label>Unbonding ({unbondingLots.length})</Label>
-        <IconWrapper>
-          <Icon name="DropdownIcon" />
-        </IconWrapper>
+        {unbondingLots.length > 0 && (
+          <IconWrapper>
+            <Icon name="DropdownIcon" />
+          </IconWrapper>
+        )}
       </StyledExpandable>
       {showExpanded && (
         <StyledUnbondingLots>

@@ -53,19 +53,6 @@ export const StakingAccountInfo = () => {
 
   const cardWidth = ref.current?.clientWidth;
 
-  // To position the tooltip correctly we need to consider if amountUnbonding is shown
-  const readyToWithdrawTipPosition = () => {
-    if (!amountAvailableToWithdraw?.gt(0) || !cardWidth) {
-      return undefined;
-    }
-    if (amountUnbonding?.gt(0)) {
-      const position = cardWidth < 600 ? 'top' : 'top-left';
-      return position;
-    }
-    const position = cardWidth < 420 ? 'top' : 'top-left';
-    return position;
-  };
-
   const staked = activelyStakedOperators.reduce((total, operator) => {
     return total.plus(operator.value);
   }, new BigNumber(0));
@@ -263,7 +250,7 @@ export const StakingAccountInfo = () => {
           </Label>
           <Value />
         </div>
-        {amountUnbonding?.gt(0) && (
+        {amountUnbonding && (
           <div className="staking-account-item">
             <Label>
               <Unbonding unbondingLots={unbondingLots} />{' '}
@@ -276,12 +263,12 @@ export const StakingAccountInfo = () => {
             <Value> {formatBalance(amountUnbonding.toString())} POLYX</Value>
           </div>
         )}
-        {amountAvailableToWithdraw?.gt(0) && (
+        {amountAvailableToWithdraw && (
           <div className="staking-account-item">
             <Label>
               Ready to Withdraw
               <Tooltip
-                position={readyToWithdrawTipPosition()}
+                position={cardWidth < 600 ? 'top' : 'top-left'}
                 caption="Tokens that have completed their unbonding period and are available to withdraw to the Stash account."
                 maxWidth={cardWidth < 420 ? 200 : undefined}
               />

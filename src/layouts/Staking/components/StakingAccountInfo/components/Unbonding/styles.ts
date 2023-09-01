@@ -13,7 +13,7 @@ export const ExpandedItem = styled.div`
   color: ${({ theme }) => theme.colors.textPrimary};
 `;
 
-export const StyledExpandable = styled.div<{
+export const StyledExpandable = styled.button<{
   $expanded: boolean;
 }>`
   display: flex;
@@ -21,6 +21,10 @@ export const StyledExpandable = styled.div<{
   align-items: center;
   cursor: pointer;
   pointer-events: auto;
+  background: transparent;
+  &:disabled {
+    cursor: default;
+  }
 
   & div {
     transition: transform 250ms ease-out;
@@ -40,7 +44,7 @@ export const IconWrapper = styled.div`
 
 export const Label = styled.span`
   font-size: 12px;
-  color: ${({ theme }) => theme.colors.textPrimary};
+  color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 export const StyledUnbondingLots = styled.div`
