@@ -8,13 +8,15 @@ import {
 interface DonutProgressBarProps {
   progress: number;
   duration: number;
-  size?: string;
+  size?: number;
 }
+
+const defaultSize = 100;
 
 const DonutProgressBar: React.FC<DonutProgressBarProps> = ({
   progress,
   duration,
-  size,
+  size = defaultSize,
 }) => {
   const radius = 43;
   const circumference = 2 * Math.PI * radius;
@@ -44,13 +46,15 @@ const DonutProgressBar: React.FC<DonutProgressBarProps> = ({
           transform="rotate(-90 50 50)"
         />
       </svg>
-      <ProgressValue>{`${(100 * progressRatio).toFixed(1)}%`}</ProgressValue>
+      <ProgressValue $size={size}>{`${(100 * progressRatio).toFixed(
+        1,
+      )}%`}</ProgressValue>
     </DonutProgressBarContainer>
   );
 };
 
 DonutProgressBar.defaultProps = {
-  size: '100px',
+  size: defaultSize,
 };
 
 export default DonutProgressBar;

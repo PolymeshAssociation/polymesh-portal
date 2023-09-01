@@ -44,34 +44,24 @@ export const StyledWrapper = styled.div<{ $cardWidth?: number }>`
   }}
 `;
 
-export const StyledAsset = styled.span`
-  color: ${({ theme }) => theme.colors.textSecondary};
-`;
-
 export const StyledInfoItem = styled.span`
   display: flex;
   flex-direction: column;
   font-size: 12px;
-  color: ${({ theme }) => theme.colors.textSecondary};
   & .item-label {
     display: inline-flex;
     align-items: center;
     white-space: nowrap;
     min-height: 24px;
+    color: ${({ theme }) => theme.colors.textSecondary};
   }
   & p {
     font-size: 14px;
   }
 
   @media screen and (max-width: 1199px) {
-    font-size: 10px;
     & p {
       font-size: 14px;
     }
   }
-`;
-
-export const StyledInfoItemLabel = styled.div`
-  display: flex;
-  flex-direction: row;
 `;

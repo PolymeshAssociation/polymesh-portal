@@ -23,6 +23,8 @@ export const KeyInfo = () => {
   const { isMobile, isSmallDesktop } = useWindowWidth();
   const ref = useRef<HTMLDivElement>(null);
   const [selectedKeyName, setSelectedKeyName] = useState('');
+  const [truncatedSelectedKeyName, setTruncatedSelectedKeyName] =
+    useState<string>('');
 
   useEffect(() => {
     const updateWrapperWidth = () => {
@@ -35,12 +37,32 @@ export const KeyInfo = () => {
     updateWrapperWidth();
   }, [selectedAccount, allAccountsWithMeta]);
 
-  const wrapperWidth = ref.current?.clientWidth ?? 150;
-  const truncateLength = Math.floor((wrapperWidth - 100) / 11);
-  const truncatedSelectedKeyName = truncateText(
-    selectedKeyName,
-    truncateLength,
-  );
+  useEffect(() => {
+    const container = ref.current;
+
+    const handleResize = () => {
+      if (container) {
+        const truncateLength = Math.floor((container.clientWidth - 100) / 11);
+        setTruncatedSelectedKeyName(
+          truncateText(selectedKeyName, truncateLength),
+        );
+      }
+    };
+
+    handleResize(); // Initial calculation
+
+    const resizeObserver = new ResizeObserver(handleResize);
+
+    if (container) {
+      resizeObserver.observe(container);
+    }
+
+    return () => {
+      if (container) {
+        resizeObserver.unobserve(container);
+      }
+    };
+  }, [selectedKeyName]);
 
   return (
     <StyledWrapper>

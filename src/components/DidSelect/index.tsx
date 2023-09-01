@@ -19,6 +19,7 @@ const DidSelect = () => {
     useContext(AccountContext);
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState<Identity | null>(null);
+  const [truncateLength, setTruncateLength] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -82,38 +83,67 @@ const DidSelect = () => {
   const handleDropdownToggle = () => {
     setExpanded((prev) => !prev);
   };
-  const wrapperWidth = ref.current?.clientWidth ?? 0;
-  const truncateLength = Math.floor((wrapperWidth - 30) / 18);
+
+  useEffect(() => {
+    const container = ref.current;
+
+    const handleResize = () => {
+      if (container) {
+        setTruncateLength(Math.floor((container.clientWidth - 30) / 18));
+      }
+    };
+
+    handleResize(); // Initial calculation
+
+    const resizeObserver = new ResizeObserver(handleResize);
+
+    if (container) {
+      resizeObserver.observe(container);
+    }
+
+    return () => {
+      if (container) {
+        resizeObserver.unobserve(container);
+      }
+    };
+  }, [selected]);
 
   return selected ? (
     <StyledSelectWrapper ref={ref}>
-      <StyledSelect onClick={handleDropdownToggle} $expanded={expanded}>
-        {formatDid(selected.did, truncateLength, truncateLength - 2)}
-        <IconWrapper>
-          <Icon name="DropdownIcon" />
-        </IconWrapper>
-      </StyledSelect>
-
-      {expanded && (
-        <StyledExpandedSelect>
-          {allIdentities.map((option) => (
-            <StyledLabel
-              key={option?.did}
-              htmlFor={option?.did}
-              $selected={selected?.did === option?.did}
-            >
-              {formatDid(option?.did, truncateLength - 2, truncateLength - 2)}
-              <StyledInput
-                type="radio"
-                name="key"
-                value={option?.did}
-                id={option?.did}
-                onChange={handleDidChange}
-              />
-            </StyledLabel>
-          ))}
-        </StyledExpandedSelect>
-      )}
+      {truncateLength ? (
+        <>
+          <StyledSelect onClick={handleDropdownToggle} $expanded={expanded}>
+            {formatDid(selected.did, truncateLength, truncateLength - 2)}
+            <IconWrapper>
+              <Icon name="DropdownIcon" />
+            </IconWrapper>
+          </StyledSelect>
+          {expanded && (
+            <StyledExpandedSelect>
+              {allIdentities.map((option) => (
+                <StyledLabel
+                  key={option?.did}
+                  htmlFor={option?.did}
+                  $selected={selected?.did === option?.did}
+                >
+                  {formatDid(
+                    option?.did,
+                    truncateLength - 2,
+                    truncateLength - 2,
+                  )}
+                  <StyledInput
+                    type="radio"
+                    name="key"
+                    value={option?.did}
+                    id={option?.did}
+                    onChange={handleDidChange}
+                  />
+                </StyledLabel>
+              ))}
+            </StyledExpandedSelect>
+          )}
+        </>
+      ) : null}
     </StyledSelectWrapper>
   ) : (
     <SkeletonLoader

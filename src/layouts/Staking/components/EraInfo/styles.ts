@@ -6,6 +6,7 @@ export const StyledWrapper = styled.div`
   flex-direction: column;
   flex-wrap: wrap;
   min-width: fit-content;
+  min-height: 380px;
   justify-content: space-evenly;
   align-items: center;
   padding: 24px;
@@ -20,40 +21,39 @@ export const StyledWrapper = styled.div`
     color: rgba(255, 255, 255, 0.82);
   }
 
-  @media screen and (max-width: 1200px) {
+  @media screen and (max-width: 1199px) {
     width: 100%;
   }
 `;
 
-export const StyledEraEpochWrapper = styled.div`
+export const StyledEraEpochWrapper = styled.div<{
+  $cardWidth: number;
+}>`
   display: grid;
-  grid-template-columns: auto auto;
-  gap: 16px;
+  grid-template-columns: ${({ $cardWidth }) =>
+    $cardWidth < 420 ? 'auto auto' : 'auto auto auto'};
+  column-gap: 10px;
   align-items: center;
-`;
+  justify-content: ${({ $cardWidth }) =>
+    $cardWidth < 420 ? 'space-between' : 'space-evenly'};
+  width: 100%;
 
-export const DetailsContainer = styled.div`
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  text-align: left;
+  & h4 {
+    grid-column: ${({ $cardWidth }) =>
+      $cardWidth < 420 ? '2 span' : '3 span'};
+  }
 `;
 
 export const ElectionInfoWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 16px;
+  row-gap: 16px;
   justify-content: space-evenly;
   width: 100%;
-
-  /* @media screen and (max-width: 1023px) {
-    flex-direction: column;
-  } */
 `;
 
 export const Label = styled.span`
   display: inline-block;
-  min-width: 120px;
   font-size: 14px;
 `;
 
@@ -66,24 +66,13 @@ export const Value = styled.span`
 export const StyledElectionItem = styled.div`
   font-size: 12px;
 
-  /* @media screen and (max-width: 1023px) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    gap: 8px;
-    font-size: 14px;
-
-    & p {
-      text-align: right;
-      font-size: 14px;
-    }
-  } */
-
-  @media screen and (max-width: 1200px) {
-    font-size: 10px;
+  @media screen and (max-width: 1199px) {
     & p {
       font-size: 14px;
     }
   }
+`;
+export const EmptyRow = styled.span`
+  grid-column: span 2;
+  height: 48px;
 `;

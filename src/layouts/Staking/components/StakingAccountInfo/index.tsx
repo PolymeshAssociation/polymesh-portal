@@ -1,4 +1,4 @@
-import { useContext, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { Text, Heading, Button, SkeletonLoader } from '~/components/UiKit';
 import {
@@ -44,6 +44,31 @@ export const StakingAccountInfo = () => {
   } = stakingAccountInfo;
   const { isMobile } = useWindowWidth();
   const ref = useRef<HTMLDivElement>(null);
+  const [cardWidth, setCardWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    const container = ref.current;
+
+    const handleResize = () => {
+      if (container) {
+        setCardWidth(container.clientWidth);
+      }
+    };
+
+    handleResize(); // Initial calculation
+
+    const resizeObserver = new ResizeObserver(handleResize);
+
+    if (container) {
+      resizeObserver.observe(container);
+    }
+
+    return () => {
+      if (container) {
+        resizeObserver.unobserve(container);
+      }
+    };
+  }, []);
 
   const getKeyName = (key: string) => {
     const keyName = allAccountsWithMeta.find(({ address }) => address === key)
@@ -51,13 +76,11 @@ export const StakingAccountInfo = () => {
     return keyName || '';
   };
 
-  const cardWidth = ref.current?.clientWidth;
-
   const staked = activelyStakedOperators.reduce((total, operator) => {
     return total.plus(operator.value);
   }, new BigNumber(0));
 
-  const noIdentity = (
+  const noIdentity = cardWidth && (
     <>
       <StyledTopInfo>
         {!isMobile && (
@@ -97,7 +120,7 @@ export const StakingAccountInfo = () => {
     </>
   );
 
-  const goToStakingButton = (
+  const goToStakingButton = cardWidth && (
     <StyledButtonWrapper $cardWidth={cardWidth}>
       <Button
         variant="primary"
@@ -123,7 +146,6 @@ export const StakingAccountInfo = () => {
       </Button>
     </StyledButtonWrapper>
   );
-
   const accountDetails = cardWidth && (
     <>
       <StyledTopInfo>
@@ -214,7 +236,7 @@ export const StakingAccountInfo = () => {
             <Label>
               Stakeable
               <Tooltip
-                position="top-right"
+                position="top"
                 caption="The number of Bonded tokens that can be staked with Node Operators."
                 maxWidth={cardWidth < 420 ? 200 : undefined}
               />

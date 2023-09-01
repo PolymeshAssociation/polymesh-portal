@@ -25,6 +25,7 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
   const [expanded, setExpanded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const [selectedKeyName, setSelectedKeyName] = useState('');
+  const [truncateLength, setTruncateLength] = useState<number | undefined>();
 
   useEffect(() => {
     if (!selectedAccount) {
@@ -61,8 +62,29 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
     setExpanded((prev) => !prev);
   };
 
-  const wrapperWidth = ref.current?.clientWidth ?? 150;
-  const truncateLength = Math.floor((wrapperWidth - 30) / 18);
+  useEffect(() => {
+    const container = ref.current;
+
+    const handleResize = () => {
+      if (container) {
+        setTruncateLength(Math.floor((container.clientWidth - 30) / 18));
+      }
+    };
+
+    handleResize(); // Initial calculation
+
+    const resizeObserver = new ResizeObserver(handleResize);
+
+    if (container) {
+      resizeObserver.observe(container);
+    }
+
+    return () => {
+      if (container) {
+        resizeObserver.unobserve(container);
+      }
+    };
+  }, [selectedAccount]);
 
   return selectedAccount ? (
     <StyledSelectWrapper ref={ref} $placement={placement}>

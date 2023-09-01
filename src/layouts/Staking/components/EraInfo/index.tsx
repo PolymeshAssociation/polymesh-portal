@@ -1,8 +1,8 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Heading, SkeletonLoader, Text } from '~/components/UiKit';
 import {
-  DetailsContainer,
   ElectionInfoWrapper,
+  EmptyRow,
   Label,
   StyledElectionItem,
   StyledEraEpochWrapper,
@@ -32,165 +32,156 @@ export const EraInfo = () => {
       electionInProgress,
     },
   } = useContext(StakingContext);
+  const ref = useRef<HTMLDivElement>(null);
+  const [cardWidth, setCardWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    const container = ref.current;
+
+    const handleResize = () => {
+      if (container) {
+        setCardWidth(container.clientWidth);
+      }
+    };
+
+    handleResize(); // Initial calculation
+
+    const resizeObserver = new ResizeObserver(handleResize);
+
+    if (container) {
+      resizeObserver.observe(container);
+    }
+
+    return () => {
+      if (container) {
+        resizeObserver.unobserve(container);
+      }
+    };
+  }, []);
 
   return (
-    <StyledWrapper>
-      <StyledEraEpochWrapper>
-        {!eraDurationBlocks || !eraProgress ? (
-          <>
-            <SkeletonLoader
-              height="100px"
-              width="100px"
-              circle
-              baseColor="rgba(255,255,255,0.05)"
-              highlightColor="rgba(255, 255, 255, 0.24)"
-            />
-            <DetailsContainer>
-              <SkeletonLoader
-                height={124}
-                width={285}
-                containerClassName="info"
-                baseColor="rgba(255,255,255,0.05)"
-                highlightColor="rgba(255, 255, 255, 0.24)"
+    <StyledWrapper ref={ref}>
+      {!cardWidth ||
+      !eraDurationBlocks ||
+      !eraProgress ||
+      !epochDurationBlocks ||
+      !epochProgress ||
+      !epochIndex ||
+      !eraSessionNumber ||
+      !timeToNextElection ||
+      !sessionsPerEra ||
+      electionInProgress == null ? (
+        <SkeletonLoader
+          height="100%"
+          baseColor="rgba(255,255,255,0.05)"
+          highlightColor="rgba(255, 255, 255, 0.24)"
+        />
+      ) : (
+        <>
+          <StyledEraEpochWrapper $cardWidth={cardWidth}>
+            <Heading centered type="h4" marginBottom={5}>
+              Era #{activeEra.index && activeEra.index.toString()}
+            </Heading>
+            {!(cardWidth < 420) && (
+              <DonutProgressBar
+                duration={eraDurationBlocks.toNumber()}
+                progress={eraProgress.toNumber()}
               />
-            </DetailsContainer>
-          </>
-        ) : (
-          <>
-            <DonutProgressBar
-              duration={eraDurationBlocks.toNumber()}
-              progress={eraProgress.toNumber()}
-            />
-            <DetailsContainer>
-              <Heading type="h4">
-                Era #{activeEra.index && activeEra.index.toString()}
-              </Heading>
-              <div>
-                <Label>Start: </Label>
-                <Value>
-                  {activeEra.start &&
-                    new Date(activeEra.start.toNumber()).toLocaleString()}
-                </Value>
-              </div>
-              <div>
-                <Label>Duration: </Label>
-                <Value>
-                  {eraDurationTime &&
-                    formatMillisecondsToTime(eraDurationTime.toNumber())}
-                </Value>
-              </div>
-              <div>
-                <Label>Progress: </Label>
-                <Value>
-                  {eraProgress && eraDurationBlocks && eraProgress.toString()}/
-                  {eraDurationBlocks?.toString()}
-                </Value>
-              </div>
-              <div>
-                <Label>Next Era: </Label>
-                <Value>
-                  {eraTimeRemaining &&
-                    formatMillisecondsToTime(eraTimeRemaining.toNumber())}
-                </Value>
-              </div>
-            </DetailsContainer>
-          </>
-        )}
+            )}
+            <Label>Start: </Label>
+            <Value>
+              {activeEra.start &&
+                new Date(activeEra.start.toNumber()).toLocaleString(undefined, {
+                  hour12: false,
+                })}
+            </Value>
+            <Label>Duration: </Label>
+            <Value>
+              {eraDurationTime &&
+                formatMillisecondsToTime(eraDurationTime.toNumber())}
+            </Value>
+            <Label>Progress: </Label>
+            <Value>
+              {eraProgress && eraDurationBlocks && eraProgress.toString()}/
+              {eraDurationBlocks.toString()}
+              {cardWidth < 420 &&
+                ` (${eraProgress
+                  .div(eraDurationBlocks)
+                  .times(100)
+                  .toFixed(1)}%)`}
+            </Value>
+            <Label>Next Era: </Label>
+            <Value>
+              {eraTimeRemaining &&
+                formatMillisecondsToTime(eraTimeRemaining.toNumber())}
+            </Value>
 
-        {!epochDurationBlocks || !epochProgress ? (
-          <>
-            <SkeletonLoader
-              height="100px"
-              width="100px"
-              circle
-              baseColor="rgba(255,255,255,0.05)"
-              highlightColor="rgba(255, 255, 255, 0.24)"
-            />
-            <DetailsContainer>
-              <SkeletonLoader
-                height={124}
-                width={285}
-                containerClassName="info"
-                baseColor="rgba(255,255,255,0.05)"
-                highlightColor="rgba(255, 255, 255, 0.24)"
+            <Heading centered type="h4" marginTop={15} marginBottom={5}>
+              Session #{epochIndex.toNumber()}
+            </Heading>
+            {!(cardWidth < 420) && (
+              <DonutProgressBar
+                duration={epochDurationBlocks.toNumber()}
+                progress={epochProgress.toNumber()}
               />
-            </DetailsContainer>
-          </>
-        ) : (
-          <>
-            <DonutProgressBar
-              duration={epochDurationBlocks.toNumber()}
-              progress={epochProgress.toNumber()}
-            />
-            <DetailsContainer>
-              <Heading type="h4">Session #{epochIndex?.toNumber()}</Heading>
-              <div>
-                <Label>Era Session: </Label>
+            )}
+            <Label>Era Session: </Label>
+            <Value>
+              {eraSessionNumber.toString()} of {sessionsPerEra.toNumber()}
+            </Value>
+            <Label>Duration: </Label>
+            <Value>
+              {epochDurationTime &&
+                formatMillisecondsToTime(epochDurationTime.toNumber())}
+            </Value>
+            <Label>Progress: </Label>
+            <Value>
+              {epochProgress.toString()}/{epochDurationBlocks.toString()}
+              {cardWidth < 420 &&
+                ` (${epochProgress
+                  .div(epochDurationBlocks)
+                  .times(100)
+                  .toFixed(1)}%)`}
+            </Value>
+            <Label>Next Session: </Label>
+            <Value>
+              {epochTimeRemaining &&
+                formatMillisecondsToTime(epochTimeRemaining.toNumber())}
+            </Value>
+            {cardWidth < 420 && (
+              <>
+                <EmptyRow />
+                <Label>Next Election:</Label>
                 <Value>
-                  {eraSessionNumber?.toString()} of {sessionsPerEra?.toNumber()}
+                  {formatMillisecondsToTime(timeToNextElection.toNumber())}
                 </Value>
+                <Label>Election Status:</Label>
+                <Value>{electionInProgress}</Value>
+              </>
+            )}
+          </StyledEraEpochWrapper>
+          {cardWidth >= 420 && (
+            <ElectionInfoWrapper>
+              <div>
+                <StyledElectionItem>
+                  Next Election
+                  <Text size="large">
+                    <>
+                      {formatMillisecondsToTime(timeToNextElection.toNumber())}
+                    </>
+                  </Text>
+                </StyledElectionItem>
               </div>
               <div>
-                <Label>Duration: </Label>
-                <Value>
-                  {epochDurationTime &&
-                    formatMillisecondsToTime(epochDurationTime.toNumber())}
-                </Value>
+                <StyledElectionItem>
+                  Election Status
+                  <Text size="large">{electionInProgress}</Text>
+                </StyledElectionItem>
               </div>
-              <div>
-                <Label>Progress: </Label>
-                <Value>
-                  {epochProgress &&
-                    epochDurationBlocks &&
-                    epochProgress.toString()}
-                  /{epochDurationBlocks?.toString()}
-                </Value>
-              </div>
-              <div>
-                <Label>Next Session: </Label>
-                <Value>
-                  {epochTimeRemaining &&
-                    formatMillisecondsToTime(epochTimeRemaining.toNumber())}
-                </Value>
-              </div>
-            </DetailsContainer>
-          </>
-        )}
-      </StyledEraEpochWrapper>
-      <ElectionInfoWrapper>
-        <div>
-          {!timeToNextElection ? (
-            <SkeletonLoader
-              width={194}
-              height={48}
-              baseColor="rgba(255,255,255,0.05)"
-              highlightColor="rgba(255, 255, 255, 0.24)"
-            />
-          ) : (
-            <StyledElectionItem>
-              Next Election
-              <Text size="large">
-                <>{formatMillisecondsToTime(timeToNextElection.toNumber())}</>
-              </Text>
-            </StyledElectionItem>
+            </ElectionInfoWrapper>
           )}
-        </div>
-        <div>
-          {electionInProgress == null ? (
-            <SkeletonLoader
-              width={122}
-              height={48}
-              baseColor="rgba(255,255,255,0.05)"
-              highlightColor="rgba(255, 255, 255, 0.24)"
-            />
-          ) : (
-            <StyledElectionItem>
-              Election Status
-              <Text size="large">{electionInProgress}</Text>
-            </StyledElectionItem>
-          )}
-        </div>
-      </ElectionInfoWrapper>
+        </>
+      )}
     </StyledWrapper>
   );
 };

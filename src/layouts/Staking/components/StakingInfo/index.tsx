@@ -1,4 +1,4 @@
-import { useContext, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Text, SkeletonLoader } from '~/components/UiKit';
 import { StyledWrapper, StyledInfoItem, StyledContainer } from './styles';
 import { formatBalance } from '~/helpers/formatters';
@@ -18,7 +18,31 @@ export const StakingInfo = () => {
   } = useContext(StakingContext);
   const ref = useRef<HTMLDivElement>(null);
 
-  const cardWidth = ref.current?.clientWidth;
+  const [cardWidth, setCardWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    const container = ref.current;
+
+    const handleResize = () => {
+      if (container) {
+        setCardWidth(container.clientWidth);
+      }
+    };
+
+    handleResize(); // Initial calculation
+
+    const resizeObserver = new ResizeObserver(handleResize);
+
+    if (container) {
+      resizeObserver.observe(container);
+    }
+
+    return () => {
+      if (container) {
+        resizeObserver.unobserve(container);
+      }
+    };
+  }, []);
 
   const { windowWidth } = useWindowWidth();
   return (
@@ -52,9 +76,7 @@ export const StakingInfo = () => {
                 <span className="item-label">
                   Average APY
                   <Tooltip
-                    position={
-                      cardWidth && cardWidth < 400 ? 'top-right' : 'top-left'
-                    }
+                    position={cardWidth && cardWidth < 400 ? 'top' : 'top-left'}
                     caption="Average Annual Percentage Yield, for stakers that are compounding staking rewards, before operator commission is subtracted."
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
@@ -73,7 +95,7 @@ export const StakingInfo = () => {
                 <div className="item-label">
                   Total Staked
                   <Tooltip
-                    position={cardWidth < 400 ? 'top-right' : 'top'}
+                    position="top"
                     caption="Total POLYX staked and Percentage of total supply staked"
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
