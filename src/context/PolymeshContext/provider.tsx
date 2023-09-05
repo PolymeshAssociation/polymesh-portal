@@ -10,6 +10,13 @@ interface IProviderProps {
   children: React.ReactNode;
 }
 
+interface IChainMetadata {
+  [key: string]: {
+    metadata: `0x${string}`;
+    specVersion: string;
+    timestamp: string;
+  };
+}
 const injectedExtensions = BrowserExtensionSigningManager.getExtensionList();
 
 const PolymeshProvider = ({ children }: IProviderProps) => {
@@ -37,6 +44,13 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     'middlewareKey',
     import.meta.env.VITE_SUBQUERY_MIDDLEWARE_KEY || '',
   );
+  const [localMetadata, setLocalMetadata] = useLocalStorage<IChainMetadata>(
+    'chainMetadata',
+    {
+      initial: { metadata: '0x', specVersion: '', timestamp: '' },
+    },
+  );
+
   const [subscribedEventRecords, setSubscribedEventRecords] = useState<{
     events: EventRecord[];
     blockHash: string;
@@ -46,6 +60,19 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   const middlewareUrlRef = useRef<string | null>(null);
   const middlewareKeyRef = useRef<string | null>(null);
   const latestCallTimestampRef = useRef<number>(0);
+
+  // Parse chain metadata from local storage
+  const metadata = useMemo(() => {
+    const formattedMetadata: Record<string, `0x${string}`> = {};
+
+    Object.entries(localMetadata).forEach(([key, item]) => {
+      const formattedKey = `${key}-${item.specVersion}`;
+      const formattedValue = item.metadata;
+      formattedMetadata[formattedKey] = formattedValue;
+    });
+
+    return formattedMetadata;
+  }, [localMetadata]);
 
   // Create the browser extension signing manager and connect to the Polymesh SDK.
   const connectWallet = useCallback(
@@ -69,6 +96,10 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
             middlewareV2: {
               link: middlewareUrl,
               key: middlewareKey,
+            },
+            polkadot: {
+              noInitWarn: true,
+              metadata,
             },
           });
           // return if a newer call of connectWallet is in progress.
@@ -164,6 +195,44 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       if (unsubEvents) unsubEvents();
     };
   }, [polkadotApi]);
+
+  // Update locally stored chain metadata. Only a single specVersion is stored per genesis hash.
+  useEffect(() => {
+    if (!polkadotApi) return;
+
+    const {
+      runtimeMetadata,
+      genesisHash,
+      runtimeVersion: { specVersion },
+    } = polkadotApi;
+
+    const meta = {
+      [genesisHash.toString()]: {
+        metadata: runtimeMetadata.toHex(),
+        specVersion: specVersion.toString(),
+        timestamp: new Date().toISOString(),
+      },
+    };
+    const cachePeriod = 21; // days
+
+    setLocalMetadata((previousLocalMeta) => {
+      // Filter out entries that are older than cachePeriod
+      const filteredMeta = Object.entries(previousLocalMeta).reduce(
+        (filtered, [key, value]) => {
+          const entryTimestamp = new Date(value.timestamp);
+          const retentionLimit = new Date();
+          retentionLimit.setDate(retentionLimit.getDate() - cachePeriod);
+          if (entryTimestamp >= retentionLimit) {
+            return { ...filtered, [key]: value };
+          }
+          return filtered;
+        },
+        {} as IChainMetadata,
+      );
+
+      return { ...filteredMeta, ...meta };
+    });
+  }, [polkadotApi, setLocalMetadata]);
 
   // // Effect to subscribe to finalized transactions
   // useEffect(() => {
