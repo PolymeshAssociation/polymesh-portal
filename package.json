@@ -11,9 +11,8 @@
   "dependencies": {
     "@apollo/client": "^3.8.2",
     "@hookform/resolvers": "^2.9.11",
-    "@polkadot/util-crypto": "12.4.2",
-    "@polymeshassociation/browser-extension-signing-manager": "^2.0.0",
-    "@polymeshassociation/polymesh-sdk": "22.0.0-beta.5",
+    "@polymeshassociation/browser-extension-signing-manager": "^2.2.0",
+    "@polymeshassociation/polymesh-sdk": "^22.0.0",
     "@tanstack/react-table": "^8.7.9",
     "events": "^3.3.0",
     "graphql": "^16.8.0",
@@ -27,16 +26,16 @@
     "react-qr-code": "^2.0.11",
     "react-router-dom": "^6.8.2",
     "react-toastify": "^9.1.1",
-    "styled-components": "^6.0.7",
+    "styled-components": "^5.3.8",
     "vite-plugin-svgr": "^3.2.0",
     "yup": "^1.0.2"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "@polkadot/extension-inject": "^0.44.9",
     "@types/react": "^18.0.27",
     "@types/react-copy-to-clipboard": "^5.0.4",
     "@types/react-dom": "^18.0.10",
+    "@types/styled-components": "^5.1.26",
     "@typescript-eslint/eslint-plugin": "6.5.0",
     "@typescript-eslint/parser": "6.5.0",
     "@vitejs/plugin-react": "^3.1.0",
@@ -56,7 +55,6 @@
     "vite-tsconfig-paths": "^4.0.5"
   },
   "resolutions": {
-    "@apollo/client": "^3.8.2",
     "@polkadot/keyring": "12.4.2",
     "@polkadot/api-augment": "10.9.1",
     "@polkadot/api-base": "10.9.1",
@@ -75,7 +73,6 @@
     "@polkadot/x-bigint": "12.4.2"
   },
   "overrides": {
-    "@apollo/client": "^3.8.2",
     "@polkadot/keyring": "12.4.2",
     "@polkadot/api-augment": "10.9.1",
     "@polkadot/api-base": "10.9.1",
@@ -95,7 +92,6 @@
   },
   "pnpm": {
     "overrides": {
-      "@apollo/client": "^3.8.2",
       "@polkadot/keyring": "12.4.2",
       "@polkadot/api-augment": "10.9.1",
       "@polkadot/api-base": "10.9.1",
