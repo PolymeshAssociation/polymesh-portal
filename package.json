@@ -11,9 +11,9 @@
   "dependencies": {
     "@apollo/client": "^3.8.2",
     "@hookform/resolvers": "^2.9.11",
-    "@polkadot/util-crypto": "10.4.2",
+    "@polkadot/util-crypto": "12.4.2",
     "@polymeshassociation/browser-extension-signing-manager": "^2.2.0",
-    "@polymeshassociation/polymesh-sdk": "^22.0.0",
+    "@polymeshassociation/polymesh-sdk": "22.0.1",
     "@tanstack/react-table": "^8.7.9",
     "events": "^3.3.0",
     "graphql": "^16.8.0",
