@@ -269,18 +269,30 @@ export const useRewardTable = (
         throw new Error('unknown currentTab value');
       }
 
+      const rateLimit = 6; // Number of queries per second
+      const delay = 1000 / rateLimit; // Delay in milliseconds between queries
+
       for (let page = 0; page < pageCount; page += 1) {
-        queryOptions.offset = page * batchSize;
-        queryOptions.pageSize = batchSize;
+        const queryOpts = {
+          ...queryOptions,
+          offset: page * batchSize,
+          pageSize: batchSize,
+        };
 
         promises.push(
-          gqlClient
-            .query<IRewardsQueryResponse>({
-              query: StakingRewardsQuery(queryOptions),
-            })
-            .then(({ data }) =>
-              parseIdentityRewards(data.events.nodes, ss58Prefix),
-            ),
+          (async () => {
+            await new Promise((resolve) => {
+              setTimeout(resolve, page < rateLimit ? 0 : page * delay);
+            });
+
+            return gqlClient
+              .query<IRewardsQueryResponse>({
+                query: StakingRewardsQuery(queryOpts),
+              })
+              .then(({ data }) =>
+                parseIdentityRewards(data.events.nodes, ss58Prefix),
+              );
+          })(),
         );
       }
 
