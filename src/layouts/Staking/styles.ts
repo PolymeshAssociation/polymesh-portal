@@ -10,7 +10,7 @@ export const OverviewGrid = styled.div`
 
   @media screen and (min-width: 1200px) {
     display: grid;
-    grid-template-columns: minmax(468px, auto) minmax(350px, auto); //minmax(468px, auto) auto;
+    grid-template-columns: minmax(468px, 1fr) minmax(350px, 0.8fr);
     align-items: stretch;
     gap: 16px;
     grid-template-areas:

@@ -328,8 +328,9 @@ export const StakingAccountInfo = () => {
         <StyledTextWrapper>
           <Text size="medium">
             The selected key is not currently staking. Click the button below to
-            open the staking interface where you can Bond POLYX to a Stash key,
-            Nominated them to Node Operators and start earning staking rewards.
+            open the staking interface where you can bond POLYX tokens to a
+            stash key, nominate them to node operators and start earning staking
+            rewards.
           </Text>
         </StyledTextWrapper>
         {goToStakingButton}
