@@ -104,17 +104,18 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
       {expanded && (
         <StyledExpandedSelect $placement={placement}>
           {allAccountsWithMeta
-            .sort(({ address }) => (address === selectedAccount ? -1 : 1))
             .sort((a, b) => {
-              if (
-                a.address === primaryKey &&
-                !secondaryKeys.includes(b.address)
-              )
-                return -1;
-              if (secondaryKeys.includes(a.address) && b.address !== primaryKey)
-                return -1;
+              // place selected key first
+              if (a.address === selectedAccount) return -1;
+              if (b.address === selectedAccount) return 1;
+              // place primary key of selected key identity next
+              if (a.address === primaryKey) return -1;
+              if (b.address === primaryKey) return 1;
+              // place secondary keys next of selected key identity next
+              if (secondaryKeys.includes(a.address)) return -1;
+              if (secondaryKeys.includes(b.address)) return 1;
 
-              return 1;
+              return 0;
             })
             .map(({ address, meta }) => (
               <StyledLabel
