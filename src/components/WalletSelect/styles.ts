@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { ESelectPlacements } from './types';
 
 export const StyledSelectWrapper = styled.div<{
@@ -86,8 +86,8 @@ export const StyledExpandedSelect = styled.div<{
     $placement === ESelectPlacements.HEADER
       ? `
       top: 120%;
-      right: -25px;
-      width: 250px;
+      right: -76px;
+      width: 300px;
       `
       : ''}
   ${({ $placement }) =>
@@ -96,7 +96,7 @@ export const StyledExpandedSelect = styled.div<{
       top: 110%;
       right: -40px;
       width: calc(100% + 40px);
-      min-width: 280px;
+      min-width: 300px;
       text-align: center;
       `
       : ''}
@@ -145,7 +145,7 @@ export const StyledLabel = styled.label<{
     align-items: flex-start;
     font-size: ${({ $placement }) =>
       $placement === ESelectPlacements.HEADER ? '12px' : '14px'};
-    max-width: calc(100% - 63px);
+    max-width: calc(100% - 102px);
 
     & .meta {
       white-space: nowrap;
@@ -179,17 +179,39 @@ export const IconWrapper = styled.div`
   justify-content: center;
 `;
 
-export const StyledKeyLabel = styled.div<{ $primary?: boolean }>`
+export const StyledKeyLabel = styled.div<{
+  $primary?: boolean;
+  $selectedId?: boolean;
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 63px;
   height: 24px;
   padding: 0 8px;
   border-radius: 100px;
   font-size: 12px;
-  ${({ $primary, theme }) =>
-    $primary
-      ? `border: 1px solid #fad1dc; color: ${theme.colors.textPink};`
-      : `border: 1px solid #F2EFFF; color: ${theme.colors.textBlue};`};
+  ${({ $primary, $selectedId, theme }) => {
+    if ($primary) {
+      if ($selectedId)
+        return css`
+          color: #ff2e72;
+          font-weight: 500;
+          background-color: #fad1dc;
+        `;
+      return css`
+        border: 1px solid ${theme.colors.textPink};
+        color: ${theme.colors.textPink};
+      `;
+    }
+    if ($selectedId)
+      return css`
+        color: #170087;
+        font-weight: 500;
+        background-color: #dcd3ff;
+      `;
+    return css`
+      border: 1px solid ${theme.colors.textBlue};
+      color: ${theme.colors.textBlue};
+    `;
+  }}
 `;

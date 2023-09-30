@@ -4,8 +4,8 @@ import {
   MultiSig,
   MultiSigDetails,
 } from '@polymeshassociation/polymesh-sdk/types';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import type { AccountIdentityRelation } from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
+import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 
 export interface IInfoByKey {
   key: string;
@@ -36,6 +36,7 @@ export interface IAccountContext {
   identityHasValidCdd: boolean;
   accountIsMultisigSigner: boolean;
   refreshAccountIdentity: () => void;
+  keyIdentityRelationships: Record<string, AccountIdentityRelation>;
 }
 
 export const initialState = {
@@ -59,4 +60,5 @@ export const initialState = {
   identityHasValidCdd: false,
   accountIsMultisigSigner: false,
   refreshAccountIdentity: () => {},
+  keyIdentityRelationships: {},
 };

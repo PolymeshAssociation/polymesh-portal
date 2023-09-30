@@ -12,14 +12,8 @@ import { useWindowWidth } from '~/hooks/utility';
 import { truncateText } from '~/helpers/formatters';
 
 export const KeyInfo = () => {
-  const {
-    selectedAccount,
-    allAccountsWithMeta,
-    primaryKey,
-    secondaryKeys,
-    accountIsMultisigSigner,
-    identityLoading,
-  } = useContext(AccountContext);
+  const { selectedAccount, allAccountsWithMeta, keyIdentityRelationships } =
+    useContext(AccountContext);
   const { isMobile, isSmallDesktop } = useWindowWidth();
   const ref = useRef<HTMLDivElement>(null);
   const [selectedKeyName, setSelectedKeyName] = useState('');
@@ -77,24 +71,18 @@ export const KeyInfo = () => {
           <span className="key-name">{truncatedSelectedKeyName}</span>
         </Text>
         <KeyInfoWrapper>
-          {!identityLoading && (
-            <>
-              {selectedAccount && selectedAccount === primaryKey && (
-                <StyledLabel>Primary</StyledLabel>
-              )}
-              {secondaryKeys.includes(selectedAccount) && (
-                <StyledLabel>Secondary</StyledLabel>
-              )}
-              {accountIsMultisigSigner && (
-                <StyledLabel>MultiSig Signer</StyledLabel>
-              )}
-              {selectedAccount &&
-                selectedAccount !== primaryKey &&
-                !secondaryKeys.includes(selectedAccount) &&
-                !accountIsMultisigSigner && (
-                  <StyledLabel>Unassigned</StyledLabel>
-                )}
-            </>
+          {selectedAccount && keyIdentityRelationships[selectedAccount] ? (
+            <StyledLabel>
+              {keyIdentityRelationships[selectedAccount]}
+            </StyledLabel>
+          ) : (
+            <SkeletonLoader
+              containerClassName="loader"
+              height="32px"
+              width="91px"
+              baseColor="rgba(255,255,255,0.05)"
+              highlightColor="rgba(255, 255, 255, 0.24)"
+            />
           )}
           <WalletSelect placement="widget" />
           <IconWrapper>

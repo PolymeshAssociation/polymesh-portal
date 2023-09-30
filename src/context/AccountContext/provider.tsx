@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useContext } from 'react';
+import { useState, useEffect, useMemo, useContext, useCallback } from 'react';
 import {
   Account,
   MultiSig,
@@ -8,6 +8,7 @@ import {
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 import { MultiSig as MultiSigInstance } from '@polymeshassociation/polymesh-sdk/internal';
+import type { AccountIdentityRelation } from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
 import { PolymeshContext } from '../PolymeshContext';
 import AccountContext from './context';
 import { notifyGlobalError } from '~/helpers/notifications';
@@ -30,6 +31,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [allAccountsWithMeta, setAllAccountsWithMeta] = useState<
     InjectedAccountWithMeta[]
   >([]);
+  const [allSigningAccounts, setAllSigningAccounts] = useState<Account[]>([]);
+  const [keyIdentityRelationships, setKeyIdentityRelationships] = useState<
+    Record<string, AccountIdentityRelation>
+  >({});
   const [defaultAccount, setDefaultAccount] = useLocalStorage(
     'defaultAccount',
     '',
@@ -189,9 +194,44 @@ const AccountProvider = ({ children }: IProviderProps) => {
     })();
   }, [sdk, selectedAccount]);
 
+  useEffect(() => {
+    if (!sdk || !allAccounts.length) {
+      setAllSigningAccounts([]);
+      setKeyIdentityRelationships({});
+      return;
+    }
+
+    (async () => {
+      try {
+        const signingAccounts =
+          await sdk.accountManagement.getSigningAccounts();
+
+        const relationshipPromises = signingAccounts.map(async (acc) => {
+          const { relation } = await acc.getTypeInfo();
+          const { address } = acc;
+          return { address, relation };
+        });
+
+        const relationshipsArray = await Promise.all(relationshipPromises);
+
+        const relationships: Record<string, AccountIdentityRelation> = {};
+        relationshipsArray.forEach(({ address, relation }) => {
+          relationships[address] = relation;
+        });
+
+        setAllSigningAccounts(signingAccounts);
+        setKeyIdentityRelationships(relationships);
+      } catch (error) {
+        notifyGlobalError((error as Error).message);
+        setAllSigningAccounts([]);
+        setKeyIdentityRelationships({});
+      }
+    })();
+  }, [allAccounts, sdk]);
+
   // Get identity data when sdk is initialized
   useEffect(() => {
-    if (!account || !sdk || !initialized) {
+    if (!account || !sdk || !initialized || !allSigningAccounts.length) {
       setIdentity(null);
       setAllIdentities([]);
       return;
@@ -203,12 +243,9 @@ const AccountProvider = ({ children }: IProviderProps) => {
       try {
         setIdentityLoading(true);
 
-        const signingAccounts =
-          await sdk.accountManagement.getSigningAccounts();
-
         const accIdentity = await account.getIdentity();
         const allAccIdentities = await Promise.all(
-          signingAccounts.map((acc) => acc.getIdentity()),
+          allSigningAccounts.map((acc) => acc.getIdentity()),
         );
 
         // Place the selected account's identity at the first index of the array
@@ -235,7 +272,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
         setShouldRefreshIdentity(false);
       }
     })();
-  }, [sdk, account, shouldRefreshIdentity, initialized]);
+  }, [sdk, account, shouldRefreshIdentity, initialized, allSigningAccounts]);
 
   // Subscribe to primary identity keys
   useEffect(() => {
@@ -324,21 +361,27 @@ const AccountProvider = ({ children }: IProviderProps) => {
     })();
   }, [allAccounts, primaryKey, sdk, secondaryKeys]);
 
-  const blockWalletAddress = (address: string) => {
-    setBlockedWallets((prev) => {
-      return [...prev, address];
-    });
-  };
+  const blockWalletAddress = useCallback(
+    (address: string) => {
+      setBlockedWallets((prev) => {
+        return [...prev, address];
+      });
+    },
+    [setBlockedWallets],
+  );
 
-  const unblockWalletAddress = (address: string) => {
-    setBlockedWallets((prev) =>
-      prev.filter((blockedAddress) => blockedAddress !== address),
-    );
-  };
+  const unblockWalletAddress = useCallback(
+    (address: string) => {
+      setBlockedWallets((prev) =>
+        prev.filter((blockedAddress) => blockedAddress !== address),
+      );
+    },
+    [setBlockedWallets],
+  );
 
-  const refreshAccountIdentity = () => {
+  const refreshAccountIdentity = useCallback(() => {
     setShouldRefreshIdentity(true);
-  };
+  }, [setShouldRefreshIdentity]);
 
   const contextValue = useMemo(
     () => ({
@@ -362,26 +405,29 @@ const AccountProvider = ({ children }: IProviderProps) => {
       identityHasValidCdd,
       accountIsMultisigSigner,
       refreshAccountIdentity,
+      keyIdentityRelationships,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       account,
-      selectedAccount,
+      accountIsMultisigSigner,
+      accountLoading,
       allAccounts,
       allAccountsWithMeta,
-      identity,
       allIdentities,
-      defaultAccount,
-      setDefaultAccount,
-      blockedWallets,
-      primaryKey,
-      secondaryKeys,
-      accountLoading,
-      identityLoading,
       allKeyInfo,
+      blockWalletAddress,
+      blockedWallets,
+      defaultAccount,
+      identity,
       identityHasValidCdd,
-      accountIsMultisigSigner,
+      identityLoading,
+      keyIdentityRelationships,
+      primaryKey,
       refreshAccountIdentity,
+      secondaryKeys,
+      selectedAccount,
+      setDefaultAccount,
+      unblockWalletAddress,
     ],
   );
 

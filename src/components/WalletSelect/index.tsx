@@ -21,6 +21,7 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
     allAccountsWithMeta,
     primaryKey,
     secondaryKeys,
+    keyIdentityRelationships,
   } = useContext(AccountContext);
   const [expanded, setExpanded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -126,12 +127,16 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
                   <span className="meta">{meta.name || ''}</span>
                   <span className="key">{formatKey(address, 8, 7)}</span>
                 </span>
-                {address === primaryKey ? (
-                  <StyledKeyLabel $primary>Primary</StyledKeyLabel>
-                ) : null}
-                {secondaryKeys.includes(address) ? (
-                  <StyledKeyLabel>Second.</StyledKeyLabel>
-                ) : null}
+                <StyledKeyLabel
+                  $primary={keyIdentityRelationships[address] === 'Primary'}
+                  $selectedId={
+                    address === selectedAccount ||
+                    address === primaryKey ||
+                    secondaryKeys.includes(address)
+                  }
+                >
+                  {keyIdentityRelationships[address]}
+                </StyledKeyLabel>
                 <StyledInput
                   type="radio"
                   name="key"
