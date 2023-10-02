@@ -330,7 +330,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
   // Get total balance for all keys associated with current DID
   useEffect(() => {
-    if (!sdk || !primaryKey) return;
+    if (!sdk || !primaryKey || identityLoading) return;
 
     (async () => {
       const balancesByKey = await Promise.all(
@@ -367,7 +367,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
       setAllKeyInfo(balancesByKey);
     })();
-  }, [allAccounts, primaryKey, sdk, secondaryKeys]);
+  }, [allAccounts, identityLoading, primaryKey, sdk, secondaryKeys]);
 
   const blockWalletAddress = useCallback(
     (address: string) => {
