@@ -184,10 +184,12 @@ export const Details: React.FC<IDetailsProps> = ({
                 <StyledKeyData key={key}>
                   <KeyInfo>
                     <div className="name-container">
-                      {keyName && (
+                      {keyName ? (
                         <Text bold truncateOverflow>
                           {keyName}
                         </Text>
+                      ) : (
+                        ''
                       )}
                     </div>
                     <div className="status-container">

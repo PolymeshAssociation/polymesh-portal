@@ -119,16 +119,19 @@ export const KeyInfo = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
 
   .name-container {
     min-width: 100px;
     padding-right: 8px;
+    margin-left: 0;
   }
 
   .status-container {
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-left: auto;
   }
 `;
 
@@ -172,6 +175,7 @@ export const StyledLabel = styled.div<{
   border-radius: 100px;
   font-weight: 500;
   font-size: 12px;
+  white-space: nowrap;
   ${({ $isPrimary, theme }) =>
     $isPrimary
       ? `
@@ -215,7 +219,9 @@ export const StyledSelect = styled.div<{ $isSelected: boolean }>`
       $isSelected ? theme.colors.textPink : theme.colors.textDisabled};
   color: ${({ $isSelected, theme }) =>
     $isSelected ? theme.colors.landingBackground : 'transparent'};
-  transition: background-color 250ms ease-out, border 250ms ease-out,
+  transition:
+    background-color 250ms ease-out,
+    border 250ms ease-out,
     color 250ms ease-out;
   cursor: pointer;
 `;
