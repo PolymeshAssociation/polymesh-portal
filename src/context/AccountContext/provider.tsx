@@ -8,7 +8,10 @@ import {
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 import { MultiSig as MultiSigInstance } from '@polymeshassociation/polymesh-sdk/internal';
-import type { AccountIdentityRelation } from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
+import {
+  AccountKeyType,
+  AccountIdentityRelation,
+} from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
 import { PolymeshContext } from '../PolymeshContext';
 import AccountContext from './context';
 import { notifyGlobalError } from '~/helpers/notifications';
@@ -335,24 +338,29 @@ const AccountProvider = ({ children }: IProviderProps) => {
           const acc = await sdk.accountManagement.getAccount({
             address: key,
           });
-          const isMultiSig = acc instanceof MultiSigInstance;
+
+          const keyInfo = await acc.getTypeInfo();
+          const { keyType, relation: keyIdentityRelationship } = keyInfo;
+          const isMultiSig = keyType === AccountKeyType.MultiSig;
           let multisigDetails = null;
 
-          if (isMultiSig) {
-            multisigDetails = await acc.details();
+          if (keyType === AccountKeyType.MultiSig) {
+            multisigDetails = await (acc as MultiSigInstance).details();
           }
 
           return {
+            // Mark keys that are available in connected extension
+            available: !!allAccounts.includes(key),
+            isMultiSig,
             key,
+            keyIdentityRelationship,
+            keyType,
+            multisigDetails,
             totalBalance: (
               await sdk.accountManagement.getAccountBalance({
                 account: key,
               })
             ).total?.toString(),
-            // Mark keys that are available in connected extension
-            available: !!allAccounts.includes(key),
-            isMultiSig,
-            multisigDetails,
           };
         }),
       );

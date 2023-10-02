@@ -4,15 +4,20 @@ import {
   MultiSig,
   MultiSigDetails,
 } from '@polymeshassociation/polymesh-sdk/types';
-import type { AccountIdentityRelation } from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
+import type {
+  AccountIdentityRelation,
+  AccountKeyType,
+} from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 
 export interface IInfoByKey {
-  key: string;
-  totalBalance: string;
   available: boolean;
   isMultiSig: boolean;
+  key: string;
+  keyIdentityRelationship: AccountIdentityRelation;
+  keyType: AccountKeyType;
   multisigDetails: MultiSigDetails | null;
+  totalBalance: string;
 }
 
 export interface IAccountContext {
