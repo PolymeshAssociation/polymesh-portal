@@ -1,6 +1,10 @@
 import { useContext, useState } from 'react';
 import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
 import { Account } from '@polymeshassociation/polymesh-sdk/internal';
+import {
+  AccountIdentityRelation,
+  AccountKeyType,
+} from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
 import { AccountContext } from '~/context/AccountContext';
 import { Modal, Icon, CopyToClipboard } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
@@ -162,8 +166,17 @@ export const Details: React.FC<IDetailsProps> = ({
             return 0;
           })
           .map(
-            ({ key, totalBalance, available, isMultiSig, multisigDetails }) => {
-              const isPrimaryKey = key === primaryKey;
+            ({
+              available,
+              isMultiSig,
+              key,
+              keyIdentityRelationship,
+              keyType,
+              multisigDetails,
+              totalBalance,
+            }) => {
+              const isPrimaryKey =
+                keyIdentityRelationship === AccountIdentityRelation.Primary;
               const keyName = allAccountsWithMeta.find(
                 ({ address }) => address === key,
               )?.meta.name;
@@ -190,15 +203,18 @@ export const Details: React.FC<IDetailsProps> = ({
                           )}
                         </StyledLabel>
                       )}
-                      {isMultiSig && multisigDetails && (
-                        <StyledLabel>
-                          {multisigDetails.requiredSignatures.toNumber()} of{' '}
-                          {multisigDetails.signers.length} MultiSig
-                        </StyledLabel>
-                      )}
+                      {keyType !== AccountKeyType.Normal &&
+                        (multisigDetails ? (
+                          <StyledLabel>
+                            {multisigDetails.requiredSignatures.toNumber()} of{' '}
+                            {multisigDetails.signers.length} {keyType}
+                          </StyledLabel>
+                        ) : (
+                          <StyledLabel>{keyType}</StyledLabel>
+                        ))}
                       {isMobile && (
                         <StyledLabel $isPrimary={isPrimaryKey}>
-                          {isPrimaryKey ? 'Primary' : 'Secondary'}
+                          {keyIdentityRelationship}
                         </StyledLabel>
                       )}
                       {primaryIsSelected && !isPrimaryKey && (
@@ -224,7 +240,7 @@ export const Details: React.FC<IDetailsProps> = ({
                     </StyledBalance>
                     {!isMobile && (
                       <StyledLabel $isPrimary={isPrimaryKey}>
-                        {isPrimaryKey ? 'Primary' : 'Secondary'}
+                        {keyIdentityRelationship}
                       </StyledLabel>
                     )}
                   </KeyDetails>
