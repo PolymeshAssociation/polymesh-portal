@@ -237,10 +237,14 @@ export const useSubmitHandler = () => {
     if (!sdk) return;
 
     (async () => {
-      const assets = await sdk.assets.getAssets();
-      const reservedTickers = await sdk.assets.getTickerReservations();
-      setHeldAssets(assets);
-      setTickerReservations(reservedTickers);
+      try {
+        const assets = await sdk.assets.getAssets();
+        setHeldAssets(assets);
+        const reservedTickers = await sdk.assets.getTickerReservations();
+        setTickerReservations(reservedTickers);
+      } catch (error) {
+        notifyError((error as Error).message);
+      }
     })();
   }, [sdk]);
 
