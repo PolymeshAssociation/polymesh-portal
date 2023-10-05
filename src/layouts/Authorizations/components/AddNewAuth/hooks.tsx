@@ -3,13 +3,14 @@ import { FieldValues, useForm, ValidationMode } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  Asset,
+  FungibleAsset,
   AuthorizationType,
   CustomPermissionGroup,
   KnownPermissionGroup,
   PermissionGroupType,
   TickerReservation,
   UnsubCallback,
+  NftCollection,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { PolymeshContext } from '~/context/PolymeshContext';
@@ -221,7 +222,9 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
 };
 
 export const useSubmitHandler = () => {
-  const [heldAssets, setHeldAssets] = useState<Asset[]>([]);
+  const [heldAssets, setHeldAssets] = useState<
+    (FungibleAsset | NftCollection)[]
+  >([]);
   const [tickerReservations, setTickerReservations] = useState<
     TickerReservation[]
   >([]);
@@ -237,10 +240,14 @@ export const useSubmitHandler = () => {
     if (!sdk) return;
 
     (async () => {
-      const assets = await sdk.assets.getAssets();
-      const reservedTickers = await sdk.assets.getTickerReservations();
-      setHeldAssets(assets);
-      setTickerReservations(reservedTickers);
+      try {
+        const assets = await sdk.assets.getAssets();
+        setHeldAssets(assets);
+        const reservedTickers = await sdk.assets.getTickerReservations();
+        setTickerReservations(reservedTickers);
+      } catch (error) {
+        notifyError((error as Error).message);
+      }
     })();
   }, [sdk]);
 
@@ -511,9 +518,8 @@ export const useSubmitHandler = () => {
       try {
         const {
           signerPermissions: { result },
-        } = await sdk.accountManagement.subsidizeAccount.checkAuthorization(
-          args,
-        );
+        } =
+          await sdk.accountManagement.subsidizeAccount.checkAuthorization(args);
 
         if (!result) {
           notifyWarning(

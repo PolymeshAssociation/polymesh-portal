@@ -295,6 +295,103 @@ export const StakingRewardsQuery = ({
   return query;
 };
 
+export const getMultisigProposalsQuery = ({
+  multisigId,
+  ids = [],
+  offset,
+  pageSize,
+  isHistorical = false,
+}: {
+  multisigId: string;
+  ids?: number[];
+  isHistorical?: boolean;
+  offset?: number;
+  pageSize?: number;
+}) => {
+  const offsetFiler = offset ? `offset: ${offset}` : '';
+  const pageSizeFilter = pageSize ? `first: ${pageSize}` : '';
+
+  let isActiveFilter = '';
+  if (isHistorical) {
+    isActiveFilter = `status: { notEqualTo: "Active" }`;
+  }
+
+  let idFilter = '';
+  if (ids.length > 0) {
+    idFilter = `proposalId: { in: [${ids.join(',')}] }`;
+  }
+
+  const query = gql`
+    query {
+      multiSigProposals(
+        ${offsetFiler}
+        ${pageSizeFilter}
+        filter: {
+          multisigId: { equalTo: "${multisigId}" }
+          ${idFilter}
+          ${isActiveFilter}
+        }
+        orderBy: PROPOSAL_ID_DESC
+      ) {
+        totalCount
+        nodes {
+          updatedBlockId
+          approvalCount
+          createdBlockId
+          creatorAccount
+          datetime
+          extrinsicIdx
+          proposalId
+          rejectionCount
+          status
+          votes {
+            nodes {
+              action
+              signer {
+                signerValue
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  return query;
+};
+
+export const getMultisigCreationExtrinsics = (
+  extrinsicArray: {
+    blockId: string;
+    extrinsicIdx: number;
+  }[],
+) => {
+  const extrinsicIds = extrinsicArray.map(
+    ({ blockId, extrinsicIdx }) => `"${blockId}/${extrinsicIdx}"`,
+  );
+  const extrinsicFilter = `id: {in: [${extrinsicIds.join(',')}]}`;
+
+  const query = gql`
+    query {
+      extrinsics(
+        filter: {
+          ${extrinsicFilter}
+        }
+        orderBy: CREATED_AT_DESC
+      ) {
+        totalCount
+        nodes {
+          params
+          blockId
+          extrinsicIdx
+        }
+      }
+    }
+  `;
+
+  return query;
+};
+
 // export const historicalDistributionsQuery = ({
 //   offset,
 //   pageSize,

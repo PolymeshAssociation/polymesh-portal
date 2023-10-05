@@ -1,4 +1,8 @@
-import { Balance } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  Balance,
+  ProposalStatus,
+} from '@polymeshassociation/polymesh-sdk/types';
+import { TMultiSigArgs } from '~/layouts/MultiSig/types';
 
 export interface IAddress {
   did: string;
@@ -119,6 +123,77 @@ export interface IStakingRewardEvent {
 export interface IRewardsQueryResponse {
   events: {
     nodes: IStakingRewardEvent[];
+    totalCount: number;
+  };
+}
+
+export enum ERawMultiSigStatus {
+  ACTIVE = 'Active',
+  SUCCESS = 'Success',
+  FAILED = 'Failed',
+  REJECTED = 'Rejected',
+  DELETED = 'Deleted',
+}
+
+export interface IRawMultiSigVote {
+  action: 'Approved' | 'Rejected';
+  signer: {
+    signerValue: string;
+  };
+}
+export interface IRawMultiSigProposal {
+  updatedBlockId: string;
+  approvalCount: number;
+  createdBlockId: string;
+  creatorAccount: string;
+  datetime: string;
+  extrinsicIdx: number;
+  proposalId: number;
+  rejectionCount: number;
+  status: ProposalStatus | ERawMultiSigStatus;
+  votes: {
+    nodes: IRawMultiSigVote[];
+  };
+}
+
+export interface IProposalQueryResponse {
+  multiSigProposals: {
+    nodes: IRawMultiSigProposal[];
+    totalCount: number;
+  };
+}
+
+export interface IRawMultiSigExtrinsic {
+  blockId: string;
+  extrinsicIdx: number;
+  params: [
+    {
+      name: 'multisig';
+      value: string;
+    },
+    {
+      name: 'proposal';
+      value: {
+        call_args: TMultiSigArgs;
+        call_index: string;
+        call_module: string;
+        call_function: string;
+      };
+    },
+    {
+      name: 'expiry';
+      value: number | null;
+    },
+    {
+      name: 'auto_close';
+      value: boolean;
+    },
+  ];
+}
+
+export interface IMultisigExtrinsicQueryResponse {
+  extrinsics: {
+    nodes: IRawMultiSigExtrinsic[];
     totalCount: number;
   };
 }

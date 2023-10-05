@@ -29,12 +29,13 @@ interface ITableProps<T, S> {
     tab?: string;
     table: ReactTable<T>;
   };
-  title: string;
+  title?: string;
   tabs?: string[];
   setTab?: Dispatch<SetStateAction<S>>;
   loading: boolean;
   totalItems?: number;
   downloadButton?: IDownloadButton;
+  handleRowClick?: (row: T) => void;
 }
 
 const perPageOptions = [3, 5, 10, 20, 50];
@@ -50,6 +51,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
     loading,
     totalItems,
     downloadButton,
+    handleRowClick,
   } = props;
 
   const colsNumber = table.getAllColumns().length;
@@ -73,7 +75,11 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
   const renderMobileTable = () => (
     <StyledMobileTable>
       {tableRows.map((row) => (
-        <StyledMobileRow key={`${row.id}/desktop`}>
+        <StyledMobileRow
+          $withTitle={!!title}
+          key={`${row.id}/desktop`}
+          onClick={() => handleRowClick?.(row.original)}
+        >
           {row.getVisibleCells().map((cell, idx) => (
             <StyledMobileCell key={`${cell.id}/desktop`}>
               <div className="header">
@@ -104,7 +110,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
   );
 
   const renderDesktopTable = () => (
-    <StyledTableBody $colsNumber={colsNumber}>
+    <StyledTableBody $colsNumber={colsNumber} $withTitle={!!title}>
       <thead>
         <tr>
           {tableHeaders.map((header) => (
@@ -121,7 +127,10 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
       </thead>
       <tbody>
         {tableRows.map((row) => (
-          <tr key={`${row.id}/desktop`}>
+          <tr
+            key={`${row.id}/desktop`}
+            onClick={() => handleRowClick?.(row.original)}
+          >
             {row.getVisibleCells().map((cell) => {
               return (
                 <td key={`${cell.id}/desktop`}>
@@ -191,20 +200,26 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
       );
     }
 
-    return <StyledTablePlaceholder>{loaderRows}</StyledTablePlaceholder>;
+    return (
+      <StyledTablePlaceholder $withTitle={!!title}>
+        {loaderRows}
+      </StyledTablePlaceholder>
+    );
   };
 
   const isSmallScreen = isMobile || isTablet;
 
   return (
     <StyledTableWrapper>
-      <StyledTableHeader>
-        <Heading type="h3">{title}</Heading>
-        {renderTabs()}
-      </StyledTableHeader>
+      {title && (
+        <StyledTableHeader>
+          <Heading type="h3">{title}</Heading>
+          {renderTabs()}
+        </StyledTableHeader>
+      )}
       {loading ? renderTableSkeleton() : null}
       {!loading && !rowsNumber && (
-        <StyledTablePlaceholder>
+        <StyledTablePlaceholder $withTitle={!!title}>
           <Icon name="Coins" />
           No data available
         </StyledTablePlaceholder>
@@ -293,9 +308,11 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
 
 Table.defaultProps = {
   downloadButton: undefined,
+  title: '',
   tabs: [],
   setTab: () => {},
   totalItems: 0,
+  handleRowClick: () => {},
 };
 
 export default Table;

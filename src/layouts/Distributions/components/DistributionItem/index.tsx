@@ -62,7 +62,7 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
         if (participant) {
           setParticipantDetails(participant);
 
-          const distributionAsset = await sdk.assets.getAsset({
+          const distributionAsset = await sdk.assets.getFungibleAsset({
             ticker: distribution.currency,
           });
 

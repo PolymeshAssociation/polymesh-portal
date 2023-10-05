@@ -7,7 +7,7 @@ import {
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { useTransactionStatus } from '~/hooks/polymesh';
-import { notifyError, notifyWarning } from '~/helpers/notifications';
+import { notifyError } from '~/helpers/notifications';
 
 export interface ITransfer {
   amount: string;

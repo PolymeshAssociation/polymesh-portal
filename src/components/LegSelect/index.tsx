@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect, useContext } from 'react';
-import { Asset, Identity } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  FungibleAsset,
+  Identity,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { Icon } from '~/components';
 import { DropdownSelect, SkeletonLoader, Text } from '~/components/UiKit';
@@ -78,7 +81,9 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     sender: false,
     receiver: false,
   });
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<FungibleAsset | null>(
+    null,
+  );
   const [availableBalance, setAvailableBalance] = useState(0);
   const [initialFreeBalance, setInitialFreeBalance] = useState(0);
   const [selectedAmount, setSelectedAmount] = useState('');
@@ -213,7 +218,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       error = 'Amount must be greater than zero';
     } else if (
       validateTotalSelected({
-        asset: selectedAsset as Asset,
+        asset: selectedAsset as FungibleAsset,
         selectedLegs,
         sender: selectedSenderPortfolio.portfolio.toHuman().did,
         portfolioId: selectedSenderPortfolio.id,
@@ -235,7 +240,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     setValidationError(error);
 
     handleAdd({
-      asset: (selectedAsset as Asset).toHuman(),
+      asset: (selectedAsset as FungibleAsset).toHuman(),
       amount: error ? 0 : amount,
       index,
       from: (selectedSenderPortfolio as IPortfolioData).portfolio,
@@ -287,7 +292,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     }
   };
 
-  const handleAssetSelect = (asset: Asset, balance: BigNumber) => {
+  const handleAssetSelect = (asset: FungibleAsset, balance: BigNumber) => {
     if (!selectedSenderPortfolio || !selectedReceiverPortfolio) return;
 
     setSelectedAsset(asset);

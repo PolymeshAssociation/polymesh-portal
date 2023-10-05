@@ -5,8 +5,7 @@ import {
   Identity,
   UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 import { MultiSig as MultiSigInstance } from '@polymeshassociation/polymesh-sdk/internal';
 import {
   AccountKeyType,
@@ -29,6 +28,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
     settings: { defaultExtension },
   } = useContext(PolymeshContext);
   const [account, setAccount] = useState<Account | MultiSig | null>(null);
+  const [multiSigAccount, setMultiSigAccount] = useState<MultiSig | null>(null);
   const [selectedAccount, setSelectedAccount] = useState('');
   const [allAccounts, setAllAccounts] = useState<string[]>([]);
   const [allAccountsWithMeta, setAllAccountsWithMeta] = useState<
@@ -184,12 +184,14 @@ const AccountProvider = ({ children }: IProviderProps) => {
         setAccount(accountInstance);
         await sdk.setSigningAccount(accountInstance);
 
-        const multiSig = await accountInstance.getMultiSig();
-        setAccountIsMultisigSigner(!!multiSig);
+        const multiSigInstance = await accountInstance.getMultiSig();
+        setMultiSigAccount(multiSigInstance);
+        setAccountIsMultisigSigner(!!multiSigInstance);
         setShouldRefreshIdentity(true);
       } catch (error) {
         notifyGlobalError((error as Error).message);
         setAccount(null);
+        setMultiSigAccount(null);
         setAccountIsMultisigSigner(false);
       } finally {
         setAccountLoading(false);
@@ -414,6 +416,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       accountIsMultisigSigner,
       refreshAccountIdentity,
       keyIdentityRelationships,
+      multiSigAccount,
     }),
     [
       account,
@@ -430,6 +433,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       identityHasValidCdd,
       identityLoading,
       keyIdentityRelationships,
+      multiSigAccount,
       primaryKey,
       refreshAccountIdentity,
       secondaryKeys,

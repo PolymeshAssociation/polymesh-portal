@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Asset } from '@polymeshassociation/polymesh-sdk/types';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 import { SkeletonLoader, Text } from '~/components/UiKit';
 import { PortfolioContext } from '~/context/PortfolioContext';
 import {
@@ -18,7 +18,7 @@ interface IAssetOption {
   ticker: string;
   amount: number;
   color: string;
-  asset: Asset;
+  asset: FungibleAsset;
   percentage: number;
 }
 

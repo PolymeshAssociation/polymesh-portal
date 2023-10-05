@@ -20,17 +20,11 @@ const useLocalStorage = <T,>(
   });
 
   useEffect(() => {
-    if (storedValue == null || typeof window === undefined) return;
+    if (storedValue == null || typeof window === 'undefined') return;
 
     window.localStorage.setItem(key, JSON.stringify(storedValue));
   }, [key, storedValue]);
 
-  // const setValue = (value: T) => {
-  //   setStoredValue(value);
-  //   if (typeof window !== 'undefined') {
-  //     window.localStorage.setItem(key, JSON.stringify(value));
-  //   }
-  // };
   return [storedValue, setStoredValue];
 };
 

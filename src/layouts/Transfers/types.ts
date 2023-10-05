@@ -10,7 +10,7 @@ export enum EActionTypes {
   AFFIRM = 'affirm',
   REJECT = 'reject',
   WITHDRAW = 'withdraw',
-  RESCHEDULE = 'reschedule',
+  EXECUTE = 'execute',
 }
 
 export enum ESortOptions {
@@ -21,5 +21,4 @@ export enum ESortOptions {
 export type InstructionAction =
   | Instruction['reject']
   | Instruction['affirm']
-  | Instruction['executeManually']
-  | Instruction['reschedule'];
+  | Instruction['executeManually'];

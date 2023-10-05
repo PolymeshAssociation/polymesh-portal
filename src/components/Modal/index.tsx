@@ -12,6 +12,7 @@ interface IModalProps {
   handleClose: () => void | React.ReactEventHandler | React.ChangeEventHandler;
   children: React.ReactNode;
   disableOverflow?: boolean;
+  customWidth?: string;
 }
 
 const modalRoot = document.getElementById('modal-root') as Element;
@@ -20,6 +21,7 @@ const Modal: React.FC<IModalProps> = ({
   handleClose,
   children,
   disableOverflow,
+  customWidth,
 }) => {
   const { isMobile } = useWindowWidth();
 
@@ -54,7 +56,10 @@ const Modal: React.FC<IModalProps> = ({
 
   return createPortal(
     <StyledBackdrop onMouseDown={handleBackdropClick}>
-      <StyledModal $disableOverflow={disableOverflow}>
+      <StyledModal
+        $disableOverflow={disableOverflow}
+        $customWidth={customWidth}
+      >
         {isMobile && (
           <StyledCloseButton onClick={handleClose}>
             <Icon name="CloseIcon" size="24px" />

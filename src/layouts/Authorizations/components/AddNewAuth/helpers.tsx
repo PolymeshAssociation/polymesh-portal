@@ -1,5 +1,5 @@
 import {
-  Asset,
+  FungibleAsset,
   AuthorizationType,
   PermissionGroupType,
   TickerReservation,
@@ -183,7 +183,7 @@ export const renderParsedSelectedValue = (
 };
 
 export const isPortfolioData = (
-  entity: Asset | TickerReservation | IPortfolioData,
+  entity: FungibleAsset | TickerReservation | IPortfolioData,
 ): entity is IPortfolioData => {
   return (entity as IPortfolioData).name !== undefined;
 };

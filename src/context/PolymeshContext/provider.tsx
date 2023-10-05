@@ -17,7 +17,6 @@ interface IChainMetadata {
     timestamp: string;
   };
 }
-const injectedExtensions = BrowserExtensionSigningManager.getExtensionList();
 
 const PolymeshProvider = ({ children }: IProviderProps) => {
   const [sdk, setSdk] = useState<Polymesh | null>(null);
@@ -154,6 +153,9 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     ) {
       window.location.reload();
     }
+
+    const injectedExtensions =
+      BrowserExtensionSigningManager.getExtensionList();
 
     if (
       !defaultExtension ||

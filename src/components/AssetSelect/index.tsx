@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Asset } from '@polymeshassociation/polymesh-sdk/types';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { Icon } from '~/components';
 import { Text } from '~/components/UiKit';
@@ -42,7 +42,9 @@ const AssetSelect: React.FC<IAssetSelectProps> = ({
   handleDelete,
   selectedAssets,
 }) => {
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<FungibleAsset | null>(
+    null,
+  );
   const [availableBalance, setAvailableBalance] = useState(0);
   const [selectedAmount, setSelectedAmount] = useState('');
   const [validationError, setValidationError] = useState('');
@@ -99,7 +101,7 @@ const AssetSelect: React.FC<IAssetSelectProps> = ({
     setValidationError(error);
 
     handleAdd({
-      asset: (selectedAsset as Asset).toHuman(),
+      asset: (selectedAsset as FungibleAsset).toHuman(),
       amount: error ? 0 : amount,
       index,
     });
@@ -108,7 +110,7 @@ const AssetSelect: React.FC<IAssetSelectProps> = ({
   const toggleAssetSelectDropdown = () =>
     setAssetSelectExpanded((prev) => !prev);
 
-  const handleAssetSelect = (asset: Asset, balance: BigNumber) => {
+  const handleAssetSelect = (asset: FungibleAsset, balance: BigNumber) => {
     setSelectedAsset(asset);
     setAvailableBalance(balance.toNumber());
     setSelectedAmount('');

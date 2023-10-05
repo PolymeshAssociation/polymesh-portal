@@ -4,12 +4,9 @@ import {
   balanceToBigNumber,
   u32ToBigNumber,
 } from '@polymeshassociation/polymesh-sdk/utils/conversion';
-import type {
-  Balance,
-  EraIndex,
-  AccountId32,
-} from '@polkadot/types/interfaces';
+import type { AccountId32 } from '@polkadot/types/interfaces';
 import type { Vec, u32, Compact, u128, Struct } from '@polkadot/types-codec';
+import { PalletStakingUnlockChunk } from '@polymeshassociation/polymesh-sdk/polkadot/types-lookup';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
 import { StakingContext } from '~/context/StakingContext';
@@ -127,7 +124,7 @@ const useStakingAccount = () => {
     setAccountInfoLoading(true);
 
     const processUnlockingDetails = (
-      unlockingDetails: { value: Balance; era: EraIndex }[],
+      unlockingDetails: Vec<PalletStakingUnlockChunk>,
     ): [
       BigNumber,
       BigNumber,
@@ -139,8 +136,8 @@ const useStakingAccount = () => {
         [];
 
       unlockingDetails.forEach(({ value, era }, index) => {
-        const parsedValue = balanceToBigNumber(value);
-        const unlockEra = u32ToBigNumber(era);
+        const parsedValue = balanceToBigNumber(value.unwrap());
+        const unlockEra = u32ToBigNumber(era.unwrap());
         totalUnlockingBalance = totalUnlockingBalance.plus(parsedValue);
 
         if (unlockEra.lte(currentEraIndex)) {
@@ -177,8 +174,8 @@ const useStakingAccount = () => {
         controllerAddress: account,
         stashAddress: stash.toString(),
         isStash: stash.toString() === selectedAccount,
-        totalBonded: balanceToBigNumber(total),
-        amountActive: balanceToBigNumber(active),
+        totalBonded: balanceToBigNumber(total.unwrap()),
+        amountActive: balanceToBigNumber(active.unwrap()),
         amountUnbonding: totalUnlockingBalance.minus(totalWithdrawableBalance),
         unlockingLots,
         rewardDestination: payee,
@@ -188,14 +185,12 @@ const useStakingAccount = () => {
 
     const fetchData = async () => {
       try {
-        let stakingDetails: StakingDetails | null = await getStakingDetails(
-          selectedAccount,
-        );
+        let stakingDetails: StakingDetails | null =
+          await getStakingDetails(selectedAccount);
 
         if (!stakingDetails) {
-          const controller = await polkadotApi.query.staking.bonded(
-            selectedAccount,
-          );
+          const controller =
+            await polkadotApi.query.staking.bonded(selectedAccount);
           if (controller.isSome) {
             const controllerKey = controller.unwrap().toString();
             stakingDetails = await getStakingDetails(controllerKey);
@@ -293,9 +288,8 @@ const useStakingAccount = () => {
 
     const getNominations = async () => {
       try {
-        const nominatedAccounts = await polkadotApi.query.staking.nominators(
-          stashAddress,
-        );
+        const nominatedAccounts =
+          await polkadotApi.query.staking.nominators(stashAddress);
         if (nominatedAccounts.isNone) {
           setNominations([]);
           setNominatedEra(null);

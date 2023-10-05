@@ -39,14 +39,25 @@ export const StyledTableHeader = styled.div`
   }
 `;
 
-export const StyledTableBody = styled.table<{ $colsNumber: number }>`
+export const StyledTableBody = styled.table<{
+  $colsNumber: number;
+  $withTitle: boolean;
+}>`
   flex-grow: 1;
   width: 100%;
   border-collapse: collapse;
   text-align: left;
 
-  & tr,
   & thead {
+    border-top: ${({ $withTitle, theme }) =>
+      $withTitle ? `1px solid ${theme.colors.shadow}` : 'none'};
+    & tr {
+      border-top: ${({ $withTitle, theme }) =>
+        $withTitle ? `1px solid ${theme.colors.shadow}` : 'none'};
+    }
+  }
+
+  & tr {
     border-top: 1px solid ${({ theme }) => theme.colors.shadow};
     border-bottom: 1px solid ${({ theme }) => theme.colors.shadow};
   }
@@ -86,12 +97,13 @@ export const StyledMobileTable = styled.div`
   flex-grow: 1;
 `;
 
-export const StyledMobileRow = styled.div`
+export const StyledMobileRow = styled.div<{ $withTitle: boolean }>`
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid ${({ theme }) => theme.colors.shadow};
   &:first-child {
-    border-top: 1px solid ${({ theme }) => theme.colors.shadow};
+    border-top: ${({ $withTitle, theme }) =>
+      $withTitle ? `1px solid ${theme.colors.shadow}` : 'none'};
   }
 `;
 
@@ -162,7 +174,7 @@ export const StyledTableFooter = styled.div`
   }
 `;
 
-export const StyledTablePlaceholder = styled.div`
+export const StyledTablePlaceholder = styled.div<{ $withTitle: boolean }>`
   flex-grow: 1;
   display: flex;
   flex-direction: column;
@@ -171,7 +183,8 @@ export const StyledTablePlaceholder = styled.div`
   /* gap: 14px; */
   width: 100%;
   min-height: 108px;
-  border-top: 1px solid ${({ theme }) => theme.colors.shadow};
+  border-top: ${({ $withTitle, theme }) =>
+    $withTitle ? `1px solid ${theme.colors.shadow}` : 'none'};
   border-bottom: 1px solid ${({ theme }) => theme.colors.shadow};
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
@@ -223,7 +236,9 @@ export const StyledTabItem = styled.div<{ $selected: boolean }>`
   text-transform: capitalize;
   cursor: pointer;
 
-  transition: color 250ms ease-out, background-color 250ms ease-out;
+  transition:
+    color 250ms ease-out,
+    background-color 250ms ease-out;
 
   ${({ $selected }) =>
     $selected

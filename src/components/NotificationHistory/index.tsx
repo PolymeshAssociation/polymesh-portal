@@ -20,8 +20,12 @@ const NotificationHistory: React.FC<INotificationHistoryProps> = ({
   handleClose,
   expanded,
 }) => {
-  const { pendingAuthorizations, pendingInstructions, pendingDistributions } =
-    useNotifications();
+  const {
+    pendingAuthorizations,
+    pendingInstructions,
+    pendingDistributions,
+    unsignedProposals,
+  } = useNotifications();
   const navigate = useNavigate();
 
   const allNotifications = useMemo(() => {
@@ -33,7 +37,9 @@ const NotificationHistory: React.FC<INotificationHistoryProps> = ({
       ...pendingInstructions.map((instruction) => ({
         id: instruction.toHuman(),
         type: 'transfers',
-        data: null,
+        data: {
+          type: 'Instruction',
+        },
       })),
       ...pendingDistributions.map(({ distribution }) => ({
         id: `${distribution.asset.toHuman()}/${distribution.id.toString()}`,
@@ -42,9 +48,21 @@ const NotificationHistory: React.FC<INotificationHistoryProps> = ({
           type: 'Corporate Action',
         },
       })),
+      ...unsignedProposals.map((proposal: number) => ({
+        id: `${proposal}`,
+        type: 'multiSig',
+        data: {
+          type: 'MultiSig Proposal',
+        },
+      })),
     ];
     return notificationData;
-  }, [pendingAuthorizations, pendingInstructions, pendingDistributions]);
+  }, [
+    pendingAuthorizations,
+    pendingInstructions,
+    pendingDistributions,
+    unsignedProposals,
+  ]);
 
   return (
     <StyledWrapper $expanded={expanded}>
@@ -68,7 +86,7 @@ const NotificationHistory: React.FC<INotificationHistoryProps> = ({
             <Text bold size="large" marginBottom={8} transform="capitalize">
               {type}
             </Text>
-            {data?.type || 'Instruction'} ID {id}{' '}
+            {data?.type} ID {id}{' '}
             {data?.type === 'Corporate Action'
               ? 'can be claimed'
               : 'needs to be approved or rejected'}

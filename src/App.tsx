@@ -11,6 +11,7 @@ import { AuthorizationsProvider } from '~/context/AuthorizationsContext';
 import { ClaimsProvider } from '~/context/ClaimsContext';
 import { InstructionsProvider } from '~/context/InstructionsContext';
 import { DistributionsProvider } from '~/context/DistributionsContext';
+import { MultiSigProvider } from '~/context/MultiSigContext';
 import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
 import { ROUTES } from '~/constants/routes';
 import { theme, GlobalStyle } from '~/styles/theme';
@@ -69,17 +70,19 @@ const WrappedApp = () => {
         <PortfolioProvider>
           <AuthorizationsProvider>
             <InstructionsProvider>
-              <ClaimsProvider>
-                <DistributionsProvider>
-                  <StakingProvider>
-                    <AppThemeProvider>
-                      <BrowserRouter>
-                        <App />
-                      </BrowserRouter>
-                    </AppThemeProvider>
-                  </StakingProvider>
-                </DistributionsProvider>
-              </ClaimsProvider>
+              <MultiSigProvider>
+                <ClaimsProvider>
+                  <DistributionsProvider>
+                    <StakingProvider>
+                      <AppThemeProvider>
+                        <BrowserRouter>
+                          <App />
+                        </BrowserRouter>
+                      </AppThemeProvider>
+                    </StakingProvider>
+                  </DistributionsProvider>
+                </ClaimsProvider>
+              </MultiSigProvider>
             </InstructionsProvider>
           </AuthorizationsProvider>
         </PortfolioProvider>
