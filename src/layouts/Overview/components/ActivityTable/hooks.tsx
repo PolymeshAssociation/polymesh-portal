@@ -6,8 +6,9 @@ import {
   ColumnDef,
   PaginationState,
 } from '@tanstack/react-table';
+import { ExtrinsicsOrderBy } from '@polymeshassociation/polymesh-sdk/types';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { AccountContext } from '~/context/AccountContext';
-import { useHistoricData } from '~/hooks/polymesh';
 import { EActivityTableTabs, IHistoricalItem, ITokenItem } from './constants';
 import { columns } from './config';
 import { parseExtrinsicHistory, parseTokenActivity } from './helpers';
@@ -29,16 +30,13 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
   const {
     api: { gqlClient },
   } = useContext(PolymeshContext);
-  const { identity, identityLoading } = useContext(AccountContext);
-  const { extrinsicHistory, dataLoading, extrinsicCount, fetchedPageIndex } =
-    useHistoricData({
-      pageIndex,
-      pageSize,
-    });
+  const { account, accountLoading, identity, identityLoading } =
+    useContext(AccountContext);
 
   const [tableLoading, setTableLoading] = useState(false);
   const tabRef = useRef<string>('');
   const identityRef = useRef<string | undefined>('');
+  const accountRef = useRef<string | undefined>('');
 
   // Reset page index when tabs are switched
   useEffect(() => {
@@ -47,74 +45,89 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
     }
   }, [currentTab]);
 
-  // Reset page index when identity changes
+  // Reset page index when account changes
   useEffect(() => {
-    if (identity?.did !== identityRef.current) {
+    if (
+      account?.address !== accountRef.current &&
+      currentTab === EActivityTableTabs.HISTORICAL_ACTIVITY
+    ) {
       setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     }
-  }, [identity]);
+  }, [account, currentTab]);
+
+  // Reset page index when identity changes
+  useEffect(() => {
+    if (
+      identity?.did !== identityRef.current &&
+      currentTab === EActivityTableTabs.TOKEN_ACTIVITY
+    ) {
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    }
+  }, [currentTab, identity]);
 
   // Update table data for Historical Activity tab
   useEffect(() => {
-    if (currentTab !== EActivityTableTabs.HISTORICAL_ACTIVITY || !gqlClient) {
+    if (
+      currentTab !== EActivityTableTabs.HISTORICAL_ACTIVITY ||
+      (currentTab !== tabRef.current && pageIndex !== 0) ||
+      (account?.address !== accountRef.current && pageIndex !== 0) ||
+      !gqlClient ||
+      accountLoading ||
+      !account
+    ) {
       return;
     }
     setTableLoading(true);
 
-    if (
-      pageIndex !== fetchedPageIndex ||
-      dataLoading ||
-      (currentTab !== tabRef.current && pageIndex !== 0)
-    ) {
-      return;
-    }
-
     (async () => {
       try {
-        const parsedData = await parseExtrinsicHistory(
-          extrinsicHistory,
-          gqlClient,
-        );
+        const { data, count } = await account.getTransactionHistory({
+          orderBy: ExtrinsicsOrderBy.CreatedAtDesc,
+          size: new BigNumber(pageSize),
+          start: new BigNumber(pageIndex * pageSize),
+        });
+        const parsedData = await parseExtrinsicHistory(data);
         setTableData(parsedData);
-        setTotalItems(extrinsicCount);
-        setTotalPages(Math.ceil(extrinsicCount / pageSize));
+        if (count) {
+          const extrinsicCount = count.toNumber();
+          setTotalItems(extrinsicCount);
+          setTotalPages(Math.ceil(extrinsicCount / pageSize));
+        } else {
+          setTotalItems(0);
+          setTotalPages(0);
+        }
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
         setTableLoading(false);
         tabRef.current = currentTab;
-        identityRef.current = identity?.did;
+        accountRef.current = account.address;
       }
     })();
-  }, [
-    currentTab,
-    dataLoading,
-    extrinsicCount,
-    extrinsicHistory,
-    fetchedPageIndex,
-    gqlClient,
-    identity?.did,
-    pageIndex,
-    pageSize,
-  ]);
+  }, [account, accountLoading, currentTab, gqlClient, pageIndex, pageSize]);
 
   // Update table data for Token Activity tab
   useEffect(() => {
     if (
       currentTab !== EActivityTableTabs.TOKEN_ACTIVITY ||
       (currentTab !== tabRef.current && pageIndex !== 0) ||
+      (identity?.did !== identityRef.current && pageIndex !== 0) ||
       !gqlClient
     ) {
+      return;
+    }
+    setTableLoading(true);
+
+    if (identityLoading) {
       return;
     }
     if (!identity) {
       setTableData([]);
       tabRef.current = currentTab;
       identityRef.current = undefined;
+      setTableLoading(false);
       return;
     }
-
-    setTableLoading(true);
 
     (async () => {
       try {
@@ -139,7 +152,7 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
         setTableLoading(false);
       }
     })();
-  }, [currentTab, gqlClient, identity, pageIndex, pageSize]);
+  }, [currentTab, gqlClient, identity, identityLoading, pageIndex, pageSize]);
 
   const pagination = useMemo(
     () => ({
@@ -162,11 +175,7 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
       enableSorting: false,
     }),
     paginationState: pagination,
-    tableLoading:
-      identityLoading ||
-      tableLoading ||
-      currentTab !== tabRef.current ||
-      identity?.did !== identityRef.current,
+    tableLoading,
     totalItems,
   };
 };
