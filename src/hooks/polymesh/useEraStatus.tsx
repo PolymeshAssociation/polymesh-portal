@@ -4,6 +4,8 @@ import {
   u32ToBigNumber,
   u64ToBigNumber,
 } from '@polymeshassociation/polymesh-sdk/utils/conversion';
+import { PalletStakingActiveEraInfo } from '@polymeshassociation/polymesh-sdk/polkadot/types-lookup';
+import type { Option } from '@polkadot/types-codec';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
 import { StakingContext } from '~/context/StakingContext';
@@ -91,16 +93,18 @@ const useEraStatus = () => {
 
     const getActiveEra = async () => {
       try {
-        unsubActiveEra = await polkadotApi.query.staking.activeEra((era) => {
-          if (era.isSome) {
-            setActiveEra({
-              index: u32ToBigNumber(era.unwrap().index),
-              start: u32ToBigNumber(era.unwrap().start),
-            });
-          } else {
-            setActiveEra({ index: null, start: null });
-          }
-        });
+        unsubActiveEra = await polkadotApi.query.staking.activeEra(
+          (era: Option<PalletStakingActiveEraInfo>) => {
+            if (era.isSome) {
+              setActiveEra({
+                index: u32ToBigNumber(era.unwrap().index),
+                start: u64ToBigNumber(era.unwrap().start.unwrapOrDefault()),
+              });
+            } else {
+              setActiveEra({ index: null, start: null });
+            }
+          },
+        );
       } catch (error) {
         notifyError((error as Error).message);
       }
@@ -205,7 +209,7 @@ const useEraStatus = () => {
       try {
         unsubElectionStatus = await polkadotApi.query.staking.eraElectionStatus(
           (status) => {
-            setElectionInProgress(status.isOpen ? 'Open' : status.toString());
+            setElectionInProgress(status.type);
           },
         );
       } catch (error) {
