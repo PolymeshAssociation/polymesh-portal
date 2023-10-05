@@ -219,10 +219,10 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
             {/* {type === EInstructionTypes.FAILED && (
               <StyledActionButton
                 disabled={actionInProgress}
-                onClick={() => executeBatch(EActionTypes.RESCHEDULE)}
+                onClick={() => executeBatch(EActionTypes.EXECUTE)}
               >
                 <Icon name="Check" size="24px" />
-                Reschedule
+                EXECUTE
               </StyledActionButton>
             )} */}
           </StyledButtonWrapper>

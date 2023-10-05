@@ -281,7 +281,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
               legsHaveErrors ||
               !isFullyAffirmed
             }
-            onClick={() => executeAction(instruction.reschedule)}
+            onClick={() => executeAction(instruction.executeManually)}
           >
             <Icon name="Check" size="24px" />
             Retry Settling

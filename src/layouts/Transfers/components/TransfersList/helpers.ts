@@ -24,9 +24,9 @@ export const createTransactions = async (
         selectedItems.map(async (instruction) => instruction.withdraw()),
       );
 
-    case EActionTypes.RESCHEDULE:
+    case EActionTypes.EXECUTE:
       return Promise.all(
-        selectedItems.map(async (instruction) => instruction.reschedule()),
+        selectedItems.map(async (instruction) => instruction.executeManually()),
       );
 
     default:
@@ -38,17 +38,20 @@ export const createTransactionChunks = (
   transactions: GenericPolymeshTransaction<Instruction, Instruction>[],
   perChunk: number,
 ) => {
-  const result = transactions.reduce((acc, item, index) => {
-    const chunkIndex = Math.floor(index / perChunk);
+  const result = transactions.reduce(
+    (acc, item, index) => {
+      const chunkIndex = Math.floor(index / perChunk);
 
-    if (!acc[chunkIndex]) {
-      acc[chunkIndex] = [];
-    }
+      if (!acc[chunkIndex]) {
+        acc[chunkIndex] = [];
+      }
 
-    acc[chunkIndex].push(item);
+      acc[chunkIndex].push(item);
 
-    return acc;
-  }, [] as GenericPolymeshTransaction<Instruction, Instruction>[][]);
+      return acc;
+    },
+    [] as GenericPolymeshTransaction<Instruction, Instruction>[][],
+  );
 
   return result;
 };
