@@ -8,6 +8,7 @@ export const StyledSidebar = styled.aside<{
   display: flex;
   flex-direction: column;
   width: ${({ $fullWidth }) => ($fullWidth ? '256px' : '88px')};
+  min-width: ${({ $fullWidth }) => ($fullWidth ? '256px' : '88px')};
   padding: 36px 16px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
 
