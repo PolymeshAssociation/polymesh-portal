@@ -269,8 +269,8 @@ export const useRewardTable = (
         throw new Error('unknown currentTab value');
       }
 
-      const rateLimit = 6; // Number of queries per second
-      const delay = 1000 / rateLimit; // Delay in milliseconds between queries
+      const maxPagesPerSecond = 6;
+      const delay = 1000 / maxPagesPerSecond; // Delay in milliseconds between queries
 
       for (let page = 0; page < pageCount; page += 1) {
         const queryOpts = {
@@ -282,7 +282,7 @@ export const useRewardTable = (
         promises.push(
           (async () => {
             await new Promise((resolve) => {
-              setTimeout(resolve, page < rateLimit ? 0 : page * delay);
+              setTimeout(resolve, page < maxPagesPerSecond ? 0 : page * delay);
             });
 
             return gqlClient
