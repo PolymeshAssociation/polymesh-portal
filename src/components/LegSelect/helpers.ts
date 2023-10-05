@@ -2,7 +2,7 @@ import {
   Identity,
   NumberedPortfolio,
   DefaultPortfolio,
-  Asset,
+  FungibleAsset,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
@@ -64,7 +64,7 @@ export const getTotalSelectedInSamePortfolio = ({
   sender,
   portfolioId,
 }: {
-  asset: Asset;
+  asset: FungibleAsset;
   selectedLegs: ISelectedLeg[];
   sender: string;
   portfolioId: string | undefined;
@@ -98,7 +98,7 @@ export const checkAvailableBalance = ({
   sender,
   portfolioId,
 }: {
-  asset: Asset;
+  asset: FungibleAsset;
   balance: BigNumber | number;
   selectedLegs: ISelectedLeg[];
   sender: string;
@@ -126,7 +126,7 @@ export const validateTotalSelected = ({
   initialFreeBalance,
   index,
 }: {
-  asset: Asset;
+  asset: FungibleAsset;
   selectedLegs: ISelectedLeg[];
   sender: string;
   portfolioId: string | undefined;

@@ -1,7 +1,7 @@
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 // import { CheckpointSchedule } from '@polymeshassociation/polymesh-sdk/internal';
 import {
-  Asset,
+  FungibleAsset,
   DistributionParticipant,
   DividendDistribution,
 } from '@polymeshassociation/polymesh-sdk/types';
@@ -12,7 +12,7 @@ export const getDistributionErrors = async ({
   participant,
 }: {
   distribution: DividendDistribution;
-  distributionAsset: Asset;
+  distributionAsset: FungibleAsset;
   participant: DistributionParticipant;
 }) => {
   //   const checkpoint = await distribution.checkpoint();
