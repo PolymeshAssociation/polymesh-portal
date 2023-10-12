@@ -21,7 +21,7 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
   const { pathname } = useLocation();
   const isLandingPage = pathname === '/';
   const redirectToLanding =
-    !defaultExtension && !isLandingPage && !connecting && !initialized;
+    !defaultExtension && !isLandingPage && connecting === false && !initialized;
 
   useEffect(() => {
     if (!isMobile) {
@@ -75,7 +75,7 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
           </div>
         </StyledPageWrapper>
       )}
-      {!isLandingPage && redirectToLanding && <Navigate to="/" replace />}
+      {redirectToLanding && <Navigate to="/" replace />}
     </>
   );
 };

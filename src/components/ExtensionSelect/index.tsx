@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { WALLET_CONNECT_OPTIONS } from '~/constants/wallets';
@@ -16,9 +16,9 @@ const ExtensionSelect: React.FC<IExtensionSelectProps> = ({ handleClose }) => {
   const {
     connectWallet,
     settings: { defaultExtension },
+    state: { initialized },
   } = useContext(PolymeshContext);
   const [selectedWallet, setSelectedWallet] = useState(defaultExtension);
-  const injectedExtensions = BrowserExtensionSigningManager.getExtensionList();
   const { isMobile } = useWindowWidth();
   const isMobileDevice =
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -26,12 +26,14 @@ const ExtensionSelect: React.FC<IExtensionSelectProps> = ({ handleClose }) => {
     );
 
   // Check if any of available extensions are installed to display them accordingly
-  const walletOptions = WALLET_CONNECT_OPTIONS.map((option) => {
-    if (injectedExtensions.includes(option.extensionName)) {
-      return { ...option, isInstalled: true };
-    }
-    return { ...option, isInstalled: false };
-  });
+  const walletOptions = useMemo(() => {
+    const injectedExtensions =
+      BrowserExtensionSigningManager.getExtensionList();
+    return WALLET_CONNECT_OPTIONS.map((option) => ({
+      ...option,
+      isInstalled: injectedExtensions.includes(option.extensionName),
+    }));
+  }, []);
 
   const handleWalletSelect: React.ChangeEventHandler = ({ target }) => {
     setSelectedWallet((target as HTMLInputElement).value);
@@ -66,7 +68,10 @@ const ExtensionSelect: React.FC<IExtensionSelectProps> = ({ handleClose }) => {
         )}
         <Button
           variant="modalPrimary"
-          disabled={!selectedWallet || selectedWallet === defaultExtension}
+          disabled={
+            !selectedWallet ||
+            (selectedWallet === defaultExtension && initialized)
+          }
           onClick={handleConnectWallet}
         >
           Connect
