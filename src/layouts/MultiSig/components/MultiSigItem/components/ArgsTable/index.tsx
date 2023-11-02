@@ -1,0 +1,109 @@
+import { ReactNode, FC } from 'react';
+import { SkeletonLoader } from '~/components/UiKit';
+import {
+  TMultiSigArgs,
+  TMultiSigCalls,
+  TMultiSigCallArgs,
+  TMultiSigArgsFormatted,
+} from '../../../../types';
+import { useMultiSigItemArgs } from './hooks';
+import { isPrimitive, parseValue } from './helpers';
+import {
+  StyledSkeletonWrapper,
+  StyledTableWrapper,
+  StyledTable,
+  StyledTableRow,
+  StyledTableSubRow,
+  StyledTableCell,
+  StyledTableHeadCell,
+  StyledTableHeadContent,
+  StyledTableSection,
+} from './styles';
+
+interface IArgsTableProps {
+  rawArgs: TMultiSigArgs;
+  call: string;
+  module: string;
+  id: number;
+}
+
+type TParamsToRender =
+  | TMultiSigArgsFormatted[]
+  | TMultiSigArgsFormatted
+  | TMultiSigArgs
+  | TMultiSigCallArgs
+  | TMultiSigCalls
+  | string
+  | number
+  | null
+  | unknown
+  | undefined;
+
+export const ArgsTable: FC<IArgsTableProps> = ({
+  rawArgs,
+  call,
+  module,
+  id,
+}) => {
+  const args = useMultiSigItemArgs(id, module, call, rawArgs);
+
+  const renderTable = (
+    paramsToRender: TParamsToRender,
+    isFirstRender: boolean = false,
+  ): ReactNode => {
+    if (isPrimitive(paramsToRender as string | number)) {
+      return (
+        <StyledTableCell>{`${parseValue(
+          paramsToRender as string | number,
+        )}`}</StyledTableCell>
+      );
+    }
+    if (Array.isArray(paramsToRender)) {
+      return paramsToRender.map((param: TMultiSigArgsFormatted, i) =>
+        isFirstRender ? (
+          // eslint-disable-next-line react/no-array-index-key
+          <StyledTableSection key={i}>{renderTable(param)}</StyledTableSection>
+        ) : (
+          renderTable(param)
+        ),
+      );
+    }
+    if (typeof paramsToRender === 'object') {
+      return Object.entries(paramsToRender as TMultiSigArgs).map(
+        ([key, value], i) => {
+          return (
+            // eslint-disable-next-line react/no-array-index-key
+            <StyledTableRow key={i} $withBorder={isFirstRender}>
+              <StyledTableHeadCell>
+                <StyledTableHeadContent>{key}</StyledTableHeadContent>
+              </StyledTableHeadCell>
+              <StyledTableSubRow>
+                {renderTable(value as unknown)}
+              </StyledTableSubRow>
+            </StyledTableRow>
+          );
+        },
+      );
+    }
+    return null;
+  };
+
+  if (!args.length) {
+    return (
+      <StyledSkeletonWrapper>
+        <SkeletonLoader height={200} />
+      </StyledSkeletonWrapper>
+    );
+  }
+
+  return (
+    <StyledTableWrapper>
+      <StyledTable>
+        {renderTable(
+          args as TMultiSigArgsFormatted[] | TMultiSigCallArgs,
+          true,
+        )}
+      </StyledTable>
+    </StyledTableWrapper>
+  );
+};

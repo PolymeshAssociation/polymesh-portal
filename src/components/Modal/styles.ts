@@ -30,6 +30,7 @@ export const StyledBackdrop = styled.div`
 
 export const StyledModal = styled.div<{
   $disableOverflow?: boolean;
+  $customWidth?: string;
 }>`
   position: relative;
   padding: 24px;
@@ -38,8 +39,10 @@ export const StyledModal = styled.div<{
     height: 100vh;
   }
   @media screen and (min-width: 768px) {
-    min-width: 400px;
-    max-width: 504px;
+    min-width: ${({ $customWidth }) =>
+      $customWidth ? `${$customWidth}` : '400px'};
+    max-width: ${({ $customWidth }) =>
+      $customWidth ? `${$customWidth}` : '504px'};
     max-height: 80vh;
     border-radius: 8px;
   }

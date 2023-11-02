@@ -122,3 +122,30 @@ export interface IRewardsQueryResponse {
     totalCount: number;
   };
 }
+
+export enum ERawMultiSigStatus {
+  ACTIVE = 'Active',
+  SUCCESS = 'Success',
+  FAILED = 'Failed',
+  REJECTED = 'Rejected',
+}
+
+export interface IRawMultiSigVote {
+  action: 'Approved' | 'Rejected';
+  signer: {
+    signerValue: string;
+  };
+}
+export interface IRawMultiSigProposal {
+  approvalCount: number;
+  createdBlockId: string;
+  creatorAccount: string;
+  datetime: string;
+  extrinsicIdx: number;
+  proposalId: number;
+  rejectionCount: number;
+  status: ERawMultiSigStatus;
+  votes: {
+    nodes: IRawMultiSigVote[];
+  };
+}

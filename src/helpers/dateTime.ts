@@ -17,3 +17,10 @@ export const removeTimezoneOffset = (date: Date | null | undefined) => {
 export const toParsedDate = (timestamp: string | number) => {
   return moment(timestamp).format('MMM D, YYYY');
 };
+
+export const toFormattedTimestamp = (
+  timestamp: moment.MomentInput,
+  format: string,
+) => {
+  return moment(timestamp).format(format);
+};

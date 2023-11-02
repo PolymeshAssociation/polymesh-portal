@@ -20,6 +20,7 @@ export { ReactComponent as NextPage } from './next-page.svg';
 export { ReactComponent as Check } from './check.svg';
 export { ReactComponent as OverviewIcon } from './overview-icon.svg';
 export { ReactComponent as TransfersIcon } from './transfers-icon.svg';
+export { ReactComponent as MultisigIcon } from './multisig-icon.svg';
 export { ReactComponent as ClaimsIcon } from './claims-icon.svg';
 export { ReactComponent as StakingIcon } from './staking-icon.svg';
 export { ReactComponent as ResourcesIcon } from './resources-icon.svg';

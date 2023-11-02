@@ -133,3 +133,55 @@ export const getPortfolioMovements = gql`
     }
   }
 `;
+
+export const getMultisigProposalsQuery = ({
+  multisigId,
+  offset,
+  pageSize,
+  activeOnly = true,
+}: {
+  multisigId: string;
+  activeOnly?: boolean;
+  offset?: number;
+  pageSize?: number;
+}) => {
+  const statusFilter = activeOnly
+    ? `status: { equalTo: Active }`
+    : 'status: { notEqualTo: Active }';
+  const offsetFiler = offset ? `offset: ${offset}` : '';
+  const pageSizeFilter = pageSize ? `first: ${pageSize}` : '';
+  const query = gql`
+    query {
+      multiSigProposals(
+        ${offsetFiler}
+        ${pageSizeFilter}
+        filter: {
+          multisigId: { equalTo: "${multisigId}" }
+          ${statusFilter}
+        }
+      ) {
+        totalCount
+        nodes {
+          approvalCount
+          createdBlockId
+          creatorAccount
+          datetime
+          extrinsicIdx
+          proposalId
+          rejectionCount
+          status
+          votes {
+            nodes {
+              action
+              signer {
+                signerValue
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  return query;
+};

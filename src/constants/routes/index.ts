@@ -7,11 +7,11 @@ const Overview = lazy(() => import('~/layouts/Overview'));
 const Portfolio = lazy(() => import('~/layouts/Portfolio'));
 const Authorizations = lazy(() => import('~/layouts/Authorizations'));
 const Transfers = lazy(() => import('~/layouts/Transfers'));
+const MultiSig = lazy(() => import('~/layouts/MultiSig'));
 const Claims = lazy(() => import('~/layouts/Claims'));
 const Distributions = lazy(() => import('~/layouts/Distributions'));
 const Settings = lazy(() => import('~/layouts/Settings'));
 const Staking = lazy(() => import('~/layouts/Staking'));
-
 interface IRoute {
   path: string;
   label: string | null;
@@ -37,6 +37,7 @@ export const PATHS = {
   OVERVIEW: '/overview',
   PORTFOLIO: '/portfolio',
   TRANSFERS: '/transfers',
+  MULTISIG: '/multisig',
   AUTHORIZATIONS: '/authorizations',
   CLAIMS: '/claims',
   DISTRIBUTIONS: '/distributions',
@@ -73,6 +74,11 @@ export const ROUTES = [
     component: Transfers,
   },
   {
+    path: PATHS.MULTISIG,
+    label: 'MultiSig',
+    component: MultiSig,
+  },
+  {
     path: PATHS.CLAIMS,
     label: 'Claims',
     component: Claims,
@@ -106,6 +112,12 @@ export const NAV_LINKS = [
     label: 'Transfers',
     icon: 'TransfersIcon',
     notifications: 'instructions',
+  },
+  {
+    path: PATHS.MULTISIG,
+    label: 'MultiSig',
+    icon: 'MultisigIcon',
+    notifications: 'proposals',
   },
   {
     path: PATHS.AUTHORIZATIONS,
