@@ -1,4 +1,5 @@
 import { createColumnHelper } from '@tanstack/react-table';
+
 import { Icon } from '~/components';
 import {
   CallCell,
@@ -8,6 +9,7 @@ import {
   VoteCell,
   StatusCell,
 } from '../MultiSigItem';
+import { CellIdFilter } from './components/CellIdFilter';
 import { IHistoricalMultiSigProposals, IIdData, IVotes } from './constants';
 import { StyledIdWrapper, IconWrapper } from './styles';
 
@@ -15,7 +17,8 @@ const columnHelper = createColumnHelper<IHistoricalMultiSigProposals>();
 
 export const columns = [
   columnHelper.accessor('id', {
-    header: 'ID',
+    header: (info) => <CellIdFilter info={info} />,
+    enableSorting: true,
     cell: (info) => {
       const { extrinsicIdx, createdBlockId, proposalId } =
         info.getValue() as IIdData;

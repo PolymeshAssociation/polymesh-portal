@@ -86,6 +86,7 @@ const MultiSigProvider = ({ children }: IMultiSigProviderProps) => {
           notifyError((error as Error).message);
         } finally {
           setPendingProposalsLoading(false);
+          setShouldRefreshData(false);
         }
       })();
     }

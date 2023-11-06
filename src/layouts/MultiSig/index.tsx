@@ -42,7 +42,7 @@ const MultiSig = () => {
       {type === EMultiSigTypes.PENDING ? (
         <MultiSigList sortBy={sortBy} />
       ) : (
-        <MultiSigTable sortBy={sortBy} />
+        <MultiSigTable />
       )}
     </>
   );

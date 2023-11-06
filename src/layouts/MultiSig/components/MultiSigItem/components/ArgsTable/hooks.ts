@@ -19,8 +19,6 @@ export const useMultiSigItemArgs = (
   } = useContext(PolymeshContext);
   const { accountKey } = useMultiSigContext();
 
-  console.log(rawArgs);
-
   const [args, setArgs] = useState<TMultiSigArgsFormatted[] | TMultiSigArgs>(
     [],
   );

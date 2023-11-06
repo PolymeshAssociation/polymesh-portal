@@ -5,7 +5,7 @@ import { PolymeshContext } from '~/context/PolymeshContext';
 import { useMultiSigContext } from '~/context/MultiSigContext';
 import { splitByCapitalLetters } from '~/helpers/formatters';
 import { notifyError } from '~/helpers/notifications';
-import { IMultiSigListItem } from '../../types';
+import { IMultiSigListItem, TMultiSigArgs } from '../../types';
 
 export const useMultiSigList = () => {
   const [proposalsList, setProposalsList] = useState<IMultiSigListItem[]>([]);
@@ -14,10 +14,22 @@ export const useMultiSigList = () => {
   const {
     api: { polkadotApi, sdk },
   } = useContext(PolymeshContext);
-  const { accountKey, pendingProposals } = useMultiSigContext();
+  const { accountKey, pendingProposals, pendingProposalsLoading } =
+    useMultiSigContext();
 
   useEffect(() => {
-    if (!pendingProposals?.length || !sdk || !polkadotApi) {
+    if (pendingProposalsLoading) {
+      setIsLoading(true);
+    }
+  }, [pendingProposalsLoading]);
+
+  useEffect(() => {
+    if (
+      pendingProposalsLoading ||
+      !pendingProposals?.length ||
+      !polkadotApi ||
+      !sdk
+    ) {
       return;
     }
     setIsLoading(true);
@@ -27,7 +39,6 @@ export const useMultiSigList = () => {
         const account = await sdk?.accountManagement.getAccount({
           address: accountKey,
         });
-
         const list = await Promise.all(
           pendingProposals.map(async (rawProposal) => {
             const proposal = await (account as MultiSig).getProposal({
@@ -35,10 +46,9 @@ export const useMultiSigList = () => {
             });
             const { txTag, expiry, args } = await proposal.details();
             const [module, call] = txTag.split('.');
-
             return {
               ...rawProposal,
-              args,
+              args: args as TMultiSigArgs,
               call: splitByCapitalLetters(call),
               expiry,
               module: splitByCapitalLetters(module),
@@ -53,7 +63,7 @@ export const useMultiSigList = () => {
         setIsLoading(false);
       }
     })();
-  }, [accountKey, pendingProposals, polkadotApi, sdk]);
+  }, [accountKey, pendingProposals, pendingProposalsLoading, polkadotApi, sdk]);
 
   return {
     isLoading,

@@ -2,16 +2,12 @@ import { useState } from 'react';
 import { Table, Modal } from '~/components';
 import { useWindowWidth } from '~/hooks/utility';
 import { Heading, Button } from '~/components/UiKit';
-import { ESortOptions, IMultiSigListItem } from '../../types';
+import { IMultiSigListItem } from '../../types';
 import { ListItemDetails } from '../MultiSigItem';
 import { useMultiSigTable } from './hooks';
 import { StyledTableWrapper, StyledButtonsWrapper } from './styles';
 
-interface IMultiSigTableProps {
-  sortBy: ESortOptions;
-}
-
-export const MultiSigTable: React.FC<IMultiSigTableProps> = () => {
+export const MultiSigTable = () => {
   const [selectedProposal, setSelectedProposal] =
     useState<IMultiSigListItem | null>(null);
 

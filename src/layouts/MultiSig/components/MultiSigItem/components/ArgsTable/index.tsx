@@ -2,7 +2,6 @@ import { ReactNode, FC } from 'react';
 import { SkeletonLoader } from '~/components/UiKit';
 import {
   TMultiSigArgs,
-  TMultiSigCalls,
   TMultiSigCallArgs,
   TMultiSigArgsFormatted,
 } from '../../../../types';
@@ -27,18 +26,6 @@ interface IArgsTableProps {
   id: number;
 }
 
-type TParamsToRender =
-  | TMultiSigArgsFormatted[]
-  | TMultiSigArgsFormatted
-  | TMultiSigArgs
-  | TMultiSigCallArgs
-  | TMultiSigCalls
-  | string
-  | number
-  | null
-  | unknown
-  | undefined;
-
 export const ArgsTable: FC<IArgsTableProps> = ({
   rawArgs,
   call,
@@ -48,7 +35,7 @@ export const ArgsTable: FC<IArgsTableProps> = ({
   const args = useMultiSigItemArgs(id, module, call, rawArgs);
 
   const renderTable = (
-    paramsToRender: TParamsToRender,
+    paramsToRender: unknown,
     isFirstRender: boolean = false,
   ): ReactNode => {
     if (isPrimitive(paramsToRender as string | number)) {

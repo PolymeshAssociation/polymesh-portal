@@ -3,6 +3,7 @@ import {
   useReactTable,
   getCoreRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   ColumnDef,
   PaginationState,
 } from '@tanstack/react-table';
@@ -35,10 +36,11 @@ export const useMultiSigTable = () => {
     api: { sdk, gqlClient },
   } = useContext(PolymeshContext);
 
-  const { accountKey, requiredSignatures } = useMultiSigContext();
+  const { accountKey, requiredSignatures, pendingProposalsLoading } =
+    useMultiSigContext();
 
   useEffect(() => {
-    if (!gqlClient || !sdk || !accountKey) {
+    if (!gqlClient || !sdk || !accountKey || pendingProposalsLoading) {
       return;
     }
     setTableLoading(true);
@@ -111,7 +113,15 @@ export const useMultiSigTable = () => {
         setTableLoading(false);
       }
     })();
-  }, [gqlClient, accountKey, sdk, requiredSignatures, pageSize, pageIndex]);
+  }, [
+    gqlClient,
+    accountKey,
+    sdk,
+    requiredSignatures,
+    pageSize,
+    pageIndex,
+    pendingProposalsLoading,
+  ]);
 
   const pagination = useMemo(
     () => ({
@@ -131,10 +141,10 @@ export const useMultiSigTable = () => {
       onPaginationChange: setPagination,
       getCoreRowModel: getCoreRowModel(),
       getPaginationRowModel: getPaginationRowModel(),
-      enableSorting: false,
+      getSortedRowModel: getSortedRowModel(),
     }),
     proposalsList,
-    tableLoading,
+    tableLoading: tableLoading || pendingProposalsLoading,
     totalItems,
   };
 };

@@ -1,10 +1,14 @@
 import { useSearchParams } from 'react-router-dom';
 import { useMultiSigContext } from '~/context/MultiSigContext';
 import { useWindowWidth } from '~/hooks/utility';
-import { DropdownSelect, SkeletonLoader } from '~/components/UiKit';
+import {
+  DropdownSelect,
+  SkeletonLoader,
+  RefreshButton,
+} from '~/components/UiKit';
 import { Icon, CopyToClipboard } from '~/components';
 import { formatDid } from '~/helpers/formatters';
-import { ESortOptions } from '../../types';
+import { ESortOptions, EMultiSigTypes } from '../../types';
 import { TABS } from './constants';
 import {
   StyledHeader,
@@ -15,6 +19,7 @@ import {
   StyledSigners,
   StyledSort,
   StyledWrapper,
+  StyledButtonsWrapper,
 } from './styles';
 
 interface IMultiSigHeaderProps {
@@ -26,7 +31,8 @@ export const MultiSigHeader: React.FC<IMultiSigHeaderProps> = ({
   setSortBy,
   sortBy,
 }) => {
-  const { accountKey, signers } = useMultiSigContext();
+  const { accountKey, signers, refreshProposals, pendingProposalsLoading } =
+    useMultiSigContext();
   const { isMobile } = useWindowWidth();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -96,31 +102,38 @@ export const MultiSigHeader: React.FC<IMultiSigHeaderProps> = ({
             </>
           )}
         </StyledLabelWrapper>
-
-        <StyledLabelWrapper>
-          {!accountKey ? (
-            <SkeletonLoader width={126} />
-          ) : (
-            <>
-              Sort by:
-              <StyledSort>
-                <select
-                  onChange={({ target }) => {
-                    setSortBy(target.value as ESortOptions);
-                  }}
-                  value={sortBy}
-                >
-                  {Object.values(ESortOptions).map((option) => (
-                    <option className="options" key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                <Icon name="DropdownIcon" className="dropdown-icon" />
-              </StyledSort>
-            </>
-          )}
-        </StyledLabelWrapper>
+        {type === EMultiSigTypes.PENDING && (
+          <StyledLabelWrapper>
+            {!accountKey ? (
+              <SkeletonLoader width={126} />
+            ) : (
+              <>
+                Sort by:
+                <StyledSort>
+                  <select
+                    onChange={({ target }) => {
+                      setSortBy(target.value as ESortOptions);
+                    }}
+                    value={sortBy}
+                  >
+                    {Object.values(ESortOptions).map((option) => (
+                      <option className="options" key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <Icon name="DropdownIcon" className="dropdown-icon" />
+                </StyledSort>
+              </>
+            )}
+          </StyledLabelWrapper>
+        )}
+        <StyledButtonsWrapper>
+          <RefreshButton
+            onClick={refreshProposals}
+            disabled={pendingProposalsLoading}
+          />
+        </StyledButtonsWrapper>
       </StyledWrapper>
     </StyledHeader>
   );

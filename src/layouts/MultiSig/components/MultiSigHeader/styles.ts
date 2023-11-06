@@ -120,3 +120,7 @@ export const StyledSort = styled.div`
     background-color: ${({ theme }) => theme.colors.modalBackground};
   }
 `;
+
+export const StyledButtonsWrapper = styled.div`
+  padding-left: 16px;
+`;
