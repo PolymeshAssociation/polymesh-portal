@@ -59,6 +59,7 @@ export const Details: React.FC<IDetailsProps> = ({
     allAccountsWithMeta,
     selectedAccount,
     refreshAccountIdentity,
+    accountIsMultisigSigner,
   } = useContext(AccountContext);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const { handleStatusChange } = useTransactionStatus();
@@ -306,7 +307,11 @@ export const Details: React.FC<IDetailsProps> = ({
             Remove Keys
           </Button>
         ) : (
-          <Button variant="modalPrimary" onClick={handleLeaveIdentity}>
+          <Button
+            variant="modalPrimary"
+            onClick={handleLeaveIdentity}
+            disabled={accountIsMultisigSigner}
+          >
             Leave Identity
           </Button>
         )}
