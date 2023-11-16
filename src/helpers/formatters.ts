@@ -55,6 +55,10 @@ export const splitByCapitalLetters = (text: string) => {
   );
 };
 
+export const splitByUnderscore = (text: string) => {
+  return text.split('_').join(' ');
+};
+
 export const truncateText = (
   text: string | undefined | null,
   maxLength: number,

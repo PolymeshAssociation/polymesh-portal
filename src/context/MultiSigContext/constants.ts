@@ -1,8 +1,11 @@
-import { IRawMultiSigProposal } from '~/constants/queries/types';
+import { MultiSigProposal } from '@polymeshassociation/polymesh-sdk/internal';
+import { MultiSigProposalDetails } from '@polymeshassociation/polymesh-sdk/types';
 
 export interface IMultiSigContext {
-  accountKey: string;
-  pendingProposals: IRawMultiSigProposal[];
+  activeProposalsIds: number[];
+  multiSigAccountKey: string;
+  multiSigLoading: boolean;
+  pendingProposals: ProposalWithDetails[];
   pendingProposalsLoading: boolean;
   refreshProposals: () => void;
   requiredSignatures: number;
@@ -11,7 +14,9 @@ export interface IMultiSigContext {
 }
 
 export const initialState: IMultiSigContext = {
-  accountKey: '',
+  activeProposalsIds: [],
+  multiSigAccountKey: '',
+  multiSigLoading: true,
   pendingProposals: [],
   pendingProposalsLoading: true,
   refreshProposals: () => {},
@@ -19,3 +24,5 @@ export const initialState: IMultiSigContext = {
   signers: [],
   unsignedProposals: [],
 };
+
+export type ProposalWithDetails = MultiSigProposal & MultiSigProposalDetails;

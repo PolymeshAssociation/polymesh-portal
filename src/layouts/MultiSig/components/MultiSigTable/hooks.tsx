@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext, useMemo, useRef } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -7,17 +7,22 @@ import {
   ColumnDef,
   PaginationState,
 } from '@tanstack/react-table';
-import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { MultiSig } from '@polymeshassociation/polymesh-sdk/internal';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useMultiSigContext } from '~/context/MultiSigContext';
-import { getMultisigProposalsQuery } from '~/constants/queries';
+import {
+  getMultisigCreationExtrinsics,
+  getMultisigProposalsQuery,
+} from '~/constants/queries';
 import { notifyError } from '~/helpers/notifications';
-import { IRawMultiSigProposal } from '~/constants/queries/types';
-import { splitByCapitalLetters } from '~/helpers/formatters';
+import {
+  IMultisigExtrinsicQueryResponse,
+  IProposalQueryResponse,
+} from '~/constants/queries/types';
+import { splitByCapitalLetters, splitByUnderscore } from '~/helpers/formatters';
 import { IMultiSigListItem } from '../../types';
 import { IHistoricalMultiSigProposals } from './constants';
 import { columns } from './config';
+import { AccountContext } from '~/context/AccountContext';
 
 export const useMultiSigTable = () => {
   const [proposalsList, setProposalsList] = useState<IMultiSigListItem[]>([]);
@@ -33,17 +38,34 @@ export const useMultiSigTable = () => {
   const [tableLoading, setTableLoading] = useState(false);
 
   const {
-    api: { sdk, gqlClient },
+    api: { gqlClient },
   } = useContext(PolymeshContext);
+  const { multiSigAccount } = useContext(AccountContext);
 
-  const { accountKey, requiredSignatures, pendingProposalsLoading } =
+  const { multiSigAccountKey, requiredSignatures, multiSigLoading } =
     useMultiSigContext();
+  const multiSigAccountRef = useRef<string | undefined>('');
 
   useEffect(() => {
-    if (!gqlClient || !sdk || !accountKey || pendingProposalsLoading) {
+    if (multiSigAccount?.address !== multiSigAccountRef.current) {
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    }
+  }, [multiSigAccount]);
+
+  useEffect(() => {
+    setTableLoading(true);
+    if (multiSigLoading) {
       return;
     }
-    setTableLoading(true);
+    if (!gqlClient || !multiSigAccountKey || !multiSigAccount) {
+      setTotalItems(0);
+      setTotalPages(0);
+      setTableData([]);
+      setProposalsList([]);
+      multiSigAccountRef.current = undefined;
+      setTableLoading(false);
+      return;
+    }
 
     (async () => {
       try {
@@ -51,36 +73,58 @@ export const useMultiSigTable = () => {
           data: {
             multiSigProposals: { nodes, totalCount },
           },
-        } = await gqlClient.query({
+        } = await gqlClient.query<IProposalQueryResponse>({
           query: getMultisigProposalsQuery({
-            multisigId: accountKey,
+            multisigId: multiSigAccountKey,
             activeOnly: false,
             offset: pageIndex * pageSize,
             pageSize,
           }),
         });
+        const createdExtrinsic = nodes.map((proposal) => ({
+          blockId: proposal.createdBlockId,
+          extrinsicIdx: proposal.extrinsicIdx,
+        }));
 
-        const account = await sdk.accountManagement.getAccount({
-          address: accountKey,
+        const {
+          data: {
+            extrinsics: { nodes: extrinsicQueryNodes },
+          },
+        } = await gqlClient.query<IMultisigExtrinsicQueryResponse>({
+          query: getMultisigCreationExtrinsics(createdExtrinsic),
         });
 
-        const list = await Promise.all(
-          nodes.map(async (rawProposal: IRawMultiSigProposal) => {
-            const proposal = await (account as MultiSig).getProposal({
-              id: new BigNumber(rawProposal.proposalId),
-            });
-            const { txTag, expiry, args } = await proposal.details();
-            const [module, call] = txTag.split('.');
+        const list = nodes.map((rawProposal) => {
+          const { createdBlockId, extrinsicIdx } = rawProposal;
 
-            return {
-              ...rawProposal,
-              args,
-              call: splitByCapitalLetters(call),
-              expiry,
-              module: splitByCapitalLetters(module),
-            };
-          }),
-        );
+          const proposal = extrinsicQueryNodes.find(
+            (e) =>
+              e.blockId === createdBlockId && e.extrinsicIdx === extrinsicIdx,
+          );
+
+          if (!proposal) {
+            throw new Error(
+              `Block ID ${rawProposal.createdBlockId}, extrinsic indx ${rawProposal.extrinsicIdx} not found`,
+            );
+          }
+
+          const { params } = proposal;
+          const module = params[1]?.value.call_module;
+          const call = params[1]?.value.call_function;
+          const callIndex = params[1]?.value.call_index;
+          const expiry = params[2]?.value ? new Date(params[2]?.value) : null;
+          const args = params[1]?.value.call_args;
+
+          return {
+            ...rawProposal,
+            args,
+            call: splitByUnderscore(call),
+            expiry,
+            module: splitByCapitalLetters(module),
+            callIndex,
+          };
+        });
+
         const table = list.map(
           ({
             proposalId,
@@ -89,6 +133,7 @@ export const useMultiSigTable = () => {
             creatorAccount,
             module,
             call,
+            callIndex,
             approvalCount,
             rejectionCount,
             datetime,
@@ -98,6 +143,7 @@ export const useMultiSigTable = () => {
             creatorAccount,
             module,
             call,
+            callIndex,
             votes: { approvalCount, rejectionCount },
             datetime,
             status,
@@ -109,18 +155,23 @@ export const useMultiSigTable = () => {
         setProposalsList(list);
       } catch (error) {
         notifyError((error as Error).message);
+        setTotalItems(0);
+        setTotalPages(0);
+        setTableData([]);
+        setProposalsList([]);
       } finally {
         setTableLoading(false);
+        multiSigAccountRef.current = multiSigAccount.address;
       }
     })();
   }, [
     gqlClient,
-    accountKey,
-    sdk,
+    multiSigAccountKey,
     requiredSignatures,
     pageSize,
     pageIndex,
-    pendingProposalsLoading,
+    multiSigAccount,
+    multiSigLoading,
   ]);
 
   const pagination = useMemo(
@@ -144,7 +195,10 @@ export const useMultiSigTable = () => {
       getSortedRowModel: getSortedRowModel(),
     }),
     proposalsList,
-    tableLoading: tableLoading || pendingProposalsLoading,
+    tableLoading:
+      tableLoading ||
+      multiSigLoading ||
+      multiSigAccount?.address !== multiSigAccountRef.current,
     totalItems,
   };
 };

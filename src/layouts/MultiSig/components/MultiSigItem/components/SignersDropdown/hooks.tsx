@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useContext } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -11,12 +11,14 @@ import { IRawMultiSigVote } from '~/constants/queries/types';
 import { useWindowWidth } from '~/hooks/utility';
 import { getColumns } from './config';
 import { ISignerItem } from './constants';
+import { AccountContext } from '~/context/AccountContext';
 
 const defaultPageSize = 10;
 
 export const useSignersTable = (votes: IRawMultiSigVote[]) => {
   const { isMobile } = useWindowWidth();
   const { signers } = useMultiSigContext();
+  const { allAccountsWithMeta } = useContext(AccountContext);
 
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -41,8 +43,8 @@ export const useSignersTable = (votes: IRawMultiSigVote[]) => {
         status: voteStatus?.action || 'Pending',
       };
     });
-    const lastIndex = (pageIndex + 1) * defaultPageSize;
-    const firstIndex = lastIndex - pageSize;
+    const lastIndex = (pageIndex + 1) * pageSize;
+    const firstIndex = pageIndex * pageSize;
     return list.slice(firstIndex, lastIndex);
   }, [pageIndex, pageSize, votes, signers]);
 
@@ -53,10 +55,13 @@ export const useSignersTable = (votes: IRawMultiSigVote[]) => {
   return {
     table: useReactTable<ISignerItem>({
       data: signersList,
-      columns: getColumns(isMobile) as ColumnDef<ISignerItem>[],
+      columns: getColumns(
+        isMobile,
+        allAccountsWithMeta,
+      ) as ColumnDef<ISignerItem>[],
       state: { pagination },
       manualPagination: true,
-      pageCount: Math.ceil(votes.length / defaultPageSize),
+      pageCount: Math.ceil(signers.length / pageSize),
       onPaginationChange: setPagination,
       getCoreRowModel: getCoreRowModel(),
       getPaginationRowModel: getPaginationRowModel(),
@@ -64,6 +69,6 @@ export const useSignersTable = (votes: IRawMultiSigVote[]) => {
     }),
     paginationState: pagination,
     tableLoading: !votes.length,
-    totalItems: votes.length,
+    totalItems: signers.length,
   };
 };

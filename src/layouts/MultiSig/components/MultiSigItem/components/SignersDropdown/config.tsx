@@ -1,4 +1,5 @@
 import { createColumnHelper } from '@tanstack/react-table';
+import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 import { CopyToClipboard } from '~/components';
 import { SIGNER_COLUMNS, ISignerItem } from './constants';
 import { formatDid } from '~/helpers/formatters';
@@ -10,8 +11,18 @@ import {
   StyledStatusWrap,
 } from './styles';
 
-export const getColumns = (isMobile: boolean) =>
-  SIGNER_COLUMNS.map(({ header, accessor }) => {
+export const getColumns = (
+  isMobile: boolean,
+  accountsWithMeta: InjectedAccountWithMeta[],
+) => {
+  const getKeyName = (data: string) => {
+    const name = accountsWithMeta.find(({ address }) => address === data)?.meta
+      .name;
+    if (name) return name;
+    return isMobile ? formatDid(data) : data;
+  };
+
+  return SIGNER_COLUMNS.map(({ header, accessor }) => {
     const key = accessor as keyof ISignerItem;
     const columnHelper = createColumnHelper<ISignerItem>();
     return columnHelper.accessor(key, {
@@ -32,7 +43,7 @@ export const getColumns = (isMobile: boolean) =>
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {isMobile ? formatDid(data) : data}
+                {getKeyName(data)}
               </StyledLink>
               <CopyToClipboard value={data} />
             </StyledAddressWrap>
@@ -51,3 +62,4 @@ export const getColumns = (isMobile: boolean) =>
       },
     });
   });
+};

@@ -42,6 +42,7 @@ export interface IAccountContext {
   accountIsMultisigSigner: boolean;
   refreshAccountIdentity: () => void;
   keyIdentityRelationships: Record<string, AccountIdentityRelation>;
+  multiSigAccount: MultiSig | null;
 }
 
 export const initialState = {
@@ -66,4 +67,5 @@ export const initialState = {
   accountIsMultisigSigner: false,
   refreshAccountIdentity: () => {},
   keyIdentityRelationships: {},
+  multiSigAccount: null,
 };

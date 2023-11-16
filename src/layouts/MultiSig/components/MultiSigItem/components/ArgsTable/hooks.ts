@@ -13,11 +13,12 @@ export const useMultiSigItemArgs = (
   module: string,
   call: string,
   rawArgs: TMultiSigArgs,
+  callIndex: string,
 ) => {
   const {
     api: { polkadotApi },
   } = useContext(PolymeshContext);
-  const { accountKey } = useMultiSigContext();
+  const { multiSigAccountKey } = useMultiSigContext();
 
   const [args, setArgs] = useState<TMultiSigArgsFormatted[] | TMultiSigArgs>(
     [],
@@ -45,14 +46,9 @@ export const useMultiSigItemArgs = (
             ),
           );
         } else {
-          const data = await polkadotApi?.query.multiSig.proposals(
-            accountKey,
-            id,
-          );
-          const propData = data?.isSome && data.unwrap().toJSON();
           formattedArgs = [
             {
-              index: (propData as TMultiSigCallArgs)?.callIndex,
+              index: callIndex,
               module,
               call,
               args: rawArgs,
@@ -65,7 +61,7 @@ export const useMultiSigItemArgs = (
         setArgs(formattedArgs as TMultiSigArgsFormatted[]);
       }
     })();
-  }, [polkadotApi, rawArgs, accountKey, id, module, call]);
+  }, [polkadotApi, rawArgs, multiSigAccountKey, id, module, call, callIndex]);
 
   return args;
 };

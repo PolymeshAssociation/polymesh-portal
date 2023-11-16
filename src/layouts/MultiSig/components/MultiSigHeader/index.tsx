@@ -31,8 +31,12 @@ export const MultiSigHeader: React.FC<IMultiSigHeaderProps> = ({
   setSortBy,
   sortBy,
 }) => {
-  const { accountKey, signers, refreshProposals, pendingProposalsLoading } =
-    useMultiSigContext();
+  const {
+    multiSigAccountKey,
+    signers,
+    refreshProposals,
+    pendingProposalsLoading,
+  } = useMultiSigContext();
   const { isMobile } = useWindowWidth();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,18 +46,21 @@ export const MultiSigHeader: React.FC<IMultiSigHeaderProps> = ({
     <StyledHeader>
       {isMobile ? (
         <div>
-          {!accountKey ? (
+          {!multiSigAccountKey ? (
             <SkeletonLoader height={36} />
           ) : (
             <DropdownSelect
               options={TABS.map(({ label }) => `${label} Transactions`)}
               onChange={(option) => {
-                const tab = TABS.find(({ label }) => label === option);
+                const tab = TABS.find(
+                  ({ label }) => `${label} Transactions` === option,
+                );
+
                 if (tab) {
                   setSearchParams(tab.searchParam);
                 }
               }}
-              selected={type || undefined}
+              selected={`${type} Transactions` || undefined}
               borderRadius={24}
               error={undefined}
               placeholder={type || ''}
@@ -68,7 +75,7 @@ export const MultiSigHeader: React.FC<IMultiSigHeaderProps> = ({
                 className={type === label ? 'active' : ''}
                 onClick={() => setSearchParams(searchParam)}
               >
-                {!accountKey ? (
+                {!multiSigAccountKey ? (
                   <SkeletonLoader width={160} />
                 ) : (
                   `${label} Transactions`
@@ -92,19 +99,19 @@ export const MultiSigHeader: React.FC<IMultiSigHeaderProps> = ({
         </StyledLabelWrapper>
 
         <StyledLabelWrapper>
-          {!accountKey ? (
+          {!multiSigAccountKey ? (
             <SkeletonLoader width={170} />
           ) : (
             <>
               Multisig:
-              <StyledMultisig>{formatDid(accountKey)}</StyledMultisig>
-              <CopyToClipboard value={accountKey} />
+              <StyledMultisig>{formatDid(multiSigAccountKey)}</StyledMultisig>
+              <CopyToClipboard value={multiSigAccountKey} />
             </>
           )}
         </StyledLabelWrapper>
         {type === EMultiSigTypes.PENDING && (
           <StyledLabelWrapper>
-            {!accountKey ? (
+            {!multiSigAccountKey ? (
               <SkeletonLoader width={126} />
             ) : (
               <>

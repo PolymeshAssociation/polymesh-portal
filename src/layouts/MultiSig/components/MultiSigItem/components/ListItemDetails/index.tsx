@@ -24,6 +24,7 @@ export const ListItemDetails: React.FC<IListItemDetailsProps> = ({
             rawArgs={item.args}
             module={item.module}
             call={item.call}
+            callIndex={item.callIndex}
             id={item.proposalId}
           />
         )}

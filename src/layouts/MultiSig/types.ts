@@ -36,6 +36,7 @@ export type TMultiSigArgsFormatted = {
 export interface IMultiSigListItem extends IRawMultiSigProposal {
   args: TMultiSigArgs;
   call: string;
+  callIndex: string;
   expiry: Date | null;
   module: string;
 }

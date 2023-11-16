@@ -136,11 +136,13 @@ export const getPortfolioMovements = gql`
 
 export const getMultisigProposalsQuery = ({
   multisigId,
+  ids = [],
   offset,
   pageSize,
   activeOnly = true,
 }: {
   multisigId: string;
+  ids?: number[];
   activeOnly?: boolean;
   offset?: number;
   pageSize?: number;
@@ -150,6 +152,13 @@ export const getMultisigProposalsQuery = ({
     : 'status: { notEqualTo: Active }';
   const offsetFiler = offset ? `offset: ${offset}` : '';
   const pageSizeFilter = pageSize ? `first: ${pageSize}` : '';
+
+  let idFilter = '';
+  if (ids.length > 0) {
+    const idFilters = ids.map((id) => `{proposalId: { equalTo: ${id} }}`);
+    idFilter = `or: [${idFilters.join(',')}]`;
+  }
+
   const query = gql`
     query {
       multiSigProposals(
@@ -158,7 +167,9 @@ export const getMultisigProposalsQuery = ({
         filter: {
           multisigId: { equalTo: "${multisigId}" }
           ${statusFilter}
+          ${idFilter}
         }
+        orderBy: PROPOSAL_ID_DESC
       ) {
         totalCount
         nodes {
@@ -178,6 +189,42 @@ export const getMultisigProposalsQuery = ({
               }
             }
           }
+        }
+      }
+    }
+  `;
+
+  return query;
+};
+
+export const getMultisigCreationExtrinsics = (
+  extrinsicArray: {
+    blockId: string;
+    extrinsicIdx: number;
+  }[],
+) => {
+  const extrinsicFilters = extrinsicArray.map(
+    ({ blockId, extrinsicIdx }) =>
+      `{ and: [
+          {blockId: { equalTo: "${blockId}" }}
+          {extrinsicIdx: { equalTo: ${extrinsicIdx} }}
+        ] }`,
+  );
+  const extrinsicFilter = `or: [${extrinsicFilters.join(',')}]`;
+
+  const query = gql`
+    query {
+      extrinsics(
+        filter: {
+          ${extrinsicFilter}
+        }
+        orderBy: CREATED_AT_DESC
+      ) {
+        totalCount
+        nodes {
+          params
+          blockId
+          extrinsicIdx
         }
       }
     }

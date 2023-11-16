@@ -37,7 +37,9 @@ const NotificationHistory: React.FC<INotificationHistoryProps> = ({
       ...pendingInstructions.map((instruction) => ({
         id: instruction.toHuman(),
         type: 'transfers',
-        data: null,
+        data: {
+          type: 'Instruction',
+        },
       })),
       ...pendingDistributions.map(({ distribution }) => ({
         id: `${distribution.asset.toHuman()}/${distribution.id.toString()}`,

@@ -6,7 +6,7 @@ import {
   TMultiSigArgsFormatted,
 } from '../../../../types';
 import { useMultiSigItemArgs } from './hooks';
-import { isPrimitive, parseValue } from './helpers';
+import { convertIfNameValue, isPrimitive, parseValue } from './helpers';
 import {
   StyledSkeletonWrapper,
   StyledTableWrapper,
@@ -22,6 +22,7 @@ import {
 interface IArgsTableProps {
   rawArgs: TMultiSigArgs;
   call: string;
+  callIndex: string;
   module: string;
   id: number;
 }
@@ -29,10 +30,11 @@ interface IArgsTableProps {
 export const ArgsTable: FC<IArgsTableProps> = ({
   rawArgs,
   call,
+  callIndex,
   module,
   id,
 }) => {
-  const args = useMultiSigItemArgs(id, module, call, rawArgs);
+  const args = useMultiSigItemArgs(id, module, call, rawArgs, callIndex);
 
   const renderTable = (
     paramsToRender: unknown,
@@ -56,7 +58,8 @@ export const ArgsTable: FC<IArgsTableProps> = ({
       );
     }
     if (typeof paramsToRender === 'object') {
-      return Object.entries(paramsToRender as TMultiSigArgs).map(
+      const renderableParams = convertIfNameValue(paramsToRender!);
+      return Object.entries(renderableParams as TMultiSigArgs).map(
         ([key, value], i) => {
           return (
             // eslint-disable-next-line react/no-array-index-key

@@ -44,7 +44,7 @@ export const ItemPlaceHolder: FC<IItemPlaceHolderProps> = ({
       </>
     )}
     {!isLoading && isEmpty && (
-      <StyledEmptyText>No data available</StyledEmptyText>
+      <StyledEmptyText>No pending proposals available</StyledEmptyText>
     )}
   </StyledCard>
 );

@@ -15,15 +15,15 @@ export const VoteCell: React.FC<IVoteCellProps> = ({
   approvalCount,
   rejectionCount,
 }) => {
-  const { requiredSignatures } = useMultiSigContext();
+  const { requiredSignatures, signers } = useMultiSigContext();
   return (
     <StyledApprovalItem>
       <StyledInfoItemGreen>
-        {approvalCount} of {requiredSignatures}{' '}
+        {approvalCount} of {requiredSignatures}
       </StyledInfoItemGreen>
       <StyledInfoItem>/</StyledInfoItem>
       <StyledInfoItemPink>
-        {rejectionCount} of {requiredSignatures}
+        {rejectionCount} of {signers.length - requiredSignatures + 1}
       </StyledInfoItemPink>
     </StyledApprovalItem>
   );

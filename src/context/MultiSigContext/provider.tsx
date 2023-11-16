@@ -1,14 +1,15 @@
 import { useState, useEffect, useContext, useMemo, ReactNode } from 'react';
-import { Account } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  Account,
+  MultiSigDetails,
+  ProposalStatus,
+} from '@polymeshassociation/polymesh-sdk/types';
+import { MultiSigProposal } from '@polymeshassociation/polymesh-sdk/internal';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
-import { getMultisigProposalsQuery } from '~/constants/queries';
-import {
-  IRawMultiSigProposal,
-  IRawMultiSigVote,
-} from '~/constants/queries/types';
 import MultiSigContext from './context';
+import { ProposalWithDetails } from './constants';
 
 interface IMultiSigProviderProps {
   children: ReactNode;
@@ -16,106 +17,174 @@ interface IMultiSigProviderProps {
 
 const MultiSigProvider = ({ children }: IMultiSigProviderProps) => {
   const [pendingProposals, setPendingProposals] = useState<
-    IRawMultiSigProposal[]
+    ProposalWithDetails[]
   >([]);
+  const [activeProposalsIds, setActiveProposalIds] = useState<number[]>([]);
   const [unsignedProposals, setUnsignedProposals] = useState<number[]>([]);
-  const [pendingProposalsLoading, setPendingProposalsLoading] = useState(true);
+  const [pendingProposalsLoading, setPendingProposalsLoading] = useState(false);
   const [shouldRefreshData, setShouldRefreshData] = useState(true);
-
+  const [multisigDetails, setMultisigDetails] =
+    useState<MultiSigDetails | null>(null);
+  const [multiSigLoading, setMultiSigLoading] = useState(true);
+  const [multiSigDetailsLoading, setMultiSigDetailsLoading] = useState(false);
   const {
     api: { sdk, gqlClient },
   } = useContext(PolymeshContext);
 
   const {
     accountIsMultisigSigner,
-    allKeyInfo,
     accountLoading,
     account: currentAccount,
+    multiSigAccount,
   } = useContext(AccountContext);
-
-  const currentMultiSigAccount = allKeyInfo.find((acc) => acc.isMultiSig);
 
   const refreshProposals = () => {
     setShouldRefreshData(true);
   };
 
   useEffect(() => {
-    if (accountLoading || !accountIsMultisigSigner) {
-      setPendingProposals([]);
-      setUnsignedProposals([]);
-      setShouldRefreshData(true);
+    if (accountLoading || shouldRefreshData) {
+      setMultiSigLoading(true);
     }
+  }, [accountLoading, shouldRefreshData]);
 
-    if (!shouldRefreshData || !sdk || !gqlClient || !currentAccount) {
+  useEffect(() => {
+    setMultiSigLoading(multiSigDetailsLoading || pendingProposalsLoading);
+  }, [multiSigDetailsLoading, pendingProposalsLoading]);
+
+  useEffect(() => {
+    if (accountLoading || !multiSigAccount) {
+      setMultisigDetails(null);
+      setMultiSigDetailsLoading(accountLoading || false);
       return;
     }
 
+    (async () => {
+      try {
+        const details = await multiSigAccount.details();
+        setMultisigDetails(details);
+      } catch (error) {
+        notifyError((error as Error).message);
+        setMultisigDetails(null);
+      } finally {
+        setMultiSigDetailsLoading(false);
+      }
+    })();
+  }, [accountLoading, multiSigAccount]);
+
+  useEffect(() => {
     if (
-      !accountLoading &&
-      shouldRefreshData &&
-      accountIsMultisigSigner &&
-      currentMultiSigAccount?.key
+      accountLoading ||
+      !accountIsMultisigSigner ||
+      !sdk ||
+      !gqlClient ||
+      !multiSigAccount?.address ||
+      !currentAccount
     ) {
-      setPendingProposalsLoading(true);
-      (async () => {
-        try {
-          const {
-            data: {
-              multiSigProposals: { nodes },
-            },
-          } = await gqlClient.query({
-            query: getMultisigProposalsQuery({
-              multisigId: currentMultiSigAccount.key,
-            }),
-          });
-          const newProposals = nodes.reduce(
-            (acc: number[], node: IRawMultiSigProposal) => {
-              const unsigned = node.votes.nodes.filter(
-                (vote: IRawMultiSigVote) =>
-                  vote.signer.signerValue !== currentAccount.address,
-              );
-              return !unsigned?.length ? acc : [...acc, node.proposalId];
-            },
-            [],
-          );
-          if (newProposals?.length) {
-            setUnsignedProposals(newProposals);
-          }
-          setPendingProposals(nodes);
-        } catch (error) {
-          notifyError((error as Error).message);
-        } finally {
-          setPendingProposalsLoading(false);
-          setShouldRefreshData(false);
-        }
-      })();
+      setPendingProposals([]);
+      setUnsignedProposals([]);
+      setActiveProposalIds([]);
+      setShouldRefreshData(true);
+      setPendingProposalsLoading(accountLoading || false);
+      return;
     }
+
+    if (!shouldRefreshData) {
+      return;
+    }
+
+    async function filterProposalsToActive(
+      proposals: MultiSigProposal[],
+    ): Promise<ProposalWithDetails[]> {
+      const proposalsWithDetails = await Promise.all(
+        proposals.map(async (proposal) => {
+          const detailsResult = await proposal.details();
+          const proposalWithDetails: ProposalWithDetails = Object.assign(
+            Object.create(Object.getPrototypeOf(proposal)),
+            proposal,
+            detailsResult,
+          );
+
+          return proposalWithDetails;
+        }),
+      );
+      const activeProposalsWithDetails = proposalsWithDetails.filter(
+        ({ status }) => {
+          return status === ProposalStatus.Active;
+        },
+      );
+
+      return activeProposalsWithDetails;
+    }
+
+    setPendingProposalsLoading(true);
+
+    (async () => {
+      try {
+        const proposals = await multiSigAccount.getProposals();
+        const activeProposalsWithDetails =
+          await filterProposalsToActive(proposals);
+        const activeProposals = activeProposalsWithDetails.map((proposal) =>
+          proposal.id.toNumber(),
+        );
+
+        const proposalsNotVoted = activeProposalsWithDetails.reduce(
+          (acc: number[], proposalWithDetails: ProposalWithDetails) => {
+            if (
+              !proposalWithDetails.voted.some(
+                (votedAccount: Account) =>
+                  votedAccount.address === currentAccount.address,
+              )
+            ) {
+              acc.push(proposalWithDetails.id.toNumber());
+            }
+            return acc;
+          },
+          [],
+        );
+
+        setUnsignedProposals(proposalsNotVoted);
+        setActiveProposalIds(activeProposals);
+        setPendingProposals(activeProposalsWithDetails);
+      } catch (error) {
+        notifyError((error as Error).message);
+        setUnsignedProposals([]);
+        setActiveProposalIds([]);
+        setPendingProposals([]);
+      } finally {
+        setPendingProposalsLoading(false);
+        setShouldRefreshData(false);
+      }
+    })();
   }, [
     accountIsMultisigSigner,
     accountLoading,
     currentAccount,
-    currentMultiSigAccount?.key,
     gqlClient,
     sdk,
     shouldRefreshData,
+    multiSigAccount,
   ]);
 
   const contextValue = useMemo(
     () => ({
-      accountKey: currentMultiSigAccount?.key || '',
+      activeProposalsIds,
+      multiSigAccountKey: multiSigAccount?.address || '',
+      multiSigLoading,
       pendingProposals,
       pendingProposalsLoading,
       refreshProposals,
-      requiredSignatures:
-        currentMultiSigAccount?.multisigDetails?.requiredSignatures.toNumber() ||
-        0,
-      signers: (currentMultiSigAccount?.multisigDetails?.signers || []).map(
+      requiredSignatures: multisigDetails?.requiredSignatures.toNumber() || 0,
+      signers: (multisigDetails?.signers || []).map(
         (signer) => (signer as Account).address,
       ),
       unsignedProposals,
     }),
     [
-      currentMultiSigAccount,
+      activeProposalsIds,
+      multiSigAccount?.address,
+      multiSigLoading,
+      multisigDetails,
       pendingProposals,
       pendingProposalsLoading,
       unsignedProposals,
