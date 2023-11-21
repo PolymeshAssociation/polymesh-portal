@@ -295,6 +295,100 @@ export const StakingRewardsQuery = ({
   return query;
 };
 
+export const getMultisigProposalsQuery = ({
+  multisigId,
+  ids = [],
+  offset,
+  pageSize,
+  activeOnly = true,
+}: {
+  multisigId: string;
+  ids?: number[];
+  activeOnly?: boolean;
+  offset?: number;
+  pageSize?: number;
+}) => {
+  const statusFilter = activeOnly
+    ? `status: { equalTo: Active }`
+    : 'status: { notEqualTo: Active }';
+  const offsetFiler = offset ? `offset: ${offset}` : '';
+  const pageSizeFilter = pageSize ? `first: ${pageSize}` : '';
+
+  let idFilter = '';
+  if (ids.length > 0) {
+    idFilter = `proposalId: { in: [${ids.join(',')}] }`;
+  }
+
+  const query = gql`
+    query {
+      multiSigProposals(
+        ${offsetFiler}
+        ${pageSizeFilter}
+        filter: {
+          multisigId: { equalTo: "${multisigId}" }
+          ${statusFilter}
+          ${idFilter}
+        }
+        orderBy: PROPOSAL_ID_DESC
+      ) {
+        totalCount
+        nodes {
+          approvalCount
+          createdBlockId
+          creatorAccount
+          datetime
+          extrinsicIdx
+          proposalId
+          rejectionCount
+          status
+          votes {
+            nodes {
+              action
+              signer {
+                signerValue
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  return query;
+};
+
+export const getMultisigCreationExtrinsics = (
+  extrinsicArray: {
+    blockId: string;
+    extrinsicIdx: number;
+  }[],
+) => {
+  const extrinsicIds = extrinsicArray.map(
+    ({ blockId, extrinsicIdx }) => `"${blockId}/${extrinsicIdx}"`,
+  );
+  const extrinsicFilter = `id: {in: [${extrinsicIds.join(',')}]}`;
+
+  const query = gql`
+    query {
+      extrinsics(
+        filter: {
+          ${extrinsicFilter}
+        }
+        orderBy: CREATED_AT_DESC
+      ) {
+        totalCount
+        nodes {
+          params
+          blockId
+          extrinsicIdx
+        }
+      }
+    }
+  `;
+
+  return query;
+};
+
 // export const historicalDistributionsQuery = ({
 //   offset,
 //   pageSize,

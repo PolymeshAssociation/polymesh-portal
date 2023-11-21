@@ -6,7 +6,7 @@ import { IMultiSigListItem, TMultiSigArgs } from '../../types';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { IProposalQueryResponse } from '~/constants/queries/types';
-import { getMultisigProposalsQuery } from '~/constants/queries';
+import { getMultisigProposalsQuery } from '~/helpers/graphqlQueries';
 
 export const useMultiSigList = () => {
   const [proposalsList, setProposalsList] = useState<IMultiSigListItem[]>([]);

@@ -12,7 +12,7 @@ import { useMultiSigContext } from '~/context/MultiSigContext';
 import {
   getMultisigCreationExtrinsics,
   getMultisigProposalsQuery,
-} from '~/constants/queries';
+} from '~/helpers/graphqlQueries';
 import { notifyError } from '~/helpers/notifications';
 import {
   IMultisigExtrinsicQueryResponse,
