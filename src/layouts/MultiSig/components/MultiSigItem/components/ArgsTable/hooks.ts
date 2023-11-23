@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useMultiSigContext } from '~/context/MultiSigContext';
+import { capitalizeFirstLetter } from '~/helpers/formatters';
 import {
   TMultiSigArgs,
   TMultiSigCall,
@@ -13,7 +14,7 @@ export const useMultiSigItemArgs = (
   module: string,
   call: string,
   rawArgs: TMultiSigArgs,
-  callIndex: string,
+  callIndex?: string,
 ) => {
   const {
     api: { polkadotApi },
@@ -38,19 +39,20 @@ export const useMultiSigItemArgs = (
                 const detail = polkadotApi?.findCall(rawCall.callIndex);
                 return {
                   index: rawCall.callIndex,
-                  module: detail?.section,
-                  call: detail?.method,
+                  module: capitalizeFirstLetter(detail?.section),
+                  call: capitalizeFirstLetter(detail?.method),
                   args: rawCall.args,
                 };
               },
             ),
           );
         } else {
+          const withCallIndex = callIndex ? { index: callIndex } : {}
           formattedArgs = [
             {
-              index: callIndex,
-              module,
-              call,
+              ...withCallIndex,
+              module: capitalizeFirstLetter(module),
+              call: capitalizeFirstLetter(call),
               args: rawArgs,
             },
           ];

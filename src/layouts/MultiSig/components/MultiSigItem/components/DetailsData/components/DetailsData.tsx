@@ -10,6 +10,7 @@ import { StyledInfo, StyledInfoBlock, StyledInfoLink } from '../styles';
 interface IDetailsProps {
   item: IMultiSigListItem;
   showStatus: boolean;
+  isHistorical: boolean;
 }
 
 const createSubscanUrl = (createdBlockId: string, extrinsicIdx: number) => {
@@ -18,20 +19,40 @@ const createSubscanUrl = (createdBlockId: string, extrinsicIdx: number) => {
   }extrinsic/${createdBlockId}-${extrinsicIdx}`;
 };
 
-export const DetailsData: React.FC<IDetailsProps> = ({ item, showStatus }) => {
-  const subscanUrl = createSubscanUrl(item.createdBlockId, item.extrinsicIdx);
+export const DetailsData: React.FC<IDetailsProps> = ({
+  item,
+  showStatus,
+  isHistorical,
+}) => {
+  const subscanUrlCreatedBlock = createSubscanUrl(
+    item.createdBlockId,
+    item.extrinsicIdx,
+  );
+  const subscanUrlUpdatedBlock = createSubscanUrl(item.updatedBlockId, 0);
   return (
     <StyledInfo>
       <StyledInfoBlock>
         Proposal ID
         <StyledInfoLink
-          href={subscanUrl}
+          href={subscanUrlCreatedBlock}
           target="_blank"
           rel="noopener noreferrer"
         >
           {item.proposalId}
         </StyledInfoLink>
       </StyledInfoBlock>
+      {isHistorical && (
+        <StyledInfoBlock>
+          Block ID
+          <StyledInfoLink
+            href={subscanUrlUpdatedBlock}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {item.updatedBlockId}-0
+          </StyledInfoLink>
+        </StyledInfoBlock>
+      )}
       <StyledInfoBlock>
         Creator
         <CreatorCell creator={item.creatorAccount} />
@@ -49,6 +70,7 @@ export const DetailsData: React.FC<IDetailsProps> = ({ item, showStatus }) => {
         <VoteCell
           approvalCount={item.approvalCount}
           rejectionCount={item.rejectionCount}
+          hideVotes={isHistorical}
         />
       </StyledInfoBlock>
       <StyledInfoBlock>

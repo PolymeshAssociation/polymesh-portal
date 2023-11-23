@@ -15,8 +15,11 @@ import { AccountContext } from '~/context/AccountContext';
 
 const defaultPageSize = 10;
 
-export const useSignersTable = (votes: IRawMultiSigVote[]) => {
-  const { isMobile } = useWindowWidth();
+export const useSignersTable = (
+  votes: IRawMultiSigVote[],
+  isHistorical: boolean,
+) => {
+  const { isMobile, isTablet } = useWindowWidth();
   const { signers } = useMultiSigContext();
   const { allAccountsWithMeta } = useContext(AccountContext);
 
@@ -33,16 +36,25 @@ export const useSignersTable = (votes: IRawMultiSigVote[]) => {
     [pageIndex, pageSize],
   );
 
+  const isSmallScreen = isMobile || isTablet;
+
   const signersList = useMemo(() => {
-    const list = signers.map((signer) => {
+    const list = signers.reduce((acc, signer) => {
       const voteStatus = votes.find(
         (vote) => vote.signer.signerValue === signer,
       );
-      return {
-        address: signer,
-        status: voteStatus?.action || 'Pending',
-      };
-    });
+      const hasAction = voteStatus?.action;
+      if (isHistorical && !hasAction) {
+        return acc;
+      }
+      return [
+        ...acc,
+        {
+          address: signer,
+          status: hasAction || 'Pending',
+        },
+      ];
+    }, [] as ISignerItem[]);
     const lastIndex = (pageIndex + 1) * pageSize;
     const firstIndex = pageIndex * pageSize;
     return list.slice(firstIndex, lastIndex);
@@ -56,7 +68,7 @@ export const useSignersTable = (votes: IRawMultiSigVote[]) => {
     table: useReactTable<ISignerItem>({
       data: signersList,
       columns: getColumns(
-        isMobile,
+        isSmallScreen,
         allAccountsWithMeta,
       ) as ColumnDef<ISignerItem>[],
       state: { pagination },

@@ -7,28 +7,39 @@ interface IListItemDetailsProps {
   item: IMultiSigListItem;
   detailsExpanded: boolean;
   showStatus?: boolean;
+  isHistorical?: boolean;
 }
 
 export const ListItemDetails: React.FC<IListItemDetailsProps> = ({
   item,
   detailsExpanded,
   showStatus = false,
-}) => (
-  <>
-    <DetailsData item={item} showStatus={showStatus} />
-    {detailsExpanded && (
-      <>
-        <SignersDropdown votes={item.votes.nodes} />
-        {item?.args && (
-          <ArgsTable
-            rawArgs={item.args}
-            module={item.module}
-            call={item.call}
-            callIndex={item.callIndex}
-            id={item.proposalId}
+  isHistorical = false,
+}) => {
+  return (
+    <>
+      <DetailsData
+        item={item}
+        showStatus={showStatus}
+        isHistorical={isHistorical}
+      />
+      {detailsExpanded && (
+        <>
+          <SignersDropdown
+            votes={item.votes.nodes}
+            isHistorical={isHistorical}
           />
-        )}
-      </>
-    )}
-  </>
-);
+          {item?.args && (
+            <ArgsTable
+              rawArgs={item.args}
+              module={item.module}
+              call={item.call}
+              callIndex={item.callIndex}
+              id={item.proposalId}
+            />
+          )}
+        </>
+      )}
+    </>
+  );
+};

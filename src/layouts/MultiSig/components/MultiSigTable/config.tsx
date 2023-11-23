@@ -70,6 +70,7 @@ export const columns = [
         <VoteCell
           approvalCount={approvalCount}
           rejectionCount={rejectionCount}
+          hideVotes={true}
         />
       );
     },

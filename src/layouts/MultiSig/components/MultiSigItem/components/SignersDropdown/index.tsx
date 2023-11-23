@@ -6,10 +6,17 @@ import { StyledSignersContainer, StyledHeader } from './styles';
 
 interface ISignersDropdownProps {
   votes: IRawMultiSigVote[];
+  isHistorical: boolean;
 }
 
-export const SignersDropdown: FC<ISignersDropdownProps> = ({ votes }) => {
-  const { table, tableLoading, totalItems } = useSignersTable(votes);
+export const SignersDropdown: FC<ISignersDropdownProps> = ({
+  votes,
+  isHistorical,
+}) => {
+  const { table, tableLoading, totalItems } = useSignersTable(
+    votes,
+    isHistorical,
+  );
 
   const [expanded, setExpanded] = useState(false);
 

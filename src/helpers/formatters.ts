@@ -93,3 +93,8 @@ export const accountKeyToAddress = (key: string, ss58Prefix: BigNumber) => {
   }
   return encodeAddress(accountKey, ss58Prefix.toNumber());
 };
+
+export const capitalizeFirstLetter = (text: string) => {
+  const capitalizedString = text.split(' ').reduce((str, word) => `${str} ${word.charAt(0).toUpperCase()}${word.slice(1)}`, '');
+  return capitalizedString;
+}

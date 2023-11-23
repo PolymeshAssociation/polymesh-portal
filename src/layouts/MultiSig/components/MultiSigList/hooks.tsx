@@ -67,14 +67,12 @@ export const useMultiSigList = () => {
             throw new Error(
               `Query response not found for proposal ID ${proposal.id.toNumber()}`,
             );
-
           const { txTag, expiry, args } = proposal;
           const [module, call] = txTag.split('.');
           return {
             ...currentProposal,
             args: args as TMultiSigArgs,
             call: splitByCapitalLetters(call),
-            callIndex: '', // TODO either retrieve the call index or remove all callIndexes in tables
             expiry,
             module: splitByCapitalLetters(module),
           };

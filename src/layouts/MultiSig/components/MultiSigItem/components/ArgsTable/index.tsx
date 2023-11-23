@@ -22,7 +22,7 @@ import {
 interface IArgsTableProps {
   rawArgs: TMultiSigArgs;
   call: string;
-  callIndex: string;
+  callIndex?: string;
   module: string;
   id: number;
 }

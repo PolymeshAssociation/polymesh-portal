@@ -27,11 +27,16 @@ export const MultiSigTable = () => {
         handleRowClick={handleRowClick}
       />
       {selectedProposal && (
-        <Modal customWidth="85%" handleClose={() => setSelectedProposal(null)}>
+        <Modal customWidth="90%" handleClose={() => setSelectedProposal(null)}>
           <Heading type="h4" marginBottom={24}>
             Transactions Details
           </Heading>
-          <ListItemDetails item={selectedProposal} detailsExpanded showStatus />
+          <ListItemDetails
+            item={selectedProposal}
+            detailsExpanded
+            showStatus
+            isHistorical
+          />
           {!isMobile && (
             <StyledButtonsWrapper>
               <Button

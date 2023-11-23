@@ -138,6 +138,7 @@ export interface IRawMultiSigVote {
   };
 }
 export interface IRawMultiSigProposal {
+  updatedBlockId: string;
   approvalCount: number;
   createdBlockId: string;
   creatorAccount: string;
