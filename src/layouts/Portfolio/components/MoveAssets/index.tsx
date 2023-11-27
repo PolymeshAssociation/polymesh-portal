@@ -1,4 +1,3 @@
-import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   DefaultPortfolio,
   NumberedPortfolio,
@@ -8,83 +7,32 @@ import { Icon, Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
 import { usePortfolio } from '~/hooks/polymesh';
 import { useWindowWidth } from '~/hooks/utility';
-import { AssetSelect } from './components/AssetSelect';
 import { PortfolioSelect } from './components/PortfolioSelect';
 import { StyledAddButton, StyledButtonsWrapper } from './styles';
-import { IMoveAssetsProps, IAssetItem, ISelectedAsset } from './types';
-
-const parseSelectedAssets = (assets: ISelectedAsset[]): IAssetItem[] => {
-  return assets.map(({ asset, amount, memo }) => {
-    return memo
-      ? {
-          asset,
-          amount: new BigNumber(amount),
-          memo,
-        }
-      : {
-          asset,
-          amount: new BigNumber(amount),
-        };
-  });
-};
+import { IMoveAssetsProps } from './types';
+import { useAssetForm } from '~/components/AssetForm/hooks';
+import { AssetForm, MemoField } from '~/components';
 
 export const MoveAssets: React.FC<IMoveAssetsProps> = ({
   portfolio,
   toggleModal,
 }) => {
-  const [assetIndexes, setAssetIndexes] = useState<number[]>([0]);
-  const [selectedAssets, setSelectedAssets] = useState<ISelectedAsset[]>([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState<
     DefaultPortfolio | NumberedPortfolio | null
   >(null);
   const { moveAssets } = usePortfolio(portfolio.portfolio);
   const { isMobile } = useWindowWidth();
 
-  const handleAddAssetField = () => {
-    setAssetIndexes((prev) => [...prev, prev[prev.length - 1] + 1]);
-  };
-
-  const addAssetItem = (item: ISelectedAsset) => {
-    if (
-      !selectedAssets.some(({ index }) => index === item.index) &&
-      !selectedAssets.some(({ asset }) => asset === item.asset)
-    ) {
-      setSelectedAssets((prev) => [...prev, item]);
-    } else {
-      const updatedAssets = selectedAssets.reduce((acc, assetItem) => {
-        if (assetItem.asset === item.asset && assetItem.index !== item.index) {
-          return [...acc, { ...assetItem, amount: item.amount }];
-        }
-
-        if (assetItem.index === item.index) {
-          const updatedAcc = acc.filter(({ index }) => index !== item.index);
-
-          return [
-            ...updatedAcc,
-            {
-              ...assetItem,
-              asset: item.asset,
-              amount: item.amount,
-              memo: item.memo,
-            },
-          ];
-        }
-
-        return [...acc, assetItem];
-      }, [] as ISelectedAsset[]);
-
-      setSelectedAssets(updatedAssets);
-    }
-  };
-
-  const deleteAsset = (index: number) => {
-    setAssetIndexes((prev) => prev.filter((prevIndex) => prevIndex !== index));
-
-    const updatedAssets = selectedAssets.filter(
-      (selectedAsset) => selectedAsset.index !== index,
-    );
-    setSelectedAssets(updatedAssets);
-  };
+  const {
+    assets,
+    collections,
+    selectedAssets,
+    getNftsPerCollection,
+    getAssetBalance,
+    handleAddAsset,
+    handleDeleteAsset,
+    handleSelectAsset,
+  } = useAssetForm(portfolio);
 
   const handleSelectPortfolio = (
     option: DefaultPortfolio | NumberedPortfolio,
@@ -92,15 +40,30 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
     setSelectedPortfolio(option);
   };
 
-  const handleMoveAssets = () => {
-    if (!selectedPortfolio) return;
+  const handleMoveAsset = () => {
+    if (!selectedPortfolio || !Object.values(selectedAssets).length) return;
+    const items = Object.values(selectedAssets);
 
     moveAssets({
       to: selectedPortfolio,
-      items: parseSelectedAssets(selectedAssets),
+      items,
     });
     toggleModal();
   };
+
+  const filteredAssets = assets.filter(
+    ({ asset }) =>
+      !Object.values(selectedAssets).some(
+        (selected) => selected.asset === asset.toHuman(),
+      ),
+  );
+
+  const filteredCollections = collections.filter(
+    ({ ticker }) =>
+      !Object.values(selectedAssets).some(
+        (selected) => selected.asset === ticker,
+      ),
+  );
 
   return (
     <Modal handleClose={toggleModal}>
@@ -112,19 +75,28 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
         handleSelect={handleSelectPortfolio}
         selectedPortfolio={selectedPortfolio}
       />
-      {assetIndexes.map((index) => (
-        <AssetSelect
-          key={index}
-          portfolio={portfolio}
-          index={index}
-          handleAdd={addAssetItem}
-          handleDelete={deleteAsset}
-          selectedAssets={selectedAssets}
+      {Object.keys(selectedAssets).map((asset) => (
+        <AssetForm
+          key={asset}
+          index={asset}
+          collections={filteredCollections}
+          assets={filteredAssets}
+          getNftsPerCollection={getNftsPerCollection}
+          handleSelectAsset={handleSelectAsset}
+          handleDeleteAsset={handleDeleteAsset}
+          assetBalance={getAssetBalance(selectedAssets[asset].asset)}
+          memo={
+            <MemoField handleSelectAsset={handleSelectAsset} index={asset} />
+          }
         />
       ))}
+
       <StyledAddButton
-        onClick={handleAddAssetField}
-        disabled={assetIndexes.length >= portfolio.assets.length}
+        onClick={handleAddAsset}
+        disabled={
+          Object.keys(selectedAssets).length >=
+          collections.length + assets.length
+        }
       >
         <Icon name="Plus" />
         Add Asset
@@ -138,11 +110,16 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
         <Button
           variant="modalPrimary"
           disabled={
-            !selectedAssets.length ||
-            selectedAssets.some(({ amount }) => amount <= 0) ||
-            !selectedPortfolio
+            !Object.keys(selectedAssets).length ||
+            !selectedPortfolio ||
+            Object.values(selectedAssets).some((asset) => {
+              if ('amount' in asset) {
+                return asset.amount.toNumber() <= 0;
+              }
+              return !asset.nfts?.length;
+            })
           }
-          onClick={handleMoveAssets}
+          onClick={handleMoveAsset}
         >
           Apply
         </Button>

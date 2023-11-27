@@ -68,24 +68,27 @@ export const transferEventsQuery = ({
   portfolioId,
   offset,
   pageSize,
+  nonFungible,
 }: {
   identityId: string;
   portfolioId: string | null;
   offset: number;
   pageSize: number;
+  nonFungible: boolean;
 }) => {
-  const portfolioIdFilter = getQueryFilter(identityId, portfolioId);
-
   const query = gql`
     query {
-      events(
+      assetTransactions(
         first: ${pageSize}
         offset: ${offset}
         orderBy: CREATED_AT_DESC
         filter: {
-          moduleId: { equalTo: asset }
-          eventId: { equalTo: Transfer }
-          attributes: { contains: [${portfolioIdFilter}] }
+          fromPortfolioId: {
+            includes: "${portfolioId === null ? `${identityId}`: `${identityId}/${portfolioId}`}"
+          },
+          amount: {
+            isNull: ${nonFungible}
+          }
         }
       ) {
         totalCount
@@ -96,20 +99,21 @@ export const transferEventsQuery = ({
           endCursor
         }
         nodes {
+          amount
+          assetId
+          nftIds
+          datetime
           id
-          blockId
-          moduleId
-          eventId
-          attributes
-          block {
-            datetime
-          }
+          createdBlockId
           extrinsicIdx
-          transferTo
+          eventIdx
+          eventId
+          toPortfolioId
+          fromPortfolioId
         }
       }
     }
-  `;
+  `
 
   return query;
 };
@@ -118,11 +122,15 @@ export const portfolioMovementsQuery = ({
   offset,
   pageSize,
   portfolioNumber,
+  type,
 }: {
   offset: number;
   pageSize: number;
   portfolioNumber: string;
+  type: string;
 }) => {
+  const assteDetail = type === 'Fungible' ? 'amount' : 'nftIds';
+
   const query = gql`
     query {
       portfolioMovements(
@@ -130,6 +138,7 @@ export const portfolioMovementsQuery = ({
         offset: ${offset}
         orderBy: CREATED_AT_DESC
         filter: {
+          type: { equalTo: ${type} }
           or: [
             { fromId: { startsWith: "${portfolioNumber}" } }
             { toId: { startsWith: "${portfolioNumber}" } }
@@ -158,7 +167,7 @@ export const portfolioMovementsQuery = ({
             name
           }
           assetId
-          amount
+          ${assteDetail}
           address
           memo
           createdBlock {

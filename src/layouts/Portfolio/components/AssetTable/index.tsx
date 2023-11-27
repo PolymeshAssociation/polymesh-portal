@@ -10,7 +10,7 @@ export const AssetTable = () => {
   const { table, tableDataLoading, totalItems } = useAssetTable(tab);
   return (
     <Table
-      title="Assets"
+      title="Fungible Assets"
       data={{ table, tab }}
       loading={tableDataLoading}
       tabs={Object.values(EAssetsTableTabs)}

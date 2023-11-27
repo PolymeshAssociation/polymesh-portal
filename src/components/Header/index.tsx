@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { ROUTES } from '~/constants/routes';
 import {
   StyledHeader,
@@ -24,11 +24,22 @@ const Header: React.FC<IHeaderProps> = ({ toggleMobileMenu }) => {
   const [pageLabel, setPageLabel] = useState<string | null>(null);
   const { pathname } = useLocation();
   const { isMobile } = useWindowWidth();
+  const [searchParams] = useSearchParams();
+  const nftCollection = searchParams.get('nftCollection');
+  const nftId = searchParams.get('nftId');
 
   useEffect(() => {
     const currentPage = ROUTES.find(({ path }) => path === pathname);
-    setPageLabel(currentPage ? currentPage.label : null);
-  }, [pathname]);
+    let currentPageLabel;
+    if (nftCollection) {
+      currentPageLabel = nftId
+        ? `#${nftId as string}`
+        : (nftCollection as string);
+    } else {
+      currentPageLabel = currentPage?.label || null;
+    }
+    setPageLabel(currentPageLabel);
+  }, [nftCollection, nftId, pathname]);
 
   return (
     <StyledHeader>

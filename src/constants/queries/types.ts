@@ -41,7 +41,8 @@ export interface ITransferEvent {
 
 interface IMovement {
   id: string;
-  amount: string;
+  amount?: string;
+  nftIds?: string[];
   assetId: string;
   createdBlock: {
     blockId: number;
@@ -71,6 +72,29 @@ export interface IMovementQueryResponse {
 
 export interface ITransferQueryResponse {
   events: ITransferEvents;
+}
+
+
+export interface IAssetTransaction {
+  amount: number | null;
+  nftIds: string[] | null;
+  assetId: string;
+  id: string;
+  datetime: string;
+  fromPortfolioId: string;
+  toPortfolioId: string;
+  createdBlockId: string;
+  extrinsicIdx: number;
+  eventIdx: number;
+}
+
+export interface IAssetTransactions {
+  totalCount: number;
+  nodes: IAssetTransaction[];
+}
+
+export interface ITransactionsQueryResponse {
+  assetTransactions: IAssetTransactions;
 }
 
 export interface IDistribution {

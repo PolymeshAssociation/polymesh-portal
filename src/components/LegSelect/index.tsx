@@ -1,55 +1,38 @@
-import { useState, useRef, useEffect, useContext } from 'react';
+import { useState, useMemo, useEffect, useContext } from 'react';
 import {
   FungibleAsset,
   Identity,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { Icon } from '~/components';
-import { DropdownSelect, SkeletonLoader, Text } from '~/components/UiKit';
+import { DropdownSelect, SkeletonLoader } from '~/components/UiKit';
+import { TSelectedAsset } from '~/components/AssetForm/constants';
 import {
-  StyledAmountInput,
   InputWrapper,
   StyledLabel,
   StyledInput,
-  StyledAssetSelect,
   StyledPlaceholder,
-  StyledWrapper,
-  AssetWrapper,
-  AssetSelectWrapper,
-  StyledExpandedSelect,
-  StyledSelectOption,
-  IconWrapper,
-  SelectedOption,
-  StyledAvailableBalance,
   StyledError,
-  CloseButton,
-  UseMaxButton,
   FlexWrapper,
 } from './styles';
-import { formatBalance, stringToColor } from '~/helpers/formatters';
-import { ISelectedLeg } from './types';
+import { TSelectedLeg } from './types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import {
-  getPortfolioDataFromIdentity,
-  checkAvailableBalance,
-  validateTotalSelected,
-} from './helpers';
+import { getPortfolioDataFromIdentity, checkAvailableBalance } from './helpers';
 import { notifyError } from '~/helpers/notifications';
+import { useAssetForm } from '../AssetForm/hooks';
+import { INonFungibleAsset } from '../AssetForm/constants';
+import AssetForm from '../AssetForm';
 
 interface ILegSelectProps {
   index: number;
-  handleAdd: (item: ISelectedLeg) => void;
-  handleDelete?: (index: number) => void;
-  handleResetAmount?: (index: number) => void;
-  selectedLegs: ISelectedLeg[];
+  handleAdd: (index: number, item: TSelectedLeg) => void;
+  handleDelete: (index: number) => void;
+  selectedLegs: TSelectedLeg[];
 }
 
 const LegSelect: React.FC<ILegSelectProps> = ({
   index,
   handleAdd,
   handleDelete,
-  handleResetAmount,
   selectedLegs,
 }) => {
   const {
@@ -81,47 +64,21 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     sender: false,
     receiver: false,
   });
-  const [selectedAsset, setSelectedAsset] = useState<FungibleAsset | null>(
-    null,
-  );
-  const [availableBalance, setAvailableBalance] = useState(0);
-  const [initialFreeBalance, setInitialFreeBalance] = useState(0);
-  const [selectedAmount, setSelectedAmount] = useState('');
-  const [validationError, setValidationError] = useState('');
-  const [assetSelectExpanded, setAssetSelectExpanded] = useState(false);
-  const [selectedAssetIsDivisible, setSelectedAssetIsDivisible] =
-    useState(false);
-  const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!selectedAsset) return;
-
-    const getAssetDetails = async () => {
-      const assetDetails = await selectedAsset.details();
-      setSelectedAssetIsDivisible(assetDetails.isDivisible);
-    };
-
-    getAssetDetails();
-  }, [selectedAsset]);
+  const {
+    assets = [],
+    collections = [],
+    selectedAssets,
+    portfolioName,
+    getAssetBalance,
+    getNftsPerCollection,
+    handleDeleteAsset,
+    handleSelectAsset,
+  } = useAssetForm(selectedSenderPortfolio, index);
 
   useEffect(() => {
     if (!selectedSenderPortfolio) return;
-
-    setSelectedAsset(null);
   }, [selectedSenderPortfolio]);
-
-  useEffect(() => {
-    const handleClickOutside: EventListenerOrEventListenerObject = (event) => {
-      if (ref.current && !ref.current.contains(event.target as Node | null)) {
-        setAssetSelectExpanded(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [ref]);
 
   const handleIdentitySelect = async (
     did: string,
@@ -134,8 +91,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
         if (!!senderIdentity && senderIdentity.did === did) {
           return;
         }
-        setSelectedAsset(null);
-        setAvailableBalance(0);
+        handleSelectAsset(index.toString());
         setSelectedSenderPortfolio(null);
         setShouldHideSenderPortfolio(true);
         break;
@@ -204,53 +160,6 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     }
   };
 
-  const validateInput = (inputValue: string) => {
-    if (!selectedSenderPortfolio) return;
-
-    const amount = Number(inputValue);
-    let error = '';
-
-    if (Number.isNaN(amount)) {
-      error = 'Amount must be a number';
-    } else if (!inputValue) {
-      error = 'Amount is required';
-    } else if (amount <= 0) {
-      error = 'Amount must be greater than zero';
-    } else if (
-      validateTotalSelected({
-        asset: selectedAsset as FungibleAsset,
-        selectedLegs,
-        sender: selectedSenderPortfolio.portfolio.toHuman().did,
-        portfolioId: selectedSenderPortfolio.id,
-        inputValue,
-        initialFreeBalance,
-        index,
-      })
-    ) {
-      error = 'Insufficient balance';
-    } else if (!selectedAssetIsDivisible && inputValue.indexOf('.') !== -1) {
-      error = 'Asset does not allow decimal places';
-    } else if (
-      inputValue.indexOf('.') !== -1 &&
-      inputValue.substring(inputValue.indexOf('.') + 1).length > 6
-    ) {
-      error = 'Amount must have at most 6 decimal places';
-    }
-
-    setValidationError(error);
-
-    handleAdd({
-      asset: (selectedAsset as FungibleAsset).toHuman(),
-      amount: error ? 0 : amount,
-      index,
-      from: (selectedSenderPortfolio as IPortfolioData).portfolio,
-      to: (selectedReceiverPortfolio as IPortfolioData).portfolio,
-    });
-  };
-
-  const toggleAssetSelectDropdown = () =>
-    setAssetSelectExpanded((prev) => !prev);
-
   const handlePortfolioSelect = (
     combinedId: string,
     role: 'sender' | 'receiver',
@@ -261,10 +170,6 @@ const LegSelect: React.FC<ILegSelectProps> = ({
 
     switch (role) {
       case 'sender': {
-        setSelectedAmount('');
-        if (handleResetAmount) {
-          handleResetAmount(index);
-        }
         const selectedSendingPortfolio = senderPortfolios.find((item) => {
           return Number.isNaN(Number(id))
             ? item.id === 'default'
@@ -292,88 +197,77 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     }
   };
 
-  const handleAssetSelect = (asset: FungibleAsset, balance: BigNumber) => {
+  const handleAddAsset = (index: string, item?: Partial<TSelectedAsset>) => {
     if (!selectedSenderPortfolio || !selectedReceiverPortfolio) return;
-
-    setSelectedAsset(asset);
-    setInitialFreeBalance(balance.toNumber());
-    const availableAmount = checkAvailableBalance({
-      asset,
-      balance,
-      selectedLegs,
-      sender: selectedSenderPortfolio.portfolio.toHuman().did,
-      portfolioId: selectedSenderPortfolio.id,
-    });
-    setAvailableBalance(availableAmount);
-
-    setSelectedAmount('');
-    handleAdd({
-      asset: asset.toHuman(),
-      amount: 0,
-      index,
+    handleSelectAsset(index, item);
+    handleAdd(Number(index), {
+      ...(item as TSelectedAsset),
       from: selectedSenderPortfolio.portfolio,
       to: selectedReceiverPortfolio.portfolio,
+      index: Number(index),
     });
-    toggleAssetSelectDropdown();
   };
 
-  const handleAmountChange: React.ChangeEventHandler<HTMLInputElement> = ({
-    target,
-  }) => {
-    setSelectedAmount(target.value);
-    validateInput(target.value);
+  const handleDeleteLeg = (index: string) => {
+    handleDelete(Number(index));
+    handleDeleteAsset(index);
   };
 
-  const handleUseMax = () => {
-    const balance =
-      selectedAmount && !validationError
-        ? Number(selectedAmount) + availableBalance
-        : availableBalance;
+  const getAvailableNfts = useMemo(
+    () => (ticker: string) => {
+      if (!selectedSenderPortfolio?.id || !ticker) return [];
+      const currentAsset = selectedAssets[index].asset;
+      const currentSelectedAssets = selectedLegs.filter(
+        (leg) => leg.asset === currentAsset,
+      );
+      const allNfts = getNftsPerCollection(ticker);
+      const nfts = allNfts.filter((nft) => {
+        const nftExists = currentSelectedAssets.find((asset) =>
+          (asset as INonFungibleAsset).nfts.some((item) => {
+            return nft.id.toNumber() === item?.toNumber();
+          }),
+        );
+        return !nftExists;
+      });
+      return nfts;
+    },
+    [selectedAssets, selectedLegs, selectedSenderPortfolio],
+  );
 
-    setSelectedAmount(balance.toString());
-    validateInput(balance.toString());
-  };
+  const balance = useMemo(() => {
+    if (!selectedSenderPortfolio?.id) return 0;
+    const currentAsset = selectedSenderPortfolio.assets.find(
+      (asset) => asset.asset.ticker === selectedAssets[index].asset,
+    );
+    if (!currentAsset) return 0;
+    const currentAssetBalance = getAssetBalance(
+      currentAsset?.asset.ticker as string,
+    );
 
-  useEffect(() => {
-    if (
-      !selectedAsset ||
-      !selectedSenderPortfolio ||
-      !selectedLegs.find((leg) => leg.index === index)
-    )
-      return;
-
-    const availableAmount = checkAvailableBalance({
-      asset: selectedAsset,
-      balance: initialFreeBalance,
+    const currentBalance = checkAvailableBalance({
+      asset: currentAsset?.asset as FungibleAsset,
+      balance: currentAssetBalance || 0,
       selectedLegs,
       sender: selectedSenderPortfolio.portfolio.toHuman().did,
       portfolioId: selectedSenderPortfolio.id,
+      assetIndex: index,
     });
 
-    setAvailableBalance(availableAmount);
-  }, [
-    index,
-    initialFreeBalance,
-    selectedAmount,
-    selectedAsset,
-    selectedLegs,
-    selectedSenderPortfolio,
-  ]);
-
-  const disableAmountInput = selectedAmount
-    ? false
-    : !selectedAsset || !availableBalance;
+    return currentBalance;
+  }, [selectedAssets, selectedLegs, selectedSenderPortfolio, portfolioName]);
 
   return (
-    <StyledWrapper>
-      {!!index && (
-        <CloseButton
-          onClick={handleDelete ? () => handleDelete(index) : undefined}
-        >
-          <Icon name="CloseIcon" size="16px" />
-        </CloseButton>
-      )}
-
+    <AssetForm
+      index={index.toString()}
+      assets={assets}
+      collections={collections}
+      getNftsPerCollection={getAvailableNfts}
+      handleDeleteAsset={handleDeleteLeg}
+      handleSelectAsset={handleAddAsset}
+      assetBalance={balance}
+      disabled={!selectedSenderPortfolio?.id || !selectedReceiverPortfolio?.id}
+      portfolioName={portfolioName}
+    >
       <FlexWrapper $marginBottom={16}>
         <InputWrapper>
           <StyledLabel>Sender</StyledLabel>
@@ -446,84 +340,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           </InputWrapper>
         )}
       </FlexWrapper>
-      <AssetWrapper>
-        <div>
-          <Text size="medium" bold marginBottom={3}>
-            Asset
-          </Text>
-          <AssetSelectWrapper ref={ref}>
-            <StyledAssetSelect
-              onClick={toggleAssetSelectDropdown}
-              $expanded={assetSelectExpanded}
-              $isDisabled={
-                !selectedSenderPortfolio || !selectedReceiverPortfolio
-              }
-            >
-              {selectedSenderPortfolio &&
-              selectedSenderPortfolio.assets.length &&
-              selectedAsset ? (
-                <SelectedOption>
-                  <IconWrapper
-                    $background={stringToColor(selectedAsset.toHuman())}
-                  >
-                    <Icon name="Coins" size="16px" />
-                  </IconWrapper>
-                  {selectedAsset.toHuman()}
-                </SelectedOption>
-              ) : (
-                <StyledPlaceholder>Select Asset</StyledPlaceholder>
-              )}
-              <Icon name="ExpandIcon" className="expand-icon" size="18px" />
-            </StyledAssetSelect>
-            {selectedSenderPortfolio && assetSelectExpanded && (
-              <StyledExpandedSelect>
-                {selectedSenderPortfolio.assets.length ? (
-                  selectedSenderPortfolio.assets.map(({ asset, free }) => (
-                    <StyledSelectOption
-                      key={asset.toHuman()}
-                      onClick={() => handleAssetSelect(asset, free)}
-                    >
-                      <IconWrapper $background={stringToColor(asset.toHuman())}>
-                        <Icon name="Coins" size="16px" />
-                      </IconWrapper>{' '}
-                      {asset.toHuman()}
-                    </StyledSelectOption>
-                  ))
-                ) : (
-                  <StyledPlaceholder>No assets available</StyledPlaceholder>
-                )}
-              </StyledExpandedSelect>
-            )}
-          </AssetSelectWrapper>
-        </div>
-        <div>
-          <InputWrapper>
-            <Text size="medium" bold marginBottom={3}>
-              Amount
-            </Text>
-            <StyledAmountInput
-              name="amount"
-              placeholder="Enter Amount"
-              value={selectedAmount}
-              onChange={handleAmountChange}
-              disabled={disableAmountInput}
-            />
-            {!!selectedAsset &&
-              Number(selectedAmount) < availableBalance &&
-              !!availableBalance && (
-                <UseMaxButton onClick={handleUseMax}>Use max</UseMaxButton>
-              )}
-          </InputWrapper>
-        </div>
-      </AssetWrapper>
-      {!!validationError && <StyledError>{validationError}</StyledError>}
-      {!!selectedSenderPortfolio?.assets?.length && !!selectedAsset && (
-        <StyledAvailableBalance>
-          <Text>Available balance:</Text>
-          <Text>{formatBalance(availableBalance)}</Text>
-        </StyledAvailableBalance>
-      )}
-    </StyledWrapper>
+    </AssetForm>
   );
 };
 

@@ -21,12 +21,12 @@ import {
   StyledErrorMessage,
 } from '../../styles';
 import { IAdvancedFieldValues, ADVANCED_FORM_CONFIG } from '../config';
-import { ISelectedLeg } from '~/components/LegSelect/types';
+import { TSelectedLeg } from '~/components/LegSelect/types';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import {
   createAdvancedInstructionParams,
-  updateLegsOnSelect,
+  // updateLegsOnSelect,
 } from '../helpers';
 import { useWindowWidth } from '~/hooks/utility';
 
@@ -53,7 +53,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
   const [venues, setVenues] = useState<IVenueWithDetails[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const [legIndexes, setLegIndexes] = useState<number[]>([0]);
-  const [selectedLegs, setSelectedLegs] = useState<ISelectedLeg[]>([]);
+  const [selectedLegs, setSelectedLegs] = useState<TSelectedLeg[]>([]);
   const { isMobile } = useWindowWidth();
 
   useEffect(() => {
@@ -83,14 +83,12 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
     }
   };
 
-  const handleAssetSelect = (item: ISelectedLeg) => {
-    if (!selectedLegs.some(({ index }) => index === item.index)) {
-      setSelectedLegs((prev) => [...prev, item]);
-    } else {
-      const updatedAssets = updateLegsOnSelect(item, selectedLegs);
-
-      setSelectedLegs(updatedAssets);
-    }
+  const handleAssetSelect = (index: number, item: TSelectedLeg) => {
+    setSelectedLegs((prev) => {
+      const newLegs = [...prev];
+      newLegs[index] = item;
+      return newLegs;
+    });
   };
 
   const handleAddLegField = () => {
@@ -101,19 +99,9 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
     setLegIndexes((prev) => prev.filter((prevIndex) => prevIndex !== index));
 
     const updatedAssets = selectedLegs.filter(
-      (selectedAsset) => selectedAsset.index !== index,
+      (_selectedAsset, itemIndex) => itemIndex !== index,
     );
     setSelectedLegs(updatedAssets);
-  };
-
-  const handleResetAssetAmount = (index: number) => {
-    setSelectedLegs((prev) =>
-      prev.map((selectedLeg) => {
-        if (selectedLeg.index !== index) return selectedLeg;
-
-        return { ...selectedLeg, amount: 0 };
-      }),
-    );
   };
 
   const onSubmit = async (formData: IAdvancedFieldValues) => {
@@ -143,7 +131,12 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
   const isDataValid =
     isValid &&
     !!selectedLegs.length &&
-    selectedLegs.every(({ amount }) => amount > 0);
+    !selectedLegs.some((asset) => {
+      if ('amount' in asset) {
+        return asset.amount.toNumber() <= 0;
+      }
+      return !asset.nfts?.length;
+    });
 
   return (
     <>
@@ -197,7 +190,6 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
           index={index}
           handleAdd={handleAssetSelect}
           handleDelete={handleDeleteLegField}
-          handleResetAmount={handleResetAssetAmount}
           selectedLegs={selectedLegs}
         />
       ))}

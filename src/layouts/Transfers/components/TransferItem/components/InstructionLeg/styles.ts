@@ -1,14 +1,55 @@
 import { AffirmationStatus } from '@polymeshassociation/polymesh-sdk/types';
 import styled from 'styled-components';
 
+export const StyledLegWrapper = styled.div`
+  padding: 24px;
+  border-radius: 24px;
+  background-color: ${({ theme }) => theme.colors.dashboardBackground};
+`;
+
+export const StyledNftsWrapper = styled.div`
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+export const StyledNftItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 12px;
+  background: ${({ theme }) => theme.colors.landingBackground};
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e1e1e;
+`;
+
+export const StyledNftImage = styled.div`
+  width: 18px;
+  height: 18px;
+  border-radius: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ theme }) => theme.colors.textPink};
+  background: ${({ theme }) => theme.colors.pinkBackground};
+  & > img {
+    display: block;
+    width: 100%;
+  }
+`;
+
 export const StyledLeg = styled.div`
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 8px;
-  padding: 24px;
-  background-color: ${({ theme }) => theme.colors.dashboardBackground};
-  border-radius: 24px;
 
   @media screen and (max-width: 1023px) {
     flex-direction: column;

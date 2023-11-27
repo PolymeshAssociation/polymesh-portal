@@ -7,9 +7,8 @@ import {
 } from './constants';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import {
-  IAddress,
   IMovementQueryResponse,
-  ITransferQueryResponse,
+  ITransactionsQueryResponse,
 } from '~/constants/queries/types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 
@@ -91,7 +90,7 @@ export const parseMovements = (dataFromQuery: IMovementQueryResponse) => {
         movementId: id.replace('/', '-'),
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        amount: balanceToBigNumber(amount).toString(),
+        amount: amount && balanceToBigNumber(amount).toString(),
         asset: assetId,
         dateTime: toParsedDateTime(createdBlock.datetime),
         from: from.name || 'Default',
@@ -101,31 +100,23 @@ export const parseMovements = (dataFromQuery: IMovementQueryResponse) => {
   );
 };
 
-export const parseTransfers = (dataFromQuery: ITransferQueryResponse) => {
+export const parseTransfers = (dataFromQuery: ITransactionsQueryResponse) => {
   return (
-    (dataFromQuery.events.nodes.map(
-      ({ id, blockId, extrinsicIdx, block, attributes }) => {
-        const [
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          { value: caller },
-          { value: asset },
-          { value: from },
-          { value: to },
-          { value: amount },
-        ] = attributes;
+    (dataFromQuery.assetTransactions.nodes.map(
+      ({ id, amount, assetId, datetime, fromPortfolioId, toPortfolioId, createdBlockId, extrinsicIdx }) => {
         return {
           id: {
             eventId: id.replace('/', '-'),
-            blockId: blockId.toString(),
+            blockId: createdBlockId,
             extrinsicIdx,
           },
-          dateTime: toParsedDateTime(block.datetime),
-          from: (from as IAddress).did,
-          to: (to as IAddress).did,
+          dateTime: toParsedDateTime(datetime),
+          from: fromPortfolioId.split('/')[0],
+          to: toPortfolioId.split('/')[0],
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           amount: balanceToBigNumber(amount).toString(),
-          asset,
+          asset: assetId,
         };
       },
     ) as ITransactionItem[]) || []

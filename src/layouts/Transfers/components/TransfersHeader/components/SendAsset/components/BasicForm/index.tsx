@@ -6,7 +6,7 @@ import {
   Venue,
   VenueDetails,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { AssetSelect } from '~/components';
+// import { AssetForm } from '~/components';
 import { Button, DropdownSelect } from '~/components/UiKit';
 import { InstructionsContext } from '~/context/InstructionsContext';
 import { PortfolioContext } from '~/context/PortfolioContext';
@@ -18,11 +18,13 @@ import {
 } from '../../../styles';
 import { InputWrapper, StyledErrorMessage } from '../../styles';
 import { IBasicFieldValues, BASIC_FORM_CONFIG } from '../config';
-import { ISelectedAsset } from '~/components/AssetSelect/types';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import { createBasicInstructionParams } from '../helpers';
 import { useWindowWidth } from '~/hooks/utility';
+
+import AssetForm from '~/components/AssetForm';
+import { useAssetForm } from '~/components/AssetForm/hooks';
 
 interface IBasicFormProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -48,8 +50,17 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   const { handleStatusChange } = useTransactionStatus();
   const [venues, setVenues] = useState<IVenueWithDetails[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
-  const [selectedAssets, setSelectedAssets] = useState<ISelectedAsset[]>([]);
   const { isMobile } = useWindowWidth();
+
+  const {
+    assets,
+    collections,
+    selectedAssets,
+    getAssetBalance,
+    getNftsPerCollection,
+    handleDeleteAsset,
+    handleSelectAsset,
+  } = useAssetForm(combinedPortfolios);
 
   useEffect(() => {
     if (instructionsLoading) return;
@@ -78,10 +89,6 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     }
   };
 
-  const handleAssetSelect = (item: ISelectedAsset) => {
-    setSelectedAssets([item]);
-  };
-
   const onSubmit = async (formData: IBasicFieldValues) => {
     if (!selectedVenue || !identity) return;
 
@@ -91,7 +98,11 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     toggleModal();
     try {
       const tx = await selectedVenue.addInstruction(
-        createBasicInstructionParams({ selectedAssets, identity, formData }),
+        createBasicInstructionParams({
+          selectedAssets: Object.values(selectedAssets),
+          identity,
+          formData,
+        }),
       );
 
       unsubCb = tx.onStatusChange(handleStatusChange);
@@ -109,10 +120,16 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   const venueSelectOptions = venues.map(
     ({ venue, details }) => `${venue.toHuman()} / ${details.type}`,
   );
+
   const isDataValid =
     isValid &&
-    !!selectedAssets.length &&
-    selectedAssets.every(({ amount }) => amount > 0);
+    !!Object.keys(selectedAssets).length &&
+    !Object.values(selectedAssets).some((asset) => {
+      if ('amount' in asset) {
+        return asset.amount.toNumber() <= 0;
+      }
+      return !asset.nfts?.length;
+    });
 
   return (
     <>
@@ -149,14 +166,20 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
           </StyledErrorMessage>
         )}
       </InputWrapper>
-      {!!combinedPortfolios && (
-        <AssetSelect
-          portfolio={combinedPortfolios}
-          index={0}
-          handleAdd={handleAssetSelect}
-          selectedAssets={selectedAssets}
+
+      {Object.keys(selectedAssets).map((asset) => (
+        <AssetForm
+          key={asset}
+          index={asset}
+          assets={assets}
+          collections={collections}
+          getNftsPerCollection={getNftsPerCollection}
+          handleDeleteAsset={handleDeleteAsset}
+          handleSelectAsset={handleSelectAsset}
+          assetBalance={getAssetBalance(selectedAssets[asset].asset)}
         />
-      )}
+      ))}
+
       <StyledButtonsWrapper>
         {!isMobile && (
           <Button variant="modalSecondary" onClick={toggleModal}>

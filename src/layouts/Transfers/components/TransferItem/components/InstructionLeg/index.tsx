@@ -9,17 +9,22 @@ import { AccountContext } from '~/context/AccountContext';
 import { SkeletonLoader, Text } from '~/components/UiKit';
 import { CopyToClipboard, Icon } from '~/components';
 import {
+  StyledLegWrapper,
   StyledLeg,
   StyledLabel,
   StyledInfoItem,
   StyledInfoValue,
   StyledExpandedErrors,
+  StyledNftsWrapper,
+  StyledNftItem,
+  StyledNftImage,
 } from './styles';
 import { formatBalance, formatDid } from '~/helpers/formatters';
 import {
   EInstructionDirection,
   getAffirmationStatus,
   getLegDirection,
+  parseNfts,
 } from './helpers';
 import { useWindowWidth } from '~/hooks/utility';
 
@@ -38,6 +43,10 @@ interface ILegDetails {
   asset: string;
   amount: string;
   direction: `${EInstructionDirection}`;
+  nfts?: {
+    id: number;
+    imgUrl: string;
+  }[];
 }
 
 export const InstructionLeg: React.FC<ILegProps> = ({
@@ -56,7 +65,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
     if (!leg || !identity) return;
 
     (async () => {
-      const { from, to, amount, asset } = leg;
+      const { from, to, asset } = leg;
       let fromName = '';
       let toName = '';
       try {
@@ -73,6 +82,12 @@ export const InstructionLeg: React.FC<ILegProps> = ({
       } catch (error) {
         toName = `${to.toHuman().id} / unknown`;
       }
+      const amount =
+        'amount' in leg
+          ? formatBalance(leg.amount.toNumber())
+          : leg.nfts?.length;
+
+      const nfts = 'nfts' in leg ? await parseNfts(leg.nfts) : [];
 
       const parsedData = {
         sendingDid: from.toHuman().did,
@@ -80,8 +95,9 @@ export const InstructionLeg: React.FC<ILegProps> = ({
         receivingDid: to.toHuman().did,
         receivingName: toName || 'Default',
         asset: asset.ticker,
-        amount: formatBalance(amount.toNumber()),
         direction: getLegDirection({ from, to, identity }),
+        amount,
+        nfts,
       } as ILegDetails;
 
       setLegDetails(parsedData);
@@ -89,90 +105,109 @@ export const InstructionLeg: React.FC<ILegProps> = ({
   }, [affirmationsData, leg, identity]);
 
   return legDetails ? (
-    <StyledLeg>
-      <StyledInfoItem>
-        Sending DID
-        <StyledInfoValue
-          $affirmationStatus={getAffirmationStatus(
-            affirmationsData,
-            legDetails.sendingDid,
-          )}
-        >
-          <Text size="large" bold>
-            {formatDid(legDetails.sendingDid)}
-          </Text>
-          <CopyToClipboard value={legDetails.sendingDid} />
-        </StyledInfoValue>
-      </StyledInfoItem>
-      <StyledInfoItem>
-        Sending Portfolio
-        <Text size="large" bold>
-          {legDetails.sendingName}
-        </Text>
-      </StyledInfoItem>
-      <StyledInfoItem>
-        Receiving DID
-        <StyledInfoValue
-          $affirmationStatus={getAffirmationStatus(
-            affirmationsData,
-            legDetails.receivingDid,
-          )}
-        >
-          <Text size="large" bold>
-            {formatDid(legDetails.receivingDid)}
-          </Text>
-          <CopyToClipboard value={legDetails.receivingDid} />
-        </StyledInfoValue>
-      </StyledInfoItem>
-      <StyledInfoItem>
-        Receiving Portfolio
-        <Text size="large" bold>
-          {legDetails.receivingName}
-        </Text>
-      </StyledInfoItem>
-      <StyledInfoItem>
-        Direction
-        <Text size="large" bold>
-          {legDetails.direction}
-        </Text>
-      </StyledInfoItem>
-      <StyledInfoItem>
-        Asset
-        <StyledInfoValue>
-          <Icon name="Coins" size="16px" />
-          <Text size="large" bold>
-            {legDetails.asset}
-          </Text>
-        </StyledInfoValue>
-      </StyledInfoItem>
-      <StyledInfoItem>
-        Amount
-        <Text size="large" bold>
-          {legDetails.amount}
-        </Text>
-      </StyledInfoItem>
-      <StyledInfoItem>
-        {isSmallScreen && 'Status'}
-        {errors.length ? (
-          <StyledLabel
-            $isError
-            onMouseEnter={() => setLegErrorExpanded(true)}
-            onMouseLeave={() => setLegErrorExpanded(false)}
-          >
-            Error
-            {legErrorExpanded && (
-              <StyledExpandedErrors>
-                {errors.map((error) => (
-                  <li key={error}>{error}</li>
-                ))}
-              </StyledExpandedErrors>
+    <StyledLegWrapper>
+      <StyledLeg>
+        <StyledInfoItem>
+          Sending DID
+          <StyledInfoValue
+            $affirmationStatus={getAffirmationStatus(
+              affirmationsData,
+              legDetails.sendingDid,
             )}
-          </StyledLabel>
-        ) : (
-          <StyledLabel>{type}</StyledLabel>
-        )}
-      </StyledInfoItem>
-    </StyledLeg>
+          >
+            <Text size="large" bold>
+              {formatDid(legDetails.sendingDid)}
+            </Text>
+            <CopyToClipboard value={legDetails.sendingDid} />
+          </StyledInfoValue>
+        </StyledInfoItem>
+        <StyledInfoItem>
+          Sending Portfolio
+          <Text size="large" bold>
+            {legDetails.sendingName}
+          </Text>
+        </StyledInfoItem>
+        <StyledInfoItem>
+          Receiving DID
+          <StyledInfoValue
+            $affirmationStatus={getAffirmationStatus(
+              affirmationsData,
+              legDetails.receivingDid,
+            )}
+          >
+            <Text size="large" bold>
+              {formatDid(legDetails.receivingDid)}
+            </Text>
+            <CopyToClipboard value={legDetails.receivingDid} />
+          </StyledInfoValue>
+        </StyledInfoItem>
+        <StyledInfoItem>
+          Receiving Portfolio
+          <Text size="large" bold>
+            {legDetails.receivingName}
+          </Text>
+        </StyledInfoItem>
+        <StyledInfoItem>
+          Direction
+          <Text size="large" bold>
+            {legDetails.direction}
+          </Text>
+        </StyledInfoItem>
+        <StyledInfoItem>
+          Asset
+          <StyledInfoValue>
+            <Icon name="Coins" size="16px" />
+            <Text size="large" bold>
+              {legDetails.asset}
+            </Text>
+          </StyledInfoValue>
+        </StyledInfoItem>
+        <StyledInfoItem>
+          Amount
+          <Text size="large" bold>
+            {legDetails?.amount}
+          </Text>
+        </StyledInfoItem>
+        <StyledInfoItem>
+          {isSmallScreen && 'Status'}
+          {errors.length ? (
+            <StyledLabel
+              $isError
+              onMouseEnter={() => setLegErrorExpanded(true)}
+              onMouseLeave={() => setLegErrorExpanded(false)}
+            >
+              Error
+              {legErrorExpanded && (
+                <StyledExpandedErrors>
+                  {errors.map((error) => (
+                    <li key={error}>{error}</li>
+                  ))}
+                </StyledExpandedErrors>
+              )}
+            </StyledLabel>
+          ) : (
+            <StyledLabel>{type}</StyledLabel>
+          )}
+        </StyledInfoItem>
+      </StyledLeg>
+      {!!legDetails.nfts?.length && (
+        <StyledNftsWrapper>
+          <span>Asset ID ({legDetails?.nfts?.length}):</span>
+          {legDetails.nfts.map((nft) => (
+            <StyledNftItem key={nft.id}>
+              <StyledNftImage>
+                {nft.imgUrl ? (
+                  <img src={nft.imgUrl} alt={nft.id.toString()} />
+                ) : (
+                  <Icon name="Coins" size="12px" />
+                )}
+              </StyledNftImage>
+              {nft.id}
+            </StyledNftItem>
+          ))}
+        </StyledNftsWrapper>
+      )}
+    </StyledLegWrapper>
   ) : (
     <StyledLeg>
       {(() => {

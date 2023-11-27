@@ -59,3 +59,8 @@ export { ReactComponent as Bank } from './bank.svg';
 export { ReactComponent as InformationIcon } from './information-icon.svg';
 export { ReactComponent as PolymathLogo } from './polymath-logo.svg';
 export { default as NovaWalletLogo } from './nova-wallet-logo.png';
+export { ReactComponent as TableView } from './table-view.svg';
+export { ReactComponent as PalleteView } from './pallete-view.svg';
+export { ReactComponent as RadioIcon } from './radio-btn.svg';
+export { ReactComponent as RadioSelectedIcon } from './radio-btn-selected.svg';
+export { ReactComponent as CloseCircledIcon } from './close-circle.svg';

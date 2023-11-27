@@ -1,9 +1,11 @@
-import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import {
   Identity,
   InstructionAffirmation,
   InstructionDetails,
   Leg,
+  FungibleAsset,
+  NftCollection,
   TransferError,
   InstructionType,
   AffirmationStatus,
@@ -61,15 +63,13 @@ export const getLegErrors = async ({
   instructionDetails: InstructionDetails;
   latestBlock: number;
 }) => {
-  const { from, to, amount, asset } = leg;
+  const { from, to, asset } = leg;
+
   const errors = [];
   try {
-    const { compliance, restrictions, general } =
-      await asset.settlements.canTransfer({
-        from,
-        to,
-        amount,
-      });
+    const { compliance, restrictions, general } = 'amount' in leg ?
+      await (asset as FungibleAsset).settlements.canTransfer({ from, to, amount: leg.amount })
+    : await (asset as NftCollection).settlements.canTransfer({ from, to, nfts: leg.nfts })
 
     if (!compliance.complies) {
       errors.push(`Compliance error`);

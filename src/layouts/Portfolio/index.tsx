@@ -3,18 +3,26 @@ import { PortfolioNavigation } from './components/PortfolioNavigation';
 import { AssetAllocation } from './components/AssetAllocation';
 import { PortfolioInfo } from './components/PortfolioInfo';
 import { AssetTable } from './components/AssetTable';
-import { PortfolioGrid } from './styles';
+import { NftAssetTable } from './components/NftAssetTable';
+import { NftView } from './components/NftView';
+import { PortfolioGrid, StyledAllocation } from './styles';
 
 const Portfolio = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get('id');
+  const nftCollection = searchParams.get('nftCollection');
 
-  return (
-    <PortfolioGrid $allAssets={!id}>
+  return nftCollection ? (
+    <NftView />
+  ) : (
+    <PortfolioGrid>
       <PortfolioNavigation />
-      {!!id && <PortfolioInfo />}
-      <AssetAllocation />
+      <StyledAllocation>
+        {!!id && <PortfolioInfo />}
+        <AssetAllocation />
+      </StyledAllocation>
       <AssetTable />
+      <NftAssetTable />
     </PortfolioGrid>
   );
 };

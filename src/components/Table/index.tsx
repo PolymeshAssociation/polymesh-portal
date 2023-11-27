@@ -24,6 +24,7 @@ interface IDownloadButton {
   handleDownloadClick: () => void;
   disabled: boolean;
 }
+
 interface ITableProps<T, S> {
   data: {
     tab?: string;
