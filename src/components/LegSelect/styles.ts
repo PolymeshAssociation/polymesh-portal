@@ -14,10 +14,6 @@ export const AssetWrapper = styled.div`
   gap: 24px;
   margin-bottom: 8px;
 
-  & > div {
-    width: 248px;
-  }
-
   @media screen and (max-width: 767px) {
     flex-direction: column;
     & > div {
@@ -29,23 +25,22 @@ export const AssetWrapper = styled.div`
 export const FlexWrapper = styled(AssetWrapper)<{ $marginBottom?: number }>`
   margin-bottom: ${({ $marginBottom }) =>
     $marginBottom ? `${$marginBottom}px` : 0};
+  & > div {
+    flex: 1;
+  }
 `;
 
 export const StyledPlaceholder = styled.div<{ $isAbsolute?: boolean }>`
   ${({ $isAbsolute }) =>
     $isAbsolute
       ? `
-// position: absolute;
-padding-top: 32px;
-
-
-
-@media screen and (max-width: 767px) {
-  position: static;
-  padding: 0;
-}
-
-`
+      // position: absolute;
+      padding-top: 32px;
+      @media screen and (max-width: 767px) {
+        position: static;
+        padding: 0;
+      }
+      `
       : ''}
   color: ${({ theme }) => theme.colors.textSecondary};
   font-size: 14px;
@@ -72,7 +67,6 @@ export const StyledAssetSelect = styled.div<{
   border-radius: 8px;
   cursor: pointer;
   pointer-events: ${({ $isDisabled }) => ($isDisabled ? 'none' : 'all')};
-
   & .expand-icon {
     transition: transform 250ms ease-out;
     transform: ${({ $expanded }) =>

@@ -21,7 +21,7 @@ import {
 } from './helpers';
 import {
   IMovementQueryResponse,
-  ITransferQueryResponse,
+  ITransactionsQueryResponse,
 } from '~/constants/queries/types';
 import { notifyError } from '~/helpers/notifications';
 import {
@@ -65,8 +65,8 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
   useEffect(() => {
     if (
       currentTab === EAssetsTableTabs.TOKENS ||
-      !identity ||
       portfolioLoading ||
+      !identity ||
       !gqlClient
     )
       return;
@@ -87,6 +87,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
                 query: portfolioMovementsQuery({
                   offset,
                   pageSize,
+                  type: 'Fungible',
                   portfolioNumber: getPortfolioNumber(
                     identity.did,
                     portfolioId,
@@ -105,19 +106,22 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
           }
           case EAssetsTableTabs.TRANSACTIONS: {
             const { data: transfers } =
-              await gqlClient.query<ITransferQueryResponse>({
+              await gqlClient.query<ITransactionsQueryResponse>({
                 query: transferEventsQuery({
                   identityId: identity.did,
                   portfolioId,
                   offset,
                   pageSize,
+                  nonFungible: false,
                 }),
               });
             if (transfers) {
               const parsedTransfers = parseTransfers(transfers);
               setTableData(parsedTransfers);
-              setTotalPages(Math.ceil(transfers.events.totalCount / pageSize));
-              setTotalItems(transfers.events.totalCount);
+              setTotalPages(
+                Math.ceil(transfers.assetTransactions.totalCount / pageSize),
+              );
+              setTotalItems(transfers.assetTransactions.totalCount);
             }
             break;
           }

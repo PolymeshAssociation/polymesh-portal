@@ -9,13 +9,19 @@ import {
 import { ExtrinsicsOrderBy } from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { AccountContext } from '~/context/AccountContext';
-import { EActivityTableTabs, IHistoricalItem, ITokenItem } from './constants';
+import {
+  EActivityTableTabs,
+  IHistoricalItem,
+  ITokenItem,
+  INftTransactionItem,
+} from './constants';
 import { columns } from './config';
 import { parseExtrinsicHistory, parseTokenActivity } from './helpers';
 import { transferEventsQuery } from '~/helpers/graphqlQueries';
 import { notifyError } from '~/helpers/notifications';
-import { ITransferQueryResponse } from '~/constants/queries/types';
+import { ITransactionsQueryResponse } from '~/constants/queries/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { parseNftTransactions } from '~/layouts/Portfolio/components/NftAssetTable/helpers';
 
 export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
@@ -24,9 +30,9 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
   });
   const [totalPages, setTotalPages] = useState(-1);
   const [totalItems, setTotalItems] = useState(0);
-  const [tableData, setTableData] = useState<(IHistoricalItem | ITokenItem)[]>(
-    [],
-  );
+  const [tableData, setTableData] = useState<
+    (IHistoricalItem | ITokenItem | INftTransactionItem)[]
+  >([]);
   const {
     api: { gqlClient },
   } = useContext(PolymeshContext);
@@ -109,7 +115,7 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
   // Update table data for Token Activity tab
   useEffect(() => {
     if (
-      currentTab !== EActivityTableTabs.TOKEN_ACTIVITY ||
+      currentTab === EActivityTableTabs.HISTORICAL_ACTIVITY ||
       (currentTab !== tabRef.current && pageIndex !== 0) ||
       (identity?.did !== identityRef.current && pageIndex !== 0) ||
       !gqlClient
@@ -131,19 +137,23 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
 
     (async () => {
       try {
-        const { data } = await gqlClient.query<ITransferQueryResponse>({
+        const { data } = await gqlClient.query<ITransactionsQueryResponse>({
           query: transferEventsQuery({
             identityId: identity.did,
             portfolioId: null,
             offset: pageIndex * pageSize,
             pageSize,
+            nonFungible: currentTab === EActivityTableTabs.NFT_ACTIVITY,
           }),
         });
-        const parsedData = parseTokenActivity(data.events.nodes);
+        const parsedData =
+          currentTab === EActivityTableTabs.TOKEN_ACTIVITY
+            ? parseTokenActivity(data.assetTransactions.nodes)
+            : parseNftTransactions(data);
 
         setTableData(parsedData);
-        setTotalItems(data.events.totalCount);
-        setTotalPages(Math.ceil(data.events.totalCount / pageSize));
+        setTotalItems(data.assetTransactions.totalCount);
+        setTotalPages(Math.ceil(data.assetTransactions.totalCount / pageSize));
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
@@ -163,9 +173,11 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
   );
 
   return {
-    table: useReactTable<IHistoricalItem | ITokenItem>({
+    table: useReactTable<IHistoricalItem | ITokenItem | INftTransactionItem>({
       data: tableData,
-      columns: columns[currentTab] as ColumnDef<IHistoricalItem | ITokenItem>[],
+      columns: columns[currentTab] as ColumnDef<
+        IHistoricalItem | ITokenItem | INftTransactionItem
+      >[],
       state: { pagination },
       manualPagination: true,
       pageCount: totalPages,

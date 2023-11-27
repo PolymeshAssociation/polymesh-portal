@@ -79,7 +79,7 @@ const useTransferPolyx = () => {
         memo,
       });
 
-      unsubCb = transferPolyxTx.onStatusChange(handleStatusChange);
+      unsubCb = transferPolyxTx.onStatusChange((tx) => handleStatusChange(tx));
 
       await transferPolyxTx.run();
     } catch (error) {

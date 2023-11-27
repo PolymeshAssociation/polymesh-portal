@@ -27,7 +27,7 @@ const usePortfolio = (
 
     try {
       const moveQ = await portfolio.moveFunds(data);
-      moveQ.onStatusChange(handleStatusChange);
+      moveQ.onStatusChange((transaction) => handleStatusChange(transaction));
       await moveQ.run();
       await getPortfoliosData();
     } catch (error) {
@@ -43,7 +43,7 @@ const usePortfolio = (
     setActionInProgress(true);
     try {
       const createQ = await sdk.identities.createPortfolio({ name });
-      createQ.onStatusChange(handleStatusChange);
+      createQ.onStatusChange((transaction) => handleStatusChange(transaction));
       await createQ.run();
       await getPortfoliosData();
     } catch (error) {
@@ -62,7 +62,7 @@ const usePortfolio = (
         const editQ = await portfolio.modifyName({
           name: newName,
         });
-        editQ.onStatusChange(handleStatusChange);
+        editQ.onStatusChange((transaction) => handleStatusChange(transaction));
         await editQ.run();
         await getPortfoliosData();
       } catch (error) {
@@ -84,7 +84,9 @@ const usePortfolio = (
         const deleteQ = await identity.portfolios.delete({
           portfolio,
         });
-        deleteQ.onStatusChange(handleStatusChange);
+        deleteQ.onStatusChange((transaction) =>
+          handleStatusChange(transaction),
+        );
         await deleteQ.run();
         await getPortfoliosData();
       } catch (error) {

@@ -18,7 +18,7 @@ import {
   StyledTextWithCopy,
 } from './styles';
 import { formatExpiry, renderDetails } from './helpers';
-import { formatDid, splitByCapitalLetters } from '~/helpers/formatters';
+import { formatDid, splitCamelCase } from '~/helpers/formatters';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
@@ -67,7 +67,9 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
     try {
       setAcceptInProgress(true);
       const acceptTx = await (accept as NoArgsProcedureMethod<void, void>)();
-      unsubCb = await acceptTx.onStatusChange(handleStatusChange);
+      unsubCb = await acceptTx.onStatusChange((transaction) =>
+        handleStatusChange(transaction),
+      );
       await acceptTx.run();
       refreshAccountIdentity();
     } catch (error) {
@@ -84,7 +86,9 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
     try {
       setRejectInProgress(true);
       const rejectTx = await reject();
-      unsubCb = await rejectTx.onStatusChange(handleStatusChange);
+      unsubCb = await rejectTx.onStatusChange((transaction) =>
+        handleStatusChange(transaction),
+      );
       await rejectTx.run();
       refreshAccountIdentity();
     } catch (error) {
@@ -109,7 +113,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
         <StyledInfoItem>
           Auth Type
           <Text size="large" bold>
-            {splitByCapitalLetters(data.data.type)}
+            {splitCamelCase(data.data.type)}
           </Text>
         </StyledInfoItem>
         {direction === EAuthorizationDirections.INCOMING ? (

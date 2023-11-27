@@ -1,3 +1,4 @@
+import { Nft } from '@polymeshassociation/polymesh-sdk/internal';
 import {
   DefaultPortfolio,
   NumberedPortfolio,
@@ -5,6 +6,7 @@ import {
   InstructionAffirmation,
   AffirmationStatus,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { getNftImageUrl } from '~/layouts/Portfolio/components/NftView/helpers';
 
 export enum EInstructionDirection {
   INCOMING = 'Incoming',
@@ -47,4 +49,17 @@ export const getAffirmationStatus = (
   if (!currentAffirmation) return AffirmationStatus.Unknown;
 
   return currentAffirmation.status;
+};
+
+export const parseNfts = async (nfts: Nft[]) => {
+  const nftsList = await Promise.all(
+    nfts.map(async (nft) => {
+      const imgUrl = (await getNftImageUrl(nft)) || '';
+      return {
+        id: nft.id.toNumber(),
+        imgUrl,
+      };
+    }),
+  );
+  return nftsList;
 };

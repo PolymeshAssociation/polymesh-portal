@@ -33,7 +33,7 @@ import {
   EntityDataOptions,
 } from './constants';
 import { useWindowWidth } from '~/hooks/utility';
-import { splitByCapitalLetters } from '~/helpers/formatters';
+import { splitCamelCase } from '~/helpers/formatters';
 
 interface IAddNewAuthProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -145,7 +145,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
         >
           <span>
             {selectedAuthType
-              ? splitByCapitalLetters(selectedAuthType)
+              ? splitCamelCase(selectedAuthType)
               : 'Select Authorization Type'}
           </span>
 
@@ -168,7 +168,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
                   onClick={() => handleAuthTypeSelect(authType)}
                   $isSelected={authType === selectedAuthType}
                 >
-                  {splitByCapitalLetters(authType)}
+                  {splitCamelCase(authType)}
                   {disabledAuthTypes.includes(authType) && (
                     <SoonLabel>Soon</SoonLabel>
                   )}

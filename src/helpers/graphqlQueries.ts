@@ -49,43 +49,46 @@ export const getTimeByBlockHash = async (
   }
 };
 
-const getQueryFilter = (identityId: string, portfolioId: string | null) => {
-  if (!portfolioId) {
-    return `{ value: { did: "${identityId}" } }`;
-  }
-
-  if (portfolioId === 'default') {
-    return `{ value: { did: "${identityId}", kind: { Default: null } } }`;
-  }
-
-  return `{ value: { did: "${identityId}", kind: { User: ${Number(
-    portfolioId,
-  )} } } }`;
-};
-
 export const transferEventsQuery = ({
   identityId,
   portfolioId,
   offset,
   pageSize,
+  nonFungible,
 }: {
   identityId: string;
   portfolioId: string | null;
   offset: number;
   pageSize: number;
+  nonFungible: boolean;
 }) => {
-  const portfolioIdFilter = getQueryFilter(identityId, portfolioId);
-
+  const id = portfolioId === 'default' ? '0' : portfolioId;
   const query = gql`
     query {
-      events(
+      assetTransactions(
         first: ${pageSize}
         offset: ${offset}
         orderBy: CREATED_AT_DESC
         filter: {
-          moduleId: { equalTo: asset }
-          eventId: { equalTo: Transfer }
-          attributes: { contains: [${portfolioIdFilter}] }
+          or: [
+            {fromPortfolioId: 
+              ${
+                portfolioId === null
+                  ? `{startsWith: "${identityId}"}`
+                  : `{equalTo: "${identityId}/${id}"}`
+              }
+            }
+            {toPortfolioId:
+              ${
+                portfolioId === null
+                  ? `{startsWith: "${identityId}"}`
+                  : `{equalTo: "${identityId}/${id}"}`
+              }
+            }
+          ]
+          amount: {
+            isNull: ${nonFungible}
+          }
         }
       ) {
         totalCount
@@ -96,16 +99,19 @@ export const transferEventsQuery = ({
           endCursor
         }
         nodes {
+          amount
+          assetId
+          nftIds
+          datetime
           id
-          blockId
-          moduleId
-          eventId
-          attributes
-          block {
-            datetime
-          }
+          createdBlockId
           extrinsicIdx
-          transferTo
+          eventIdx
+          eventId
+          toPortfolioId
+          fromPortfolioId
+          instructionId
+          instructionMemo
         }
       }
     }
@@ -118,11 +124,15 @@ export const portfolioMovementsQuery = ({
   offset,
   pageSize,
   portfolioNumber,
+  type,
 }: {
   offset: number;
   pageSize: number;
   portfolioNumber: string;
+  type: string;
 }) => {
+  const assteDetail = type === 'Fungible' ? 'amount' : 'nftIds';
+
   const query = gql`
     query {
       portfolioMovements(
@@ -130,6 +140,7 @@ export const portfolioMovementsQuery = ({
         offset: ${offset}
         orderBy: CREATED_AT_DESC
         filter: {
+          type: { equalTo: ${type} }
           or: [
             { fromId: { startsWith: "${portfolioNumber}" } }
             { toId: { startsWith: "${portfolioNumber}" } }
@@ -158,7 +169,7 @@ export const portfolioMovementsQuery = ({
             name
           }
           assetId
-          amount
+          ${assteDetail}
           address
           memo
           createdBlock {
@@ -392,6 +403,25 @@ export const getMultisigCreationExtrinsics = (
   return query;
 };
 
+export const getAssetCreationTime = (ticker: string) => {
+  const query = gql`
+    query {
+      assets (
+        filter: {
+          ticker: {
+            equalTo: "${ticker}"
+          }
+        }
+      ) {
+        nodes {
+          createdAt
+        }
+      }
+    }
+  `;
+
+  return query;
+};
 // export const historicalDistributionsQuery = ({
 //   offset,
 //   pageSize,

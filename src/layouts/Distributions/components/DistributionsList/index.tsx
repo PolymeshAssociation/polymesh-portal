@@ -111,7 +111,9 @@ export const DistributionsList: React.FC<IDistributionsListProps> = ({
         tx = await action();
       }
 
-      unsubCb = await tx.onStatusChange(handleStatusChange);
+      unsubCb = await tx.onStatusChange((transaction) =>
+        handleStatusChange(transaction),
+      );
       await tx.run();
       refreshDistributions();
     } catch (error) {

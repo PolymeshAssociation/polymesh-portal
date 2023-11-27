@@ -15,6 +15,7 @@ interface ITooltipProps {
     | 'bottom'
     | 'bottom-right';
   maxWidth?: number;
+  children?: React.ReactNode;
 }
 
 const Tooltip: React.FC<ITooltipProps> = ({
@@ -22,6 +23,7 @@ const Tooltip: React.FC<ITooltipProps> = ({
   className = '',
   position = 'bottom-right',
   maxWidth = 250,
+  children,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const labelRef = useRef<HTMLButtonElement | null>(null);
@@ -52,7 +54,7 @@ const Tooltip: React.FC<ITooltipProps> = ({
       onMouseLeave={() => setExpanded(false)}
       className={className}
     >
-      <Icon name="InformationIcon" size="16px" />
+      {children || <Icon name="InformationIcon" size="16px" />}
       <TooltipContainer
         $expanded={expanded}
         $position={position}
@@ -68,6 +70,7 @@ Tooltip.defaultProps = {
   className: '',
   position: 'bottom-right',
   maxWidth: 250,
+  children: null,
 };
 
 export default Tooltip;

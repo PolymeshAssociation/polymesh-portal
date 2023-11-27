@@ -46,14 +46,21 @@ export const stringToColor = (str: string) => {
   return color;
 };
 
-export const splitByCapitalLetters = (text: string) => {
-  return (
-    text
-      .match(/([A-Z]?[^A-Z]*)/g)
-      ?.slice(0, -1)
-      .join(' ') || text
-  );
-};
+export function splitCamelCase(text: string): string {
+  // Don't split if the string already has spaces or is uppercase
+  if (/\s/.test(text) || text === text.toUpperCase()) {
+    return text;
+  }
+
+  // Use regex to identify camelCase or UpperCamelCase
+  const match = text.match(/([a-z]+|[A-Z][a-z]*)/g);
+
+  if (match) {
+    return match.join(' ');
+  }
+
+  return text;
+}
 
 export const splitByUnderscore = (text: string) => {
   return text.split('_').join(' ');
@@ -102,4 +109,17 @@ export const capitalizeFirstLetter = (text: string) => {
       '',
     );
   return capitalizedString;
+};
+
+export const padTicker = (inputString: string): string => {
+  const maxTickerLength = 12;
+
+  if (inputString.length >= maxTickerLength) {
+    return inputString;
+  }
+
+  const nullsNeeded = maxTickerLength - inputString.length;
+  const paddedString = inputString + '\0'.repeat(nullsNeeded);
+
+  return paddedString;
 };

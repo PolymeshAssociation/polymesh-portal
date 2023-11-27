@@ -30,6 +30,7 @@ export const PortfolioInfo = () => {
   const [editExpanded, setEditExpanded] = useState(false);
   const [moveExpanded, setMoveExpanded] = useState(false);
   const [searchParams] = useSearchParams();
+  const [nfts, setNfts] = useState(0);
   const id = searchParams.get('id');
   const notDefaultPortfolio = !!id && id !== 'default';
   const { isMobile, isSmallDesktop } = useWindowWidth();
@@ -37,11 +38,26 @@ export const PortfolioInfo = () => {
   useEffect(() => {
     if (!id) return;
 
+    setNfts(0);
+
     const current = allPortfolios.find((portfolio) => portfolio.id === id);
     if (current) {
       setSelectedPortfolio(current);
+      (async () => {
+        const collections = await current.portfolio.getCollections();
+        if (!collections.length) {
+          return;
+        }
+        const currentNfts = collections.reduce(
+          (all, collection) => all + collection.total.toNumber(),
+          0,
+        );
+        setNfts(currentNfts);
+      })();
     }
   }, [id, allPortfolios]);
+
+  useEffect(() => {}, [selectedPortfolio]);
 
   const toggleEditModal = () => setEditExpanded((prev) => !prev);
   const toggleMoveModal = () => setMoveExpanded((prev) => !prev);
@@ -76,8 +92,9 @@ export const PortfolioInfo = () => {
                   </StyledDetails>
                 ))}
             </StyledPortfolioInfo>
+            <StyledPortfolioInfo>{nfts} NFT(s)</StyledPortfolioInfo>
             <StyledPortfolioInfo>
-              {selectedPortfolio.assets.length} token(s)
+              {selectedPortfolio.assets.length} Token(s)
               <StyledDetails>
                 {!isMobile && (
                   <>

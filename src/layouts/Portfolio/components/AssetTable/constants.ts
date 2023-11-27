@@ -2,6 +2,7 @@ export interface IIdData {
   eventId: string;
   blockId: string;
   extrinsicIdx: number | null;
+  instructionId: string | null;
 }
 
 export interface ITokenItem {

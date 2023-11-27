@@ -83,7 +83,9 @@ export const Details: React.FC<IDetailsProps> = ({
     try {
       toggleModal();
       const tx = await sdk.accountManagement.leaveIdentity();
-      unsubCb = tx.onStatusChange(handleStatusChange);
+      unsubCb = tx.onStatusChange((transaction) =>
+        handleStatusChange(transaction),
+      );
       await tx.run();
     } catch (error) {
       notifyError((error as Error).message);
@@ -108,7 +110,9 @@ export const Details: React.FC<IDetailsProps> = ({
       const tx = await sdk.accountManagement.removeSecondaryAccounts({
         accounts,
       });
-      unsubCb = tx.onStatusChange(handleStatusChange);
+      unsubCb = tx.onStatusChange((transaction) =>
+        handleStatusChange(transaction),
+      );
       await tx.run();
     } catch (error) {
       notifyError((error as Error).message);

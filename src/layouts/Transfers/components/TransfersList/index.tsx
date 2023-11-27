@@ -152,7 +152,9 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
         tx = await action();
       }
 
-      unsubCb = await tx.onStatusChange(handleStatusChange);
+      unsubCb = await tx.onStatusChange((transaction) =>
+        handleStatusChange(transaction),
+      );
       await tx.run();
       refreshInstructions();
     } catch (error) {

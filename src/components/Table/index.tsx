@@ -24,6 +24,7 @@ interface IDownloadButton {
   handleDownloadClick: () => void;
   disabled: boolean;
 }
+
 interface ITableProps<T, S> {
   data: {
     tab?: string;
@@ -78,6 +79,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
         <StyledMobileRow
           $withTitle={!!title}
           key={`${row.id}/desktop`}
+          className={handleRowClick && 'clickable'}
           onClick={() => handleRowClick?.(row.original)}
         >
           {row.getVisibleCells().map((cell, idx) => (
@@ -129,6 +131,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
         {tableRows.map((row) => (
           <tr
             key={`${row.id}/desktop`}
+            className={handleRowClick && 'clickable'}
             onClick={() => handleRowClick?.(row.original)}
           >
             {row.getVisibleCells().map((cell) => {
@@ -312,7 +315,7 @@ Table.defaultProps = {
   tabs: [],
   setTab: () => {},
   totalItems: 0,
-  handleRowClick: () => {},
+  handleRowClick: undefined,
 };
 
 export default Table;

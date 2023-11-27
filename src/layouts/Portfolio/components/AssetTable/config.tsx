@@ -1,13 +1,12 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import { formatBalance, formatDid } from '~/helpers/formatters';
-import { Icon, CopyToClipboard } from '~/components';
+import { formatBalance } from '~/helpers/formatters';
+import { Icon } from '~/components';
 import { PercentageFilter } from './components/PercentageFilter';
 import { TickerCell } from './components/TickerCell';
 import {
   IdCellWrapper,
   IconWrapper,
   StyledTime,
-  AddressCellWrapper,
   StyledDateTimeCell,
 } from './styles';
 import {
@@ -15,9 +14,11 @@ import {
   IMovementItem,
   ITokenItem,
   ITransactionItem,
-  IIdData,
 } from './constants';
 import { createTokenActivityLink } from './helpers';
+import { IdCell } from '../NftAssetTable/components/IdCell';
+import { DateCell } from '../NftAssetTable/components/DateCell';
+import { AddressCell } from '../NftAssetTable/components/AddressCell';
 
 const tokenColumnHelper = createColumnHelper<ITokenItem>();
 const transactionColumnHelper = createColumnHelper<ITransactionItem>();
@@ -61,20 +62,12 @@ export const columns = {
   ],
   [EAssetsTableTabs.TRANSACTIONS]: [
     transactionColumnHelper.accessor('id', {
-      header: 'Id',
+      header: 'Instruction Id',
       enableSorting: false,
       cell: (info) => {
         const data = info.getValue();
-        const handleClick = () =>
-          window.open(createTokenActivityLink(data as IIdData), '_blank');
-        return (
-          <IdCellWrapper onClick={handleClick}>
-            <IconWrapper>
-              <Icon name="ArrowTopRight" />
-            </IconWrapper>
-            {data?.eventId}
-          </IdCellWrapper>
-        );
+        const link = createTokenActivityLink(data);
+        return <IdCell link={link} label={data?.instructionId || '-'} />;
       },
     }),
     transactionColumnHelper.accessor('dateTime', {
@@ -82,37 +75,21 @@ export const columns = {
       cell: (info) => {
         const data = info.getValue();
         if (!data) return '';
-        const [date, time] = data.split(' ');
-
-        return (
-          <StyledDateTimeCell>
-            {date} / <StyledTime>{time}</StyledTime>
-          </StyledDateTimeCell>
-        );
+        return <DateCell data={data} />;
       },
     }),
     transactionColumnHelper.accessor('from', {
       header: 'From',
       cell: (info) => {
         const data = info.getValue();
-        return (
-          <AddressCellWrapper>
-            {formatDid(data)}
-            <CopyToClipboard value={data} />
-          </AddressCellWrapper>
-        );
+        return <AddressCell address={data as string} />;
       },
     }),
     transactionColumnHelper.accessor('to', {
       header: 'To',
       cell: (info) => {
         const data = info.getValue();
-        return (
-          <AddressCellWrapper>
-            {formatDid(data)}
-            <CopyToClipboard value={data} />
-          </AddressCellWrapper>
-        );
+        return <AddressCell address={data as string} />;
       },
     }),
     transactionColumnHelper.accessor('asset', {

@@ -29,6 +29,7 @@ const InstructionsProvider = ({ children }: IProviderProps) => {
       setAllInstructions(null);
       setPendingInstructions([]);
       setInstructionsLoading(identityLoading);
+      setCreatedVenues([]);
       return;
     }
 
