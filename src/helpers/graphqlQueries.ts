@@ -300,15 +300,21 @@ export const getMultisigProposalsQuery = ({
   ids = [],
   offset,
   pageSize,
+  isHistorical = false,
 }: {
   multisigId: string;
   ids?: number[];
-  activeOnly?: boolean;
+  isHistorical?: boolean;
   offset?: number;
   pageSize?: number;
 }) => {
   const offsetFiler = offset ? `offset: ${offset}` : '';
   const pageSizeFilter = pageSize ? `first: ${pageSize}` : '';
+
+  let isActiveFilter = '';
+  if (isHistorical) {
+    isActiveFilter = `status: { notEqualTo: "Active" }`;
+  }
 
   let idFilter = '';
   if (ids.length > 0) {
@@ -323,6 +329,7 @@ export const getMultisigProposalsQuery = ({
         filter: {
           multisigId: { equalTo: "${multisigId}" }
           ${idFilter}
+          ${isActiveFilter}
         }
         orderBy: PROPOSAL_ID_DESC
       ) {

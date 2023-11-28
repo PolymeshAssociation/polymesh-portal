@@ -86,6 +86,7 @@ export const useMultiSigTable = () => {
             multisigId: multiSigAccountKey,
             offset: pageIndex * pageSize,
             pageSize,
+            isHistorical: true,
           }),
         });
         const createdExtrinsic = nodes.map((proposal) => ({
