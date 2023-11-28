@@ -309,8 +309,8 @@ export const getMultisigProposalsQuery = ({
   pageSize?: number;
 }) => {
   const statusFilter = activeOnly
-    ? `status: { equalTo: Active }`
-    : 'status: { notEqualTo: Active }';
+    ? `status: { equalTo: "Active" }`
+    : 'status: { notEqualTo: "Active" }';
   const offsetFiler = offset ? `offset: ${offset}` : '';
   const pageSizeFilter = pageSize ? `first: ${pageSize}` : '';
 
