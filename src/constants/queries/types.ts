@@ -129,6 +129,7 @@ export enum ERawMultiSigStatus {
   SUCCESS = 'Success',
   FAILED = 'Failed',
   REJECTED = 'Rejected',
+  DELETED = 'Deleted'
 }
 
 export interface IRawMultiSigVote {

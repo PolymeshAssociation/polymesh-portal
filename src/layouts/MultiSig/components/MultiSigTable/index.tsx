@@ -5,17 +5,20 @@ import { Heading, Button } from '~/components/UiKit';
 import { IMultiSigListItem } from '../../types';
 import { ListItemDetails } from '../MultiSigItem';
 import { useMultiSigTable } from './hooks';
+import { IHistoricalMultiSigProposals } from './constants';
 import { StyledTableWrapper, StyledButtonsWrapper } from './styles';
 
 export const MultiSigTable = () => {
   const [selectedProposal, setSelectedProposal] =
     useState<IMultiSigListItem | null>(null);
 
-  const { tableLoading, table, totalItems, proposalsList } = useMultiSigTable();
+  const { tableLoading, table, totalItems, getProposalById } =
+    useMultiSigTable();
   const { isMobile } = useWindowWidth();
 
-  const handleRowClick = (id: number) => {
-    setSelectedProposal(proposalsList[id]);
+  const handleRowClick = (row: IHistoricalMultiSigProposals) => {
+    const currentItem = getProposalById(row.id.proposalId);
+    setSelectedProposal(currentItem);
   };
 
   return (

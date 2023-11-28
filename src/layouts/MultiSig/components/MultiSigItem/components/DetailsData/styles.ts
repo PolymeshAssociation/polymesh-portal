@@ -85,6 +85,7 @@ export const StyledStatus = styled.div`
     color: ${({ theme }) => theme.colors.textSuccess};
   }
   &.failed,
+  &.deleted,
   &.rejected {
     background: #fae6e8;
     color: #db2c3e;

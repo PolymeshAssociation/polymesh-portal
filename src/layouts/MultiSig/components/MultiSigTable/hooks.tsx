@@ -46,6 +46,13 @@ export const useMultiSigTable = () => {
     useMultiSigContext();
   const multiSigAccountRef = useRef<string | undefined>('');
 
+  const getProposalById = (proposalId: number) => {
+    const currentProposal = proposalsList.find(
+      (item) => item.proposalId === proposalId,
+    );
+    return currentProposal as IMultiSigListItem;
+  };
+
   useEffect(() => {
     if (multiSigAccount?.address !== multiSigAccountRef.current) {
       setPagination((prev) => ({ ...prev, pageIndex: 0 }));
@@ -200,5 +207,6 @@ export const useMultiSigTable = () => {
       multiSigLoading ||
       multiSigAccount?.address !== multiSigAccountRef.current,
     totalItems,
+    getProposalById,
   };
 };

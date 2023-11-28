@@ -35,7 +35,7 @@ interface ITableProps<T, S> {
   loading: boolean;
   totalItems?: number;
   downloadButton?: IDownloadButton;
-  handleRowClick?: (rowId: number) => void;
+  handleRowClick?: (row: T) => void;
 }
 
 const perPageOptions = [3, 5, 10, 20, 50];
@@ -78,7 +78,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
         <StyledMobileRow
           $withTitle={!!title}
           key={`${row.id}/desktop`}
-          onClick={() => handleRowClick?.(+row.id)}
+          onClick={() => handleRowClick?.(row.original)}
         >
           {row.getVisibleCells().map((cell, idx) => (
             <StyledMobileCell key={`${cell.id}/desktop`}>
@@ -129,7 +129,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
         {tableRows.map((row) => (
           <tr
             key={`${row.id}/desktop`}
-            onClick={() => handleRowClick?.(+row.id)}
+            onClick={() => handleRowClick?.(row.original)}
           >
             {row.getVisibleCells().map((cell) => {
               return (
