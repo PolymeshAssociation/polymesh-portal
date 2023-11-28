@@ -13,6 +13,7 @@ import {
   getMultisigCreationExtrinsics,
   getMultisigProposalsQuery,
 } from '~/helpers/graphqlQueries';
+import { ERawMultiSigStatus } from '~/constants/queries/types';
 import { notifyError } from '~/helpers/notifications';
 import {
   IMultisigExtrinsicQueryResponse,
@@ -83,7 +84,6 @@ export const useMultiSigTable = () => {
         } = await gqlClient.query<IProposalQueryResponse>({
           query: getMultisigProposalsQuery({
             multisigId: multiSigAccountKey,
-            activeOnly: false,
             offset: pageIndex * pageSize,
             pageSize,
           }),
@@ -153,7 +153,7 @@ export const useMultiSigTable = () => {
             callIndex,
             votes: { approvalCount, rejectionCount },
             datetime,
-            status,
+            status: status as ERawMultiSigStatus,
           }),
         );
         setTotalItems(totalCount);

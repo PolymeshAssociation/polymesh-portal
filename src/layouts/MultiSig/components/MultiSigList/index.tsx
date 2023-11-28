@@ -1,5 +1,8 @@
 import { useState, useContext } from 'react';
-import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  UnsubCallback,
+  GenericPolymeshTransaction,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { AccountContext } from '~/context/AccountContext';
 import { useMultiSigContext } from '~/context/MultiSigContext';
 import { useTransactionStatus } from '~/hooks/polymesh';
@@ -23,18 +26,40 @@ export const MultiSigList: React.FC<IMultiSigListProps> = ({ sortBy }) => {
 
   const executeAction = async (action: EProposalAction, proposalId: number) => {
     let unsubCb: UnsubCallback | undefined;
+    let unsubProcessedByMiddleware: UnsubCallback | undefined;
     try {
       setActionInProgress(true);
 
       const proposal = pendingProposals.find((p) => p.id.isEqualTo(proposalId));
       if (!proposal)
-        throw new Error(`MultiSig proposal ID ${proposalId} not found`);
+        throw new Error(`MultiSig proposal ID ${proposalId} not found !!!!`);
 
       const tx = await proposal[action]({ signingAccount: account?.address });
       unsubCb = tx.onStatusChange((transaction) =>
         handleStatusChange(transaction),
       );
-      await tx.run();
+
+      const refreshOnProcessedByMiddleware = new Promise<void>(
+        (resolve, reject) => {
+          unsubProcessedByMiddleware = tx.onProcessedByMiddleware((error) => {
+            if (error) {
+              notifyError((error as Error).message);
+              reject();
+            }
+            refreshProposals();
+            resolve();
+          });
+        },
+      );
+
+      const runTx = async (
+        transaction: GenericPolymeshTransaction<void, void>,
+      ) => {
+        await transaction.run();
+        setActionInProgress(false);
+      };
+
+      await Promise.all([refreshOnProcessedByMiddleware, runTx(tx)]);
     } catch (error) {
       notifyError((error as Error).message);
     } finally {

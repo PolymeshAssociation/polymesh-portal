@@ -300,7 +300,6 @@ export const getMultisigProposalsQuery = ({
   ids = [],
   offset,
   pageSize,
-  activeOnly = true,
 }: {
   multisigId: string;
   ids?: number[];
@@ -308,9 +307,6 @@ export const getMultisigProposalsQuery = ({
   offset?: number;
   pageSize?: number;
 }) => {
-  const statusFilter = activeOnly
-    ? `status: { equalTo: "Active" }`
-    : 'status: { notEqualTo: "Active" }';
   const offsetFiler = offset ? `offset: ${offset}` : '';
   const pageSizeFilter = pageSize ? `first: ${pageSize}` : '';
 
@@ -326,7 +322,6 @@ export const getMultisigProposalsQuery = ({
         ${pageSizeFilter}
         filter: {
           multisigId: { equalTo: "${multisigId}" }
-          ${statusFilter}
           ${idFilter}
         }
         orderBy: PROPOSAL_ID_DESC

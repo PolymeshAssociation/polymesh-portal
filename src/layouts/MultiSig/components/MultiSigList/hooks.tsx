@@ -67,17 +67,40 @@ export const useMultiSigList = () => {
             throw new Error(
               `Query response not found for proposal ID ${proposal.id.toNumber()}`,
             );
-          const { txTag, expiry, args } = proposal;
+          const {
+            txTag,
+            args,
+            status,
+            approvalAmount,
+            rejectionAmount,
+            expiry,
+          } = proposal;
+          const {
+            createdBlockId,
+            creatorAccount,
+            extrinsicIdx,
+            updatedBlockId,
+            votes,
+            datetime,
+          } = currentProposal;
           const [module, call] = txTag.split('.');
           return {
-            ...currentProposal,
+            expiry,
+            status,
+            approvalCount: approvalAmount.toNumber(),
+            rejectionCount: rejectionAmount.toNumber(),
             args: args as TMultiSigArgs,
             call: splitByCapitalLetters(call),
-            expiry,
+            proposalId: proposal.id.toNumber(),
             module: splitByCapitalLetters(module),
+            createdBlockId,
+            creatorAccount,
+            updatedBlockId,
+            extrinsicIdx,
+            datetime,
+            votes,
           };
         });
-
         setProposalsList(list);
       } catch (error) {
         notifyError((error as Error).message);

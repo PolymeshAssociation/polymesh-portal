@@ -1,4 +1,4 @@
-import { Balance } from '@polymeshassociation/polymesh-sdk/types';
+import { Balance, ProposalStatus } from '@polymeshassociation/polymesh-sdk/types';
 import { TMultiSigArgs } from '~/layouts/MultiSig/types';
 
 export interface IAddress {
@@ -147,7 +147,7 @@ export interface IRawMultiSigProposal {
   extrinsicIdx: number;
   proposalId: number;
   rejectionCount: number;
-  status: ERawMultiSigStatus;
+  status: ProposalStatus | ERawMultiSigStatus;
   votes: {
     nodes: IRawMultiSigVote[];
   };
