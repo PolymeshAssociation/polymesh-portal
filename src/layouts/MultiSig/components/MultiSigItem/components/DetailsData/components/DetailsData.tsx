@@ -6,6 +6,7 @@ import { ModuleCell } from './ModuleCell';
 import { VoteCell } from './VotesCell';
 import { StatusCell } from './StatusCell';
 import { StyledInfo, StyledInfoBlock, StyledInfoLink } from '../styles';
+import { ERawMultiSigStatus } from '~/constants/queries/types';
 
 interface IDetailsProps {
   item: IMultiSigListItem;
@@ -13,10 +14,17 @@ interface IDetailsProps {
   isHistorical: boolean;
 }
 
-const createSubscanUrl = (createdBlockId: string, extrinsicIdx: number) => {
+const createSubscanExtrinsicUrl = (
+  createdBlockId: string,
+  extrinsicIdx: number,
+) => {
   return `${
     import.meta.env.VITE_SUBSCAN_URL
   }extrinsic/${createdBlockId}-${extrinsicIdx}`;
+};
+
+const createSubscanBlockUrl = (createdBlockId: string) => {
+  return `${import.meta.env.VITE_SUBSCAN_URL}block/${createdBlockId}`;
 };
 
 export const DetailsData: React.FC<IDetailsProps> = ({
@@ -24,11 +32,14 @@ export const DetailsData: React.FC<IDetailsProps> = ({
   showStatus,
   isHistorical,
 }) => {
-  const subscanUrlCreatedBlock = createSubscanUrl(
+  const subscanUrlCreatedBlock = createSubscanExtrinsicUrl(
     item.createdBlockId,
     item.extrinsicIdx,
   );
-  const subscanUrlUpdatedBlock = createSubscanUrl(item.updatedBlockId, 0);
+  const subscanUrlUpdatedBlock =
+    item.status === ERawMultiSigStatus.REJECTED
+      ? createSubscanBlockUrl(item.updatedBlockId)
+      : createSubscanExtrinsicUrl(item.updatedBlockId, 0);
   return (
     <StyledInfo>
       <StyledInfoBlock>
@@ -43,13 +54,13 @@ export const DetailsData: React.FC<IDetailsProps> = ({
       </StyledInfoBlock>
       {isHistorical && (
         <StyledInfoBlock>
-          Block ID
+          Updated Block
           <StyledInfoLink
             href={subscanUrlUpdatedBlock}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {item.updatedBlockId}-0
+            {item.updatedBlockId}
           </StyledInfoLink>
         </StyledInfoBlock>
       )}

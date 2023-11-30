@@ -1,4 +1,7 @@
-import { Balance, ProposalStatus } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  Balance,
+  ProposalStatus,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { TMultiSigArgs } from '~/layouts/MultiSig/types';
 
 export interface IAddress {
@@ -129,7 +132,7 @@ export enum ERawMultiSigStatus {
   SUCCESS = 'Success',
   FAILED = 'Failed',
   REJECTED = 'Rejected',
-  DELETED = 'Deleted'
+  DELETED = 'Deleted',
 }
 
 export interface IRawMultiSigVote {

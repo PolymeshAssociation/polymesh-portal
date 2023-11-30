@@ -71,7 +71,7 @@ export const StyledStatus = styled.div`
   font-weight: 500;
   width: 92px;
   &.approved {
-    background-color: #D4F7E7;
+    background-color: #d4f7e7;
     color: #00aa5e;
   }
   &.rejected {

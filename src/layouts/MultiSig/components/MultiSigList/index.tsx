@@ -62,11 +62,13 @@ export const MultiSigList: React.FC<IMultiSigListProps> = ({ sortBy }) => {
       await Promise.all([refreshOnProcessedByMiddleware, runTx(tx)]);
     } catch (error) {
       notifyError((error as Error).message);
-    } finally {
       setActionInProgress(false);
-      refreshProposals();
+    } finally {
       if (unsubCb) {
         unsubCb();
+      }
+      if (unsubProcessedByMiddleware) {
+        unsubProcessedByMiddleware();
       }
     }
   };

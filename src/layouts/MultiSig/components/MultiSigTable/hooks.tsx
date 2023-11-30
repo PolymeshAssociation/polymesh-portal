@@ -13,9 +13,9 @@ import {
   getMultisigCreationExtrinsics,
   getMultisigProposalsQuery,
 } from '~/helpers/graphqlQueries';
-import { ERawMultiSigStatus } from '~/constants/queries/types';
 import { notifyError } from '~/helpers/notifications';
 import {
+  ERawMultiSigStatus,
   IMultisigExtrinsicQueryResponse,
   IProposalQueryResponse,
 } from '~/constants/queries/types';

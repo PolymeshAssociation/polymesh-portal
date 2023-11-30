@@ -47,7 +47,7 @@ export const useMultiSigItemArgs = (
             ),
           );
         } else {
-          const withCallIndex = callIndex ? { index: callIndex } : {}
+          const withCallIndex = callIndex ? { index: callIndex } : {};
           formattedArgs = [
             {
               ...withCallIndex,

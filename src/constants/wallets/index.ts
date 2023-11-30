@@ -5,6 +5,7 @@ export enum Wallet {
   TALISMAN = 'talisman',
   POLKADOT = 'polkadot-js',
   SUBWALLET = 'subwallet-js',
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   NOVA = 'polkadot-js',
 }
 

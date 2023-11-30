@@ -97,3 +97,7 @@ export const ArgsTable: FC<IArgsTableProps> = ({
     </StyledTableWrapper>
   );
 };
+
+ArgsTable.defaultProps = {
+  callIndex: undefined,
+};

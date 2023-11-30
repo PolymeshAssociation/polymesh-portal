@@ -58,7 +58,7 @@ export const useSignersTable = (
     const lastIndex = (pageIndex + 1) * pageSize;
     const firstIndex = pageIndex * pageSize;
     return list.slice(firstIndex, lastIndex);
-  }, [pageIndex, pageSize, votes, signers]);
+  }, [signers, pageIndex, pageSize, votes, isHistorical]);
 
   useEffect(() => {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
