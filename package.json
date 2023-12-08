@@ -13,7 +13,7 @@
     "@hookform/resolvers": "^2.9.11",
     "@polkadot/util-crypto": "12.4.2",
     "@polymeshassociation/browser-extension-signing-manager": "^2.2.0",
-    "@polymeshassociation/polymesh-sdk": "22.0.1",
+    "@polymeshassociation/polymesh-sdk": "22.1.0",
     "@tanstack/react-table": "^8.7.9",
     "events": "^3.3.0",
     "graphql": "^16.8.0",
