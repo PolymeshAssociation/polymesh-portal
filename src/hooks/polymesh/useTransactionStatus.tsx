@@ -24,7 +24,6 @@ const useTransactionStatus = () => {
     } else {
       tag = transaction.tag;
     }
-
     switch (transaction.status) {
       case TransactionStatus.Unapproved:
         idRef.current = toast.info(
@@ -40,14 +39,14 @@ const useTransactionStatus = () => {
             autoClose: false,
             closeOnClick: false,
             containerId: 'notification-center',
-            toastId: customId ?? idRef.current,
+            toastId: customId,
           },
         );
 
         break;
 
       case TransactionStatus.Running:
-        toast.update(customId ?? idRef.current, {
+        toast.update(idRef.current, {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
@@ -65,7 +64,7 @@ const useTransactionStatus = () => {
         });
         break;
       case TransactionStatus.Succeeded:
-        toast.update(customId ?? idRef.current, {
+        toast.update(idRef.current, {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
@@ -84,27 +83,28 @@ const useTransactionStatus = () => {
         });
         break;
       case TransactionStatus.Rejected:
-        toast.update(customId ?? idRef.current, {
+        toast.update(idRef.current, {
           render: (
             <TransactionToast
               status={transaction.status}
               tag={tag}
               isTxBatch={isTxBatch}
               batchSize={isTxBatch ? transaction.transactions.length : 0}
-              error="Transaction was rejected"
+              error={transaction.error?.message || 'Transaction was rejected'}
               timestamp={Date.now()}
             />
           ),
           type: toast.TYPE.WARNING,
           isLoading: false,
-          autoClose: false,
+          autoClose: 5000,
+          hideProgressBar: true,
           closeOnClick: false,
           containerId: 'notification-center',
         });
         break;
 
       case TransactionStatus.Failed:
-        toast.update(customId ?? idRef.current, {
+        toast.update(idRef.current, {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
@@ -125,7 +125,7 @@ const useTransactionStatus = () => {
         break;
 
       case TransactionStatus.Aborted:
-        toast.update(customId ?? idRef.current, {
+        toast.update(idRef.current, {
           render: (
             <TransactionToast
               status={transaction.status}

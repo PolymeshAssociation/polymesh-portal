@@ -50,11 +50,18 @@ export interface IStakingInfo {
   totalStaked: BigNumber | null;
 }
 
+interface Preferences {
+  commission: BigNumber;
+  blocked: boolean;
+}
+
+export type OperatorPrefObject = Record<string, Preferences>;
 export interface IOperatorInfo {
   activeSessionOperators: string[];
   maxOperatorCount: BigNumber | null;
   operatorCount: number | null;
   waitingOperators: string[];
+  operatorsWithCommission: OperatorPrefObject;
 }
 
 export interface IStakingContext {
@@ -67,6 +74,9 @@ export interface IStakingContext {
   operatorInfo: IOperatorInfo;
   setOperatorInfo: (operatorInfo: IOperatorInfo) => void;
   latestStakingEventBlockHash: string;
+  shouldRefetch: boolean;
+  setShouldRefetch: React.Dispatch<React.SetStateAction<boolean>>;
+  refetchAccountInfo: () => void;
 }
 
 export const initialEraStatus: IEraStatus = {
@@ -119,6 +129,7 @@ export const initialOperatorInfo: IOperatorInfo = {
   maxOperatorCount: null,
   operatorCount: null,
   waitingOperators: [],
+  operatorsWithCommission: {},
 };
 
 export const initialState: IStakingContext = {
@@ -131,4 +142,7 @@ export const initialState: IStakingContext = {
   operatorInfo: initialOperatorInfo,
   setOperatorInfo: () => {},
   latestStakingEventBlockHash: '',
+  shouldRefetch: false,
+  setShouldRefetch: () => {},
+  refetchAccountInfo: () => {},
 };

@@ -11,6 +11,7 @@
   "dependencies": {
     "@apollo/client": "^3.8.2",
     "@hookform/resolvers": "^2.9.11",
+    "@polkadot/react-identicon": "^3.6.4",
     "@polkadot/util": "12.4.2",
     "@polkadot/util-crypto": "12.4.2",
     "@polymeshassociation/browser-extension-signing-manager": "^2.2.0",

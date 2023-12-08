@@ -1,5 +1,4 @@
 import { useContext, useState } from 'react';
-import { useBalance } from '~/hooks/polymesh';
 import { Icon } from '~/components';
 import { Text, Heading, Button, SkeletonLoader } from '~/components/UiKit';
 import { TransferPolyx } from './components/TransferPolyx';
@@ -14,9 +13,12 @@ import { formatBalance } from '~/helpers/formatters';
 import { AccountContext } from '~/context/AccountContext';
 
 export const BalanceInfo = () => {
-  const { identityHasValidCdd, accountIsMultisigSigner } =
-    useContext(AccountContext);
-  const { balance, balanceIsLoading } = useBalance();
+  const {
+    identityHasValidCdd,
+    accountIsMultisigSigner,
+    selectedAccountBalance,
+    balanceIsLoading,
+  } = useContext(AccountContext);
   const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [receiveModalOpen, setReceiveModalOpen] = useState(false);
 
@@ -35,7 +37,7 @@ export const BalanceInfo = () => {
                   <SkeletonLoader />
                 ) : (
                   <>
-                    {formatBalance(balance.total)}{' '}
+                    {formatBalance(selectedAccountBalance.total)}{' '}
                     <StyledAsset>POLYX</StyledAsset>
                   </>
                 )}
@@ -49,7 +51,8 @@ export const BalanceInfo = () => {
                 <SkeletonLoader />
               ) : (
                 <>
-                  {formatBalance(balance.free)} <StyledAsset>POLYX</StyledAsset>
+                  {formatBalance(selectedAccountBalance.free)}{' '}
+                  <StyledAsset>POLYX</StyledAsset>
                 </>
               )}
             </Heading>
@@ -61,7 +64,7 @@ export const BalanceInfo = () => {
                 <SkeletonLoader />
               ) : (
                 <>
-                  {formatBalance(balance.locked)}{' '}
+                  {formatBalance(selectedAccountBalance.locked)}{' '}
                   <StyledAsset>POLYX</StyledAsset>
                 </>
               )}

@@ -30,6 +30,9 @@ const StakingProvider = ({ children }: IProviderProps) => {
     useState<IOperatorInfo>(initialOperatorInfo);
   const [latestStakingEventBlockHash, setLatestStakingEventBlockHash] =
     useState<string>('');
+  const [shouldRefetch, setShouldRefetch] = useState(false);
+
+  const refetchAccountInfo = () => setShouldRefetch(true);
 
   // Clear account specific info when selectedAccount changes if it is not the
   // stash or controller of previous data to prevent stale data being rendered
@@ -82,6 +85,9 @@ const StakingProvider = ({ children }: IProviderProps) => {
       operatorInfo,
       setOperatorInfo,
       latestStakingEventBlockHash,
+      shouldRefetch,
+      setShouldRefetch,
+      refetchAccountInfo,
     }),
     [
       eraStatus,
@@ -89,6 +95,7 @@ const StakingProvider = ({ children }: IProviderProps) => {
       stakingInfo,
       operatorInfo,
       latestStakingEventBlockHash,
+      shouldRefetch,
     ],
   );
 

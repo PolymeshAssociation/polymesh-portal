@@ -51,7 +51,9 @@ export const createFormConfig = (configData: IFormConfigData) => {
           .positive()
           .lessThan(maxAmount, 'Insufficient balance')
           .transform((value, originalValue) =>
-            originalValue.trim() === '' ? undefined : Number(value),
+            typeof originalValue === 'string' && originalValue.trim() === ''
+              ? undefined
+              : Number(value),
           )
           .test(
             'is-decimal',

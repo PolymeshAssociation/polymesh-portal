@@ -106,6 +106,12 @@ export const NAV_LINKS = [
     label: 'Overview',
     icon: 'OverviewIcon',
   },
+  {
+    path: PATHS.STAKING,
+    label: 'Staking',
+    icon: 'StakingIcon',
+    disabled: false,
+  },
   { path: PATHS.PORTFOLIO, label: 'Portfolio', icon: 'PortfolioIcon' },
   {
     path: PATHS.TRANSFERS,
@@ -131,12 +137,6 @@ export const NAV_LINKS = [
     label: 'Distributions',
     icon: 'Bank',
     notifications: 'distributions',
-  },
-  {
-    path: PATHS.STAKING,
-    label: 'Staking',
-    icon: 'StakingIcon',
-    disabled: false,
   },
   {
     path: '',

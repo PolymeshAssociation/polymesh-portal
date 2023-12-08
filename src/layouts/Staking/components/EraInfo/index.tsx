@@ -1,13 +1,17 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Heading, SkeletonLoader, Text } from '~/components/UiKit';
+import { Icon } from '~/components';
 import {
-  ElectionInfoWrapper,
   EmptyRow,
   Label,
   StyledElectionItem,
+  StyledElectionInfo,
   StyledEraEpochWrapper,
   StyledWrapper,
   Value,
+  StyledElectionRow,
+  StyledIconWrap,
+  StyledIconRing,
 } from './styles';
 import { formatMillisecondsToTime } from '~/helpers/formatters';
 import { StakingContext } from '~/context/StakingContext';
@@ -79,15 +83,13 @@ export const EraInfo = () => {
       ) : (
         <>
           <StyledEraEpochWrapper $cardWidth={cardWidth}>
-            <Heading centered type="h4" marginBottom={5}>
+            <DonutProgressBar
+              duration={eraDurationBlocks.toNumber()}
+              progress={eraProgress.toNumber()}
+            />
+            <Heading type="h4">
               Era #{activeEra.index && activeEra.index.toString()}
             </Heading>
-            {!(cardWidth < 420) && (
-              <DonutProgressBar
-                duration={eraDurationBlocks.toNumber()}
-                progress={eraProgress.toNumber()}
-              />
-            )}
             <Label>Start: </Label>
             <Value>
               {activeEra.start &&
@@ -104,27 +106,18 @@ export const EraInfo = () => {
             <Value>
               {eraProgress && eraDurationBlocks && eraProgress.toString()}/
               {eraDurationBlocks.toString()}
-              {cardWidth < 420 &&
-                ` (${eraProgress
-                  .div(eraDurationBlocks)
-                  .times(100)
-                  .toFixed(1)}%)`}
             </Value>
             <Label>Next Era: </Label>
             <Value>
               {eraTimeRemaining &&
                 formatMillisecondsToTime(eraTimeRemaining.toNumber())}
             </Value>
-
-            <Heading centered type="h4" marginTop={15} marginBottom={5}>
-              Session #{epochIndex.toNumber()}
-            </Heading>
-            {!(cardWidth < 420) && (
-              <DonutProgressBar
-                duration={epochDurationBlocks.toNumber()}
-                progress={epochProgress.toNumber()}
-              />
-            )}
+            <EmptyRow />
+            <DonutProgressBar
+              duration={epochDurationBlocks.toNumber()}
+              progress={epochProgress.toNumber()}
+            />
+            <Heading type="h4">Session #{epochIndex.toNumber()}</Heading>
             <Label>Era Session: </Label>
             <Value>
               {eraSessionNumber.toString()} of {sessionsPerEra.toNumber()}
@@ -137,49 +130,41 @@ export const EraInfo = () => {
             <Label>Progress: </Label>
             <Value>
               {epochProgress.toString()}/{epochDurationBlocks.toString()}
-              {cardWidth < 420 &&
-                ` (${epochProgress
-                  .div(epochDurationBlocks)
-                  .times(100)
-                  .toFixed(1)}%)`}
             </Value>
             <Label>Next Session: </Label>
             <Value>
               {epochTimeRemaining &&
                 formatMillisecondsToTime(epochTimeRemaining.toNumber())}
             </Value>
-            {cardWidth < 420 && (
-              <>
-                <EmptyRow />
-                <Label>Next Election:</Label>
-                <Value>
-                  {formatMillisecondsToTime(timeToNextElection.toNumber())}
-                </Value>
-                <Label>Election Status:</Label>
-                <Value>{electionInProgress}</Value>
-              </>
-            )}
           </StyledEraEpochWrapper>
-          {cardWidth >= 420 && (
-            <ElectionInfoWrapper>
-              <div>
-                <StyledElectionItem>
-                  Next Election
-                  <Text size="large">
-                    <>
-                      {formatMillisecondsToTime(timeToNextElection.toNumber())}
-                    </>
-                  </Text>
-                </StyledElectionItem>
-              </div>
-              <div>
-                <StyledElectionItem>
-                  Election Status
-                  <Text size="large">{electionInProgress}</Text>
-                </StyledElectionItem>
-              </div>
-            </ElectionInfoWrapper>
-          )}
+          <StyledElectionRow>
+            <StyledElectionItem>
+              <StyledIconWrap>
+                <Icon name="ClockIcon" />
+              </StyledIconWrap>
+              <StyledElectionInfo>
+                Next Election:
+                <Text>
+                  <>{formatMillisecondsToTime(timeToNextElection.toNumber())}</>
+                </Text>
+              </StyledElectionInfo>
+            </StyledElectionItem>
+            <StyledElectionItem>
+              <StyledIconWrap>
+                <StyledIconRing>
+                  {electionInProgress === 'Open' ? (
+                    <Icon name="Check" />
+                  ) : (
+                    <Icon name="CloseIcon" />
+                  )}
+                </StyledIconRing>
+              </StyledIconWrap>
+              <StyledElectionInfo>
+                Election Status:
+                <Text size="large">{electionInProgress}</Text>
+              </StyledElectionInfo>
+            </StyledElectionItem>
+          </StyledElectionRow>
         </>
       )}
     </StyledWrapper>

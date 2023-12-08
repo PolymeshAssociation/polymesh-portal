@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { Icon, CopyToClipboard } from '~/components';
+import Identicon from '@polkadot/react-identicon';
+import { Icon } from '~/components';
 import {
   IconWrapper,
   Label,
@@ -54,10 +55,11 @@ const ExpandableOperators: React.FC<ExpandableOperatorProps> = ({
 
     return (
       <OperatorEntry key={operatorAccount}>
+        <Identicon className="identicon" value={operatorAccount} size={18} />
         {operatorsNames[operatorAccount] || formatKey(operatorAccount)}
-        <CopyToClipboard value={operatorAccount} />
         {value && (
           <>
+            {' \u2014 '}
             {formatBalance(value.toString())} POLYX {'\u00A0'}
           </>
         )}

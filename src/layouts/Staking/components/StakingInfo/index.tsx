@@ -45,6 +45,7 @@ export const StakingInfo = () => {
   }, []);
 
   const { windowWidth } = useWindowWidth();
+
   return (
     <StyledContainer ref={ref}>
       {cardWidth && (
@@ -54,6 +55,9 @@ export const StakingInfo = () => {
               <SkeletonLoader height={45} width={150} />
             ) : (
               <>
+                <Text bold>
+                  <>{formatBalance(apr.toNumber(), 2)} % </>
+                </Text>
                 <span className="item-label">
                   Average APR
                   <Tooltip
@@ -62,9 +66,6 @@ export const StakingInfo = () => {
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
                 </span>
-                <Text size="large" bold>
-                  <>{formatBalance(apr.toNumber(), 2)} % </>
-                </Text>
               </>
             )}
           </StyledInfoItem>
@@ -73,6 +74,9 @@ export const StakingInfo = () => {
               <SkeletonLoader height={45} width={150} />
             ) : (
               <>
+                <Text bold>
+                  <>{formatBalance(apy.toNumber(), 2)} %</>
+                </Text>
                 <span className="item-label">
                   Average APY
                   <Tooltip
@@ -81,9 +85,6 @@ export const StakingInfo = () => {
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
                 </span>
-                <Text size="large" bold>
-                  <>{formatBalance(apy.toNumber(), 2)} %</>
-                </Text>
               </>
             )}
           </StyledInfoItem>
@@ -92,6 +93,12 @@ export const StakingInfo = () => {
               <SkeletonLoader height={45} width={150} />
             ) : (
               <>
+                <Text bold>
+                  <>
+                    {formatBalance(totalStaked.toString(), 0)} POLYX (
+                    {formatBalance(percentStaked?.toString(), 2)} %)
+                  </>
+                </Text>
                 <div className="item-label">
                   Total Staked
                   <Tooltip
@@ -100,12 +107,6 @@ export const StakingInfo = () => {
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
                 </div>
-                <Text size="large" bold>
-                  <>
-                    {formatBalance(totalStaked.toString(), 0)} POLYX (
-                    {formatBalance(percentStaked?.toString(), 2)} %)
-                  </>
-                </Text>
               </>
             )}
           </StyledInfoItem>
@@ -114,6 +115,7 @@ export const StakingInfo = () => {
               <SkeletonLoader height={45} width={150} />
             ) : (
               <>
+                <Text bold>{formatBalance(inflation.toString(), 2)} %</Text>
                 <span className="item-label">
                   Inflation
                   <Tooltip
@@ -122,9 +124,6 @@ export const StakingInfo = () => {
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
                 </span>
-                <Text size="large" bold>
-                  {formatBalance(inflation.toString(), 2)} %
-                </Text>
               </>
             )}
           </StyledInfoItem>
@@ -133,6 +132,9 @@ export const StakingInfo = () => {
               <SkeletonLoader height={45} width={150} />
             ) : (
               <>
+                <Text bold>
+                  {`${operatorCount} / ${waitingOperators.length}`}
+                </Text>
                 <span className="item-label">
                   Operators / Waiting
                   <Tooltip
@@ -141,9 +143,6 @@ export const StakingInfo = () => {
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
                 </span>
-                <Text size="large" bold>
-                  {`${operatorCount} / ${waitingOperators.length}`}
-                </Text>
               </>
             )}
           </StyledInfoItem>
@@ -152,6 +151,11 @@ export const StakingInfo = () => {
               <SkeletonLoader height={45} width={150} />
             ) : (
               <>
+                <Text bold>
+                  {`${
+                    activeSessionOperators.length
+                  } of ${maxOperatorCount.toString()}`}
+                </Text>
                 <span className="item-label">
                   Filled Operator Slots
                   <Tooltip
@@ -160,11 +164,6 @@ export const StakingInfo = () => {
                     maxWidth={cardWidth < 400 ? 200 : undefined}
                   />
                 </span>
-                <Text size="large" bold>
-                  {`${
-                    activeSessionOperators.length
-                  } of ${maxOperatorCount.toString()}`}
-                </Text>
               </>
             )}
           </StyledInfoItem>
