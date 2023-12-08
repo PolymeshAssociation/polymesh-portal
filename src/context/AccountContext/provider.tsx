@@ -16,6 +16,7 @@ import AccountContext from './context';
 import { notifyGlobalError } from '~/helpers/notifications';
 import { IInfoByKey } from './constants';
 import { useLocalStorage } from '~/hooks/utility';
+import { useBalance } from '~/hooks/polymesh';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -58,6 +59,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [accountIsMultisigSigner, setAccountIsMultisigSigner] =
     useState<boolean>(false);
   const [shouldRefreshIdentity, setShouldRefreshIdentity] = useState(true);
+  const { balance: selectedAccountBalance, balanceIsLoading } =
+    useBalance(selectedAccount);
 
   // Get list of connected accounts from the signing manager
   useEffect(() => {
@@ -417,6 +420,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
       refreshAccountIdentity,
       keyIdentityRelationships,
       multiSigAccount,
+      selectedAccountBalance,
+      balanceIsLoading,
     }),
     [
       account,
@@ -426,6 +431,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       allAccountsWithMeta,
       allIdentities,
       allKeyInfo,
+      balanceIsLoading,
       blockWalletAddress,
       blockedWallets,
       defaultAccount,
@@ -438,6 +444,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       refreshAccountIdentity,
       secondaryKeys,
       selectedAccount,
+      selectedAccountBalance,
       setDefaultAccount,
       unblockWalletAddress,
     ],

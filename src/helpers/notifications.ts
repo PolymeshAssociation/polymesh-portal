@@ -5,6 +5,7 @@ const toastConfig = {
   hideProgressBar: true,
   pauseOnHover: true,
   containerId: 'notification-center',
+  closeOnClick: false,
 };
 
 export const notifyError = (message: string) =>

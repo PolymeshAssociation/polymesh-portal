@@ -1,16 +1,17 @@
 import { useContext } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { useBalance } from '~/hooks/polymesh';
 import { Icon } from '~/components';
 import { SkeletonLoader, Text } from '~/components/UiKit';
 import { StyledWrapper, StyledPriceLabel } from './styles';
 import { formatBalance } from '~/helpers/formatters';
+import { AccountContext } from '~/context/AccountContext';
 
 export const BalanceInfo = () => {
   const {
     state: { connecting },
   } = useContext(PolymeshContext);
-  const { balance, balanceIsLoading } = useBalance();
+  const { selectedAccountBalance, balanceIsLoading } =
+    useContext(AccountContext);
   return (
     <StyledWrapper>
       <Icon name="PolymeshSymbol" size="16px" />
@@ -18,7 +19,9 @@ export const BalanceInfo = () => {
         <SkeletonLoader />
       ) : (
         <Text size="small" bold color="secondary">
-          <StyledPriceLabel>{formatBalance(balance.total)}</StyledPriceLabel>{' '}
+          <StyledPriceLabel>
+            {formatBalance(selectedAccountBalance.total)}
+          </StyledPriceLabel>{' '}
           POLYX
         </Text>
       )}

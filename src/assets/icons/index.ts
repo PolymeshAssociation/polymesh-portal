@@ -59,3 +59,6 @@ export { ReactComponent as Bank } from './bank.svg';
 export { ReactComponent as InformationIcon } from './information-icon.svg';
 export { ReactComponent as PolymathLogo } from './polymath-logo.svg';
 export { default as NovaWalletLogo } from './nova-wallet-logo.png';
+export { ReactComponent as ClockIcon } from './clock.svg';
+export { ReactComponent as VerticalDotsIcon } from './vertical-dots.svg';
+export { ReactComponent as CloseCircleIcon } from './close-circle.svg';

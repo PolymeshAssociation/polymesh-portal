@@ -20,6 +20,12 @@ export interface IInfoByKey {
   totalBalance: string;
 }
 
+export interface IAccountBalance {
+  free: string;
+  locked: string;
+  total: string;
+}
+
 export interface IAccountContext {
   account: Account | MultiSig | null;
   selectedAccount: string;
@@ -43,6 +49,8 @@ export interface IAccountContext {
   refreshAccountIdentity: () => void;
   keyIdentityRelationships: Record<string, AccountIdentityRelation>;
   multiSigAccount: MultiSig | null;
+  selectedAccountBalance: IAccountBalance;
+  balanceIsLoading: boolean;
 }
 
 export const initialState = {
@@ -68,4 +76,6 @@ export const initialState = {
   refreshAccountIdentity: () => {},
   keyIdentityRelationships: {},
   multiSigAccount: null,
+  selectedAccountBalance: { free: '', locked: '', total: '' },
+  balanceIsLoading: false,
 };

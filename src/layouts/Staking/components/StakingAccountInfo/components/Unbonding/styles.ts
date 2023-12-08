@@ -43,7 +43,7 @@ export const IconWrapper = styled.div`
 `;
 
 export const Label = styled.span`
-  font-size: 12px;
+  font-size: 16px;
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
 

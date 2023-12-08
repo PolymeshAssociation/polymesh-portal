@@ -15,7 +15,7 @@ interface IUseBalance {
   balanceIsLoading: boolean;
 }
 
-const useBalance = (): IUseBalance => {
+const useBalance = (address?: string): IUseBalance => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
@@ -28,9 +28,11 @@ const useBalance = (): IUseBalance => {
   const [balanceError, setBalanceError] = useState('');
   const [balanceIsLoading, setBalanceIsLoading] = useState(true);
 
+  const targetAccount = address || selectedAccount;
+
   // Get balance data when accounts are set
   useEffect(() => {
-    if (!sdk || !selectedAccount) return undefined;
+    if (!sdk || !targetAccount) return undefined;
 
     let unsubCb: UnsubCallback | null = null;
     (async () => {
@@ -38,7 +40,7 @@ const useBalance = (): IUseBalance => {
         setBalanceIsLoading(true);
         unsubCb = await sdk.accountManagement.getAccountBalance(
           {
-            account: selectedAccount,
+            account: targetAccount,
           },
           ({ free, locked, total }) => {
             setBalance({
@@ -60,7 +62,7 @@ const useBalance = (): IUseBalance => {
     })();
 
     return () => (unsubCb ? unsubCb() : undefined);
-  }, [selectedAccount, sdk]);
+  }, [targetAccount, sdk]);
 
   return { balance, balanceError, balanceIsLoading };
 };

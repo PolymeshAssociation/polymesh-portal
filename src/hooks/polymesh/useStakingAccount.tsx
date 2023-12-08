@@ -48,6 +48,8 @@ const useStakingAccount = () => {
     setStakingAccountInfo,
     stakingAccountInfo,
     latestStakingEventBlockHash,
+    shouldRefetch,
+    setShouldRefetch,
   } = useContext(StakingContext);
 
   const { selectedAccount } = useContext(AccountContext);
@@ -117,122 +119,195 @@ const useStakingAccount = () => {
     }
   }, [selectedAccount]);
 
+  const processUnlockingDetails = (
+    unlockingDetails: Vec<PalletStakingUnlockChunk>,
+  ):
+    | [
+        BigNumber,
+        BigNumber,
+        { amount: BigNumber; era: BigNumber; id: string }[],
+      ]
+    | [] => {
+    if (!currentEraIndex) return [];
+    let totalUnlockingBalance = new BigNumber(0);
+    let totalWithdrawableBalance = new BigNumber(0);
+    const unlockingLots: { amount: BigNumber; era: BigNumber; id: string }[] =
+      [];
+
+    unlockingDetails.forEach(({ value, era }, index) => {
+      const parsedValue = balanceToBigNumber(value.unwrap());
+      const unlockEra = u32ToBigNumber(era.unwrap());
+      totalUnlockingBalance = totalUnlockingBalance.plus(parsedValue);
+
+      if (unlockEra.lte(currentEraIndex)) {
+        totalWithdrawableBalance = totalWithdrawableBalance.plus(parsedValue);
+      } else {
+        unlockingLots.push({
+          amount: parsedValue,
+          era: unlockEra,
+          id: `${era.toString()}-${index}`,
+        });
+      }
+    });
+
+    return [totalUnlockingBalance, totalWithdrawableBalance, unlockingLots];
+  };
+
+  const getStakingDetails = async (account: string) => {
+    if (!polkadotApi) return null;
+    const stakingLedger = await polkadotApi.query.staking.ledger(account);
+    if (!stakingLedger.isSome) {
+      return null;
+    }
+
+    const ledger = stakingLedger.unwrap();
+    const { stash, total, active, unlocking } = ledger;
+
+    const [totalUnlockingBalance, totalWithdrawableBalance, unlockingLots] =
+      processUnlockingDetails(unlocking);
+    const rewardPayee = await polkadotApi.query.staking.payee(stash);
+    const payee = rewardPayee.isAccount
+      ? rewardPayee.asAccount.toString()
+      : rewardPayee.toString();
+    return {
+      isController: account === selectedAccount,
+      controllerAddress: account,
+      stashAddress: stash.toString(),
+      isStash: stash.toString() === selectedAccount,
+      totalBonded: balanceToBigNumber(total.unwrap()),
+      amountActive: balanceToBigNumber(active.unwrap()),
+      amountUnbonding: totalUnlockingBalance?.minus(
+        totalWithdrawableBalance as BigNumber,
+      ),
+      unlockingLots,
+      rewardDestination: payee,
+      amountAvailableToWithdraw: totalWithdrawableBalance,
+    };
+  };
+
+  const fetchData = async () => {
+    try {
+      if (!polkadotApi) return;
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      let stakingDetails: StakingDetails | null =
+        await getStakingDetails(selectedAccount);
+
+      if (!stakingDetails) {
+        const controller =
+          await polkadotApi.query.staking.bonded(selectedAccount);
+        if (controller.isSome) {
+          const controllerKey = controller.unwrap().toString();
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          stakingDetails = await getStakingDetails(controllerKey);
+        }
+      }
+
+      if (!stakingDetails) {
+        stakingDetails = {
+          isController: false,
+          controllerAddress: null,
+          stashAddress: null,
+          isStash: false,
+          totalBonded: null,
+          amountActive: null,
+          amountUnbonding: null,
+          unlockingLots: [],
+          rewardDestination: null,
+          amountAvailableToWithdraw: null,
+        };
+      }
+
+      setIsController(stakingDetails.isController);
+      setControllerAddress(stakingDetails.controllerAddress);
+      setStashAddress(stakingDetails.stashAddress);
+      setIsStash(stakingDetails.isStash);
+      setTotalBonded(stakingDetails.totalBonded);
+      setAmountActive(stakingDetails.amountActive);
+      setAmountUnbonding(stakingDetails.amountUnbonding);
+      setUnbondingLots(stakingDetails.unlockingLots);
+      setRewardDestination(stakingDetails.rewardDestination);
+      setAmountAvailableToWithdraw(stakingDetails.amountAvailableToWithdraw);
+      stakingKeys.current = [
+        stakingDetails.stashAddress,
+        stakingDetails.controllerAddress,
+      ];
+    } catch (error) {
+      notifyError((error as Error).message);
+    } finally {
+      setAccountInfoLoading(false);
+    }
+  };
+
+  const getActiveNominations = async (nominated: string[]) => {
+    if (!polkadotApi) return [];
+    const nominatedOperatorsPromises = nominated.map(
+      async (operatorAccount) => {
+        const stakersClipped =
+          await polkadotApi.query.staking.erasStakersClipped(
+            (activeEraIndex as BigNumber).toNumber(),
+            operatorAccount,
+          );
+        return { operatorAccount, stakersClipped };
+      },
+    );
+
+    const nominatedStakers: {
+      operatorAccount: string;
+      stakersClipped: PalletStakingExposure;
+    }[] = await Promise.all(nominatedOperatorsPromises);
+    // We only want the operators we are actively staking with in the active era
+    const backedOperators: Array<{
+      operatorAccount: string;
+      value: BigNumber;
+    }> = [];
+
+    nominatedStakers.forEach(({ operatorAccount, stakersClipped }) => {
+      stakersClipped.others.forEach((entry) => {
+        if (entry.who.toString() === stashAddress) {
+          const value = balanceToBigNumber(entry.value.unwrap());
+          backedOperators.push({ operatorAccount, value });
+        }
+      });
+    });
+    setActivelyStakedOperators(backedOperators);
+  };
+
+  const getNominations = async () => {
+    if (!polkadotApi) return;
+    try {
+      const nominatedAccounts = await polkadotApi.query.staking.nominators(
+        stashAddress as string,
+      );
+      if (nominatedAccounts.isNone) {
+        setNominations([]);
+        setNominatedEra(null);
+        setActivelyStakedOperators([]);
+        return;
+      }
+      const {
+        targets,
+        submittedIn,
+      }: { targets: Vec<AccountId32>; submittedIn: u32 } =
+        nominatedAccounts.unwrap();
+      const nominated = targets.map((target) => target.toString());
+      setNominations(nominated);
+      setNominatedEra(u32ToBigNumber(submittedIn));
+      await getActiveNominations(nominated);
+    } catch (error) {
+      notifyError((error as Error).message);
+    } finally {
+      setStakingAccountIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!polkadotApi || !currentEraIndex) {
       return;
     }
     setAccountInfoLoading(true);
-
-    const processUnlockingDetails = (
-      unlockingDetails: Vec<PalletStakingUnlockChunk>,
-    ): [
-      BigNumber,
-      BigNumber,
-      { amount: BigNumber; era: BigNumber; id: string }[],
-    ] => {
-      let totalUnlockingBalance = new BigNumber(0);
-      let totalWithdrawableBalance = new BigNumber(0);
-      const unlockingLots: { amount: BigNumber; era: BigNumber; id: string }[] =
-        [];
-
-      unlockingDetails.forEach(({ value, era }, index) => {
-        const parsedValue = balanceToBigNumber(value.unwrap());
-        const unlockEra = u32ToBigNumber(era.unwrap());
-        totalUnlockingBalance = totalUnlockingBalance.plus(parsedValue);
-
-        if (unlockEra.lte(currentEraIndex)) {
-          totalWithdrawableBalance = totalWithdrawableBalance.plus(parsedValue);
-        } else {
-          unlockingLots.push({
-            amount: parsedValue,
-            era: unlockEra,
-            id: `${era.toString()}-${index}`,
-          });
-        }
-      });
-
-      return [totalUnlockingBalance, totalWithdrawableBalance, unlockingLots];
-    };
-
-    const getStakingDetails = async (account: string) => {
-      const stakingLedger = await polkadotApi.query.staking.ledger(account);
-      if (!stakingLedger.isSome) {
-        return null;
-      }
-
-      const ledger = stakingLedger.unwrap();
-      const { stash, total, active, unlocking } = ledger;
-
-      const [totalUnlockingBalance, totalWithdrawableBalance, unlockingLots] =
-        processUnlockingDetails(unlocking);
-      const rewardPayee = await polkadotApi.query.staking.payee(stash);
-      const payee = rewardPayee.isAccount
-        ? rewardPayee.asAccount.toString()
-        : rewardPayee.toString();
-      return {
-        isController: account === selectedAccount,
-        controllerAddress: account,
-        stashAddress: stash.toString(),
-        isStash: stash.toString() === selectedAccount,
-        totalBonded: balanceToBigNumber(total.unwrap()),
-        amountActive: balanceToBigNumber(active.unwrap()),
-        amountUnbonding: totalUnlockingBalance.minus(totalWithdrawableBalance),
-        unlockingLots,
-        rewardDestination: payee,
-        amountAvailableToWithdraw: totalWithdrawableBalance,
-      };
-    };
-
-    const fetchData = async () => {
-      try {
-        let stakingDetails: StakingDetails | null =
-          await getStakingDetails(selectedAccount);
-
-        if (!stakingDetails) {
-          const controller =
-            await polkadotApi.query.staking.bonded(selectedAccount);
-          if (controller.isSome) {
-            const controllerKey = controller.unwrap().toString();
-            stakingDetails = await getStakingDetails(controllerKey);
-          }
-        }
-
-        if (!stakingDetails) {
-          stakingDetails = {
-            isController: false,
-            controllerAddress: null,
-            stashAddress: null,
-            isStash: false,
-            totalBonded: null,
-            amountActive: null,
-            amountUnbonding: null,
-            unlockingLots: [],
-            rewardDestination: null,
-            amountAvailableToWithdraw: null,
-          };
-        }
-
-        setIsController(stakingDetails.isController);
-        setControllerAddress(stakingDetails.controllerAddress);
-        setStashAddress(stakingDetails.stashAddress);
-        setIsStash(stakingDetails.isStash);
-        setTotalBonded(stakingDetails.totalBonded);
-        setAmountActive(stakingDetails.amountActive);
-        setAmountUnbonding(stakingDetails.amountUnbonding);
-        setUnbondingLots(stakingDetails.unlockingLots);
-        setRewardDestination(stakingDetails.rewardDestination);
-        setAmountAvailableToWithdraw(stakingDetails.amountAvailableToWithdraw);
-        stakingKeys.current = [
-          stakingDetails.stashAddress,
-          stakingDetails.controllerAddress,
-        ];
-      } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        setAccountInfoLoading(false);
-      }
-    };
-
     fetchData();
   }, [
     currentEraIndex,
@@ -253,67 +328,16 @@ const useStakingAccount = () => {
       return;
     }
 
-    const getActiveNominations = async (nominated: string[]) => {
-      const nominatedOperatorsPromises = nominated.map(
-        async (operatorAccount) => {
-          const stakersClipped =
-            await polkadotApi.query.staking.erasStakersClipped(
-              activeEraIndex.toNumber(),
-              operatorAccount,
-            );
-          return { operatorAccount, stakersClipped };
-        },
-      );
-
-      const nominatedStakers: {
-        operatorAccount: string;
-        stakersClipped: PalletStakingExposure;
-      }[] = await Promise.all(nominatedOperatorsPromises);
-      // We only want the operators we are actively staking with in the active era
-      const backedOperators: Array<{
-        operatorAccount: string;
-        value: BigNumber;
-      }> = [];
-
-      nominatedStakers.forEach(({ operatorAccount, stakersClipped }) => {
-        stakersClipped.others.forEach((entry) => {
-          if (entry.who.toString() === stashAddress) {
-            const value = balanceToBigNumber(entry.value.unwrap());
-            backedOperators.push({ operatorAccount, value });
-          }
-        });
-      });
-      setActivelyStakedOperators(backedOperators);
-    };
-
-    const getNominations = async () => {
-      try {
-        const nominatedAccounts =
-          await polkadotApi.query.staking.nominators(stashAddress);
-        if (nominatedAccounts.isNone) {
-          setNominations([]);
-          setNominatedEra(null);
-          setActivelyStakedOperators([]);
-          return;
-        }
-        const {
-          targets,
-          submittedIn,
-        }: { targets: Vec<AccountId32>; submittedIn: u32 } =
-          nominatedAccounts.unwrap();
-        const nominated = targets.map((target) => target.toString());
-        setNominations(nominated);
-        setNominatedEra(u32ToBigNumber(submittedIn));
-        await getActiveNominations(nominated);
-      } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        setStakingAccountIsLoading(false);
-      }
-    };
-
     getNominations();
   }, [accountInfoLoading, activeEraIndex, polkadotApi, stashAddress]);
+
+  useEffect(() => {
+    if (shouldRefetch) {
+      fetchData();
+      getNominations();
+      setShouldRefetch(false);
+    }
+  }, [shouldRefetch]);
 
   useEffect(() => {
     setStakingAccountInfo({

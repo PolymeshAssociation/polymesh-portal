@@ -4,7 +4,7 @@ import {
   UnsubCallback,
 } from '@polymeshassociation/browser-extension-signing-manager/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { useNotifications, useBalance } from '~/hooks/polymesh';
+import { useNotifications } from '~/hooks/polymesh';
 import { CopyToClipboard, Icon } from '~/components';
 import {
   NotificationCounter,
@@ -42,7 +42,12 @@ const Sidebar: React.FC<ISidebarProps> = ({
   mobileMenuOpen,
   toggleMobileMenu,
 }) => {
-  const { identity, identityLoading } = useContext(AccountContext);
+  const {
+    identity,
+    identityLoading,
+    selectedAccountBalance,
+    balanceIsLoading,
+  } = useContext(AccountContext);
   const {
     api: { signingManager, sdk },
     settings: { nodeUrl, defaultExtension },
@@ -50,7 +55,6 @@ const Sidebar: React.FC<ISidebarProps> = ({
   const [walletNetwork, setWalletNetwork] = useState<NetworkInfo | null>(null);
   const [networkLabel, setNetworkLabel] = useState<string>('');
   const [networkLoading, setNetworkLoading] = useState(true);
-  const { balance, balanceIsLoading } = useBalance();
   const { count } = useNotifications();
   const { isMobile, isTablet } = useWindowWidth();
   const [fullWidth, setFullWidth] = useState(!isMobile);
@@ -136,7 +140,8 @@ const Sidebar: React.FC<ISidebarProps> = ({
                 <>
                   <Icon name="PolymeshSymbol" size="24px" />
                   <Text bold size="large">
-                    {formatBalance(balance.total)} <span>POLYX</span>
+                    {formatBalance(selectedAccountBalance.total)}{' '}
+                    <span>POLYX</span>
                   </Text>
                 </>
               )}

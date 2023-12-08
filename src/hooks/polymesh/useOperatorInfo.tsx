@@ -6,18 +6,12 @@ import type { Compact, bool } from '@polkadot/types-codec';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
 import { StakingContext } from '~/context/StakingContext';
+import { OperatorPrefObject } from '~/context/StakingContext/constants';
 
 interface ValidatorPrefs {
   commission: Compact<Perbill>;
   blocked: bool;
 }
-
-interface Preferences {
-  commission: BigNumber;
-  blocked: boolean;
-}
-
-type OperatorPrefObject = Record<string, Preferences>;
 
 const useOperatorInfo = () => {
   const {
@@ -162,6 +156,7 @@ const useOperatorInfo = () => {
       maxOperatorCount,
       operatorCount,
       waitingOperators,
+      operatorsWithCommission,
     });
   }, [
     activeSessionOperators,
@@ -169,6 +164,7 @@ const useOperatorInfo = () => {
     operatorCount,
     setOperatorInfo,
     waitingOperators,
+    operatorsWithCommission,
   ]);
 };
 

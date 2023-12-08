@@ -1708,7 +1708,7 @@
     "@polkadot/x-global" "^12.3.2"
     tslib "^2.5.3"
 
-"@polkadot/keyring@12.4.2", "@polkadot/keyring@^12.3.1":
+"@polkadot/keyring@12.4.2", "@polkadot/keyring@^12.3.1", "@polkadot/keyring@^12.6.1":
   version "12.4.2"
   resolved "https://registry.yarnpkg.com/@polkadot/keyring/-/keyring-12.4.2.tgz#ff66c531ff29c1c9cb7c0f8411930bc18c76e2d3"
   integrity sha512-VH91feSL6GiVVLcJ6V8h6jIAuq62bfvhM75AMcjTFol6MDqFl25jdjkHfZ2bQhig330LIhLw89nKdYr2/OfwjA==
@@ -1717,13 +1717,29 @@
     "@polkadot/util-crypto" "12.4.2"
     tslib "^2.6.2"
 
-"@polkadot/networks@12.4.2", "@polkadot/networks@^12.3.1":
+"@polkadot/networks@12.4.2", "@polkadot/networks@^12.3.1", "@polkadot/networks@^12.6.1":
   version "12.4.2"
   resolved "https://registry.yarnpkg.com/@polkadot/networks/-/networks-12.4.2.tgz#6b3dcbdd016beb0ea585009fd61b048b99b17d1c"
   integrity sha512-dd7vss+86kpOyy/C+DuCWChGfhwHBHtrzJ9ArbbpY75qc8SqdP90lj/c13ZCHr5I1l+coy31gyyMj5i6ja1Dpg==
   dependencies:
     "@polkadot/util" "12.4.2"
     "@substrate/ss58-registry" "^1.43.0"
+    tslib "^2.6.2"
+
+"@polkadot/react-identicon@^3.6.4":
+  version "3.6.4"
+  resolved "https://registry.yarnpkg.com/@polkadot/react-identicon/-/react-identicon-3.6.4.tgz#1fd5915e63ceb21a6c6a07cd3bd0a2032213486e"
+  integrity sha512-y8DFLXEVVZ1dKAQDdvtASxPyR4JqnqokRzbuZF1eDUleNxOJruNDGLGrfuM6rqVNHdHRy35Rku546aFqVE5Ldg==
+  dependencies:
+    "@polkadot/keyring" "^12.6.1"
+    "@polkadot/ui-settings" "3.6.4"
+    "@polkadot/ui-shared" "3.6.4"
+    "@polkadot/util" "^12.6.1"
+    "@polkadot/util-crypto" "^12.6.1"
+    ethereum-blockies-base64 "^1.0.2"
+    jdenticon "3.2.0"
+    react-copy-to-clipboard "^5.1.0"
+    styled-components "^6.1.1"
     tslib "^2.6.2"
 
 "@polkadot/rpc-augment@10.9.1":
@@ -1831,7 +1847,26 @@
     rxjs "^7.8.1"
     tslib "^2.5.3"
 
-"@polkadot/util-crypto@12.4.2", "@polkadot/util-crypto@^12.3.1", "@polkadot/util-crypto@^12.3.2", "@polkadot/util-crypto@^12.4.2":
+"@polkadot/ui-settings@3.6.4":
+  version "3.6.4"
+  resolved "https://registry.yarnpkg.com/@polkadot/ui-settings/-/ui-settings-3.6.4.tgz#459ee4bee8aa9a81c21ad1bac96130a43a0f14bd"
+  integrity sha512-0vZPiMqGP9wv1SNBt0Snt6ScmrNHI2aqd9mixKs0pneDI0EO6ZndGanF3xgC51SCpS/N9qNh+VXckghmQMgaNQ==
+  dependencies:
+    "@polkadot/networks" "^12.6.1"
+    "@polkadot/util" "^12.6.1"
+    eventemitter3 "^5.0.1"
+    store "^2.0.12"
+    tslib "^2.6.2"
+
+"@polkadot/ui-shared@3.6.4":
+  version "3.6.4"
+  resolved "https://registry.yarnpkg.com/@polkadot/ui-shared/-/ui-shared-3.6.4.tgz#cc392313c7859b93e0d7c480905a74528175e5b6"
+  integrity sha512-nDlfKRPLxjSFm0769Nmkm+8vamH4HwZtKYZ5X+e2yDF1QkgaRUIc9+xJ/eeXp5lkfH985s0IAEmeNw8dQ0SbYg==
+  dependencies:
+    colord "^2.9.3"
+    tslib "^2.6.2"
+
+"@polkadot/util-crypto@12.4.2", "@polkadot/util-crypto@^12.3.1", "@polkadot/util-crypto@^12.3.2", "@polkadot/util-crypto@^12.4.2", "@polkadot/util-crypto@^12.6.1":
   version "12.4.2"
   resolved "https://registry.yarnpkg.com/@polkadot/util-crypto/-/util-crypto-12.4.2.tgz#e19258dab5f2d4fe49f2d074d36d33a445e50b74"
   integrity sha512-JP7OrEKYx35P3wWc2Iu9F6BfYMIkywXik908zQqPxwoQhr8uDLP1Qoyu9Sws+hE97Yz1O4jBVvryS2le0yusog==
@@ -1847,7 +1882,7 @@
     "@scure/base" "1.1.1"
     tslib "^2.6.2"
 
-"@polkadot/util@12.4.2", "@polkadot/util@^12.3.1", "@polkadot/util@^12.3.2", "@polkadot/util@^12.4.2":
+"@polkadot/util@12.4.2", "@polkadot/util@^12.3.1", "@polkadot/util@^12.3.2", "@polkadot/util@^12.4.2", "@polkadot/util@^12.6.1":
   version "12.4.2"
   resolved "https://registry.yarnpkg.com/@polkadot/util/-/util-12.4.2.tgz#65759f4b366c2a787fd21abacab8cf8ab1aebbf9"
   integrity sha512-NcTCbnIzMb/3TvJNEbaiu/9EvYIBuzDwZfqQ4hzL0GAptkF8aDkKMDCfQ/j3FI38rR+VTPQHNky9fvWglGKGRw==
@@ -2647,6 +2682,13 @@ caniuse-lite@^1.0.30001517:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001525.tgz#d2e8fdec6116ffa36284ca2c33ef6d53612fe1c8"
   integrity sha512-/3z+wB4icFt3r0USMwxujAqRvaD/B7rvGTsKhbhSQErVrJvkZCLhgNLJxU8MevahQVH6hCU9FsHdNUFbiwmE7Q==
 
+canvas-renderer@~2.2.0:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/canvas-renderer/-/canvas-renderer-2.2.1.tgz#c1d131f78a9799aca8af9679ad0a005052b65550"
+  integrity sha512-RrBgVL5qCEDIXpJ6NrzyRNoTnXxYarqm/cS/W6ERhUJts5UQtt/XPEosGN3rqUkZ4fjBArlnCbsISJ+KCFnIAg==
+  dependencies:
+    "@types/node" "*"
+
 chalk@^2.0.0, chalk@^2.4.2:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
@@ -2712,6 +2754,11 @@ color-name@~1.1.4:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.4.tgz#c2a09a87acbde69543de6f63fa3995c826c536a2"
   integrity sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==
+
+colord@^2.9.3:
+  version "2.9.3"
+  resolved "https://registry.yarnpkg.com/colord/-/colord-2.9.3.tgz#4f8ce919de456f1d5c1c368c307fe20f3e59fb43"
+  integrity sha512-jeC1axXpnb0/2nn/Y1LPuLdgXBLH7aDcHu4KEKfqw3CUhX7ZpfBSlPKyqXE6btIgEzfWtrX3/tyBCaCvXvMkOw==
 
 commander@^4.0.1:
   version "4.1.1"
@@ -3328,6 +3375,13 @@ esutils@^2.0.2:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.3.tgz#74d2eb4de0b8da1293711910d50775b9b710ef64"
   integrity sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==
+
+ethereum-blockies-base64@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/ethereum-blockies-base64/-/ethereum-blockies-base64-1.0.2.tgz#4aebca52142bf4d16a3144e6e2b59303e39ed2b3"
+  integrity sha512-Vg2HTm7slcWNKaRhCUl/L3b4KrB8ohQXdd5Pu3OI897EcR6tVRvUqdTwAyx+dnmoDzj8e2bwBLDQ50ByFmcz6w==
+  dependencies:
+    pnglib "0.0.1"
 
 eventemitter3@^4.0.7:
   version "4.0.7"
@@ -3958,6 +4012,13 @@ iso-7064@^1.1.0:
   resolved "https://registry.yarnpkg.com/iso-7064/-/iso-7064-1.1.0.tgz#c498863841f105c4e2f46fd57a15881005426952"
   integrity sha512-GO1bR+qa1AtWIBUoE59suIc6y4yn/1Ho8PEMmhHg0TXpEPzwxm0Z4/+Ps6JfrbYjSDu7yzIoIlQJJh3EHCpvoQ==
 
+jdenticon@3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/jdenticon/-/jdenticon-3.2.0.tgz#b5b9ef413cb66f70c600d6e69a764c977f248a46"
+  integrity sha512-z6Iq3fTODUMSOiR2nNYrqigS6Y0GvdXfyQWrUby7htDHvX7GNEwaWR4hcaL+FmhEgBe08Xkup/BKxXQhDJByPA==
+  dependencies:
+    canvas-renderer "~2.2.0"
+
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
@@ -4214,6 +4275,11 @@ nanoid@^3.3.6:
   version "3.3.6"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.6.tgz#443380c856d6e9f9824267d960b4236ad583ea4c"
   integrity sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==
+
+nanoid@^3.3.7:
+  version "3.3.7"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.7.tgz#d0c301a691bc8d54efa0a2226ccf3fe2fd656bd8"
+  integrity sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==
 
 natural-compare@^1.4.0:
   version "1.4.0"
@@ -4527,6 +4593,11 @@ pify@^4.0.1:
   resolved "https://registry.yarnpkg.com/pify/-/pify-4.0.1.tgz#4b2cd25c50d598735c50292224fd8c6df41e3231"
   integrity sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==
 
+pnglib@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/pnglib/-/pnglib-0.0.1.tgz#f9ab6f9c688f4a9d579ad8be28878a716e30c096"
+  integrity sha512-95ChzOoYLOPIyVmL+Y6X+abKGXUJlvOVLkB1QQkyXl7Uczc6FElUy/x01NS7r2GX6GRezloO/ecCX9h4U9KadA==
+
 postcss-value-parser@^4.0.2:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/postcss-value-parser/-/postcss-value-parser-4.2.0.tgz#723c09920836ba6d3e5af019f92bc0971c02e514"
@@ -4538,6 +4609,15 @@ postcss@^8.4.23:
   integrity sha512-M0RzbcI0sO/XJNucsGjvWU9ERWxb/ytp1w6dKtxTKgixdtQDq4rmx/g8W1hnaheq9jgwL/oyEdH5Bc4WwJKMqg==
   dependencies:
     nanoid "^3.3.6"
+    picocolors "^1.0.0"
+    source-map-js "^1.0.2"
+
+postcss@^8.4.31:
+  version "8.4.32"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.32.tgz#1dac6ac51ab19adb21b8b34fd2d93a86440ef6c9"
+  integrity sha512-D/kj5JNu6oo2EIy+XL/26JEDTlIbB8hw85G8StOE6L74RQAVVP5rej6wxCNqyMbR4RkPfqvezVbPw81Ngd6Kcw==
+  dependencies:
+    nanoid "^3.3.7"
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
 
@@ -4922,6 +5002,11 @@ source-map-js@^1.0.2:
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.0.2.tgz#adbc361d9c62df380125e7f161f71c826f1e490c"
   integrity sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==
 
+store@^2.0.12:
+  version "2.0.12"
+  resolved "https://registry.yarnpkg.com/store/-/store-2.0.12.tgz#8c534e2a0b831f72b75fc5f1119857c44ef5d593"
+  integrity sha512-eO9xlzDpXLiMr9W1nQ3Nfp9EzZieIQc10zPPMP5jsVV7bLOziSFFBP0XoDXACEIFtdI+rIz0NwWVA/QVJ8zJtw==
+
 string.prototype.matchall@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/string.prototype.matchall/-/string.prototype.matchall-4.0.8.tgz#3bf85722021816dcd1bf38bb714915887ca79fd3"
@@ -5011,6 +5096,21 @@ styled-components@^6.0.7:
     css-to-react-native "^3.2.0"
     csstype "^3.1.2"
     postcss "^8.4.23"
+    shallowequal "^1.1.0"
+    stylis "^4.3.0"
+    tslib "^2.5.0"
+
+styled-components@^6.1.1:
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/styled-components/-/styled-components-6.1.1.tgz#a5414ada07fb1c17b96a26a05369daa4e2ad55e5"
+  integrity sha512-cpZZP5RrKRIClBW5Eby4JM1wElLVP4NQrJbJ0h10TidTyJf4SIIwa3zLXOoPb4gJi8MsJ8mjq5mu2IrEhZIAcQ==
+  dependencies:
+    "@emotion/is-prop-valid" "^1.2.1"
+    "@emotion/unitless" "^0.8.0"
+    "@types/stylis" "^4.0.2"
+    css-to-react-native "^3.2.0"
+    csstype "^3.1.2"
+    postcss "^8.4.31"
     shallowequal "^1.1.0"
     stylis "^4.3.0"
     tslib "^2.5.0"
