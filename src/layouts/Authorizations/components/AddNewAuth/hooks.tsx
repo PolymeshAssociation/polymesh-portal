@@ -286,7 +286,9 @@ export const useSubmitHandler = () => {
         }
 
         const tx = await tickerReservation.transferOwnership(args);
-        unsubCb = tx.onStatusChange(handleStatusChange);
+        unsubCb = tx.onStatusChange((transaction) =>
+          handleStatusChange(transaction),
+        );
         await tx.run();
         refreshAuthorizations();
       } catch (error) {
@@ -329,7 +331,9 @@ export const useSubmitHandler = () => {
         }
 
         const tx = await assetEntity.transferOwnership(args);
-        unsubCb = tx.onStatusChange(handleStatusChange);
+        unsubCb = tx.onStatusChange((transaction) =>
+          handleStatusChange(transaction),
+        );
         await tx.run();
         refreshAuthorizations();
       } catch (error) {
@@ -364,7 +368,9 @@ export const useSubmitHandler = () => {
         }
 
         const tx = await sdk.accountManagement.inviteAccount(args);
-        unsubCb = tx.onStatusChange(handleStatusChange);
+        unsubCb = tx.onStatusChange((transaction) =>
+          handleStatusChange(transaction),
+        );
         await tx.run();
         refreshAuthorizations();
       } catch (error) {
@@ -415,7 +421,9 @@ export const useSubmitHandler = () => {
         }
 
         const tx = await portfolioEntity.setCustodian(args);
-        unsubCb = tx.onStatusChange(handleStatusChange);
+        unsubCb = tx.onStatusChange((transaction) =>
+          handleStatusChange(transaction),
+        );
         await tx.run();
         refreshAuthorizations();
       } catch (error) {
@@ -493,7 +501,9 @@ export const useSubmitHandler = () => {
         }
 
         const tx = await assetEntity.permissions.inviteAgent(args);
-        unsubCb = tx.onStatusChange(handleStatusChange);
+        unsubCb = tx.onStatusChange((transaction) =>
+          handleStatusChange(transaction),
+        );
         await tx.run();
         refreshAuthorizations();
       } catch (error) {
@@ -529,7 +539,9 @@ export const useSubmitHandler = () => {
         }
 
         const tx = await sdk.accountManagement.subsidizeAccount(args);
-        unsubCb = tx.onStatusChange(handleStatusChange);
+        unsubCb = tx.onStatusChange((transaction) =>
+          handleStatusChange(transaction),
+        );
         await tx.run();
         refreshAuthorizations();
       } catch (error) {
@@ -564,7 +576,9 @@ export const useSubmitHandler = () => {
         }
 
         const tx = await sdk.identities.rotatePrimaryKey(args);
-        unsubCb = tx.onStatusChange(handleStatusChange);
+        unsubCb = tx.onStatusChange((transaction) =>
+          handleStatusChange(transaction),
+        );
         await tx.run();
         refreshAuthorizations();
       } catch (error) {

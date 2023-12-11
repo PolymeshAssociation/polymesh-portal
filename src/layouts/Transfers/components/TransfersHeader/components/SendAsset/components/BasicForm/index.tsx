@@ -105,7 +105,9 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
         }),
       );
 
-      unsubCb = tx.onStatusChange(handleStatusChange);
+      unsubCb = tx.onStatusChange((transaction) =>
+        handleStatusChange(transaction),
+      );
       await tx.run();
       refreshInstructions();
     } catch (error) {

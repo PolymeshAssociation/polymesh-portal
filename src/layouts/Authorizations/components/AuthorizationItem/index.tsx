@@ -67,7 +67,9 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
     try {
       setAcceptInProgress(true);
       const acceptTx = await (accept as NoArgsProcedureMethod<void, void>)();
-      unsubCb = await acceptTx.onStatusChange(handleStatusChange);
+      unsubCb = await acceptTx.onStatusChange((transaction) =>
+        handleStatusChange(transaction),
+      );
       await acceptTx.run();
       refreshAccountIdentity();
     } catch (error) {
@@ -84,7 +86,9 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
     try {
       setRejectInProgress(true);
       const rejectTx = await reject();
-      unsubCb = await rejectTx.onStatusChange(handleStatusChange);
+      unsubCb = await rejectTx.onStatusChange((transaction) =>
+        handleStatusChange(transaction),
+      );
       await rejectTx.run();
       refreshAccountIdentity();
     } catch (error) {

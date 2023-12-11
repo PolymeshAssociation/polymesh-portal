@@ -17,6 +17,7 @@ import {
   SelectedOption,
   StyledSelectOption,
   StyledPlaceholder,
+  StyledError,
 } from '../../styles';
 import {
   StyledAmountInput,
@@ -24,7 +25,6 @@ import {
   AssetWrapper,
   IconWrapper,
   StyledAvailableBalance,
-  StyledError,
   UseMaxButton,
 } from './styles';
 

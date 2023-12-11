@@ -92,7 +92,9 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
     let unsubCb: UnsubCallback | undefined;
     try {
       const addClaimsTx = await sdk.claims.addClaims({ claims });
-      unsubCb = addClaimsTx.onStatusChange(handleStatusChange);
+      unsubCb = addClaimsTx.onStatusChange((transaction) =>
+        handleStatusChange(transaction),
+      );
       await addClaimsTx.run();
       refreshClaims();
     } catch (error) {

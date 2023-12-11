@@ -8,4 +8,8 @@ export interface ICollectionDetails {
   owner: string;
   totalSupply: number;
   docs?: AssetDocument[];
+  expiry?: string;
+  lockedState?: string;
+  value?: string;
+  description?: string;
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { formatDid, formatKey } from '~/helpers/formatters';
 import { Icon, CopyToClipboard } from '~/components';
+import Tooltip from '~/components/UiKit/Tooltip';
 import {
   StyledId,
   StyledInfoItem,
@@ -12,7 +13,11 @@ import {
   StyledInfoBlockPink,
   StyledInfoBlockDescription,
 } from '../../../NftAsset/styles';
-import { StyledDetailsContainer, StyledInfoWrap } from '../../styles';
+import {
+  StyledDetailsContainer,
+  StyledInfoWrap,
+  StyledTooltipWrapper,
+} from '../../styles';
 import { ICollectionDetails } from '../../constants';
 import { getDateTime } from '../../helpers';
 
@@ -53,7 +58,15 @@ export const CollectionDetails: React.FC<ICollectionDetailsProps> = ({
               <StyledInfoBlock>
                 <StyledInfoBlockItem>
                   <StyledInfoBlockHead>Name</StyledInfoBlockHead>
-                  {details.name}
+                  <StyledTooltipWrapper>
+                    {details.name}
+                    {details.description && (
+                      <Tooltip
+                        caption={details.description}
+                        position="bottom"
+                      />
+                    )}
+                  </StyledTooltipWrapper>
                 </StyledInfoBlockItem>
                 <StyledInfoBlockItem>
                   <StyledInfoBlockHead>Created At</StyledInfoBlockHead>
@@ -70,6 +83,24 @@ export const CollectionDetails: React.FC<ICollectionDetailsProps> = ({
                     <CopyToClipboard value={details.owner} />
                   </StyledInfoBlockPink>
                 </StyledInfoBlockItem>
+                {details.lockedState && (
+                  <StyledInfoBlockItem>
+                    <StyledInfoBlockHead>Locked state</StyledInfoBlockHead>
+                    {details.lockedState}
+                  </StyledInfoBlockItem>
+                )}
+                {details.expiry && (
+                  <StyledInfoBlockItem>
+                    <StyledInfoBlockHead>Expiry</StyledInfoBlockHead>
+                    {details.expiry}
+                  </StyledInfoBlockItem>
+                )}
+                {details.description && (
+                  <StyledInfoBlockItem>
+                    <StyledInfoBlockHead>Description</StyledInfoBlockHead>
+                    {details.description}
+                  </StyledInfoBlockItem>
+                )}
               </StyledInfoBlock>
             </StyledInfoBlockWrap>
           )}

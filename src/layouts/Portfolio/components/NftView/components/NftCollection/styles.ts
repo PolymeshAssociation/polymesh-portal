@@ -36,3 +36,9 @@ export const StyledListContainer = styled.div`
 export const StyledInfoWrap = styled(StyledInfo)`
   max-height: calc(100vh - 388px);
 `;
+
+export const StyledTooltipWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`

@@ -50,7 +50,9 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
       const revokeTx = await sdk.claims.revokeClaims({
         claims: [{ claim, target: claimData.target }],
       });
-      unsubCb = await revokeTx.onStatusChange(handleStatusChange);
+      unsubCb = await revokeTx.onStatusChange((transaction) =>
+        handleStatusChange(transaction),
+      );
       await revokeTx.run();
       refreshClaims();
     } catch (error) {

@@ -24,10 +24,8 @@ import { IAdvancedFieldValues, ADVANCED_FORM_CONFIG } from '../config';
 import { TSelectedLeg } from '~/components/LegSelect/types';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
-import {
-  createAdvancedInstructionParams,
-  // updateLegsOnSelect,
-} from '../helpers';
+import { MAX_NFTS_PER_LEG } from '~/components/AssetForm/constants';
+import { createAdvancedInstructionParams } from '../helpers';
 import { useWindowWidth } from '~/hooks/utility';
 
 interface IAdvancedFormProps {
@@ -113,7 +111,9 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
       const tx = await selectedVenue.addInstruction(
         createAdvancedInstructionParams({ selectedLegs, formData }),
       );
-      unsubCb = tx.onStatusChange(handleStatusChange);
+      unsubCb = tx.onStatusChange((transaction) =>
+        handleStatusChange(transaction),
+      );
       await tx.run();
       refreshInstructions();
     } catch (error) {
@@ -135,7 +135,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
       if ('amount' in asset) {
         return asset.amount.toNumber() <= 0;
       }
-      return !asset.nfts?.length;
+      return !asset.nfts?.length || asset.nfts?.length > MAX_NFTS_PER_LEG;
     });
 
   return (

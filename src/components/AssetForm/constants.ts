@@ -34,3 +34,5 @@ export interface IParsedCollectionData {
   collections: Record<string, ICollection>; 
   nfts: Record<string, INft[]>;
 }
+
+export const MAX_NFTS_PER_LEG = 10;

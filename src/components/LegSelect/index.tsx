@@ -21,6 +21,7 @@ import { notifyError } from '~/helpers/notifications';
 import { useAssetForm } from '../AssetForm/hooks';
 import { INonFungibleAsset } from '../AssetForm/constants';
 import AssetForm from '../AssetForm';
+import { MAX_NFTS_PER_LEG } from '../AssetForm/constants';
 
 interface ILegSelectProps {
   index: number;
@@ -267,7 +268,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       assetBalance={balance}
       disabled={!selectedSenderPortfolio?.id || !selectedReceiverPortfolio?.id}
       portfolioName={portfolioName}
-      maxNfts={10}
+      maxNfts={MAX_NFTS_PER_LEG}
     >
       <FlexWrapper $marginBottom={16}>
         <InputWrapper>

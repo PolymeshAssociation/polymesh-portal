@@ -42,13 +42,6 @@ export const StyledAvailableBalance = styled.div`
   justify-content: space-between;
 `;
 
-export const StyledError = styled.p`
-  text-align: right;
-  font-size: 12px;
-  font-weight: 500;
-  color: #db2c3e;
-`;
-
 export const UseMaxButton = styled.button`
   position: absolute;
   top: 0;

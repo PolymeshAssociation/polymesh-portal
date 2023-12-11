@@ -11,6 +11,7 @@ import { ICollectionDetails } from './constants';
 import {
   parseCollectionFromPortfolio,
   parseCollectionFromPortfolios,
+  getDateTime,
 } from './helpers';
 
 export const useNftCollection = () => {
@@ -62,6 +63,7 @@ export const useNftCollection = () => {
         const collectionInfo = await sdk.assets.getNftCollection({
           ticker: nftCollection,
         });
+
         const details = await collectionInfo.details();
         const collectionId = await collectionInfo.getCollectionId();
         const docs = await collectionInfo.documents.get();
@@ -69,6 +71,10 @@ export const useNftCollection = () => {
           query: getCollectionCreationTime(nftCollection),
         });
         const createdAt = createdAtData.data.assets.nodes[0].createdAt;
+
+        const meta = await collectionInfo.metadata.get();
+        const description = await meta[0].details();
+        const detail = await meta[0].value();
 
         if (!data.length) {
           setSearchParams();
@@ -82,6 +88,10 @@ export const useNftCollection = () => {
           totalSupply: details.totalSupply.toNumber(),
           createdAt: createdAt,
           docs: docs.data,
+          expiry: detail?.expiry ? getDateTime(detail?.expiry) : '-',
+          lockedState: detail?.lockStatus,
+          value: detail?.value,
+          description: description.specs.description,
         });
         setNftList(sortedList);
       } catch (error) {

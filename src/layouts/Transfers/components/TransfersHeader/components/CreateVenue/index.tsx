@@ -44,7 +44,7 @@ export const CreateVenue: React.FC<ICreateVenueProps> = ({ toggleModal }) => {
     toggleModal();
     try {
       const venueQ = await sdk.settlements.createVenue({ description, type });
-      venueQ.onStatusChange(handleStatusChange);
+      venueQ.onStatusChange((transaction) => handleStatusChange(transaction));
       await venueQ.run();
       refreshInstructions();
     } catch (error) {

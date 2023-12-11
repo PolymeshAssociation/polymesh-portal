@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { notifyError } from '~/helpers/notifications';
 import { Text } from '~/components/UiKit';
 import { Icon } from '~/components';
 import { useOutsideClick } from '../../hooks';
@@ -10,6 +9,7 @@ import {
   StyledExpandedSelect,
   StyledSelectOption,
   StyledPlaceholder,
+  StyledError,
 } from '../../styles';
 import {
   StyledSelectGroup,
@@ -84,10 +84,6 @@ export const NftSelect: React.FC<INftSelectProps> = ({
   };
 
   const handleSelectNft = (newNft: INft) => {
-    if (selectedNfts.length === maxNfts) {
-      notifyError(`You can send max ${maxNfts} nfts per leg`);
-      return;
-    }
     const newNfts = [...selectedNfts, newNft];
     setSelectedNfts(newNfts);
     handleSelectAsset(index, {
@@ -200,6 +196,10 @@ export const NftSelect: React.FC<INftSelectProps> = ({
             )}
             <Icon name="ExpandIcon" className="expand-icon" size="18px" />
           </StyledSelect>
+          {maxNfts && selectedNfts.length > maxNfts && (
+            <StyledError>You can send up to {maxNfts} nfts per leg</StyledError>
+          )}
+
           {nftSelectExpanded && (
             <StyledExpandedSelect>
               {availableNfts?.length ? (

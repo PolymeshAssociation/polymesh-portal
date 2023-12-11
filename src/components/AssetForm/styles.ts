@@ -141,3 +141,10 @@ export const StyledInput = styled.input`
     color: ${({ theme }) => theme.colors.textSecondary};
   }
 `;
+
+export const StyledError = styled.p`
+  text-align: right;
+  font-size: 12px;
+  font-weight: 500;
+  color: #db2c3e;
+`;
