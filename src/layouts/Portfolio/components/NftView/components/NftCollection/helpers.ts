@@ -1,4 +1,5 @@
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
+import { toParsedDateTime } from '~/helpers/dateTime';
 import { parseSingleNftFromPortfolio } from '../../../NftAssetTable/helpers';
 
 export const parseCollectionFromPortfolio = async (
@@ -9,6 +10,7 @@ export const parseCollectionFromPortfolio = async (
   const currectCollection = collectionsList.find(
     ({ collection }) => collection.ticker === nftCollection,
   );
+
   if (!currectCollection) {
     return [];
   }
@@ -43,4 +45,9 @@ export const parseCollectionFromPortfolios = async (
     }),
   );
   return data.flat();
+};
+
+export const getDateTime = (dateTime: string | Date) => {
+  const [date, time] = toParsedDateTime(dateTime).split(' ');
+  return `${date} / ${time}`;
 };

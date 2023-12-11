@@ -137,7 +137,7 @@ export const parseNftTransactions = (dataFromQuery: ITransactionsQueryResponse) 
             extrinsicIdx: eventIdx,
           },
           dateTime: toParsedDateTime(datetime),
-          from: fromPortfolioId.split('/')[0],
+          from: fromPortfolioId ? fromPortfolioId.split('/')[0] : '',
           to: toPortfolioId.split('/')[0],
           assetId,
           nftIds

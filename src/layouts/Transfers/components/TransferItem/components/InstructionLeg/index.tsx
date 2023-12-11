@@ -193,18 +193,20 @@ export const InstructionLeg: React.FC<ILegProps> = ({
       {!!legDetails.nfts?.length && (
         <StyledNftsWrapper>
           <span>Asset ID ({legDetails?.nfts?.length}):</span>
-          {legDetails.nfts.map((nft) => (
-            <StyledNftItem key={nft.id}>
-              <StyledNftImage>
-                {nft.imgUrl ? (
-                  <img src={nft.imgUrl} alt={nft.id.toString()} />
-                ) : (
-                  <Icon name="Coins" size="12px" />
-                )}
-              </StyledNftImage>
-              {nft.id}
-            </StyledNftItem>
-          ))}
+          {legDetails.nfts
+            .sort((a, b) => a.id - b.id)
+            .map((nft) => (
+              <StyledNftItem key={nft.id}>
+                <StyledNftImage>
+                  {nft.imgUrl ? (
+                    <img src={nft.imgUrl} alt={nft.id.toString()} />
+                  ) : (
+                    <Icon name="Coins" size="12px" />
+                  )}
+                </StyledNftImage>
+                {nft.id}
+              </StyledNftItem>
+            ))}
         </StyledNftsWrapper>
       )}
     </StyledLegWrapper>

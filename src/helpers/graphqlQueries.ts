@@ -76,6 +76,7 @@ export const transferEventsQuery = ({
   pageSize: number;
   nonFungible: boolean;
 }) => {
+  const id = portfolioId === 'default' ? '0' : portfolioId;
   const query = gql`
     query {
       assetTransactions(
@@ -83,9 +84,14 @@ export const transferEventsQuery = ({
         offset: ${offset}
         orderBy: CREATED_AT_DESC
         filter: {
-          fromPortfolioId: {
-            includes: "${portfolioId === null ? `${identityId}`: `${identityId}/${portfolioId}`}"
-          },
+          or: [
+            {fromPortfolioId: 
+              { includes: "${portfolioId === null ? `${identityId}`: `${identityId}/${id}`}"}
+            }
+            {toPortfolioId:
+              { includes: "${portfolioId === null ? `${identityId}`: `${identityId}/${id}`}"}
+            }
+          ]
           amount: {
             isNull: ${nonFungible}
           }
@@ -395,12 +401,32 @@ export const getMultisigCreationExtrinsics = (
           extrinsicIdx
         }
       }
-    }
   `;
 
   return query;
 };
 
+export const getCollectionCreationTime = (
+  ticker: string
+) => {
+  const query = gql`
+    query {
+      assets (
+        filter: {
+          ticker: {
+            equalTo: "PENGUINNFTS2"
+          }
+        }
+      ) {
+        nodes {
+          createdAt
+        }
+      }
+    }
+  `;
+
+  return query;
+};
 // export const historicalDistributionsQuery = ({
 //   offset,
 //   pageSize,

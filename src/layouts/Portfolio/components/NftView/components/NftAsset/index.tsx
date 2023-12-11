@@ -44,7 +44,11 @@ export const NftAsset = () => {
     <StyledNftContainer>
       <StyledImageWrap>
         <StyledImage>
-          <img src={nft?.imgUrl || ''} alt={nftId as string} />
+          {nft?.imgUrl ? (
+            <img src={nft?.imgUrl || ''} alt={nftId as string} />
+          ) : (
+            <Icon name="Coins" size="100px" className="coins-icon" />
+          )}
         </StyledImage>
         {nft?.isLocked && <NftStatusLabel />}
       </StyledImageWrap>

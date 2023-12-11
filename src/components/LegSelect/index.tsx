@@ -267,6 +267,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       assetBalance={balance}
       disabled={!selectedSenderPortfolio?.id || !selectedReceiverPortfolio?.id}
       portfolioName={portfolioName}
+      maxNfts={10}
     >
       <FlexWrapper $marginBottom={16}>
         <InputWrapper>

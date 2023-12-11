@@ -23,9 +23,14 @@ const transactionColumnHelper = createColumnHelper<INftTransactionItem>();
 export const columns = {
   [ENftAssetsTableTabs.COLLECTIONS]: [
     collectionColumnHelper.accessor('ticker', {
-      header: (info) => <CollectionFilter info={info} name="Ticker" />,
+      header: (info) => <CollectionFilter info={info} name="Collection" />,
       cell: (info) => <TickerCell info={info.getValue()} />,
       enableSorting: true,
+      sortingFn: (rowA, rowB) => {
+        const tickerA = rowA.original.ticker?.ticker as string;
+        const tickerB = rowB.original.ticker?.ticker as string;
+        return tickerA < tickerB ? 1 : tickerA > tickerB ? -1 : 0;
+      },
     }),
     collectionColumnHelper.accessor('name', {
       header: 'Name',

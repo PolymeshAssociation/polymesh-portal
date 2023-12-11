@@ -53,7 +53,21 @@ export interface IHistoricalItem {
   success: boolean;
 }
 
+export interface INftTransactionItem {
+  txId: {
+    eventId: string;
+    blockId: string;
+    extrinsicIdx: number;
+  }
+  dateTime: string;
+  from: string;
+  to: string;
+  nftIds: string[];
+  assetId: string;
+}
+
 export enum EActivityTableTabs {
   HISTORICAL_ACTIVITY = 'historical',
-  TOKEN_ACTIVITY = 'token',
+  TOKEN_ACTIVITY = 'Fungible assets',
+  NFT_ACTIVITY = 'NFT Collections'
 }

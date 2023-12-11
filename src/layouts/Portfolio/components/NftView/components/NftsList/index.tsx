@@ -11,7 +11,7 @@ import {
   StyledNftImage,
 } from './styles';
 
-const loaderArr = [1, 2, 3, 4];
+const loaderArr = [1, 2];
 
 interface INftsListProps {
   nftList: INftListItem[];

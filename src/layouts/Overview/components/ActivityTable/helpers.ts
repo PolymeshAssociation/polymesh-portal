@@ -1,6 +1,6 @@
 import { ExtrinsicData } from '@polymeshassociation/polymesh-sdk/types';
 import { balanceToBigNumber } from '@polymeshassociation/polymesh-sdk/utils/conversion';
-import { ITransferEvent, IAddress } from '~/constants/queries/types';
+import { ITransferEvent, IAssetTransaction, IAddress } from '~/constants/queries/types';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import { splitByCapitalLetters } from '~/helpers/formatters';
 import { IHistoricalItem, ITokenItem } from './constants';
@@ -22,30 +22,22 @@ export const parseExtrinsicHistory = async (
   return parsedData as IHistoricalItem[];
 };
 
-export const parseTokenActivity = (tokenActivity: ITransferEvent[]) => {
+export const parseTokenActivity = (tokenActivity: IAssetTransaction[]) => {
   return tokenActivity.map(
-    ({ id, blockId, extrinsicIdx, block, attributes }: ITransferEvent) => {
-      const [
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        { value: caller },
-        { value: asset },
-        { value: from },
-        { value: to },
-        { value: amount },
-      ] = attributes;
+    ({ id, createdBlockId,eventIdx, datetime, amount, fromPortfolioId, toPortfolioId, assetId }: IAssetTransaction) => {
       return {
         id: {
           eventId: id.replace('/', '-'),
-          blockId: blockId.toString(),
-          extrinsicIdx,
+          blockId: createdBlockId.toString(),
+          extrinsicIdx: eventIdx,
         },
-        dateTime: toParsedDateTime(block.datetime),
-        from: (from as IAddress).did,
-        to: (to as IAddress).did,
+        dateTime: toParsedDateTime(datetime),
+        from: fromPortfolioId.split('/')[0],
+        to: toPortfolioId.split('/')[0],
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         amount: balanceToBigNumber(amount as number).toString(),
-        asset: asset as string,
+        asset: assetId,
       };
     },
   ) as ITokenItem[];

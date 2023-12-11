@@ -26,6 +26,7 @@ interface IAssetFormProps {
   disabled?: boolean;
   portfolioName?: string;
   memo?: React.ReactNode;
+  maxNfts?: number;
 }
 
 const AssetForm: React.FC<IAssetFormProps> = ({
@@ -40,6 +41,7 @@ const AssetForm: React.FC<IAssetFormProps> = ({
   children,
   disabled,
   memo,
+  maxNfts,
 }) => {
   const [assetType, setAssetType] = useState<EAssetType>(EAssetType.FUNGIBLE);
 
@@ -98,6 +100,7 @@ const AssetForm: React.FC<IAssetFormProps> = ({
           handleSelectAsset={handleSelectAsset}
           disabled={disabled}
           portfolioName={portfolioName}
+          maxNfts={maxNfts}
         />
       )}
       {memo}

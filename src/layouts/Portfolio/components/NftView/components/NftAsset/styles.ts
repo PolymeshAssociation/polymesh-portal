@@ -18,6 +18,21 @@ export const StyledNftContainer = styled.div`
 export const StyledImageWrap = styled.div`
   flex: 0 50%;
   position: relative;
+  background: ${({ theme }) => theme.colors.landingBackground};
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: fit-content;
+  & .coins-icon {
+    padding: 80px 0;
+    color: ${({ theme }) => theme.colors.lightAccent};
+    & svg {
+      width: 50px;
+      height: 50px;
+    }
+  }
 `;
 
 export const StyledImage = styled.div`

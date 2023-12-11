@@ -8,7 +8,14 @@ interface IAddressCellProps {
 
 export const AddressCell: React.FC<IAddressCellProps> = ({ address }) => (
   <AddressCellWrapper>
-    {formatDid(address)}
-    <CopyToClipboard value={address} />
+    {address ? (
+      <>
+        {' '}
+        {formatDid(address)}
+        <CopyToClipboard value={address} />
+      </>
+    ) : (
+      '-'
+    )}
   </AddressCellWrapper>
 );

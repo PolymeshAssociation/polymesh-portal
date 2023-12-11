@@ -41,7 +41,7 @@ export const useAssetForm = (
   const [nfts, setNfts] = useState<Record<string, INft[]>>({});
 
   const getNftsPerCollection = (ticker: string) => {
-    return nfts[ticker];
+    return nfts[ticker]?.sort((a, b) => a.id.toNumber() - b.id.toNumber());
   };
 
   const getAssetBalance = (asset: string) => {

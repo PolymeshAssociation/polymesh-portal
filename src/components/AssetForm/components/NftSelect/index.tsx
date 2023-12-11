@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { notifyError } from '~/helpers/notifications';
 import { Text } from '~/components/UiKit';
 import { Icon } from '~/components';
 import { useOutsideClick } from '../../hooks';
@@ -26,6 +27,7 @@ interface INftSelectProps {
   getNftsPerCollection: (ticker: string) => INft[];
   handleSelectAsset: (index: string, item?: Partial<TSelectedAsset>) => void;
   portfolioName?: string;
+  maxNfts?: number;
   disabled?: boolean;
 }
 
@@ -35,6 +37,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
   getNftsPerCollection,
   handleSelectAsset,
   portfolioName,
+  maxNfts,
   disabled,
 }) => {
   const [selectedCollection, setSelectedCollection] =
@@ -81,6 +84,10 @@ export const NftSelect: React.FC<INftSelectProps> = ({
   };
 
   const handleSelectNft = (newNft: INft) => {
+    if (selectedNfts.length === maxNfts) {
+      notifyError(`You can send max ${maxNfts} nfts per leg`);
+      return;
+    }
     const newNfts = [...selectedNfts, newNft];
     setSelectedNfts(newNfts);
     handleSelectAsset(index, {
