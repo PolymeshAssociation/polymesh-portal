@@ -1,5 +1,13 @@
 import { AssetDocument } from '@polymeshassociation/polymesh-sdk/types';
 
+export interface ICollectionMeta {
+  name?: string;
+  description?: string;
+  expiry?: string | null;
+  isLocked?: string | null;
+  value?: string | null;
+}
+
 export interface ICollectionDetails {
   collectionId: number;
   createdAt: string;
@@ -8,8 +16,5 @@ export interface ICollectionDetails {
   owner: string;
   totalSupply: number;
   docs?: AssetDocument[];
-  expiry?: string;
-  lockedState?: string;
-  value?: string;
-  description?: string;
+  metaData?: ICollectionMeta[]
 }

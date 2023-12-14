@@ -6,6 +6,7 @@ import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { notifyError } from '~/helpers/notifications';
 import { getCollectionCreationTime } from '~/helpers/graphqlQueries';
+import { splitByCapitalLetters } from '~/helpers/formatters';
 import { INftListItem } from '../../constants';
 import { ICollectionDetails } from './constants';
 import {
@@ -65,6 +66,9 @@ export const useNftCollection = () => {
         });
 
         const details = await collectionInfo.details();
+
+        const keys = await collectionInfo.collectionKeys();
+
         const collectionId = await collectionInfo.getCollectionId();
         const docs = await collectionInfo.documents.get();
         const createdAtData = await gqlClient.query({
@@ -73,12 +77,27 @@ export const useNftCollection = () => {
         const createdAt = createdAtData.data.assets.nodes[0].createdAt;
 
         const meta = await collectionInfo.metadata.get();
-        const description = await meta[0].details();
-        const detail = await meta[0].value();
 
+        const metaData = await Promise.all(
+          meta.map(async (entry, i) => {
+            const details = await entry.details();
+            const value = await entry.value();
+
+            return {
+              name: details.name ? splitByCapitalLetters(details.name) : '',
+              description: details.specs.description,
+              expiry: value?.expiry ? getDateTime(value?.expiry) : null,
+              isLocked: value?.lockStatus
+                ? splitByCapitalLetters(value?.lockStatus)
+                : null,
+              value: value?.value || null,
+            };
+          }),
+        );
         if (!data.length) {
           setSearchParams();
         }
+
         const sortedList = data.sort((a, b) => a.id - b.id);
         setDetails({
           collectionId: collectionId.toNumber(),
@@ -88,10 +107,7 @@ export const useNftCollection = () => {
           totalSupply: details.totalSupply.toNumber(),
           createdAt: createdAt,
           docs: docs.data,
-          expiry: detail?.expiry ? getDateTime(detail?.expiry) : '-',
-          lockedState: detail?.lockStatus,
-          value: detail?.value,
-          description: description.specs.description,
+          metaData,
         });
         setNftList(sortedList);
       } catch (error) {

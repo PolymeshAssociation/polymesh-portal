@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { StyledInfoContainer, StyledInfo } from '../NftAsset/styles';
+import { StyledInfoContainer, StyledInfo, StyledInfoBlockHead } from '../NftAsset/styles';
 
 export const StyledCollectionContainer = styled.div`
   display: flex;
@@ -41,4 +41,31 @@ export const StyledTooltipWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-`
+`;
+
+export const StyledInfoBlockContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+export const StyledInfoHeaderWrap = styled.div<{ $expanded: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  & .expand-icon {
+    cursor: pointer;
+    transform: ${({ $expanded }) =>
+      $expanded ? 'rotate(180deg)' : 'rotate(0)'};
+  }
+`;
+
+export const StyledBlockHeaderCapitalized = styled(StyledInfoBlockHead)`
+  text-transform: capitalize;
+`;
+
+export const StyledTooltipsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0;
+`;

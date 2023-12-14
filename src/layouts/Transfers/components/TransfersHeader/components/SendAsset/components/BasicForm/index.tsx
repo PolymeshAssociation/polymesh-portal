@@ -25,7 +25,7 @@ import { useWindowWidth } from '~/hooks/utility';
 
 import AssetForm from '~/components/AssetForm';
 import { useAssetForm } from '~/components/AssetForm/hooks';
-
+import { MAX_NFTS_PER_LEG } from '~/components/AssetForm/constants';
 interface IBasicFormProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
 }
@@ -179,6 +179,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
           handleDeleteAsset={handleDeleteAsset}
           handleSelectAsset={handleSelectAsset}
           assetBalance={getAssetBalance(selectedAssets[asset].asset)}
+          maxNfts={MAX_NFTS_PER_LEG}
         />
       ))}
 

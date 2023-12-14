@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { formatDid, formatKey } from '~/helpers/formatters';
+import { formatDid } from '~/helpers/formatters';
 import { Icon, CopyToClipboard } from '~/components';
-import Tooltip from '~/components/UiKit/Tooltip';
 import {
   StyledId,
   StyledInfoItem,
@@ -11,15 +10,16 @@ import {
   StyledInfoBlockItem,
   StyledInfoBlockHead,
   StyledInfoBlockPink,
-  StyledInfoBlockDescription,
 } from '../../../NftAsset/styles';
 import {
   StyledDetailsContainer,
   StyledInfoWrap,
-  StyledTooltipWrapper,
+  StyledInfoBlockContainer,
 } from '../../styles';
 import { ICollectionDetails } from '../../constants';
 import { getDateTime } from '../../helpers';
+import { CollectionDocument } from '../CollectionDocument';
+import { CollectionMeta } from '../CollectionMeta';
 
 interface ICollectionDetailsProps {
   details: ICollectionDetails;
@@ -34,15 +34,11 @@ export const CollectionDetails: React.FC<ICollectionDetailsProps> = ({
   const toggleExpandedDetails = () => setExpandedDetails((prev) => !prev);
   const toggleExpandedDocs = () => setExpandedDocs((prev) => !prev);
 
-  const handleDocClick = (url: string) => {
-    window.open(url, '_blank');
-  };
-
   return (
     <StyledDetailsContainer>
       <StyledId>
-        #{details.collectionId}
-        <CopyToClipboard value={details.collectionId} />
+        Collection ID: #{details?.collectionId}
+        <CopyToClipboard value={details?.collectionId} />
       </StyledId>
       <StyledInfoWrap>
         <StyledInfoItem>
@@ -58,15 +54,7 @@ export const CollectionDetails: React.FC<ICollectionDetailsProps> = ({
               <StyledInfoBlock>
                 <StyledInfoBlockItem>
                   <StyledInfoBlockHead>Name</StyledInfoBlockHead>
-                  <StyledTooltipWrapper>
-                    {details.name}
-                    {details.description && (
-                      <Tooltip
-                        caption={details.description}
-                        position="bottom"
-                      />
-                    )}
-                  </StyledTooltipWrapper>
+                  {details.name}
                 </StyledInfoBlockItem>
                 <StyledInfoBlockItem>
                   <StyledInfoBlockHead>Created At</StyledInfoBlockHead>
@@ -83,24 +71,10 @@ export const CollectionDetails: React.FC<ICollectionDetailsProps> = ({
                     <CopyToClipboard value={details.owner} />
                   </StyledInfoBlockPink>
                 </StyledInfoBlockItem>
-                {details.lockedState && (
-                  <StyledInfoBlockItem>
-                    <StyledInfoBlockHead>Locked state</StyledInfoBlockHead>
-                    {details.lockedState}
-                  </StyledInfoBlockItem>
-                )}
-                {details.expiry && (
-                  <StyledInfoBlockItem>
-                    <StyledInfoBlockHead>Expiry</StyledInfoBlockHead>
-                    {details.expiry}
-                  </StyledInfoBlockItem>
-                )}
-                {details.description && (
-                  <StyledInfoBlockItem>
-                    <StyledInfoBlockHead>Description</StyledInfoBlockHead>
-                    {details.description}
-                  </StyledInfoBlockItem>
-                )}
+                {details?.metaData?.length &&
+                  details.metaData.map((meta) => (
+                    <CollectionMeta key={meta.name} meta={meta} />
+                  ))}
               </StyledInfoBlock>
             </StyledInfoBlockWrap>
           )}
@@ -117,53 +91,14 @@ export const CollectionDetails: React.FC<ICollectionDetailsProps> = ({
               </StyledInfoItemHeader>
               {expandedDocs && (
                 <StyledInfoBlockWrap>
-                  {details.docs?.map((doc) => (
-                    <StyledInfoBlock key={doc.uri}>
-                      {doc.contentHash && (
-                        <StyledInfoBlockItem>
-                          <StyledInfoBlockHead>
-                            Content Hash
-                          </StyledInfoBlockHead>
-                          <StyledInfoBlockPink>
-                            {formatKey(doc.contentHash as string)}
-                            <CopyToClipboard value={doc.contentHash} />
-                          </StyledInfoBlockPink>
-                        </StyledInfoBlockItem>
-                      )}
-                      {doc.filedAt && (
-                        <StyledInfoBlockItem>
-                          <StyledInfoBlockHead>Filed At</StyledInfoBlockHead>
-                          {getDateTime(doc.filedAt as Date)}
-                        </StyledInfoBlockItem>
-                      )}
-                      {doc.name && (
-                        <StyledInfoBlockItem>
-                          <StyledInfoBlockHead>Name</StyledInfoBlockHead>
-                          {doc.name}
-                        </StyledInfoBlockItem>
-                      )}
-                      {doc.type && (
-                        <StyledInfoBlockItem>
-                          <StyledInfoBlockHead>Type</StyledInfoBlockHead>
-                          {doc.type}
-                        </StyledInfoBlockItem>
-                      )}
-                      {doc.uri && (
-                        <StyledInfoBlockItem>
-                          <StyledInfoBlockHead>Uri</StyledInfoBlockHead>
-                          <StyledInfoBlockPink
-                            onClick={() => handleDocClick(doc.uri)}
-                          >
-                            <StyledInfoBlockDescription
-                              style={{ cursor: 'pointer' }}
-                            >
-                              {doc.uri}
-                            </StyledInfoBlockDescription>
-                          </StyledInfoBlockPink>
-                        </StyledInfoBlockItem>
-                      )}
-                    </StyledInfoBlock>
-                  ))}
+                  <StyledInfoBlockContainer>
+                    {details.docs?.map((doc) => (
+                      <CollectionDocument
+                        key={doc.filedAt?.toString()}
+                        document={doc}
+                      />
+                    ))}
+                  </StyledInfoBlockContainer>
                 </StyledInfoBlockWrap>
               )}
             </>

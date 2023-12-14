@@ -38,6 +38,8 @@ export const PortfolioInfo = () => {
   useEffect(() => {
     if (!id) return;
 
+    setNfts(0);
+
     const current = allPortfolios.find((portfolio) => portfolio.id === id);
     if (current) {
       setSelectedPortfolio(current);
@@ -54,6 +56,8 @@ export const PortfolioInfo = () => {
       })();
     }
   }, [id, allPortfolios]);
+
+  useEffect(() => {}, [selectedPortfolio]);
 
   const toggleEditModal = () => setEditExpanded((prev) => !prev);
   const toggleMoveModal = () => setMoveExpanded((prev) => !prev);
@@ -88,7 +92,7 @@ export const PortfolioInfo = () => {
                   </StyledDetails>
                 ))}
             </StyledPortfolioInfo>
-            {nfts && <StyledPortfolioInfo>{nfts} nft(s)</StyledPortfolioInfo>}
+            <StyledPortfolioInfo>{nfts} nft(s)</StyledPortfolioInfo>
             <StyledPortfolioInfo>
               {selectedPortfolio.assets.length} token(s)
               <StyledDetails>

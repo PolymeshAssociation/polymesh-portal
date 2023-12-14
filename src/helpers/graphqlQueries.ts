@@ -414,7 +414,7 @@ export const getCollectionCreationTime = (
       assets (
         filter: {
           ticker: {
-            equalTo: "PENGUINNFTS2"
+            equalTo: "${ticker}"
           }
         }
       ) {

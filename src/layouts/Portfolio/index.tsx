@@ -11,10 +11,17 @@ const Portfolio = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get('id');
   const nftCollection = searchParams.get('nftCollection');
+  const asset = searchParams.get('asset');
 
-  return nftCollection ? (
-    <NftView />
-  ) : (
+  if (asset) {
+    return null;
+  }
+
+  if (nftCollection) {
+    return <NftView />;
+  }
+
+  return (
     <PortfolioGrid>
       <PortfolioNavigation />
       <StyledAllocation>

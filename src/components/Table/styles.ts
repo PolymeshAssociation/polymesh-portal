@@ -60,6 +60,9 @@ export const StyledTableBody = styled.table<{
   & tr {
     border-top: 1px solid ${({ theme }) => theme.colors.shadow};
     border-bottom: 1px solid ${({ theme }) => theme.colors.shadow};
+    &.clickable {
+      cursor: pointer;
+    }
   }
 
   & th,

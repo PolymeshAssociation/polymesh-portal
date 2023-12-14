@@ -64,3 +64,4 @@ export { ReactComponent as PalleteView } from './pallete-view.svg';
 export { ReactComponent as RadioIcon } from './radio-btn.svg';
 export { ReactComponent as RadioSelectedIcon } from './radio-btn-selected.svg';
 export { ReactComponent as CloseCircledIcon } from './close-circle.svg';
+export { ReactComponent as LockIcon } from './lock.svg';
