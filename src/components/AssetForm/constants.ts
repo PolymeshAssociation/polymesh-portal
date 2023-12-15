@@ -20,18 +20,13 @@ export interface INonFungibleAsset extends IAsset {
 
 export type TSelectedAsset = IFungibleAsset | INonFungibleAsset;
 
-export interface ICollection {
-  ticker: string;
-  name: string;
-}
-
 export interface INft {
   id: BigNumber;
   imgUrl: string;
 }
 
 export interface IParsedCollectionData {
-  collections: Record<string, ICollection>; 
+  collections: string[];
   nfts: Record<string, INft[]>;
 }
 

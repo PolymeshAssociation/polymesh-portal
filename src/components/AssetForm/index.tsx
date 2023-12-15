@@ -5,7 +5,7 @@ import { DropdownSelect } from '~/components/UiKit';
 import { Icon } from '~/components';
 import { AssetSelect } from './components/AssetSelect';
 import { NftSelect } from './components/NftSelect';
-import { EAssetType, TSelectedAsset, ICollection, INft } from './constants';
+import { EAssetType, TSelectedAsset, INft } from './constants';
 import {
   StyledAssetForm,
   CloseButton,
@@ -18,13 +18,13 @@ interface IAssetFormProps {
   index: string;
   assets: PortfolioBalance[];
   assetBalance: number;
-  collections: ICollection[];
-  getNftsPerCollection: (ticker: string) => INft[];
+  collections: string[];
+  getNftsPerCollection: (ticker: string | null) => INft[];
   handleSelectAsset: (index: string, item?: Partial<TSelectedAsset>) => void;
   handleDeleteAsset: (index: string) => void;
+  portfolioName: string;
   children?: React.ReactNode;
   disabled?: boolean;
-  portfolioName?: string;
   memo?: React.ReactNode;
   maxNfts?: number;
 }

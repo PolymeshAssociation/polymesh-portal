@@ -54,7 +54,7 @@ export const NftAsset = () => {
       </StyledImageWrap>
       <StyledInfoContainer>
         <StyledId>
-          Nft ID: #{nftId}
+          Token ID: #{nftId}
           <CopyToClipboard value={nftId as string} />
         </StyledId>
         <StyledInfo>

@@ -1,21 +1,19 @@
-import {
-  AddInstructionParams,
-  Identity,
-} from '@polymeshassociation/polymesh-sdk/types';
-import { TSelectedAsset, IFungibleAsset } from '~/components/AssetForm/constants';
+import { AddInstructionParams } from '@polymeshassociation/polymesh-sdk/types';
+import { TSelectedAsset } from '~/components/AssetForm/constants';
 import { IAdvancedFieldValues, IBasicFieldValues } from './config';
 import { TSelectedLeg } from '~/components/LegSelect/types';
+import { IPortfolioData } from '~/context/PortfolioContext/constants';
 
 export const getAssetValue = (asset: TSelectedAsset | TSelectedLeg) =>
   'amount' in asset ? { amount: asset.amount } : { nfts: asset.nfts };
 
 export const createBasicInstructionParams = ({
   selectedAssets,
-  identity,
+  selectedPortfolio,
   formData,
 }: {
   selectedAssets: TSelectedAsset[];
-  identity: Identity;
+  selectedPortfolio: IPortfolioData;
   formData: IBasicFieldValues;
 }) => {
   const { recipient, memo } = formData;
@@ -23,7 +21,7 @@ export const createBasicInstructionParams = ({
     legs: selectedAssets.map((selectedAsset) => ({
       ...getAssetValue(selectedAsset),
       asset: selectedAsset.asset,
-      from: identity.did,
+      from: selectedPortfolio.portfolio,
       to: recipient,
     })),
     memo,

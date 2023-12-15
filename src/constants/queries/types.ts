@@ -74,7 +74,6 @@ export interface ITransferQueryResponse {
   events: ITransferEvents;
 }
 
-
 export interface IAssetTransaction {
   amount: number | null;
   nftIds: string[] | null;
@@ -84,8 +83,10 @@ export interface IAssetTransaction {
   fromPortfolioId: string;
   toPortfolioId: string;
   createdBlockId: string;
-  extrinsicIdx: number;
+  extrinsicIdx: number | null;
   eventIdx: number;
+  instructionId: string | null;
+  instructionMemo: string;
 }
 
 export interface IAssetTransactions {

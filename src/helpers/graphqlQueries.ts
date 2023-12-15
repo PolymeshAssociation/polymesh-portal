@@ -49,20 +49,6 @@ export const getTimeByBlockHash = async (
   }
 };
 
-const getQueryFilter = (identityId: string, portfolioId: string | null) => {
-  if (!portfolioId) {
-    return `{ value: { did: "${identityId}" } }`;
-  }
-
-  if (portfolioId === 'default') {
-    return `{ value: { did: "${identityId}", kind: { Default: null } } }`;
-  }
-
-  return `{ value: { did: "${identityId}", kind: { User: ${Number(
-    portfolioId,
-  )} } } }`;
-};
-
 export const transferEventsQuery = ({
   identityId,
   portfolioId,
@@ -86,10 +72,18 @@ export const transferEventsQuery = ({
         filter: {
           or: [
             {fromPortfolioId: 
-              { includes: "${portfolioId === null ? `${identityId}`: `${identityId}/${id}`}"}
+              ${
+                portfolioId === null
+                  ? `{startsWith: "${identityId}"}`
+                  : `{equalTo: "${identityId}/${id}"}`
+              }
             }
             {toPortfolioId:
-              { includes: "${portfolioId === null ? `${identityId}`: `${identityId}/${id}`}"}
+              ${
+                portfolioId === null
+                  ? `{startsWith: "${identityId}"}`
+                  : `{equalTo: "${identityId}/${id}"}`
+              }
             }
           ]
           amount: {
@@ -116,10 +110,12 @@ export const transferEventsQuery = ({
           eventId
           toPortfolioId
           fromPortfolioId
+          instructionId
+          instructionMemo
         }
       }
     }
-  `
+  `;
 
   return query;
 };
@@ -406,9 +402,7 @@ export const getMultisigCreationExtrinsics = (
   return query;
 };
 
-export const getCollectionCreationTime = (
-  ticker: string
-) => {
+export const getCollectionCreationTime = (ticker: string) => {
   const query = gql`
     query {
       assets (

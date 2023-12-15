@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Text } from '~/components/UiKit';
 import { Icon } from '~/components';
 import { useOutsideClick } from '../../hooks';
-import { TSelectedAsset, ICollection, INft } from '../../constants';
+import { TSelectedAsset, INft } from '../../constants';
 import {
   SelectWrapper,
   StyledSelect,
@@ -23,10 +23,10 @@ import {
 
 interface INftSelectProps {
   index: string;
-  collections: ICollection[];
-  getNftsPerCollection: (ticker: string) => INft[];
+  collections: string[];
+  getNftsPerCollection: (ticker: string | null) => INft[];
   handleSelectAsset: (index: string, item?: Partial<TSelectedAsset>) => void;
-  portfolioName?: string;
+  portfolioName: string;
   maxNfts?: number;
   disabled?: boolean;
 }
@@ -40,20 +40,22 @@ export const NftSelect: React.FC<INftSelectProps> = ({
   maxNfts,
   disabled,
 }) => {
-  const [selectedCollection, setSelectedCollection] =
-    useState<ICollection | null>(null);
+  const [selectedCollection, setSelectedCollection] = useState<string | null>(
+    null,
+  );
   const [collectionSelectExpanded, setCollectionSelectExpanded] =
     useState(false);
 
   const [selectedNfts, setSelectedNfts] = useState<INft[]>([]);
   const [nftSelectExpanded, setNftSelectExpanded] = useState(false);
+  const portfolioRef = useRef<string | undefined>(undefined);
 
   const collectionRef = useOutsideClick(() =>
     setCollectionSelectExpanded(false),
   );
   const nftRef = useOutsideClick(() => setNftSelectExpanded(false));
 
-  const allNfts = getNftsPerCollection(selectedCollection?.ticker as string);
+  const allNfts = getNftsPerCollection(selectedCollection);
   const availableNfts = selectedNfts?.length
     ? allNfts.filter((nft) => {
         const exist = selectedNfts.find(
@@ -69,15 +71,15 @@ export const NftSelect: React.FC<INftSelectProps> = ({
   };
 
   const toggleNftSelectDropdown = () => {
-    if (!selectedCollection?.ticker || disabled) return;
+    if (!selectedCollection || disabled) return;
     setNftSelectExpanded((prev) => !prev);
   };
 
-  const handleSelectCollection = (collection: ICollection) => {
+  const handleSelectCollection = (collection: string) => {
     setSelectedCollection(collection);
     setSelectedNfts([]);
     handleSelectAsset(index, {
-      asset: collection.ticker,
+      asset: collection,
       nfts: [],
     });
     toggleCollectionSelectDropdown();
@@ -87,7 +89,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
     const newNfts = [...selectedNfts, newNft];
     setSelectedNfts(newNfts);
     handleSelectAsset(index, {
-      asset: selectedCollection?.ticker,
+      asset: selectedCollection ?? undefined,
       nfts: newNfts.map((nft) => nft.id),
     });
   };
@@ -100,7 +102,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
     const newNfts = selectedNfts.filter((nft) => nft.id.toNumber() !== nftId);
     setSelectedNfts(newNfts);
     handleSelectAsset(index, {
-      asset: selectedCollection?.ticker,
+      asset: selectedCollection ?? undefined,
       nfts: newNfts.map((nft) => nft.id),
     });
   };
@@ -109,23 +111,23 @@ export const NftSelect: React.FC<INftSelectProps> = ({
     const selected = [...selectedNfts, ...availableNfts];
     setSelectedNfts(selected);
     handleSelectAsset(index, {
-      asset: selectedCollection?.ticker,
+      asset: selectedCollection ?? undefined,
       nfts: [...allNfts, ...selectedNfts].map((nft) => nft.id),
     });
     toggleNftSelectDropdown();
   };
 
   useEffect(() => {
-    if (!portfolioName) {
-      return;
+    if (portfolioRef.current !== portfolioName) {
+      if (selectedNfts?.length) {
+        // reset selection if portfolio changed (advanced transfer)
+        handleSelectAsset(index);
+      }
+      setSelectedCollection(null);
+      setSelectedNfts([]);
     }
-    if (selectedNfts?.length) {
-      // reset selection if portfolio changed (advanced transfer)
-      handleSelectAsset(index);
-    }
-    setSelectedCollection(null);
-    setSelectedNfts([]);
-  }, [portfolioName]);
+    portfolioRef.current = portfolioName;
+  }, [handleSelectAsset, index, portfolioName, selectedNfts?.length]);
 
   return (
     <StyledSelectGroup>
@@ -139,9 +141,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
             $expanded={collectionSelectExpanded}
             $disabled={disabled}
           >
-            {selectedCollection ? (
-              selectedCollection.name
-            ) : (
+            {selectedCollection || (
               <StyledPlaceholder>Select Collection</StyledPlaceholder>
             )}
             <Icon name="ExpandIcon" className="expand-icon" size="18px" />
@@ -151,10 +151,10 @@ export const NftSelect: React.FC<INftSelectProps> = ({
               {collections?.length && collections.length ? (
                 collections.map((collection) => (
                   <StyledSelectOption
-                    key={collection.ticker}
+                    key={collection}
                     onClick={() => handleSelectCollection(collection)}
                   >
-                    {collection.name}
+                    {collection}
                   </StyledSelectOption>
                 ))
               ) : (
@@ -173,7 +173,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
           <StyledSelect
             onClick={toggleNftSelectDropdown}
             $expanded={nftSelectExpanded}
-            $disabled={!selectedCollection?.ticker}
+            $disabled={!selectedCollection}
           >
             {selectedNfts?.length ? (
               <StyledLabelWrap>
@@ -231,7 +231,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                   })}
                 </>
               ) : (
-                <StyledPlaceholder>No nfts available</StyledPlaceholder>
+                <StyledPlaceholder>No NFTs available</StyledPlaceholder>
               )}
             </StyledExpandedSelect>
           )}

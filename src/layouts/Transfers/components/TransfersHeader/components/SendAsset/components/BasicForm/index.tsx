@@ -6,11 +6,9 @@ import {
   Venue,
   VenueDetails,
 } from '@polymeshassociation/polymesh-sdk/types';
-// import { AssetForm } from '~/components';
 import { Button, DropdownSelect } from '~/components/UiKit';
 import { InstructionsContext } from '~/context/InstructionsContext';
 import { PortfolioContext } from '~/context/PortfolioContext';
-import { AccountContext } from '~/context/AccountContext';
 import {
   StyledButtonsWrapper,
   StyledInput,
@@ -26,6 +24,8 @@ import { useWindowWidth } from '~/hooks/utility';
 import AssetForm from '~/components/AssetForm';
 import { useAssetForm } from '~/components/AssetForm/hooks';
 import { MAX_NFTS_PER_LEG } from '~/components/AssetForm/constants';
+import { IPortfolioData } from '~/context/PortfolioContext/constants';
+
 interface IBasicFormProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
 }
@@ -38,8 +38,8 @@ interface IVenueWithDetails {
 export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   const { createdVenues, instructionsLoading, refreshInstructions } =
     useContext(InstructionsContext);
-  const { combinedPortfolios } = useContext(PortfolioContext);
-  const { identity } = useContext(AccountContext);
+  const { allPortfolios } = useContext(PortfolioContext);
+
   const {
     register,
     handleSubmit,
@@ -50,6 +50,10 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   const { handleStatusChange } = useTransactionStatus();
   const [venues, setVenues] = useState<IVenueWithDetails[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
+  const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolioData>(
+    allPortfolios[0],
+  );
+
   const { isMobile } = useWindowWidth();
 
   const {
@@ -60,7 +64,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     getNftsPerCollection,
     handleDeleteAsset,
     handleSelectAsset,
-  } = useAssetForm(combinedPortfolios);
+  } = useAssetForm(selectedPortfolio);
 
   useEffect(() => {
     if (instructionsLoading) return;
@@ -89,8 +93,21 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     }
   };
 
+  const handleSenderSelect = (combinedId: string) => {
+    if (!combinedId) return;
+
+    const id = combinedId.split('/')[0].trim();
+
+    const selectedSendingPortfolio = allPortfolios.find((item) => {
+      return Number.isNaN(Number(id)) ? item.id === 'default' : item.id === id;
+    });
+    if (selectedSendingPortfolio) {
+      setSelectedPortfolio(selectedSendingPortfolio);
+    }
+  };
+
   const onSubmit = async (formData: IBasicFieldValues) => {
-    if (!selectedVenue || !identity) return;
+    if (!selectedVenue || !selectedPortfolio) return;
 
     let unsubCb: UnsubCallback | undefined;
 
@@ -100,7 +117,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
       const tx = await selectedVenue.addInstruction(
         createBasicInstructionParams({
           selectedAssets: Object.values(selectedAssets),
-          identity,
+          selectedPortfolio,
           formData,
         }),
       );
@@ -125,6 +142,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
 
   const isDataValid =
     isValid &&
+    !!selectedPortfolio &&
     !!Object.keys(selectedAssets).length &&
     !Object.values(selectedAssets).some((asset) => {
       if ('amount' in asset) {
@@ -144,6 +162,20 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
           error={errors?.venue?.message}
         />
       </InputWrapper>
+      {allPortfolios.length > 1 && (
+        <InputWrapper $marginBottom={24}>
+          <DropdownSelect
+            selected={allPortfolios[0].name}
+            label="Sending Portfolio"
+            placeholder="Select portfolio"
+            onChange={handleSenderSelect}
+            options={allPortfolios.map(({ id, name }) =>
+              id === 'default' ? name : `${id} / ${name}`,
+            )}
+            error={undefined}
+          />
+        </InputWrapper>
+      )}
       <InputWrapper $marginBottom={24}>
         <StyledLabel htmlFor="recipient">Recipient</StyledLabel>
         <StyledInput
@@ -175,6 +207,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
           index={asset}
           assets={assets}
           collections={collections}
+          portfolioName={selectedPortfolio?.name || ''}
           getNftsPerCollection={getNftsPerCollection}
           handleDeleteAsset={handleDeleteAsset}
           handleSelectAsset={handleSelectAsset}

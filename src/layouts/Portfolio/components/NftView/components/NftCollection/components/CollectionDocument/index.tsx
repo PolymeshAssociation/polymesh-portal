@@ -33,7 +33,7 @@ export const CollectionDocument: React.FC<ICollectionDocumentProps> = ({
         <StyledInfoBlockItem>
           <StyledInfoHeaderWrap $expanded={expanded}>
             <StyledInfoBlockHead>Name</StyledInfoBlockHead>
-            <div onClick={toggleExpanded}>
+            <div onClick={toggleExpanded} role="presentation">
               <Icon name="ExpandIcon" size="24px" className="expand-icon" />
             </div>
           </StyledInfoHeaderWrap>

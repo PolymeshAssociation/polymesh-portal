@@ -24,7 +24,7 @@ import { EInstructionTypes, InstructionAction } from '../../types';
 import {
   getAffirmationStatus,
   getLegErrors,
-  isLastManualAffirmation,
+  // isLastManualAffirmation,
 } from './helpers';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
@@ -146,13 +146,14 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
       return !!errors.length;
     });
 
-  const canAffirmAndExecute =
-    isSettleManual &&
-    isLastManualAffirmation({
-      instructionAffirmations,
-      counterparties: calculateCounterparties(instructionLegs),
-      identity,
-    });
+  // //  Not currently possible with the SDK due to settlement checks.
+  // const canAffirmAndExecute =
+  //   isSettleManual &&
+  //   isLastManualAffirmation({
+  //     instructionAffirmations,
+  //     counterparties: calculateCounterparties(instructionLegs),
+  //     identity,
+  //   });
 
   const legsHaveErrors = instructionLegs.some(({ errors }) => !!errors.length);
 

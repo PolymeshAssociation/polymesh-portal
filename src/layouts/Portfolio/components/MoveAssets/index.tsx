@@ -3,7 +3,7 @@ import {
   NumberedPortfolio,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useState } from 'react';
-import { Icon, Modal } from '~/components';
+import { AssetForm, MemoField, Icon, Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
 import { usePortfolio } from '~/hooks/polymesh';
 import { useWindowWidth } from '~/hooks/utility';
@@ -11,7 +11,6 @@ import { PortfolioSelect } from './components/PortfolioSelect';
 import { StyledAddButton, StyledButtonsWrapper } from './styles';
 import { IMoveAssetsProps } from './types';
 import { useAssetForm } from '~/components/AssetForm/hooks';
-import { AssetForm, MemoField } from '~/components';
 
 export const MoveAssets: React.FC<IMoveAssetsProps> = ({
   portfolio,
@@ -27,6 +26,7 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
     assets,
     collections,
     selectedAssets,
+    portfolioName,
     getNftsPerCollection,
     getAssetBalance,
     handleAddAsset,
@@ -59,7 +59,7 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
   );
 
   const filteredCollections = collections.filter(
-    ({ ticker }) =>
+    (ticker) =>
       !Object.values(selectedAssets).some(
         (selected) => selected.asset === ticker,
       ),
@@ -81,6 +81,7 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
           index={asset}
           collections={filteredCollections}
           assets={filteredAssets}
+          portfolioName={portfolioName}
           getNftsPerCollection={getNftsPerCollection}
           handleSelectAsset={handleSelectAsset}
           handleDeleteAsset={handleDeleteAsset}

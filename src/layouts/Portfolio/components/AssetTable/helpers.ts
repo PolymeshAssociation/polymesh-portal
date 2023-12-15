@@ -103,19 +103,28 @@ export const parseMovements = (dataFromQuery: IMovementQueryResponse) => {
 export const parseTransfers = (dataFromQuery: ITransactionsQueryResponse) => {
   return (
     (dataFromQuery.assetTransactions.nodes.map(
-      ({ id, amount, assetId, datetime, fromPortfolioId, toPortfolioId, createdBlockId, extrinsicIdx }) => {
+      ({
+        id,
+        amount,
+        assetId,
+        datetime,
+        fromPortfolioId,
+        toPortfolioId,
+        createdBlockId,
+        instructionId,
+        extrinsicIdx,
+      }) => {
         return {
           id: {
             eventId: id.replace('/', '-'),
             blockId: createdBlockId,
             extrinsicIdx,
+            instructionId,
           },
           dateTime: toParsedDateTime(datetime),
-          from: fromPortfolioId.split('/')[0],
-          to: toPortfolioId.split('/')[0],
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          amount: balanceToBigNumber(amount).toString(),
+          from: fromPortfolioId ? fromPortfolioId.split('/')[0] : '',
+          to: toPortfolioId ? toPortfolioId.split('/')[0] : '',
+          amount: amount ? (amount / 1_000_000).toString() : '0',
           asset: assetId,
         };
       },

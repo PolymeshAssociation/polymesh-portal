@@ -14,7 +14,7 @@ export const HISTORICAL_COLUMNS = [
 
 export const TOKEN_COLUMNS = [
   {
-    header: 'ID',
+    header: 'Instruction ID',
     accessor: 'id',
   },
   {
@@ -34,6 +34,7 @@ export interface IIdData {
   eventId: string;
   blockId: string;
   extrinsicIdx: number | null;
+  instructionId: string | null;
 }
 
 export interface ITokenItem {
@@ -54,11 +55,7 @@ export interface IHistoricalItem {
 }
 
 export interface INftTransactionItem {
-  txId: {
-    eventId: string;
-    blockId: string;
-    extrinsicIdx: number;
-  }
+  txId: IIdData;
   dateTime: string;
   from: string;
   to: string;
@@ -69,5 +66,5 @@ export interface INftTransactionItem {
 export enum EActivityTableTabs {
   HISTORICAL_ACTIVITY = 'historical',
   TOKEN_ACTIVITY = 'Fungible assets',
-  NFT_ACTIVITY = 'NFT Collections'
+  NFT_ACTIVITY = 'NFT Collections',
 }

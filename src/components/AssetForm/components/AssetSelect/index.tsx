@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   FungibleAsset,
@@ -33,7 +33,7 @@ interface IAssetSelectProps {
   handleSelectAsset: (index: string, item?: Partial<TSelectedAsset>) => void;
   assets: PortfolioBalance[];
   assetBalance: number;
-  portfolioName?: string;
+  portfolioName: string;
   disabled?: boolean;
 }
 
@@ -53,7 +53,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
   const [assetSelectExpanded, setAssetSelectExpanded] = useState(false);
   const [selectedAssetIsDivisible, setSelectedAssetIsDivisible] =
     useState(false);
-
+  const portfolioRef = useRef<string | undefined>(undefined);
   const ref = useOutsideClick(() => setAssetSelectExpanded(false));
 
   const validateInput = (inputValue: string) => {
@@ -69,6 +69,11 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
       asset: selectedAsset?.ticker,
       amount: new BigNumber(error ? 0 : amount),
     });
+  };
+
+  const toggleAssetSelectDropdown = () => {
+    if (disabled) return;
+    setAssetSelectExpanded((prev) => !prev);
   };
 
   const handleAssetSelect = (asset: FungibleAsset) => {
@@ -93,11 +98,6 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
     validateInput(assetBalance.toString());
   };
 
-  const toggleAssetSelectDropdown = () => {
-    if (disabled) return;
-    setAssetSelectExpanded((prev) => !prev);
-  };
-
   const getAvailableBalance = () =>
     Number(selectedAmount) > assetBalance
       ? assetBalance
@@ -115,15 +115,16 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
   }, [selectedAsset]);
 
   useEffect(() => {
-    if (!portfolioName) return;
-
-    if (selectedAmount) {
-      // reset amount if portfolio changed (advanced transfer)
-      handleSelectAsset(index);
+    if (portfolioRef.current !== portfolioName) {
+      if (selectedAmount) {
+        // reset amount if portfolio changed (advanced transfer)
+        handleSelectAsset(index);
+      }
+      setSelectedAsset(null);
+      setSelectedAmount('');
     }
-    setSelectedAsset(null);
-    setSelectedAmount('');
-  }, [portfolioName]);
+    portfolioRef.current = portfolioName;
+  }, [handleSelectAsset, index, portfolioName, selectedAmount]);
 
   return (
     <>

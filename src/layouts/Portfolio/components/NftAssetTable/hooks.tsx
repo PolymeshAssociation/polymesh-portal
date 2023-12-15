@@ -205,6 +205,7 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
       getCoreRowModel: getCoreRowModel(),
       getPaginationRowModel: getPaginationRowModel(),
       getSortedRowModel: getSortedRowModel(),
+      enableSortingRemoval: false,
     }),
     tableDataLoading,
     totalItems,

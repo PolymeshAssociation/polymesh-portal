@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { Table } from '~/components';
 import { useAssetTable } from './hooks';
-import { EAssetsTableTabs, AssetTableItem, ITokenItem } from './constants';
+// import { useSearchParams } from 'react-router-dom';
+// import { EAssetsTableTabs, AssetTableItem, ITokenItem } from './constants';
+import { EAssetsTableTabs } from './constants';
 
 export const AssetTable = () => {
   const [tab, setTab] = useState<`${EAssetsTableTabs}`>(

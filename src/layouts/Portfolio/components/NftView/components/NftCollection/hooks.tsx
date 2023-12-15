@@ -65,27 +65,28 @@ export const useNftCollection = () => {
           ticker: nftCollection,
         });
 
-        const details = await collectionInfo.details();
-
-        const keys = await collectionInfo.collectionKeys();
+        const collectionDetails = await collectionInfo.details();
+        // const keys = await collectionInfo.collectionKeys();
 
         const collectionId = await collectionInfo.getCollectionId();
         const docs = await collectionInfo.documents.get();
         const createdAtData = await gqlClient.query({
           query: getCollectionCreationTime(nftCollection),
         });
-        const createdAt = createdAtData.data.assets.nodes[0].createdAt;
+        const { createdAt } = createdAtData.data.assets.nodes[0];
 
         const meta = await collectionInfo.metadata.get();
 
         const metaData = await Promise.all(
-          meta.map(async (entry, i) => {
-            const details = await entry.details();
+          meta.map(async (entry) => {
+            const metaDetails = await entry.details();
             const value = await entry.value();
 
             return {
-              name: details.name ? splitByCapitalLetters(details.name) : '',
-              description: details.specs.description,
+              name: metaDetails.name
+                ? splitByCapitalLetters(metaDetails.name)
+                : '',
+              description: metaDetails.specs.description,
               expiry: value?.expiry ? getDateTime(value?.expiry) : null,
               isLocked: value?.lockStatus
                 ? splitByCapitalLetters(value?.lockStatus)
@@ -101,11 +102,11 @@ export const useNftCollection = () => {
         const sortedList = data.sort((a, b) => a.id - b.id);
         setDetails({
           collectionId: collectionId.toNumber(),
-          name: details.name,
-          assetType: details.assetType,
-          owner: details.owner.did,
-          totalSupply: details.totalSupply.toNumber(),
-          createdAt: createdAt,
+          name: collectionDetails.name,
+          assetType: collectionDetails.assetType,
+          owner: collectionDetails.owner.did,
+          totalSupply: collectionDetails.totalSupply.toNumber(),
+          createdAt,
           docs: docs.data,
           metaData,
         });
@@ -116,7 +117,15 @@ export const useNftCollection = () => {
         setNftListLoading(false);
       }
     })();
-  }, [sdk, identity, nftCollection, allPortfolios, portfolioId, gqlClient]);
+  }, [
+    sdk,
+    identity,
+    nftCollection,
+    allPortfolios,
+    portfolioId,
+    gqlClient,
+    setSearchParams,
+  ]);
 
   return {
     nftList,

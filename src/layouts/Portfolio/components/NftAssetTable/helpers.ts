@@ -1,40 +1,57 @@
 import { Nft } from '@polymeshassociation/polymesh-sdk/types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
-import { IMovementQueryResponse, ITransactionsQueryResponse } from '~/constants/queries/types';
+import {
+  IMovementQueryResponse,
+  ITransactionsQueryResponse,
+} from '~/constants/queries/types';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import { getNftImageUrl } from '../NftView/helpers';
-import { INftMovementItem, ICollectionItem, INftTransactionItem } from './constants';
+import {
+  INftMovementItem,
+  ICollectionItem,
+  INftTransactionItem,
+} from './constants';
 
-export const parseSingleNftFromPortfolio = async (nft: Nft, isLocked: boolean) => {
+export const parseSingleNftFromPortfolio = async (
+  nft: Nft,
+  isLocked: boolean,
+) => {
   const imgUrl = await getNftImageUrl(nft);
   return {
     ticker: {
       imgUrl: imgUrl || '',
     },
     id: nft.id.toNumber(),
-    isLocked
-  }
-} 
+    isLocked,
+  };
+};
 
 export const parseCollectionFromPortfolio = async ({
   portfolio,
 }: IPortfolioData) => {
   const collectionsList = await portfolio.getCollections();
-  const parsedCollectionsList = await Promise.all(
-    collectionsList.map(async ({ collection, free, locked, total }) => {
-      const { name, assetType } = await collection.details();
-      const imgUrl = await getNftImageUrl(free[0] || locked[0]);
-      return {
-        ticker: {
-          ticker: collection.ticker,
-          imgUrl: imgUrl || '',
-        },
-        name,
-        assetType,
-        count: total.toNumber(),
-      };
-    }),
-  );
+  const parsedCollectionsList = (
+    await Promise.all(
+      collectionsList.map(async ({ collection, free, locked, total }) => {
+        const [{ name, assetType }, collectionId] = await Promise.all([
+          collection.details(),
+          collection.getCollectionId(),
+        ]);
+
+        const imgUrl = await getNftImageUrl(free[0] || locked[0]);
+        return {
+          collectionId: collectionId.toString(),
+          ticker: {
+            ticker: collection.ticker,
+            imgUrl: imgUrl || '',
+          },
+          name,
+          assetType,
+          count: total.toNumber(),
+        };
+      }),
+    )
+  ).sort((a, b) => a.ticker.ticker.localeCompare(b.ticker.ticker));
   return parsedCollectionsList;
 };
 
@@ -48,24 +65,26 @@ export const parseCollectionFromPortfolios = async (
       return parsedCollectionsList;
     }),
   );
-  const list = collections.flat().reduce((acc, val) => {
-    const exists = acc.findIndex(
-      (elem) => elem.ticker.ticker === val.ticker.ticker,
-    );
-    if (exists < 0) {
-      return [...acc, val];
-    }
-    const newAcc = [...acc];
-    newAcc[exists] = {
-      ...acc[exists],
-      count: acc[exists].count + val.count,
-    };
-    return newAcc;
-  }, [] as ICollectionItem[]);
+  const list = collections
+    .flat()
+    .reduce((acc, val) => {
+      const exists = acc.findIndex(
+        (elem) => elem.ticker.ticker === val.ticker.ticker,
+      );
+      if (exists < 0) {
+        return [...acc, val];
+      }
+      const newAcc = [...acc];
+      newAcc[exists] = {
+        ...acc[exists],
+        count: acc[exists].count + val.count,
+      };
+      return newAcc;
+    }, [] as ICollectionItem[])
+    .sort((a, b) => a.ticker.ticker!.localeCompare(b.ticker.ticker!));
 
   return list;
 };
-
 
 export const parseNftAssetsFromPortfolio = async ({
   portfolio,
@@ -83,7 +102,7 @@ export const parseNftAssetsFromPortfolio = async ({
             collectionName,
           };
         }),
-      )
+      );
       const lockedNfts = await Promise.all(
         locked.map(async (nft) => {
           const parsedNft = await parseSingleNftFromPortfolio(nft, true);
@@ -93,7 +112,7 @@ export const parseNftAssetsFromPortfolio = async ({
             collectionName,
           };
         }),
-      )
+      );
       return [freeNfts, lockedNfts];
     }),
   );
@@ -126,21 +145,34 @@ export const parseNftMovements = ({
     }),
   ) as INftMovementItem[]) || [];
 
-export const parseNftTransactions = (dataFromQuery: ITransactionsQueryResponse) => {
+export const parseNftTransactions = (
+  dataFromQuery: ITransactionsQueryResponse,
+) => {
   return (
     (dataFromQuery.assetTransactions.nodes.map(
-      ({ id, nftIds, assetId, datetime, fromPortfolioId, toPortfolioId, createdBlockId, eventIdx }) => {
+      ({
+        id,
+        nftIds,
+        assetId,
+        datetime,
+        fromPortfolioId,
+        toPortfolioId,
+        createdBlockId,
+        extrinsicIdx,
+        instructionId,
+      }) => {
         return {
           txId: {
             eventId: id.replace('/', '-'),
             blockId: createdBlockId,
-            extrinsicIdx: eventIdx,
+            extrinsicIdx,
+            instructionId,
           },
           dateTime: toParsedDateTime(datetime),
           from: fromPortfolioId ? fromPortfolioId.split('/')[0] : '',
-          to: toPortfolioId.split('/')[0],
+          to: toPortfolioId ? toPortfolioId.split('/')[0] : '',
           assetId,
-          nftIds
+          nftIds,
         };
       },
     ) as INftTransactionItem[]) || []

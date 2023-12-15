@@ -92,9 +92,9 @@ export const PortfolioInfo = () => {
                   </StyledDetails>
                 ))}
             </StyledPortfolioInfo>
-            <StyledPortfolioInfo>{nfts} nft(s)</StyledPortfolioInfo>
+            <StyledPortfolioInfo>{nfts} NFT(s)</StyledPortfolioInfo>
             <StyledPortfolioInfo>
-              {selectedPortfolio.assets.length} token(s)
+              {selectedPortfolio.assets.length} Token(s)
               <StyledDetails>
                 {!isMobile && (
                   <>

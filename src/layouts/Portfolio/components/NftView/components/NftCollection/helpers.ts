@@ -19,7 +19,7 @@ export const parseCollectionFromPortfolio = async (
       const parsedNft = await parseSingleNftFromPortfolio(nft, false);
       return parsedNft;
     }),
-  );  
+  );
 
   const lockedNfts = await Promise.all(
     currectCollection.locked.map(async (nft) => {

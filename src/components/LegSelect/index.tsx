@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useContext } from 'react';
+import { useState, useMemo, useContext } from 'react';
 import {
   FungibleAsset,
   Identity,
@@ -19,9 +19,8 @@ import { PolymeshContext } from '~/context/PolymeshContext';
 import { getPortfolioDataFromIdentity, checkAvailableBalance } from './helpers';
 import { notifyError } from '~/helpers/notifications';
 import { useAssetForm } from '../AssetForm/hooks';
-import { INonFungibleAsset } from '../AssetForm/constants';
+import { INonFungibleAsset, MAX_NFTS_PER_LEG } from '../AssetForm/constants';
 import AssetForm from '../AssetForm';
-import { MAX_NFTS_PER_LEG } from '../AssetForm/constants';
 
 interface ILegSelectProps {
   index: number;
@@ -76,10 +75,6 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     handleDeleteAsset,
     handleSelectAsset,
   } = useAssetForm(selectedSenderPortfolio, index);
-
-  useEffect(() => {
-    if (!selectedSenderPortfolio) return;
-  }, [selectedSenderPortfolio]);
 
   const handleIdentitySelect = async (
     did: string,
@@ -198,24 +193,27 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     }
   };
 
-  const handleAddAsset = (index: string, item?: Partial<TSelectedAsset>) => {
+  const handleAddAsset = (
+    selectedIndex: string,
+    item?: Partial<TSelectedAsset>,
+  ) => {
     if (!selectedSenderPortfolio || !selectedReceiverPortfolio) return;
-    handleSelectAsset(index, item);
-    handleAdd(Number(index), {
+    handleSelectAsset(selectedIndex, item);
+    handleAdd(Number(selectedIndex), {
       ...(item as TSelectedAsset),
       from: selectedSenderPortfolio.portfolio,
       to: selectedReceiverPortfolio.portfolio,
-      index: Number(index),
+      index: Number(selectedIndex),
     });
   };
 
-  const handleDeleteLeg = (index: string) => {
-    handleDelete(Number(index));
-    handleDeleteAsset(index);
+  const handleDeleteLeg = (deleteIndex: string) => {
+    handleDelete(Number(deleteIndex));
+    handleDeleteAsset(deleteIndex);
   };
 
   const getAvailableNfts = useMemo(
-    () => (ticker: string) => {
+    () => (ticker: string | null) => {
       if (!selectedSenderPortfolio?.id || !ticker) return [];
       const currentAsset = selectedAssets[index].asset;
       const currentSelectedAssets = selectedLegs.filter(
@@ -232,7 +230,13 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       });
       return nfts;
     },
-    [selectedAssets, selectedLegs, selectedSenderPortfolio],
+    [
+      getNftsPerCollection,
+      index,
+      selectedAssets,
+      selectedLegs,
+      selectedSenderPortfolio?.id,
+    ],
   );
 
   const balance = useMemo(() => {
@@ -255,7 +259,13 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     });
 
     return currentBalance;
-  }, [selectedAssets, selectedLegs, selectedSenderPortfolio, portfolioName]);
+  }, [
+    selectedSenderPortfolio,
+    getAssetBalance,
+    selectedLegs,
+    index,
+    selectedAssets,
+  ]);
 
   return (
     <AssetForm

@@ -25,21 +25,24 @@ export const useNftAsset = () => {
     setNftLoading(true);
     (async () => {
       try {
-        const { nft, isLocked, collectionKeys } =
-          await getNftCollectionAndStatus(
-            allPortfolios,
-            nftCollection,
-            nftId,
-            portfolioId,
-          );
+        const {
+          nft: token,
+          isLocked,
+          collectionKeys,
+        } = await getNftCollectionAndStatus(
+          allPortfolios,
+          nftCollection,
+          nftId,
+          portfolioId,
+        );
 
-        if (!nft) {
+        if (!token) {
           // redirect to portfolio in case nft is not found (to handle account switch)
           setSearchParams({});
           return;
         }
 
-        const details = await getNftDetails(nft, isLocked, collectionKeys);
+        const details = await getNftDetails(token, isLocked, collectionKeys);
         setNft(details);
       } catch (error) {
         notifyError((error as Error).message);
@@ -54,6 +57,7 @@ export const useNftAsset = () => {
     portfolioId,
     portfolioLoading,
     identityLoading,
+    setSearchParams,
   ]);
 
   return {

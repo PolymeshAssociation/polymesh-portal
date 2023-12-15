@@ -4,7 +4,7 @@ import {
   ICombinedPortfolioData,
   IPortfolioData,
 } from '~/context/PortfolioContext/constants';
-import { TSelectedAsset, ICollection, INft } from '../constants';
+import { TSelectedAsset, INft } from '../constants';
 import { parseCollections } from '../helpers';
 import { notifyError } from '~/helpers/notifications';
 
@@ -17,11 +17,11 @@ const getInitialState = (index: string) => ({
 interface IAssetForm {
   assets: PortfolioBalance[];
   selectedAssets: TSelectedAssets;
-  collections: ICollection[];
+  collections: string[];
   nfts: Record<string, INft[]>;
   portfolioName: string;
   getAssetBalance: (asset: string) => number;
-  getNftsPerCollection: (ticker: string) => INft[];
+  getNftsPerCollection: (ticker: string | null) => INft[];
   handleAddAsset: () => void;
   handleDeleteAsset: (index: string) => void;
   handleSelectAsset: (index: string, item?: Partial<TSelectedAsset>) => void;
@@ -35,12 +35,11 @@ export const useAssetForm = (
     Record<string, TSelectedAsset>
   >(getInitialState(index?.toString()));
 
-  const [collections, setCollections] = useState<Record<string, ICollection>>(
-    {},
-  );
+  const [collections, setCollections] = useState<string[]>([]);
   const [nfts, setNfts] = useState<Record<string, INft[]>>({});
 
-  const getNftsPerCollection = (ticker: string) => {
+  const getNftsPerCollection = (ticker: string | null) => {
+    if (!ticker) return [];
     return nfts[ticker]?.sort((a, b) => a.id.toNumber() - b.id.toNumber());
   };
 
@@ -58,17 +57,20 @@ export const useAssetForm = (
       return { ...prev, [assetIndex.toString()]: {} as TSelectedAsset };
     });
 
-  const handleDeleteAsset = (index: string) =>
+  const handleDeleteAsset = (deleteIndex: string) =>
     setSelectedAssets((prev) => {
-      const { [index]: _, ...rest } = prev;
+      const { [deleteIndex]: deletedItem, ...rest } = prev;
       return rest;
     });
 
-  const handleSelectAsset = (index: string, item?: Partial<TSelectedAsset>) => {
+  const handleSelectAsset = (
+    selectedIndex: string,
+    item?: Partial<TSelectedAsset>,
+  ) => {
     setSelectedAssets((prev) => ({
       ...prev,
-      [index]: item
-        ? { ...prev[index], ...(item as TSelectedAsset) }
+      [selectedIndex]: item
+        ? { ...prev[selectedIndex], ...(item as TSelectedAsset) }
         : ({} as TSelectedAsset),
     }));
   };
@@ -92,7 +94,7 @@ export const useAssetForm = (
 
   return {
     assets: portfolio?.assets as PortfolioBalance[],
-    collections: Object.values(collections),
+    collections,
     nfts,
     selectedAssets,
     getNftsPerCollection,

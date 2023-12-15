@@ -11,6 +11,7 @@ export interface ICollectionItemTicker {
 }
 
 export interface ICollectionItem {
+  collectionId: string;
   ticker: ICollectionItemTicker;
   name: string;
   assetType: string;
@@ -38,8 +39,9 @@ export interface INftTransactionItem {
   txId: {
     eventId: string;
     blockId: string;
-    extrinsicIdx: number;
-  }
+    extrinsicIdx: number | null;
+    instructionId: string | null;
+  };
   dateTime: string;
   from: string;
   to: string;
@@ -47,4 +49,8 @@ export interface INftTransactionItem {
   assetId: string;
 }
 
-export type TNftTableItem = ICollectionItem | INftAssetItem | INftMovementItem | INftTransactionItem;
+export type TNftTableItem =
+  | ICollectionItem
+  | INftAssetItem
+  | INftMovementItem
+  | INftTransactionItem;

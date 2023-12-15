@@ -79,21 +79,27 @@ export const getTotalSelectedInSamePortfolio = ({
     );
   });
 
-  return (totalSameAssets as ISelectedLegFungible[]).reduce((acc, { from, amount, index }) => {
-    if (index === assetIndex) {
+  return (totalSameAssets as ISelectedLegFungible[]).reduce(
+    (acc, { from, amount, index }) => {
+      if (index === assetIndex) {
+        return acc;
+      }
+      if (
+        from instanceof DefaultPortfolioInstance &&
+        portfolioId === 'default'
+      ) {
+        return acc + amount.toNumber();
+      }
+      if (
+        from instanceof NumberedPortfolioInstance &&
+        from.toHuman().id === portfolioId
+      ) {
+        return acc + amount.toNumber();
+      }
       return acc;
-    }
-    if (from instanceof DefaultPortfolioInstance && portfolioId === 'default') {
-      return acc + amount.toNumber();
-    }
-    if (
-      from instanceof NumberedPortfolioInstance &&
-      from.toHuman().id === portfolioId
-    ) {
-      return acc + amount.toNumber();
-    }
-    return acc;
-  }, 0);
+    },
+    0,
+  );
 };
 
 export const checkAvailableBalance = ({

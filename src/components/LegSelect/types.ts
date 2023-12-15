@@ -1,5 +1,8 @@
 import { PortfolioLike } from '@polymeshassociation/polymesh-sdk/types';
-import { IFungibleAsset, INonFungibleAsset } from '~/components/AssetForm/constants';
+import {
+  IFungibleAsset,
+  INonFungibleAsset,
+} from '~/components/AssetForm/constants';
 
 export interface ISelectedLegFungible extends IFungibleAsset {
   from: PortfolioLike;
@@ -12,6 +15,5 @@ export interface ISelectedLegNonFungible extends INonFungibleAsset {
   to: PortfolioLike;
   index: number;
 }
-
 
 export type TSelectedLeg = ISelectedLegFungible | ISelectedLegNonFungible;

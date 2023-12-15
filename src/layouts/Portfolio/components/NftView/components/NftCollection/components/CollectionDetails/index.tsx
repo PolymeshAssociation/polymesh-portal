@@ -80,7 +80,7 @@ export const CollectionDetails: React.FC<ICollectionDetailsProps> = ({
           )}
         </StyledInfoItem>
         <StyledInfoItem>
-          {Boolean(details.docs?.length) ? (
+          {details.docs?.length ? (
             <>
               <StyledInfoItemHeader
                 onClick={toggleExpandedDocs}

@@ -9,16 +9,9 @@ import {
   TOKEN_COLUMNS,
   INftTransactionItem,
 } from './constants';
-import {
-  StatusLabel,
-  IdCellWrapper,
-  IconWrapper,
-  StyledTime,
-  AddressCellWrapper,
-} from './styles';
-import { CopyToClipboard, Icon } from '~/components';
-import { formatDid } from '~/helpers/formatters';
-import { IdCell } from '~/layouts/Portfolio/components/NftAssetTable/components/IdCell'; //'./components/IdCell';
+import { StatusLabel, IdCellWrapper, IconWrapper, StyledTime } from './styles';
+import { Icon } from '~/components';
+import { IdCell } from '~/layouts/Portfolio/components/NftAssetTable/components/IdCell';
 import { DateCell } from '~/layouts/Portfolio/components/NftAssetTable/components/DateCell';
 import { NftIdsCell } from '~/layouts/Portfolio/components/NftAssetTable/components/NftIdsCell';
 import { AddressCell } from '~/layouts/Portfolio/components/NftAssetTable/components/AddressCell';
@@ -99,36 +92,22 @@ export const columns = {
           const data = info.getValue();
 
           if (key === 'id') {
-            const handleClick = () =>
-              window.open(createTokenActivityLink(data as IIdData), '_blank');
+            const link = createTokenActivityLink(data as IIdData);
             return (
-              <IdCellWrapper onClick={handleClick}>
-                <IconWrapper>
-                  <Icon name="ArrowTopRight" />
-                </IconWrapper>
-                {(data as IIdData)?.eventId}
-              </IdCellWrapper>
+              <IdCell
+                link={link}
+                label={(data as IIdData)?.instructionId || '-'}
+              />
             );
           }
 
           if (key === 'dateTime') {
             if (!data) return '';
-            const [date, time] = (data as string).split(' ');
-
-            return (
-              <span>
-                {date} / <StyledTime>{time}</StyledTime>
-              </span>
-            );
+            return <DateCell data={data as string} />;
           }
 
           if (key === 'to' || key === 'from') {
-            return (
-              <AddressCellWrapper>
-                {formatDid(data as string, 6, 6)}
-                <CopyToClipboard value={data as string} />
-              </AddressCellWrapper>
-            );
+            return <AddressCell address={data as string} />;
           }
 
           return data;
@@ -138,12 +117,12 @@ export const columns = {
   ),
   [EActivityTableTabs.NFT_ACTIVITY]: [
     transactionColumnHelper.accessor('txId', {
-      header: 'Id',
+      header: 'Instruction Id',
       enableSorting: false,
       cell: (info) => {
         const data = info.getValue();
         const link = createTokenActivityLink(data as IIdData);
-        return <IdCell link={link} label={data?.eventId} />;
+        return <IdCell link={link} label={data?.instructionId || '-'} />;
       },
     }),
     transactionColumnHelper.accessor('dateTime', {
@@ -163,7 +142,7 @@ export const columns = {
       cell: (info) => info.getValue(),
     }),
     transactionColumnHelper.accessor('nftIds', {
-      header: 'Count / IDs',
+      header: 'Token IDs',
       cell: (info) => <NftIdsCell info={info} />,
     }),
   ],

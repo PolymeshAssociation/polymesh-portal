@@ -27,10 +27,14 @@ export const columns = {
       cell: (info) => <TickerCell info={info.getValue()} />,
       enableSorting: true,
       sortingFn: (rowA, rowB) => {
-        const tickerA = rowA.original.ticker?.ticker as string;
-        const tickerB = rowB.original.ticker?.ticker as string;
-        return tickerA < tickerB ? 1 : tickerA > tickerB ? -1 : 0;
+        const tickerA = rowA.original.ticker.ticker as string;
+        const tickerB = rowB.original.ticker.ticker as string;
+        return tickerA.localeCompare(tickerB);
       },
+    }),
+    collectionColumnHelper.accessor('collectionId', {
+      header: 'Collection ID',
+      cell: (info) => info.getValue(),
     }),
     collectionColumnHelper.accessor('name', {
       header: 'Name',
@@ -47,12 +51,12 @@ export const columns = {
   ],
   [ENftAssetsTableTabs.ALL_NFTS]: [
     allNftsColumnHelper.accessor('ticker', {
-      header: 'Nft Image',
+      header: 'NFT Image',
       cell: (info) => <TickerCell info={info.getValue()} />,
       enableSorting: true,
     }),
     allNftsColumnHelper.accessor('id', {
-      header: 'Nft ID',
+      header: 'NFT ID',
       cell: (info) => info.getValue(),
     }),
     allNftsColumnHelper.accessor('collectionTicker', {
@@ -75,12 +79,12 @@ export const columns = {
   ],
   [ENftAssetsTableTabs.TRANSACTIONS]: [
     transactionColumnHelper.accessor('txId', {
-      header: 'Id',
+      header: 'Instruction ID',
       enableSorting: false,
       cell: (info) => {
         const data = info.getValue();
         const link = createTokenActivityLink(data as IIdData);
-        return <IdCell link={link} label={data?.eventId} />;
+        return <IdCell link={link} label={data?.instructionId || '-'} />;
       },
     }),
     transactionColumnHelper.accessor('dateTime', {
@@ -100,7 +104,7 @@ export const columns = {
       cell: (info) => info.getValue(),
     }),
     transactionColumnHelper.accessor('nftIds', {
-      header: 'Count / IDs',
+      header: 'Token IDs',
       cell: (info) => <NftIdsCell info={info} />,
     }),
   ],
@@ -131,7 +135,7 @@ export const columns = {
       cell: (info) => info.getValue(),
     }),
     movementColumnHelper.accessor('nftIds', {
-      header: 'Count / IDs',
+      header: 'Token IDs',
       cell: (info) => <NftIdsCell info={info} />,
     }),
   ],
