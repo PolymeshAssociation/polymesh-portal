@@ -25,7 +25,8 @@ export const StyledInfo = styled.div`
   padding: 24px 24px 0;
   margin-bottom: 24px;
   overflow-y: scroll;
-  max-height: calc(100vh - 398px);
+  max-height: calc(100vh - 388px);
+  min-height: 220px;
 `;
 
 export const StyledInfoItem = styled.div`
