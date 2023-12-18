@@ -5,6 +5,7 @@ import { PortfolioInfo } from './components/PortfolioInfo';
 import { AssetTable } from './components/AssetTable';
 import { NftAssetTable } from './components/NftAssetTable';
 import { NftView } from './components/NftView';
+import { AssetView } from './components/AssetView';
 import { PortfolioGrid, StyledAllocation } from './styles';
 
 const Portfolio = () => {
@@ -14,7 +15,7 @@ const Portfolio = () => {
   const asset = searchParams.get('asset');
 
   if (asset) {
-    return null;
+    return <AssetView />;
   }
 
   if (nftCollection) {

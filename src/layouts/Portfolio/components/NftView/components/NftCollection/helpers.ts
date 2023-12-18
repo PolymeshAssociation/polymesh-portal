@@ -46,8 +46,3 @@ export const parseCollectionFromPortfolios = async (
   );
   return data.flat();
 };
-
-export const getDateTime = (dateTime: string | Date) => {
-  const [date, time] = toParsedDateTime(dateTime).split(' ');
-  return `${date} / ${time}`;
-};

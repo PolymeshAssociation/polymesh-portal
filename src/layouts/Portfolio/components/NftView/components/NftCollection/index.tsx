@@ -4,8 +4,17 @@ import { ECollectionView } from '../../constants';
 import { NftsList } from '../NftsList';
 import { NftTable } from '../NftTable';
 import { useNftCollection } from './hooks';
-import { CollectionDetails } from './components/CollectionDetails';
-import { ICollectionDetails } from './constants';
+import {
+  CardContainer,
+  Details,
+  DocumentDropdown,
+  PropertiesDropdown,
+} from '../../../DetailsCard';
+import {
+  StyledInfoItemHeader,
+  StyledInfoItem,
+  StyledDocumentWrap,
+} from '../../../DetailsCard/styles';
 import {
   StyledCollectionContainer,
   StyledListContainer,
@@ -38,7 +47,29 @@ export const NftCollection: React.FC<INftCollectionProps> = ({ view }) => {
           <SkeletonLoader height={329} />
         </StyledLoaderWrapper>
       ) : (
-        <CollectionDetails details={details as ICollectionDetails} />
+        <CardContainer
+          label="Collection ID"
+          value={details?.id?.toString() as string}
+        >
+          <>
+            <Details details={details?.details} />
+            {details?.docs?.length ? (
+              <PropertiesDropdown label="Asset Documents">
+                <StyledDocumentWrap>
+                  {details?.docs?.map((doc: any) => (
+                    <DocumentDropdown key={doc.name} document={doc} />
+                  ))}
+                </StyledDocumentWrap>
+              </PropertiesDropdown>
+            ) : (
+              <StyledInfoItem>
+                <StyledInfoItemHeader $expanded={false} $isEmpty>
+                  No Collection Documents Found
+                </StyledInfoItemHeader>
+              </StyledInfoItem>
+            )}
+          </>
+        </CardContainer>
       )}
       <StyledListContainer>
         {view === ECollectionView.PALLETE ? (

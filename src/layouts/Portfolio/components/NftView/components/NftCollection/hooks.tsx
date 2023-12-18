@@ -8,17 +8,17 @@ import { notifyError } from '~/helpers/notifications';
 import { getCollectionCreationTime } from '~/helpers/graphqlQueries';
 import { splitByCapitalLetters } from '~/helpers/formatters';
 import { INftListItem } from '../../constants';
-import { ICollectionDetails } from './constants';
 import {
   parseCollectionFromPortfolio,
   parseCollectionFromPortfolios,
-  getDateTime,
 } from './helpers';
+import { getDateTime } from '../../../DetailsCard/helpers';
+import { IAssetDetails } from '../../../DetailsCard/constants';
 
 export const useNftCollection = () => {
   const [nftList, setNftList] = useState<INftListItem[]>([]);
   const [nftListLoading, setNftListLoading] = useState(true);
-  const [details, setDetails] = useState<ICollectionDetails>();
+  const [details, setDetails] = useState<IAssetDetails>();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
@@ -66,7 +66,6 @@ export const useNftCollection = () => {
         });
 
         const collectionDetails = await collectionInfo.details();
-        // const keys = await collectionInfo.collectionKeys();
 
         const collectionId = await collectionInfo.getCollectionId();
         const docs = await collectionInfo.documents.get();
@@ -101,14 +100,16 @@ export const useNftCollection = () => {
 
         const sortedList = data.sort((a, b) => a.id - b.id);
         setDetails({
-          collectionId: collectionId.toNumber(),
-          name: collectionDetails.name,
-          assetType: collectionDetails.assetType,
-          owner: collectionDetails.owner.did,
-          totalSupply: collectionDetails.totalSupply.toNumber(),
-          createdAt,
+          id: collectionId.toNumber(),
+          details: {
+            name: collectionDetails.name,
+            assetType: collectionDetails.assetType,
+            owner: collectionDetails.owner.did,
+            totalSupply: collectionDetails.totalSupply.toNumber(),
+            createdAt,
+            metaData,
+          },
           docs: docs.data,
-          metaData,
         });
         setNftList(sortedList);
       } catch (error) {

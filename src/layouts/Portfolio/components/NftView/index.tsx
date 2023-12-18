@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { NftCollection } from './components/NftCollection';
 import { NftAsset } from './components/NftAsset';
-import { Breadcrumbs } from './components/Breadcrumbs';
+import { Breadcrumbs } from '../Breadcrumbs';
 import { ViewSwitcher } from './components/ViewSwitcher';
 import { ECollectionView } from './constants';
 import { StyledNavigationHeader } from './styles';

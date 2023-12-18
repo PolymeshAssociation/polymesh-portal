@@ -6,6 +6,7 @@ export const Breadcrumbs = () => {
   const id = searchParams.get('id');
   const nftCollection = searchParams.get('nftCollection') || '';
   const nftId = searchParams.get('nftId');
+  const asset = searchParams.get('asset');
 
   return (
     <StyledBreadcrumbsContainer>
@@ -17,15 +18,18 @@ export const Breadcrumbs = () => {
           {id}
         </StyledBreadcrumb>
       )}
-      <StyledBreadcrumb
-        onClick={() =>
-          nftId
-            ? setSearchParams(id ? { id, nftCollection } : { nftCollection })
-            : null
-        }
-      >
-        {nftCollection}
-      </StyledBreadcrumb>
+      {nftCollection && (
+        <StyledBreadcrumb
+          onClick={() =>
+            nftId
+              ? setSearchParams(id ? { id, nftCollection } : { nftCollection })
+              : null
+          }
+        >
+          {nftCollection}
+        </StyledBreadcrumb>
+      )}
+      {asset && <StyledBreadcrumb>#{asset}</StyledBreadcrumb>}
       {nftId && <StyledBreadcrumb>#{nftId}</StyledBreadcrumb>}
     </StyledBreadcrumbsContainer>
   );

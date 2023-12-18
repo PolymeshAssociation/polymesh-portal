@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Table } from '~/components';
 import { useAssetTable } from './hooks';
-// import { useSearchParams } from 'react-router-dom';
-// import { EAssetsTableTabs, AssetTableItem, ITokenItem } from './constants';
-import { EAssetsTableTabs } from './constants';
+import { useSearchParams } from 'react-router-dom';
+import { EAssetsTableTabs, AssetTableItem, ITokenItem } from './constants';
+// import { EAssetsTableTabs } from './constants';
 
 export const AssetTable = () => {
   const [tab, setTab] = useState<`${EAssetsTableTabs}`>(
@@ -11,19 +11,19 @@ export const AssetTable = () => {
   );
   const { table, tableDataLoading, totalItems } = useAssetTable(tab);
 
-  // const [searchParams, setSearchParams] = useSearchParams();
-  // const id = searchParams.get('id');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const id = searchParams.get('id');
 
-  // const handleTowClick = (original: AssetTableItem) => {
-  //   if (tab !== EAssetsTableTabs.TOKENS) return;
+  const handleTowClick = (original: AssetTableItem) => {
+    if (tab !== EAssetsTableTabs.TOKENS) return;
 
-  //   const { ticker } = original as ITokenItem;
+    const { ticker } = original as ITokenItem;
 
-  //   const params = id
-  //     ? { id, asset: ticker }
-  //     : ({ asset: ticker } as Record<string, string>);
-  //   setSearchParams(params);
-  // };
+    const params = id
+      ? { id, asset: ticker }
+      : ({ asset: ticker } as Record<string, string>);
+    setSearchParams(params);
+  };
 
   return (
     <Table
@@ -33,7 +33,7 @@ export const AssetTable = () => {
       tabs={Object.values(EAssetsTableTabs)}
       setTab={setTab}
       totalItems={totalItems}
-      // handleRowClick={handleTowClick}
+      handleRowClick={handleTowClick}
     />
   );
 };
