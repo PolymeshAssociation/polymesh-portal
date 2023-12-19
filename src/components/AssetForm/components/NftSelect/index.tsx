@@ -197,7 +197,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
             <Icon name="ExpandIcon" className="expand-icon" size="18px" />
           </StyledSelect>
           {maxNfts && selectedNfts.length > maxNfts && (
-            <StyledError>You can send up to {maxNfts} nfts per leg</StyledError>
+            <StyledError>You can send up to {maxNfts} NFTs per leg</StyledError>
           )}
 
           {nftSelectExpanded && (
