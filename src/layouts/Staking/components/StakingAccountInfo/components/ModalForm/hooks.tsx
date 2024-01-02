@@ -1,11 +1,17 @@
-import { useContext, useEffect, useMemo, useRef } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, ValidationMode } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import {
+  balanceToBigNumber,
+  u32ToBigNumber,
+} from '@polymeshassociation/polymesh-sdk/utils/conversion';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { EModalOptions, PAYMENT_DESTINATION } from '../../constants';
 import { IFieldValues, INPUT_NAMES } from './constants';
+import { StakingContext } from '~/context/StakingContext';
 
 export const useModalForm = (modalType: EModalOptions | null, max?: number) => {
   const configRef = useRef({
@@ -269,4 +275,87 @@ export const useModalForm = (modalType: EModalOptions | null, max?: number) => {
   }, [configOpts, modalType, max]);
 
   return useFormReturn;
+};
+
+export const useOperatorRewards = () => {
+  const [operatorAprRecord, setOperatorAprRecord] = useState<
+    Record<string, number>
+  >({});
+
+  const {
+    eraStatus: { activeEra, eraDurationTime },
+    operatorInfo: { operatorsWithCommission },
+  } = useContext(StakingContext);
+  const {
+    api: { polkadotApi },
+  } = useContext(PolymeshContext);
+
+  useEffect(() => {
+    if (!polkadotApi || !activeEra.index || !eraDurationTime) return;
+    const previousEraIndex = activeEra.index.minus(1).toNumber();
+
+    const MILISEONDS_PER_YEAR_BN = new BigNumber(31_536_000_000);
+    const erasPerYear = MILISEONDS_PER_YEAR_BN.div(eraDurationTime);
+
+    (async () => {
+      // Fetch reward pool for the previous era
+      const rewardPool =
+        await polkadotApi.query.staking.erasValidatorReward(previousEraIndex);
+      if (rewardPool.isNone) return;
+
+      const totalReward = balanceToBigNumber(rewardPool.unwrap());
+
+      // Fetch reward points for the previous era
+      const previousPoints =
+        await polkadotApi.query.staking.erasRewardPoints(previousEraIndex);
+      const totalPoints = u32ToBigNumber(previousPoints.total);
+      const operatorPoints = previousPoints.individual;
+
+      // Fetch staking exposure data for the previous era
+      const erasStakingData =
+        await polkadotApi.query.staking.erasStakersClipped.entries(
+          previousEraIndex,
+        );
+      const operatorPointsRecord: Record<string, BigNumber> = {};
+      operatorPoints.forEach((points, key) => {
+        operatorPointsRecord[key.toString()] = u32ToBigNumber(points);
+      });
+      const nodeAprRecord: Record<string, number> = {};
+
+      Object.entries(operatorsWithCommission).forEach(
+        ([operator, preferences]) => {
+          const operatorPoint = operatorPointsRecord[operator];
+          const nodeReward = totalReward
+            .times(operatorPoint)
+            .div(totalPoints)
+            .decimalPlaces(6, BigNumber.ROUND_DOWN);
+          const validatorPortion = nodeReward
+            .times(preferences.commission.div(100))
+            .decimalPlaces(6, BigNumber.ROUND_DOWN);
+          const nominatorPortion = nodeReward.minus(validatorPortion);
+
+          // Calculate rewards for nominators of the current operator
+          const nodeStakingData = erasStakingData.find(
+            ([key]) => key.args[1].toString() === operator,
+          )?.[1];
+          if (!nodeStakingData) return;
+
+          const nodeEraReturnRate = nominatorPortion.div(
+            balanceToBigNumber(nodeStakingData.total.unwrap()),
+          );
+
+          const calcedApr = nodeEraReturnRate
+            .times(erasPerYear)
+            .times(100)
+            .decimalPlaces(3)
+            .toNumber();
+
+          nodeAprRecord[operator] = calcedApr;
+        },
+      );
+      setOperatorAprRecord(nodeAprRecord);
+    })();
+  }, [activeEra.index, eraDurationTime, operatorsWithCommission, polkadotApi]);
+
+  return operatorAprRecord;
 };

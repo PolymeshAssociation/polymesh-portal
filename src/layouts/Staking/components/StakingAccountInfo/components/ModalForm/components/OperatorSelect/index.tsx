@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import Identicon from '@polkadot/react-identicon';
 import { StakingContext } from '~/context/StakingContext';
@@ -19,6 +19,7 @@ import {
   StyledSelectedHeadWrapper,
 } from './styles';
 import { Icon } from '~/components';
+import { useOperatorRewards } from '../../hooks';
 
 interface IOperatorSelectProps {
   currentNominations?: string[];
@@ -30,14 +31,19 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
   const {
     operatorInfo: { operatorsWithCommission },
   } = useContext(StakingContext);
-
+  const operatorAprRecord = useOperatorRewards();
   const { watch, setValue } = useFormContext<IFieldValues>();
   const nominators = watch('nominators');
 
   const [filter, setFilter] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'apr'>('apr');
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFilter(e.target.value);
+
+  const toggleSortBy = () => {
+    setSortBy(sortBy === 'name' ? 'apr' : 'name');
+  };
 
   useEffect(() => {
     if (!nominators) {
@@ -49,14 +55,28 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
     }
   }, [currentNominations, nominators, setValue]);
 
-  const candidatAccounts = Object.keys(operatorsWithCommission).filter(
-    (operator) =>
-      !nominators?.includes(operator) &&
-      (operator.toLocaleLowerCase().includes(filter.toLocaleLowerCase()) ||
-        operatorsNames?.[operator]
-          ?.toLocaleLowerCase()
-          .includes(filter.toLocaleLowerCase())),
-  );
+  const candidatAccounts = useMemo(() => {
+    return Object.keys(operatorsWithCommission)
+      .filter(
+        (operator) =>
+          !nominators?.includes(operator) &&
+          (operator.toLocaleLowerCase().includes(filter.toLocaleLowerCase()) ||
+            operatorsNames?.[operator]
+              ?.toLocaleLowerCase()
+              .includes(filter.toLocaleLowerCase())),
+      )
+      .sort((a, b) => {
+        if (sortBy === 'apr') {
+          const aprA = operatorAprRecord[a] || 0;
+          const aprB = operatorAprRecord[b] || 0;
+          return aprB - aprA;
+        }
+
+        const nameA = operatorsNames[a] || a;
+        const nameB = operatorsNames[b] || b;
+        return nameA.localeCompare(nameB);
+      });
+  }, [operatorsWithCommission, nominators, filter, sortBy, operatorAprRecord]);
 
   return (
     <div>
@@ -70,7 +90,8 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
             <StyledNominationContainer>
               <StyledNominationWrapper>
                 <Text size="medium" bold marginBottom={3}>
-                  Candidates ({Object.keys(operatorsWithCommission).length})
+                  Candidates ({Object.keys(operatorsWithCommission).length}),
+                  with recent annualized return
                 </Text>
                 <InputWrapper>
                   <StyledInput
@@ -79,6 +100,9 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
                     onChange={handleFilterChange}
                   />
                 </InputWrapper>
+                <StyledActionButton onClick={toggleSortBy}>
+                  {`Sorted by ${sortBy === 'name' ? 'name' : 'recent return'}`}
+                </StyledActionButton>
                 <StyledOperatorSelect>
                   {candidatAccounts.map((account) => (
                     <StyledNominatorOption
@@ -93,15 +117,16 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
                         onChange(newValue);
                       }}
                     >
-                      <Identicon
-                        value={account}
-                        size={18}
-                        style={{
-                          borderRadius: '50%',
-                          overflow: 'hidden',
-                        }}
-                      />
-                      {operatorsNames[account] || formatKey(account)}
+                      <div className="left-content">
+                        <Identicon value={account} size={18} />
+                        {operatorsNames[account] || formatKey(account)}
+                      </div>
+                      <div className="right-content">
+                        {operatorAprRecord[account]
+                          ? operatorAprRecord[account]
+                          : '--'}
+                        {' %'}
+                      </div>{' '}
                     </StyledNominatorOption>
                   ))}
                 </StyledOperatorSelect>
@@ -109,27 +134,21 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
               <StyledNominationWrapper>
                 <StyledSelectedHeadWrapper>
                   <Text size="medium" bold marginBottom={3}>
-                    Selected Operators
+                    Selected Operators (
+                    {(nominators && nominators.length) || '0'})
                   </Text>
                   <StyledActionButton
                     disabled={nominators && !nominators.length}
                     onClick={() => setValue('nominators', [])}
                   >
-                    <Icon name="Delete" size="18px" />
                     Clear All
+                    <Icon name="Delete" size="18px" />
                   </StyledActionButton>
                 </StyledSelectedHeadWrapper>
                 <StyledSelected>
                   {value?.map((account: string) => (
                     <StyledSelectedOption key={account}>
-                      <Identicon
-                        value={account}
-                        size={18}
-                        style={{
-                          borderRadius: '50%',
-                          overflow: 'hidden',
-                        }}
-                      />
+                      <Identicon value={account} size={18} />
                       {operatorsNames[account] || formatKey(account)}
                       <StyledIconWrapper
                         onClick={(e) => {
@@ -158,4 +177,8 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
       />
     </div>
   );
+};
+
+OperatorSelect.defaultProps = {
+  currentNominations: [],
 };

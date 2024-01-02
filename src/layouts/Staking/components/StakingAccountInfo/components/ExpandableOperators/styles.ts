@@ -11,11 +11,6 @@ export const OperatorEntry = styled.div`
   align-items: center;
   gap: 5px;
   color: ${({ theme }) => theme.colors.textPrimary};
-
-  & .copy-icon {
-    color: ${({ theme }) => theme.colors.textSecondary};
-    scale: 0.9;
-  }
 `;
 
 export const StyledExpandable = styled.button<{
@@ -44,11 +39,11 @@ export const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 16px;
+  max-width: 14px;
 `;
 
 export const Label = styled.span`
-  font-size: 16px;
+  font-size: 14px;
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
 

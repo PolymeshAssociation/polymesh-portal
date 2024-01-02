@@ -90,7 +90,7 @@ const useTransactionStatus = () => {
               tag={tag}
               isTxBatch={isTxBatch}
               batchSize={isTxBatch ? transaction.transactions.length : 0}
-              error="Transaction was rejected"
+              error={transaction.error?.message || 'Transaction was rejected'}
               timestamp={Date.now()}
             />
           ),

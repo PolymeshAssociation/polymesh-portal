@@ -43,7 +43,9 @@ import {
   StyledWrapper,
   StyledButtonWrapper,
   StyledModalContent,
+  StyledElectionMessage,
 } from './styles';
+import { formatMillisecondsToTime } from '~/helpers/formatters';
 
 export const StakingAccountInfo = () => {
   const {
@@ -54,7 +56,11 @@ export const StakingAccountInfo = () => {
   const {
     api: { polkadotApi },
   } = useContext(PolymeshContext);
-  const { stakingAccountInfo, refetchAccountInfo } = useContext(StakingContext);
+  const {
+    stakingAccountInfo,
+    refetchAccountInfo,
+    eraStatus: { electionInProgress, epochTimeRemaining },
+  } = useContext(StakingContext);
   const {
     controllerAddress,
     rewardDestination,
@@ -180,6 +186,7 @@ export const StakingAccountInfo = () => {
       handleStakeStatusChange({
         ...transaction,
         status: TransactionStatus.Rejected,
+        error: (error as Error).message,
       });
       setActionInProgress(false);
       if (unsub) unsub();
@@ -299,21 +306,31 @@ export const StakingAccountInfo = () => {
         ) : (
           <NoStakingInfo />
         )}
-        <StyledButtonWrapper $cardWidth={cardWidth}>
-          <StakingButtons
-            disabled={actionInProgress}
-            toggleModal={toggleModal}
-            toggleOptions={toggleOptions}
-          />
-          {stashAddress && optionsExpanded && (
-            <StakingButtonOptions
+        <div>
+          {electionInProgress === 'Open' && (
+            <StyledElectionMessage>
+              An election of Node Operators is in progress. Staking actions will
+              be available in{' '}
+              {epochTimeRemaining &&
+                formatMillisecondsToTime(epochTimeRemaining.toNumber())}
+            </StyledElectionMessage>
+          )}
+          <StyledButtonWrapper $cardWidth={cardWidth}>
+            <StakingButtons
               disabled={actionInProgress}
-              executeAction={executeAction}
               toggleModal={toggleModal}
               toggleOptions={toggleOptions}
             />
-          )}
-        </StyledButtonWrapper>
+            {stashAddress && optionsExpanded && (
+              <StakingButtonOptions
+                disabled={actionInProgress}
+                executeAction={executeAction}
+                toggleModal={toggleModal}
+                toggleOptions={toggleOptions}
+              />
+            )}
+          </StyledButtonWrapper>
+        </div>
         {modalOpen && (
           <Modal handleClose={() => toggleModal(null)} customWidth="540px">
             <Heading type="h4" marginBottom={32}>

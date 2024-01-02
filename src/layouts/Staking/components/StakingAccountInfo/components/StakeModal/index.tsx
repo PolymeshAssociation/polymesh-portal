@@ -144,7 +144,7 @@ export const StakeModal: React.FC<IStakeModalProps> = ({
           )}
         </>
       )}
-      <DurationInfo label="Unbonding Period" />
+      <DurationInfo label="Unbonding Period" tooltip />
       <ButtonContainer>
         <Button variant="modalSecondary" onClick={handleClose}>
           Cancel

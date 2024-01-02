@@ -10,7 +10,7 @@ export const StyledWrapper = styled.div`
   justify-content: space-evenly;
   align-items: center;
   padding: 36px;
-  gap: 70px;
+  gap: 36px;
   background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
@@ -88,7 +88,7 @@ export const StyledElectionItem = styled.div`
   font-size: 16px;
 
   & p {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 600;
   }
   @media screen and (max-width: 860px) {

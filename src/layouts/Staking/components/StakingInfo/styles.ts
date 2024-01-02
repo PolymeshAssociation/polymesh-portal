@@ -13,7 +13,7 @@ export const StyledWrapper = styled.div<{ $cardWidth?: number }>`
   align-items: center;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 36px;
+  gap: 24px;
   @media screen and (max-width: 860px) {
     padding: 24px;
   }
@@ -26,7 +26,7 @@ export const StyledWrapper = styled.div<{ $cardWidth?: number }>`
     }
     if ($cardWidth < 560) {
       return css`
-        gap: 24px; 
+        gap: 24px;
         grid-template-columns: auto;
         justify-content: left;
       `;
@@ -46,7 +46,7 @@ export const StyledWrapper = styled.div<{ $cardWidth?: number }>`
 export const StyledInfoItem = styled.span`
   display: flex;
   flex-direction: column;
-  font-size: 16px;
+  font-size: 14px;
   & .item-label {
     display: inline-flex;
     align-items: center;
@@ -55,6 +55,6 @@ export const StyledInfoItem = styled.span`
     color: ${({ theme }) => theme.colors.textSecondary};
   }
   & p {
-    font-size: 20px;
+    font-size: 16px;
   }
 `;

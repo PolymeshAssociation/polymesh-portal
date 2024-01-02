@@ -18,3 +18,7 @@ export const StyledDuration = styled.span`
   color: ${({ theme }) => theme.colors.textPrimary};
   font-weight: 500;
 `;
+
+export const StyledLabel = styled.span`
+  display: flex;
+`;

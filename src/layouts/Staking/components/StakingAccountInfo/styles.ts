@@ -81,3 +81,9 @@ export const StyledTopInfo = styled.div`
 export const StyledTextWrapper = styled.div`
   padding: 30px 0px;
 `;
+
+export const StyledElectionMessage = styled.p`
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(255, 196, 12);
+`;

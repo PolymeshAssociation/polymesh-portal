@@ -18,7 +18,7 @@ export const StyledAccountItemWrapper = styled.div<{
     }
     if ($cardWidth < 560) {
       return css`
-        gap: 24px; 
+        gap: 24px;
         grid-template-columns: auto;
         justify-content: left;
       `;
@@ -53,7 +53,7 @@ export const Label = styled.span`
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
-  font-size: 16px;
+  font-size: 14px;
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
@@ -63,7 +63,7 @@ export const Value = styled.span`
   white-space: nowrap;
   gap: 10px;
   font-weight: 500;
-  font-size: 20px;
+  font-size: 16px;
   & > .grayed {
     margin-left: -6px;
     color: ${({ theme }) => theme.colors.textSecondary};

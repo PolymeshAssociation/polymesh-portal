@@ -10,7 +10,14 @@ export const useStakeStatusChange = () => {
   const handleStakeStatusChange = (transaction: IStakeTransaction) => {
     if (!transaction.status) return;
 
-    const { status = '', tag = '', txHash, isTxBatch, batchSize } = transaction;
+    const {
+      status = '',
+      tag = '',
+      txHash,
+      isTxBatch,
+      batchSize,
+      error,
+    } = transaction;
 
     switch (status) {
       case TransactionStatus.Unapproved:
@@ -76,7 +83,7 @@ export const useStakeStatusChange = () => {
               tag={tag}
               isTxBatch={isTxBatch}
               batchSize={batchSize}
-              error="Transaction was rejected"
+              error={error || 'Transaction was rejected'}
               timestamp={Date.now()}
             />
           ),

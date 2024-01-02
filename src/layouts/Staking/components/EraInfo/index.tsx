@@ -144,7 +144,7 @@ export const EraInfo = () => {
               </StyledIconWrap>
               <StyledElectionInfo>
                 Next Election:
-                <Text size="large">
+                <Text>
                   <>{formatMillisecondsToTime(timeToNextElection.toNumber())}</>
                 </Text>
               </StyledElectionInfo>

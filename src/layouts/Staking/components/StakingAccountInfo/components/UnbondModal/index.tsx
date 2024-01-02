@@ -37,7 +37,7 @@ export const UnbondModal: React.FC<IUnbondModalProps> = ({
     // eslint-disable-next-line react/jsx-props-no-spreading
     <FormProvider {...formMethods}>
       <AmountInput balanceLabel="Bonded" balance={totalBonded} />
-      <DurationInfo label="Unbonding duration" />
+      <DurationInfo label="Unbonding duration" tooltip />
       <ButtonContainer>
         <Button variant="modalSecondary" onClick={handleClose}>
           Cancel

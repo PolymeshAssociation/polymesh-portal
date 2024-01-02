@@ -42,6 +42,7 @@ export interface IStakeTransaction {
   isTxBatch: boolean;
   batchSize: number;
   txHash?: string;
+  error?: string;
 }
 
 export interface IStakeForm {

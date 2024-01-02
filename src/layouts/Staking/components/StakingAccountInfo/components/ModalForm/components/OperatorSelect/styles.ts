@@ -16,7 +16,7 @@ export const StyledOperatorSelect = styled.div`
   border: 1px solid #8f8f8f;
   border-radius: 8px;
   height: 106px;
-  overflow-y: scroll;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -30,11 +30,20 @@ export const StyledNominatorOption = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+  justify-content: space-between;
   width: 100%;
-  justify-content: flex-start;
   font-size: 14px;
-  width: fit-content;
   cursor: pointer;
+
+  .left-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .right-content {
+    text-align: right;
+  }
 `;
 
 export const StyledSelectedHeadWrapper = styled.div`
@@ -49,6 +58,7 @@ export const StyledActionButton = styled.button<{ $marginTop?: number }>`
   justify-content: center;
   gap: 4px;
   margin-top: ${({ $marginTop }) => ($marginTop ? `${$marginTop}px` : 0)};
+  margin-left: auto;
   padding: 0 16px;
   background-color: transparent;
   font-weight: 500;
@@ -64,7 +74,7 @@ export const StyledSelected = styled.div`
   border: 1px solid #8f8f8f;
   border-radius: 8px;
   height: 106px;
-  overflow-y: scroll;
+  overflow-y: auto;
   display: flex;
   flex-wrap: wrap;
   gap: 4px;

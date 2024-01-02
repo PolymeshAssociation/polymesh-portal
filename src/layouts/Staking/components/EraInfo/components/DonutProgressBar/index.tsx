@@ -11,7 +11,7 @@ interface DonutProgressBarProps {
   size?: number;
 }
 
-const defaultSize = 170;
+const defaultSize = 140;
 
 const DonutProgressBar: React.FC<DonutProgressBarProps> = ({
   progress,
