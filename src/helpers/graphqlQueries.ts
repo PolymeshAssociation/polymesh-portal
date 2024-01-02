@@ -397,6 +397,7 @@ export const getMultisigCreationExtrinsics = (
           extrinsicIdx
         }
       }
+    }
   `;
 
   return query;
