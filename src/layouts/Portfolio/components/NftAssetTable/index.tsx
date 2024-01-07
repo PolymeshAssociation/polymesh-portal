@@ -54,7 +54,12 @@ export const NftAssetTable = () => {
       tabs={Object.values(ENftAssetsTableTabs)}
       setTab={setTab}
       totalItems={totalItems}
-      handleRowClick={handleRowClick}
+      handleRowClick={
+        tab === ENftAssetsTableTabs.MOVEMENTS ||
+        tab === ENftAssetsTableTabs.TRANSACTIONS
+          ? undefined
+          : handleRowClick
+      }
     />
   );
 };

@@ -103,3 +103,16 @@ export const capitalizeFirstLetter = (text: string) => {
     );
   return capitalizedString;
 };
+
+export const padTicker = (inputString: string): string => {
+  const maxTickerLength = 12;
+
+  if (inputString.length >= maxTickerLength) {
+    return inputString;
+  }
+
+  const nullsNeeded = maxTickerLength - inputString.length;
+  const paddedString = inputString + '\0'.repeat(nullsNeeded);
+
+  return paddedString;
+};

@@ -4,7 +4,6 @@ export const StyledDetailsContainer = styled.div`
   background-color: ${({ theme }) => theme.colors.landingBackground};
   flex: 2;
   border-radius: 24px;
-  overflow: hidden;
   @media screen and (max-width: 1572px) {
     width: 100%;
   }
@@ -32,7 +31,7 @@ export const StyledInfo = styled.div`
 export const StyledInfoItem = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
-  &:not(:last-child){
+  &:not(:last-child) {
     margin-bottom: 24px;
   }
 `;
@@ -51,12 +50,15 @@ export const StyledInfoItemLabel = styled.div`
   background: ${({ theme }) => theme.colors.lightAccent};
 `;
 
-export const StyledInfoItemHeader = styled.div<{ $expanded: boolean, $isEmpty?: boolean }>`
+export const StyledInfoItemHeader = styled.div<{
+  $expanded: boolean;
+  $isEmpty?: boolean;
+}>`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  cursor: ${({ $isEmpty }) => $isEmpty ? 'initial': 'pointer'};
+  cursor: ${({ $isEmpty }) => ($isEmpty ? 'initial' : 'pointer')};
   font-size: 20px;
   color: ${({ theme }) => theme.colors.textPrimary};
   font-weight: 600;
@@ -74,11 +76,10 @@ export const StyledInfoBlockWrap = styled.div`
 
 export const StyledInfoBlock = styled.div`
   border-radius: 24px;
-  overflow: hidden;
+  background-color: ${({ theme }) => theme.colors.shadow};
 `;
 
 export const StyledInfoBlockItem = styled.div`
-  background-color: ${({ theme }) => theme.colors.shadow};
   padding: 16px;
   font-size: 16px;
   font-weight: 500;
@@ -112,11 +113,12 @@ export const StyledInfoBlockDescription = styled.div`
   overflow: hidden;
 `;
 
-
 export const StyledInfoBlockText = styled.div<{ $isPink: boolean }>`
+  overflow-wrap: break-word;
   word-wrap: break-word;
-  word-break: break-all;
-  color: ${({ theme, $isPink }) => $isPink ? theme.colors.textPink : 'inherit'};
+  word-break: break-word;
+  color: ${({ theme, $isPink }) =>
+    $isPink ? theme.colors.textPink : 'inherit'};
   & > a {
     cursor: pointer;
     word-wrap: break-word;
@@ -130,7 +132,6 @@ export const StyledTooltipWrapper = styled.div`
   gap: 4px;
 `;
 
-
 export const StyledBlockHeaderCapitalized = styled(StyledInfoBlockHead)`
   text-transform: capitalize;
 `;
@@ -139,6 +140,7 @@ export const StyledTooltipsContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 0;
+  color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 export const StyledDocumentWrap = styled.div`

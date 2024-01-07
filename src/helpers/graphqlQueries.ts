@@ -403,7 +403,7 @@ export const getMultisigCreationExtrinsics = (
   return query;
 };
 
-export const getCollectionCreationTime = (ticker: string) => {
+export const getAssetCreationTime = (ticker: string) => {
   const query = gql`
     query {
       assets (

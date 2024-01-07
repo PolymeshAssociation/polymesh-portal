@@ -1,76 +1,86 @@
-import {
-  PortfolioCollection,
-  CollectionKey,
-} from '@polymeshassociation/polymesh-sdk/types';
+import { CollectionKey } from '@polymeshassociation/polymesh-sdk/types';
 import { Nft } from '@polymeshassociation/polymesh-sdk/internal';
-import { IPortfolioData } from '~/context/PortfolioContext/constants';
-import { getNftImageUrl } from '../../helpers';
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { PolymeshPrimitivesIdentityIdPortfolioId } from '@polymeshassociation/polymesh-sdk/polkadot/types-lookup';
+import { getNftImageUrl, getNftTokenUri } from '../../helpers';
 import { INftAsset } from './constants';
-
-export const checkNftStatus = (
-  collection: PortfolioCollection,
-  nftId: string,
-) => {
-  const isLocked = collection?.locked.find(
-    (nft) => nft?.id?.toString() === nftId,
-  );
-  if (isLocked) {
-    return {
-      isLocked: true,
-      nft: isLocked as Nft,
-    };
-  }
-  const isFree = collection?.free.find((nft) => nft?.id?.toString() === nftId);
-  return {
-    isLocked: false,
-    nft: isFree as Nft,
-  };
-};
+import { padTicker } from '~/helpers/formatters';
+import { notifyWarning } from '~/helpers/notifications';
 
 export const getNftCollectionAndStatus = async (
-  portfolios: IPortfolioData[],
   nftCollection: string,
   nftId: string,
   portfolioId: string | null,
+  did: string | undefined,
+  sdk: Polymesh,
+  polkadotApi: Polymesh['_polkadotApi'],
 ): Promise<{
   nft: Nft;
   collectionKeys: CollectionKey[];
   isLocked: boolean;
+  ownerDid: string;
+  ownerPortfolioId: string;
 }> => {
-  if (portfolioId) {
-    const selectedPortfolio = portfolios.find(({ id }) => id === portfolioId);
-    const collections = await selectedPortfolio?.portfolio.getCollections();
-    const collection = collections?.find(
-      ({ collection: col }) => col.ticker === nftCollection,
-    );
-    const collectionKeys =
-      (await collection?.collection.collectionKeys()) || [];
-    const nftData = checkNftStatus(collection as PortfolioCollection, nftId);
-    return {
-      ...nftData,
-      collectionKeys,
-    };
-  }
-  const portfolioData = await Promise.all(
-    portfolios.map(async (portfolio) => {
-      const collections = await portfolio?.portfolio.getCollections();
-      return collections;
-    }),
-  );
+  const collection = await sdk.assets.getNftCollection({
+    ticker: nftCollection,
+  });
+  // The polkadot api requires tickers to be exactly 12 characters long.
+  // Pad ticker with null characters to the required length.
+  const paddedTicker = padTicker(nftCollection);
 
-  const collection = portfolioData
-    .flat()
-    .find(
-      (col) =>
-        col.collection?.ticker === nftCollection &&
-        (col.free.some((nft) => nft.id.toString() === nftId) ||
-          col.locked.some((nft) => nft.id.toString() === nftId)),
+  const collectionKeys = (await collection.collectionKeys()) || [];
+  const nft = await collection.getNft({ id: new BigNumber(nftId) });
+  const optionOwner = await polkadotApi.query.nft.nftOwner(paddedTicker, nftId);
+
+  if (optionOwner.isNone) {
+    throw new Error(
+      `Owner not found for ${nftCollection} token ID ${nftId}. The token may have been redeemed`,
     );
-  const collectionKeys = (await collection?.collection.collectionKeys()) || [];
-  const nftData = checkNftStatus(collection as PortfolioCollection, nftId);
+  }
+
+  const owner =
+    // TODO remove type casting once SDK is updated with latest generated types
+    optionOwner.unwrap() as unknown as PolymeshPrimitivesIdentityIdPortfolioId;
+
+  const ownerDid = owner.did.toString();
+  const ownerPortfolioId = owner.kind.isDefault
+    ? 'default'
+    : owner.kind.asUser.toString();
+
+  if (ownerDid !== did) {
+    notifyWarning(
+      `NFT ID ${nftId} of collection ${nftCollection} is not owned by the selected identity`,
+    );
+  }
+
+  if (portfolioId) {
+    const inPortfolio = await polkadotApi.query.portfolio.portfolioNFT(
+      {
+        did,
+        kind:
+          portfolioId === 'default' ? { default: null } : { user: portfolioId },
+      },
+      [paddedTicker, nftId],
+    );
+
+    if (inPortfolio.isFalse) {
+      notifyWarning(
+        `NFT ID ${nftId} of collection ${nftCollection} not found in Portfolio ID ${portfolioId}`,
+      );
+    }
+  }
+
+  const isLocked = await polkadotApi.query.portfolio.portfolioLockedNFT(owner, [
+    paddedTicker,
+    nftId,
+  ]);
+
   return {
-    ...nftData,
+    nft,
     collectionKeys,
+    isLocked: isLocked.isTrue,
+    ownerDid,
+    ownerPortfolioId,
   };
 };
 
@@ -78,13 +88,16 @@ export const getNftDetails = async (
   nft: Nft,
   isLocked: boolean,
   collectionKeys: CollectionKey[],
+  ownerDid: string,
+  ownerPortfolioId: string,
 ): Promise<INftAsset> => {
-  const imgUrl = (await getNftImageUrl(nft)) || '';
-  const tokenUri = (await getNftImageUrl(nft, true)) || '';
+  const tokenUri = (await getNftTokenUri(nft)) || '';
 
   const parsedNft = {
-    imgUrl,
+    tokenUri,
     isLocked,
+    ownerDid,
+    ownerPortfolioId,
   } as INftAsset;
 
   // get off-chain args
@@ -95,13 +108,17 @@ export const getNftDetails = async (
       const rawData = await reader?.read();
       if (rawData.value) {
         const parsedData = JSON.parse(rawData.value);
-        const args = parsedData.attributes.map(
-          (attr: Record<string, string>) => {
-            const [metaKey, metaValue] = Object.values(attr);
-            return { metaKey, metaValue };
-          },
-        );
-        parsedNft.offChainDetails = args;
+        parsedNft.imgUrl = (await getNftImageUrl(nft, parsedData)) || '';
+
+        if (parsedData.attributes) {
+          const attributes = parsedData.attributes.map(
+            (attr: { trait_type?: string; value?: string | number }) => {
+              const { trait_type: metaKey, value: metaValue } = attr;
+              return { metaKey, metaValue };
+            },
+          );
+          parsedNft.offChainDetails = attributes;
+        }
         if (parsedData.name) {
           parsedNft.name = parsedData.name;
         }
@@ -110,10 +127,14 @@ export const getNftDetails = async (
         }
       }
     }
+  } else {
+    parsedNft.imgUrl = (await getNftImageUrl(nft)) || '';
   }
+
   // get on-chain args
   if (collectionKeys?.length) {
     const nftMeta = await nft.getMetadata();
+
     const args = nftMeta.length
       ? nftMeta.map((meta) => {
           const metaKey = collectionKeys.find(
@@ -124,27 +145,12 @@ export const getNftDetails = async (
           return {
             metaKey: metaKey?.name || 'key',
             metaValue: meta.value,
+            metaDescription: metaKey?.specs.description,
           };
         })
       : [];
     parsedNft.onChainDetails = args;
   }
+
   return parsedNft;
-};
-
-export const parseNft = async (
-  portfolios: IPortfolioData[],
-  nftCollection: string,
-  nftId: string,
-  portfolioId: string | null,
-) => {
-  const { nft, isLocked, collectionKeys } = await getNftCollectionAndStatus(
-    portfolios,
-    nftCollection,
-    nftId,
-    portfolioId,
-  );
-
-  const details = await getNftDetails(nft, isLocked, collectionKeys);
-  return details;
 };

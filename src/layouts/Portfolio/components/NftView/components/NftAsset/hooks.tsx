@@ -1,25 +1,34 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { PortfolioContext } from '~/context/PortfolioContext';
 import { AccountContext } from '~/context/AccountContext';
 import { notifyError } from '~/helpers/notifications';
 import { getNftDetails, getNftCollectionAndStatus } from './helpers';
 import { INftAsset } from './constants';
+import { PolymeshContext } from '~/context/PolymeshContext';
 
 export const useNftAsset = () => {
   const [nft, setNft] = useState<INftAsset>();
   const [nftLoading, setNftLoading] = useState(true);
-
-  const { identityLoading } = useContext(AccountContext);
-  const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
+  const {
+    api: { sdk, polkadotApi },
+  } = useContext(PolymeshContext);
+  const { identityLoading, identity } = useContext(AccountContext);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
   const nftCollection = searchParams.get('nftCollection') || '';
   const nftId = searchParams.get('nftId') || '';
 
+  const identityRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (!allPortfolios || portfolioLoading) {
+    if (!sdk || !polkadotApi || identityLoading) {
+      return;
+    }
+
+    // Return to portfolio page if identity changes
+    if (identityRef.current && identityRef.current !== identity?.did) {
+      setSearchParams({});
       return;
     }
     setNftLoading(true);
@@ -29,35 +38,42 @@ export const useNftAsset = () => {
           nft: token,
           isLocked,
           collectionKeys,
+          ownerDid,
+          ownerPortfolioId,
         } = await getNftCollectionAndStatus(
-          allPortfolios,
           nftCollection,
           nftId,
           portfolioId,
+          identity?.did,
+          sdk,
+          polkadotApi,
         );
 
-        if (!token) {
-          // redirect to portfolio in case nft is not found (to handle account switch)
-          setSearchParams({});
-          return;
-        }
-
-        const details = await getNftDetails(token, isLocked, collectionKeys);
+        const details = await getNftDetails(
+          token,
+          isLocked,
+          collectionKeys,
+          ownerDid,
+          ownerPortfolioId,
+        );
         setNft(details);
       } catch (error) {
         notifyError((error as Error).message);
+        setSearchParams('');
       } finally {
         setNftLoading(false);
+        identityRef.current = identity?.did || null;
       }
     })();
   }, [
-    allPortfolios,
     nftCollection,
     nftId,
     portfolioId,
-    portfolioLoading,
     identityLoading,
     setSearchParams,
+    sdk,
+    polkadotApi,
+    identity,
   ]);
 
   return {

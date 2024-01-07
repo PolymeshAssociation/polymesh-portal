@@ -11,11 +11,11 @@ import {
 
 interface IPropertiesItemProps {
   propKey: string;
-  propValue: string;
+  propValue?: string | number | null;
   propCopy?: string;
   propDescription?: string;
-  propIsLocked?: string;
-  propExpiry?: Date | null | undefined;
+  propIsLocked?: string | null;
+  propLockedUntil?: string;
   propUrl?: string;
   isPink?: boolean;
 }
@@ -26,7 +26,7 @@ export const PropertiesItem: React.FC<IPropertiesItemProps> = ({
   propCopy,
   propDescription,
   propIsLocked,
-  propExpiry,
+  propLockedUntil,
   propUrl,
   isPink = false,
 }) => {
@@ -47,12 +47,18 @@ export const PropertiesItem: React.FC<IPropertiesItemProps> = ({
           {propDescription && (
             <Tooltip caption={propDescription} position="top-right" />
           )}
-          {propIsLocked && (
+          {propIsLocked === 'Locked' && (
             <Tooltip
               position="top-right"
-              caption={`${propIsLocked} | ${
-                propExpiry ? propExpiry : 'Forever'
-              }`}
+              caption={`${propIsLocked} permanently`}
+            >
+              <Icon name="LockIcon" size="14px" />
+            </Tooltip>
+          )}
+          {propIsLocked === 'Locked Until' && (
+            <Tooltip
+              position="top-right"
+              caption={`${propIsLocked} | ${propLockedUntil}`}
             >
               <Icon name="LockIcon" size="14px" />
             </Tooltip>

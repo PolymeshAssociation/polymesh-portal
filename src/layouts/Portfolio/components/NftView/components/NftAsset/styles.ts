@@ -17,7 +17,7 @@ export const StyledNftContainer = styled.div`
 `;
 
 export const StyledImageWrap = styled.div`
-  flex: 0 50%;
+  flex: 0 40%;
   position: relative;
   background: ${({ theme }) => theme.colors.landingBackground};
   border-radius: 24px;

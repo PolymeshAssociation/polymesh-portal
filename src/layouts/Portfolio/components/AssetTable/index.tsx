@@ -1,7 +1,7 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Table } from '~/components';
 import { useAssetTable } from './hooks';
-import { useSearchParams } from 'react-router-dom';
 import { EAssetsTableTabs, AssetTableItem, ITokenItem } from './constants';
 // import { EAssetsTableTabs } from './constants';
 
@@ -14,7 +14,7 @@ export const AssetTable = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const id = searchParams.get('id');
 
-  const handleTowClick = (original: AssetTableItem) => {
+  const handleRowClick = (original: AssetTableItem) => {
     if (tab !== EAssetsTableTabs.TOKENS) return;
 
     const { ticker } = original as ITokenItem;
@@ -33,7 +33,9 @@ export const AssetTable = () => {
       tabs={Object.values(EAssetsTableTabs)}
       setTab={setTab}
       totalItems={totalItems}
-      handleRowClick={handleTowClick}
+      handleRowClick={
+        tab === EAssetsTableTabs.TOKENS ? handleRowClick : undefined
+      }
     />
   );
 };

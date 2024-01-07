@@ -21,7 +21,7 @@ export const columns = [
     },
   }),
   columnHelper.accessor('imgUrl', {
-    header: () => <StyledCell>Image Url</StyledCell>,
+    header: () => <StyledCell>Image URL</StyledCell>,
     cell: (info) => <UrlCell imgUrl={info.getValue()} />,
   }),
 ];

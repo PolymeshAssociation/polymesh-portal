@@ -1,5 +1,4 @@
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
-import { toParsedDateTime } from '~/helpers/dateTime';
 import { parseSingleNftFromPortfolio } from '../../../NftAssetTable/helpers';
 
 export const parseCollectionFromPortfolio = async (

@@ -1,36 +1,35 @@
 import { useSearchParams } from 'react-router-dom';
-import { SkeletonLoader } from '~/components/UiKit';
+import { useEffect } from 'react';
 import { ECollectionView } from '../../constants';
 import { NftsList } from '../NftsList';
 import { NftTable } from '../NftTable';
 import { useNftCollection } from './hooks';
 import {
-  CardContainer,
-  Details,
-  DocumentDropdown,
-  PropertiesDropdown,
-} from '../../../DetailsCard';
-import {
-  StyledInfoItemHeader,
-  StyledInfoItem,
-  StyledDocumentWrap,
-} from '../../../DetailsCard/styles';
-import {
+  AssetDetailsCardWrapper,
   StyledCollectionContainer,
   StyledListContainer,
-  StyledLoaderWrapper,
 } from './styles';
+import { AssetDetailsCard } from '~/components/AssetDetailsCard';
+import { notifyWarning } from '~/helpers/notifications';
 
 interface INftCollectionProps {
   view: ECollectionView;
 }
 
 export const NftCollection: React.FC<INftCollectionProps> = ({ view }) => {
-  const { nftList, details, nftListLoading } = useNftCollection();
-
+  const { nftList, nftListLoading } = useNftCollection();
   const [searchParams, setSearchParams] = useSearchParams();
   const portfolioId = searchParams.get('id') || '';
   const nftCollection = searchParams.get('nftCollection') || '';
+
+  useEffect(() => {
+    if (portfolioId && !nftListLoading && !nftList.length) {
+      if (portfolioId)
+        notifyWarning(
+          `NFT collection ${nftCollection} not found in Portfolio ID ${portfolioId}`,
+        );
+    }
+  }, [nftCollection, nftList.length, nftListLoading, portfolioId]);
 
   const handleNftClick = (nftId: number) => {
     setSearchParams(
@@ -40,37 +39,18 @@ export const NftCollection: React.FC<INftCollectionProps> = ({ view }) => {
     );
   };
 
+  if (!nftListLoading && !nftList.length) {
+    return (
+      <StyledCollectionContainer>
+        <AssetDetailsCard />
+      </StyledCollectionContainer>
+    );
+  }
   return (
     <StyledCollectionContainer>
-      {nftListLoading ? (
-        <StyledLoaderWrapper>
-          <SkeletonLoader height={329} />
-        </StyledLoaderWrapper>
-      ) : (
-        <CardContainer
-          label="Collection ID"
-          value={details?.id?.toString() as string}
-        >
-          <>
-            <Details details={details?.details} />
-            {details?.docs?.length ? (
-              <PropertiesDropdown label="Asset Documents">
-                <StyledDocumentWrap>
-                  {details?.docs?.map((doc: any) => (
-                    <DocumentDropdown key={doc.name} document={doc} />
-                  ))}
-                </StyledDocumentWrap>
-              </PropertiesDropdown>
-            ) : (
-              <StyledInfoItem>
-                <StyledInfoItemHeader $expanded={false} $isEmpty>
-                  No Collection Documents Found
-                </StyledInfoItemHeader>
-              </StyledInfoItem>
-            )}
-          </>
-        </CardContainer>
-      )}
+      <AssetDetailsCardWrapper>
+        <AssetDetailsCard />
+      </AssetDetailsCardWrapper>
       <StyledListContainer>
         {view === ECollectionView.PALLETE ? (
           <NftsList

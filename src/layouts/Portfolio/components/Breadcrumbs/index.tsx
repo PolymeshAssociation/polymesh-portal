@@ -29,7 +29,7 @@ export const Breadcrumbs = () => {
           {nftCollection}
         </StyledBreadcrumb>
       )}
-      {asset && <StyledBreadcrumb>#{asset}</StyledBreadcrumb>}
+      {asset && <StyledBreadcrumb>{asset}</StyledBreadcrumb>}
       {nftId && <StyledBreadcrumb>#{nftId}</StyledBreadcrumb>}
     </StyledBreadcrumbsContainer>
   );

@@ -5,8 +5,8 @@ export const getDateTime = (dateTime: string | Date) => {
   return `${date} / ${time}`;
 };
 
-export const isValidLink = (url: string) => {
-  if (!url) return;
+export const isValidLink = (url?: string | null | undefined) => {
+  if (!url) return undefined;
   if (url.startsWith('https') && !url.includes('{')) return url;
-  return;
-}
+  return undefined;
+};
