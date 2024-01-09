@@ -18,7 +18,7 @@ import {
   StyledTextWithCopy,
 } from './styles';
 import { formatExpiry, renderDetails } from './helpers';
-import { formatDid, splitByCapitalLetters } from '~/helpers/formatters';
+import { formatDid, splitCamelCase } from '~/helpers/formatters';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
@@ -113,7 +113,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
         <StyledInfoItem>
           Auth Type
           <Text size="large" bold>
-            {splitByCapitalLetters(data.data.type)}
+            {splitCamelCase(data.data.type)}
           </Text>
         </StyledInfoItem>
         {direction === EAuthorizationDirections.INCOMING ? (

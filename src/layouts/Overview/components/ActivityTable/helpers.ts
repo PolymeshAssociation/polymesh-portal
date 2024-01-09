@@ -1,7 +1,7 @@
 import { ExtrinsicData } from '@polymeshassociation/polymesh-sdk/types';
 import { IAssetTransaction } from '~/constants/queries/types';
 import { toParsedDateTime } from '~/helpers/dateTime';
-import { splitByCapitalLetters } from '~/helpers/formatters';
+import { splitCamelCase } from '~/helpers/formatters';
 import { IHistoricalItem, ITokenItem } from './constants';
 
 export const parseExtrinsicHistory = async (
@@ -13,7 +13,7 @@ export const parseExtrinsicHistory = async (
         extrinsicId: `${blockNumber.toString()}-${extrinsicIdx.toString()}`,
         dateTime: toParsedDateTime(blockDate),
         module: txTag.split('.')[0],
-        call: splitByCapitalLetters(txTag.split('.')[1]),
+        call: splitCamelCase(txTag.split('.')[1]),
         success,
       }),
     ),

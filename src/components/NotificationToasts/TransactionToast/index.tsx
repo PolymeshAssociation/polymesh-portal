@@ -13,7 +13,7 @@ import {
   StyledError,
   StyledTimestamp,
 } from './styles';
-import { formatDid, splitByCapitalLetters } from '~/helpers/formatters';
+import { formatDid, splitCamelCase } from '~/helpers/formatters';
 import { toRelativeTime } from '~/helpers/dateTime';
 
 interface ITxToastProps {
@@ -57,7 +57,7 @@ const TransactionToast: React.FC<ITxToastProps> = ({
             {tag.split('.')[0]}
           </Text>
           <Text bold transform="capitalize">
-            {splitByCapitalLetters(tag.split('.')[1])}
+            {splitCamelCase(tag.split('.')[1])}
           </Text>
         </div>
         <StyledStatusWrapper>

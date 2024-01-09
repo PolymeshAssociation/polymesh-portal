@@ -2,7 +2,7 @@ import { SecurityIdentifier } from '@polymeshassociation/polymesh-sdk/types';
 import { PropertiesDropdown } from '../PropertiesDropdown';
 import { PropertiesItem } from '../PropertiesItem';
 import { getDateTime, isValidLink } from '../../helpers';
-import { formatDid, splitByCapitalLetters } from '~/helpers/formatters';
+import { formatDid, splitCamelCase } from '~/helpers/formatters';
 import { IAssetMeta } from '../../constants';
 import { IDetails } from '~/hooks/polymesh/useAssetDetails';
 
@@ -38,7 +38,7 @@ export const Details: React.FC<IDetailsProps> = ({ details }) => {
         )}
         <PropertiesItem
           propKey="Asset Type"
-          propValue={splitByCapitalLetters(assetType)}
+          propValue={splitCamelCase(assetType)}
         />
         <PropertiesItem propKey="Total supply" propValue={totalSupply} />
 

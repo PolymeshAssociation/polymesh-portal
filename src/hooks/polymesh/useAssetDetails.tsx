@@ -12,7 +12,7 @@ import {
 } from '@polymeshassociation/polymesh-sdk/internal';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
-import { splitByCapitalLetters } from '~/helpers/formatters';
+import { splitCamelCase } from '~/helpers/formatters';
 import { toFormattedTimestamp } from '~/helpers/dateTime';
 
 export interface IAssetMeta {
@@ -113,14 +113,14 @@ export const useAssetDetails = (assetOrTicker: Asset | string | null) => {
                 );
               }
               return {
-                name: splitByCapitalLetters(metaDetails.name),
+                name: splitCamelCase(metaDetails.name),
                 description: metaDetails.specs.description,
                 expiry: value?.expiry
                   ? toFormattedTimestamp(value?.expiry, 'YYYY-MM-DD / HH:mm:ss')
                   : null,
                 lockedUntil,
                 isLocked: value?.lockStatus
-                  ? splitByCapitalLetters(value?.lockStatus)
+                  ? splitCamelCase(value?.lockStatus)
                   : null,
                 value: value?.value || null,
               };

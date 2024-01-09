@@ -12,7 +12,7 @@ import { Text } from '~/components/UiKit';
 import { ClaimsContext } from '~/context/ClaimsContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { toParsedDate } from '~/helpers/dateTime';
-import { formatDid, splitByCapitalLetters } from '~/helpers/formatters';
+import { formatDid, splitCamelCase } from '~/helpers/formatters';
 import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import { EClaimsType } from '../../constants';
@@ -77,7 +77,7 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
       <StyledClaimItem>
         Claim Type
         <Text bold size="large">
-          {splitByCapitalLetters(claim.type)}
+          {splitCamelCase(claim.type)}
         </Text>
       </StyledClaimItem>
       {type === EClaimsType.RECEIVED ? (

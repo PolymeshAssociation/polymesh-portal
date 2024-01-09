@@ -19,7 +19,7 @@ import {
   IMultisigExtrinsicQueryResponse,
   IProposalQueryResponse,
 } from '~/constants/queries/types';
-import { splitByCapitalLetters, splitByUnderscore } from '~/helpers/formatters';
+import { splitCamelCase, splitByUnderscore } from '~/helpers/formatters';
 import { IMultiSigListItem } from '../../types';
 import { IHistoricalMultiSigProposals } from './constants';
 import { columns } from './config';
@@ -128,7 +128,7 @@ export const useMultiSigTable = () => {
             args,
             call: splitByUnderscore(call),
             expiry,
-            module: splitByCapitalLetters(module),
+            module: splitCamelCase(module),
             callIndex,
           };
         });

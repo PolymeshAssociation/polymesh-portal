@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from 'react';
 import { useMultiSigContext } from '~/context/MultiSigContext';
-import { splitByCapitalLetters } from '~/helpers/formatters';
+import { splitCamelCase } from '~/helpers/formatters';
 import { notifyError } from '~/helpers/notifications';
 import { IMultiSigListItem, TMultiSigArgs } from '../../types';
 import { AccountContext } from '~/context/AccountContext';
@@ -90,9 +90,9 @@ export const useMultiSigList = () => {
             approvalCount: approvalAmount.toNumber(),
             rejectionCount: rejectionAmount.toNumber(),
             args: args as TMultiSigArgs,
-            call: splitByCapitalLetters(call),
+            call: splitCamelCase(call),
             proposalId: proposal.id.toNumber(),
-            module: splitByCapitalLetters(module),
+            module: splitCamelCase(module),
             createdBlockId,
             creatorAccount,
             updatedBlockId,
