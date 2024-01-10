@@ -170,6 +170,15 @@ const AccountProvider = ({ children }: IProviderProps) => {
     setSelectedAccount(allAccounts[0]);
   }, [allAccounts, defaultAccount, selectedAccount]);
 
+  useEffect(() => {
+    const rememberSelectedAccount = localStorage.getItem(
+      'rememberSelectedAccount',
+    );
+    if (rememberSelectedAccount === 'true' && selectedAccount) {
+      setDefaultAccount(selectedAccount);
+    }
+  }, [selectedAccount, setDefaultAccount]);
+
   // Set account instance when selected account changes
   useEffect(() => {
     if (!sdk || !selectedAccount) {
