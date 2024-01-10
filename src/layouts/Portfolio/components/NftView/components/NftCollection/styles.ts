@@ -10,9 +10,7 @@ export const StyledCollectionContainer = styled.div`
 `;
 
 export const AssetDetailsCardWrapper = styled.div`
-  max-width: 50%;
-  min-width: 40px;
-  flex-grow: 1;
+  flex: 0 0 45%;
   @media screen and (max-width: 1572px) {
     max-width: unset;
     width: 100%;

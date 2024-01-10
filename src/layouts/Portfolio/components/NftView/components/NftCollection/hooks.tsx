@@ -19,16 +19,17 @@ export const useNftCollection = () => {
   const nftCollection = searchParams.get('nftCollection');
 
   const { identity, identityLoading } = useContext(AccountContext);
-  const { allPortfolios } = useContext(PortfolioContext);
+  const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
 
   useEffect(() => {
-    if (
-      identityLoading ||
-      !identity ||
-      !nftCollection ||
-      !allPortfolios.length
-    ) {
+    if (identityLoading || portfolioLoading) {
       setNftList([]);
+      setNftListLoading(true);
+      return;
+    }
+    if (!identity || !nftCollection || !allPortfolios.length) {
+      setNftList([]);
+      setNftListLoading(false);
       return;
     }
     setNftListLoading(true);
@@ -72,6 +73,7 @@ export const useNftCollection = () => {
     portfolioId,
     setSearchParams,
     identityLoading,
+    portfolioLoading,
   ]);
 
   return {

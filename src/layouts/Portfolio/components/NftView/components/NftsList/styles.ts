@@ -52,7 +52,7 @@ export const StyledNftId = styled.div`
   font-size: 20px;
   font-weight: 600;
   letter-spacing: -0.2px;
-  color: #000;
+  color: ${({ theme }) => theme.colors.textPrimary};
   margin-bottom: 8px;
 `;
 

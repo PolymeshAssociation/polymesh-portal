@@ -5,9 +5,21 @@ export const StyledNftContainer = styled.div`
   display: flex;
   gap: 48px;
   align-items: flex-start;
-  & > .skeleton-wrapper > span {
-    height: calc(100vh - 300px);
+  & > .skeleton-wrapper {
+    & > span {
+      height: calc(100vh - 300px);
+    }
   }
+
+  & > .skeleton-wrapper:first-child {
+    flex: 0 0 40%;
+    & > span {
+      height: 0;
+      padding-bottom: 100%;
+      width: 100%;
+    }
+  }
+
   @media screen and (max-width: 982px) {
     flex-direction: column;
     & > .skeleton-wrapper > span {

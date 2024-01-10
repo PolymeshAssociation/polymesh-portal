@@ -44,6 +44,7 @@ export const AssetDetailsCard = () => {
             {assetDetails?.docs?.length ? (
               <PropertiesDropdown
                 label={`Asset Documents (${assetDetails?.docs?.length})`}
+                removeBlockBackground
               >
                 <StyledDocumentWrap>
                   {assetDetails?.docs?.map((doc: AssetDocument) => (

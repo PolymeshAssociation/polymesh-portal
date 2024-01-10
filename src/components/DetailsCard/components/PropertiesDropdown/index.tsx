@@ -14,6 +14,7 @@ interface IPropertiesDropdownProps {
   subLabel?: string;
   expanded?: boolean;
   children: React.ReactNode;
+  removeBlockBackground?: boolean;
 }
 
 export const PropertiesDropdown: React.FC<IPropertiesDropdownProps> = ({
@@ -21,6 +22,7 @@ export const PropertiesDropdown: React.FC<IPropertiesDropdownProps> = ({
   subLabel,
   expanded = false,
   children,
+  removeBlockBackground,
 }) => {
   const [expandedArgs, setExpandedArgs] = useState(expanded);
 
@@ -40,7 +42,9 @@ export const PropertiesDropdown: React.FC<IPropertiesDropdownProps> = ({
       </StyledInfoItemHeader>
       {expandedArgs && (
         <StyledInfoBlockWrap>
-          <StyledInfoBlock>{children}</StyledInfoBlock>
+          <StyledInfoBlock $withoutBackground={removeBlockBackground}>
+            {children}
+          </StyledInfoBlock>
         </StyledInfoBlockWrap>
       )}
     </StyledInfoItem>

@@ -24,13 +24,14 @@ export const StyledInfo = styled.div`
   padding: 24px 24px 0;
   margin-bottom: 24px;
   overflow-y: scroll;
-  max-height: calc(100vh - 388px);
+  max-height: calc(100vh - 411px);
   min-height: 220px;
 `;
 
 export const StyledInfoItem = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
+  background-color: unset;
   &:not(:last-child) {
     margin-bottom: 24px;
   }
@@ -74,9 +75,10 @@ export const StyledInfoBlockWrap = styled.div`
   border-top: 1px solid ${({ theme }) => theme.colors.shadow};
 `;
 
-export const StyledInfoBlock = styled.div`
+export const StyledInfoBlock = styled.div<{ $withoutBackground?: boolean }>`
   border-radius: 24px;
-  background-color: ${({ theme }) => theme.colors.shadow};
+  background-color: ${({ $withoutBackground, theme }) =>
+    $withoutBackground ? '' : theme.colors.shadow};
 `;
 
 export const StyledInfoBlockItem = styled.div`
