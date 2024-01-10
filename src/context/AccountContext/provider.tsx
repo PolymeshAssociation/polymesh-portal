@@ -42,6 +42,9 @@ const AccountProvider = ({ children }: IProviderProps) => {
     'defaultAccount',
     '',
   );
+  const rememberSelectedAccount = localStorage.getItem(
+    'rememberSelectedAccount',
+  );
   const [blockedWallets, setBlockedWallets] = useLocalStorage<string[]>(
     'blockedWallets',
     [],
@@ -166,6 +169,12 @@ const AccountProvider = ({ children }: IProviderProps) => {
     }
     setSelectedAccount(allAccounts[0]);
   }, [allAccounts, defaultAccount, selectedAccount]);
+
+  useEffect(() => {
+    if (rememberSelectedAccount === 'true' && selectedAccount) {
+      setDefaultAccount(selectedAccount);
+    }
+  }, [rememberSelectedAccount, selectedAccount, setDefaultAccount]);
 
   // Set account instance when selected account changes
   useEffect(() => {

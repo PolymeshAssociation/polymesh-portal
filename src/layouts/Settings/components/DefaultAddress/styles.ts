@@ -57,3 +57,30 @@ export const StyledActionButton = styled.button<{ $marginTop?: number }>`
     color: ${({ theme }) => theme.colors.textDisabled};
   }
 `;
+
+export const StyledRememberSelected = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: space-between;
+  padding-right: 16px;
+`;
+
+export const StyledSelect = styled.div<{ $isSelected: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: ${({ $isSelected }) =>
+    $isSelected ? '#FF2E72' : 'transparent'};
+  border: 2px solid
+    ${({ $isSelected, theme }) =>
+      $isSelected ? '#FF2E72' : theme.colors.textDisabled};
+  color: ${({ $isSelected }) => ($isSelected ? '#FFFFFF' : 'transparent')};
+  transition:
+    background-color 250ms ease-out,
+    color 250ms ease-out;
+  cursor: pointer;
+`;
