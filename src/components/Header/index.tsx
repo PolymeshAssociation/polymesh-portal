@@ -33,7 +33,7 @@ const Header: React.FC<IHeaderProps> = ({ toggleMobileMenu }) => {
     let currentPageLabel;
     if (nftCollection) {
       currentPageLabel = nftId
-        ? `#${nftId as string}`
+        ? `${nftCollection as string} #${nftId as string}`
         : (nftCollection as string);
     } else {
       currentPageLabel = currentPage?.label || null;
