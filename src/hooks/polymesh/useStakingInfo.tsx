@@ -1,9 +1,6 @@
 import { useState, useEffect, useContext, useMemo } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import {
-  balanceToBigNumber,
-  u128ToBigNumber,
-} from '@polymeshassociation/polymesh-sdk/utils/conversion';
+import { balanceToBigNumber } from '@polymeshassociation/polymesh-sdk/utils/conversion';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
 import { StakingContext } from '~/context/StakingContext';
@@ -38,22 +35,17 @@ const useStakingInfo = () => {
     stakingInfo.percentStaked,
   );
 
-  const { fixedAnnualReward, maxVariableInflationTotalIssuance } =
-    useMemo(() => {
-      if (!polkadotApi)
-        return {
-          fixedAnnualReward: null,
-          maxVariableInflationTotalIssuance: null,
-        };
+  const { fixedAnnualReward } = useMemo(() => {
+    if (!polkadotApi)
       return {
-        fixedAnnualReward: u128ToBigNumber(
-          polkadotApi.consts.staking.fixedYearlyReward,
-        ),
-        maxVariableInflationTotalIssuance: u128ToBigNumber(
-          polkadotApi.consts.staking.maxVariableInflationTotalIssuance,
-        ),
+        fixedAnnualReward: null,
       };
-    }, [polkadotApi]);
+    return {
+      fixedAnnualReward: balanceToBigNumber(
+        polkadotApi.consts.staking.fixedYearlyReward,
+      ),
+    };
+  }, [polkadotApi]);
 
   const erasPerYear = useMemo(() => {
     if (!epochDurationTime || !sessionsPerEra) return null;
@@ -114,27 +106,26 @@ const useStakingInfo = () => {
 
   // Calculate Inflation, APR and staked percent
   useEffect(() => {
-    if (!totalIssuance || !maxVariableInflationTotalIssuance || !totalStaked)
-      return;
+    if (!totalIssuance || !fixedAnnualReward || !totalStaked) return;
     const stakedRatio = totalStaked.div(totalIssuance);
 
-    let inflationRate: BigNumber;
-
-    if (totalIssuance.lt(maxVariableInflationTotalIssuance)) {
-      if (stakedRatio.lte(X_IDEAL)) {
-        inflationRate = I_ZERO.plus(
-          I_IDEAL.minus(I_ZERO).times(stakedRatio.div(X_IDEAL)),
-        );
-      } else {
-        inflationRate = I_ZERO.plus(
-          I_IDEAL.minus(I_ZERO).times(
-            new BigNumber(2).pow(X_IDEAL.minus(stakedRatio).div(DECAY)),
-          ),
-        );
-      }
+    let variableInflationRate: BigNumber;
+    if (stakedRatio.lte(X_IDEAL)) {
+      variableInflationRate = I_ZERO.plus(
+        I_IDEAL.minus(I_ZERO).times(stakedRatio.div(X_IDEAL)),
+      );
     } else {
-      inflationRate = fixedAnnualReward.div(totalIssuance);
+      variableInflationRate = I_ZERO.plus(
+        I_IDEAL.minus(I_ZERO).times(
+          new BigNumber(2).pow(X_IDEAL.minus(stakedRatio).div(DECAY)),
+        ),
+      );
     }
+    const fixedInflationRate = fixedAnnualReward.div(totalIssuance);
+    const inflationRate = BigNumber.minimum(
+      variableInflationRate,
+      fixedInflationRate,
+    );
 
     const annualTotalReward = inflationRate.times(totalIssuance);
     const calcedApr = annualTotalReward.div(totalStaked).times(100);
@@ -142,12 +133,7 @@ const useStakingInfo = () => {
     setInflation(inflationRate.times(100));
     setApr(calcedApr);
     setPercentStaked(stakedPercent);
-  }, [
-    fixedAnnualReward,
-    maxVariableInflationTotalIssuance,
-    totalIssuance,
-    totalStaked,
-  ]);
+  }, [fixedAnnualReward, totalIssuance, totalStaked]);
 
   const apy = useMemo(() => {
     if (!apr || !erasPerYear) return null;
