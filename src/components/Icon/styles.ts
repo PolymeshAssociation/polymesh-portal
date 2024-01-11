@@ -1,13 +1,13 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 export const IconWrapper = styled.div<{ $size?: string }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: inherit;
-  ${({ $size }) => `
+  ${({ $size }) => css`
     width: ${$size || 'initial'};
-    height: ${$size || 'initial'}
+    height: ${$size || 'initial'};
   `}
 
   & svg {
