@@ -17,6 +17,8 @@ import {
   StyledSelectedOption,
   StyledActionButton,
   StyledSelectedHeadWrapper,
+  StyledExpandIconWrapper,
+  StyledOperatorSelectContainer,
 } from './styles';
 import { Icon } from '~/components';
 import { useOperatorRewards } from '../../hooks';
@@ -37,12 +39,16 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
 
   const [filter, setFilter] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'apr'>('apr');
-
+  const [expandOperators, setExpandOperators] = useState(false);
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFilter(e.target.value);
 
   const toggleSortBy = () => {
     setSortBy(sortBy === 'name' ? 'apr' : 'name');
+  };
+
+  const toggleExpandOperators = () => {
+    setExpandOperators((prev) => !prev);
   };
 
   useEffect(() => {
@@ -103,33 +109,45 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
                 <StyledActionButton onClick={toggleSortBy}>
                   {`Sorted by ${sortBy === 'name' ? 'name' : 'recent return'}`}
                 </StyledActionButton>
-                <StyledOperatorSelect>
-                  {candidatAccounts.map((account) => (
-                    <StyledNominatorOption
-                      key={account}
-                      onClick={() => {
-                        const newValue = value
-                          ? [...value, account]
-                          : [account];
-                        if (filter) {
-                          setFilter('');
-                        }
-                        onChange(newValue);
-                      }}
-                    >
-                      <div className="left-content">
-                        <Identicon value={account} size={18} />
-                        {operatorsNames[account] || formatKey(account)}
-                      </div>
-                      <div className="right-content">
-                        {operatorAprRecord[account]
-                          ? operatorAprRecord[account]
-                          : '--'}
-                        {' %'}
-                      </div>{' '}
-                    </StyledNominatorOption>
-                  ))}
-                </StyledOperatorSelect>
+                <StyledOperatorSelectContainer>
+                  <StyledOperatorSelect $expanded={expandOperators}>
+                    {candidatAccounts.map((account) => (
+                      <StyledNominatorOption
+                        key={account}
+                        onClick={() => {
+                          const newValue = value
+                            ? [...value, account]
+                            : [account];
+                          if (filter) {
+                            setFilter('');
+                          }
+                          onChange(newValue);
+                        }}
+                      >
+                        <div className="left-content">
+                          <Identicon value={account} size={18} />
+                          {operatorsNames[account] || formatKey(account)}
+                        </div>
+                        <div className="right-content">
+                          {operatorAprRecord[account]
+                            ? operatorAprRecord[account]
+                            : '--'}
+                          {' %'}
+                        </div>{' '}
+                      </StyledNominatorOption>
+                    ))}
+                  </StyledOperatorSelect>
+                  <StyledExpandIconWrapper
+                    onClick={toggleExpandOperators}
+                    $expanded={expandOperators}
+                  >
+                    <Icon
+                      name="ExpandIcon"
+                      size="24px"
+                      className="expand-icon"
+                    />
+                  </StyledExpandIconWrapper>
+                </StyledOperatorSelectContainer>
               </StyledNominationWrapper>
               <StyledNominationWrapper>
                 <StyledSelectedHeadWrapper>

@@ -23,16 +23,13 @@ export const StyledSelect = styled.div<{
 `;
 
 export const StyledExpandedSelect = styled.div`
-  position: absolute;
-  top: 110%;
-  left: 0;
   width: 100%;
   padding: 8px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
   border: 1px solid #8f8f8f;
   border-radius: 8px;
-  z-index: 1;
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
+  overflow: auto;
 `;
 
 export const SelectedOption = styled.div`

@@ -11,19 +11,20 @@ export const StyledNominationWrapper = styled.div`
   flex: 1;
 `;
 
-export const StyledOperatorSelect = styled.div`
-  padding: 4px;
+export const StyledOperatorSelectContainer = styled.div`
   border: 1px solid #8f8f8f;
   border-radius: 8px;
-  height: 106px;
+  position: relative;
+  overflow: hidden;
+`;
+
+export const StyledOperatorSelect = styled.div<{ $expanded: boolean }>`
+  padding: 4px;
+  max-height: ${({ $expanded }) => ($expanded ? `auto` : `156px`)};
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 4px;
-
-  @media screen and (max-width: 600px) {
-    height: 80px;
-  }
 `;
 
 export const StyledNominatorOption = styled.div`
@@ -73,16 +74,12 @@ export const StyledSelected = styled.div`
   padding: 4px;
   border: 1px solid #8f8f8f;
   border-radius: 8px;
-  height: 106px;
+  min-height: 64px;
   overflow-y: auto;
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   align-content: flex-start;
-
-  @media screen and (max-width: 600px) {
-    height: 80px;
-  }
 `;
 
 export const StyledSelectedOption = styled.div`
@@ -100,4 +97,17 @@ export const StyledIconWrapper = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
+`;
+
+export const StyledExpandIconWrapper = styled.div<{ $expanded: boolean }>`
+  display: flex;
+  justify-content: center;
+  color: #727272;
+  background-color: #f5f5f5;
+  cursor: pointer;
+
+  & .expand-icon {
+    transform: ${({ $expanded }) =>
+      $expanded ? `rotate(180deg)` : `rotate(0)`};
+  }
 `;

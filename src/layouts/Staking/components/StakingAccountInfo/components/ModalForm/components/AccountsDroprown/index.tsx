@@ -86,12 +86,10 @@ export const AccountsDropdown: React.FC<IAccountsDropdownProps> = ({
           </StyledButtonWrapper>
           {error && <StyledError>{error as string}</StyledError>}
         </InputWrapper>
-        {keyName ? (
+        {keyName && !expanded && (
           <Text bold>
             Selected address: <span style={{ fontWeight: 400 }}>{keyName}</span>
           </Text>
-        ) : (
-          keyName
         )}
         {expanded && (
           <StyledExpandedSelect>
