@@ -29,12 +29,18 @@ export const TRANSFER_INPUTS = [
 
 interface IFormConfigData {
   maxAmount: number;
+  maxAmountWithMemo: number;
   selectedAccount: string;
   checkAddressValidity: (address: string) => boolean;
 }
 
 export const createFormConfig = (configData: IFormConfigData) => {
-  const { maxAmount, selectedAccount, checkAddressValidity } = configData;
+  const {
+    maxAmount,
+    maxAmountWithMemo,
+    selectedAccount,
+    checkAddressValidity,
+  } = configData;
   return {
     mode: 'onTouched',
     defaultValues: {
@@ -49,7 +55,6 @@ export const createFormConfig = (configData: IFormConfigData) => {
           .typeError('Amount must be a number')
           .required('Amount is required')
           .positive()
-          .lessThan(maxAmount, 'Insufficient balance')
           .transform((value, originalValue) =>
             typeof originalValue === 'string' && originalValue.trim() === ''
               ? undefined
@@ -60,6 +65,15 @@ export const createFormConfig = (configData: IFormConfigData) => {
             'Amount must have at most 6 decimal places',
             (value) =>
               value ? /^-?\d+(\.\d{1,6})?$/.test(value.toString()) : true,
+          )
+          .test(
+            'less-than-or-equal',
+            'Insufficient balance',
+            function compare(value) {
+              const memoValue = this.parent[INPUT_NAMES.MEMO];
+              const compareAmount = memoValue ? maxAmountWithMemo : maxAmount;
+              return value <= compareAmount;
+            },
           ),
 
         [INPUT_NAMES.TO]: yup
