@@ -1,4 +1,5 @@
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
+import { useEffect, useRef } from 'react';
 import { useTransferPolyx } from '~/hooks/polymesh';
 import { Modal } from '~/components';
 import { Heading, Button } from '~/components/UiKit';
@@ -22,11 +23,12 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
 }) => {
   const {
     availableBalance,
-    availableMinusGasFee,
     transferPolyx,
     transactionInProcess,
     selectedAccount,
     checkAddressValidity,
+    maxTransferablePolyx,
+    maxTransferablePolyxWithMemo,
   } = useTransferPolyx();
   const {
     register,
@@ -34,17 +36,37 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
     formState: { isValid, errors },
     reset,
     setValue,
+    watch,
+    trigger,
   } = useForm(
     createFormConfig({
-      maxAmount: availableMinusGasFee,
+      maxAmount: maxTransferablePolyx.toNumber(),
+      maxAmountWithMemo: maxTransferablePolyxWithMemo.toNumber(),
       selectedAccount,
       checkAddressValidity,
     }),
   );
+  const memo = watch('memo');
+  const memoRef = useRef<string | null>(null);
   const { isMobile } = useWindowWidth();
 
+  useEffect(() => {
+    if (memoRef.current === null) {
+      memoRef.current = memo;
+      return;
+    }
+    if ((memoRef.current && !memo) || (!memoRef.current && memo)) {
+      trigger('amount');
+    }
+    memoRef.current = memo;
+  }, [memo, trigger]);
+
   const handleUseMax = () => {
-    setValue('amount', availableMinusGasFee);
+    setValue(
+      'amount',
+      memo ? maxTransferablePolyxWithMemo : maxTransferablePolyx,
+    );
+    trigger();
   };
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
@@ -75,7 +97,9 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
               {withCaption && (
                 <StyledCaption>
                   Available balance{' '}
-                  <span>{formatBalance(availableBalance)} POLYX</span>
+                  <span>
+                    {formatBalance(availableBalance.toString())} POLYX
+                  </span>
                 </StyledCaption>
               )}
               {errors[id] ? (

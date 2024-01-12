@@ -1,9 +1,6 @@
 import { useContext, useState, useEffect } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import {
-  BalancesTx,
-  UnsubCallback,
-} from '@polymeshassociation/polymesh-sdk/types';
+import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { useTransactionStatus } from '~/hooks/polymesh';
@@ -20,12 +17,18 @@ const useTransferPolyx = () => {
     api: { sdk },
   } = useContext(PolymeshContext);
   const { selectedAccount } = useContext(AccountContext);
-  const [availableBalance, setAvailableBalance] = useState(0);
-  const [availableMinusGasFee, setAvailableMinusGasFee] = useState(0);
+  const [availableBalance, setAvailableBalance] = useState<BigNumber>(
+    new BigNumber(0),
+  );
+  const [maxTransferablePolyx, setMaxTransferablePolyx] = useState<BigNumber>(
+    new BigNumber(0),
+  );
+  const [maxTransferablePolyxWithMemo, setMaxTransferablePolyxWithMemo] =
+    useState<BigNumber>(new BigNumber(0));
   const [transactionInProcess, setTransactionInProcess] = useState(false);
   const { handleStatusChange } = useTransactionStatus();
 
-  // Subscribe to the selected account's balance and current gas fees.
+  // Subscribe to the selected account's balance and max transferable.
   useEffect(() => {
     if (!sdk || !selectedAccount) return undefined;
 
@@ -34,14 +37,35 @@ const useTransferPolyx = () => {
       unsubCb = await sdk.accountManagement.getAccountBalance(
         { account: selectedAccount },
         async (balance) => {
-          setAvailableBalance(balance.free.toNumber());
+          setAvailableBalance(balance.free);
 
-          const gasFees = await sdk.network.getProtocolFees({
-            tags: [BalancesTx.Transfer, BalancesTx.TransferWithMemo],
-          });
-          const fee = gasFees[0].fees.toNumber();
+          const getMaxTransferablePolyx = async (
+            withMemo?: boolean,
+          ): Promise<BigNumber> => {
+            const transferTx = await sdk.network.transferPolyx({
+              amount: balance.free,
+              to: selectedAccount,
+              memo: withMemo ? 'Dummy memo' : undefined,
+            });
+            const transferFees = await transferTx.getTotalFees();
+            const transferFee = transferFees.fees.total;
+            const payingAccount =
+              transferFees.payingAccountData.account.address;
+            // check if the account is subsidised
+            const max =
+              payingAccount === selectedAccount
+                ? balance.free.minus(transferFee)
+                : balance.free;
+            return max;
+          };
 
-          setAvailableMinusGasFee(balance.free.toNumber() - fee * 1.5);
+          const [maxTransferable, maxTransferableWithMemo] = await Promise.all([
+            getMaxTransferablePolyx(),
+            getMaxTransferablePolyx(true),
+          ]);
+
+          setMaxTransferablePolyx(maxTransferable);
+          setMaxTransferablePolyxWithMemo(maxTransferableWithMemo);
         },
       );
     })();
@@ -93,11 +117,12 @@ const useTransferPolyx = () => {
 
   return {
     availableBalance,
-    availableMinusGasFee,
     transferPolyx,
     transactionInProcess,
     selectedAccount,
     checkAddressValidity,
+    maxTransferablePolyx,
+    maxTransferablePolyxWithMemo,
   };
 };
 
