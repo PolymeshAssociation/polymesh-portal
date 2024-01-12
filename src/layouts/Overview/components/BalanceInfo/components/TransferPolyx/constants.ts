@@ -55,9 +55,6 @@ export const createFormConfig = (configData: IFormConfigData) => {
           .typeError('Amount must be a number')
           .required('Amount is required')
           .positive()
-          .transform((value, originalValue) =>
-            originalValue.trim() === '' ? undefined : Number(value),
-          )
           .test(
             'is-decimal',
             'Amount must have at most 6 decimal places',

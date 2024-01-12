@@ -64,7 +64,9 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
   const handleUseMax = () => {
     setValue(
       'amount',
-      memo ? maxTransferablePolyxWithMemo : maxTransferablePolyx,
+      memo
+        ? maxTransferablePolyxWithMemo.toString()
+        : maxTransferablePolyx.toString(),
     );
     trigger();
   };
@@ -90,7 +92,13 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
                 placeholder={placeholder}
               />
               {withButton && (
-                <StyledMaxButton onClick={handleUseMax}>
+                <StyledMaxButton
+                  onClick={handleUseMax}
+                  disabled={
+                    (!memo && maxTransferablePolyx.eq(0)) ||
+                    (memo && maxTransferablePolyxWithMemo.eq(0))
+                  }
+                >
                   Use max
                 </StyledMaxButton>
               )}

@@ -69,4 +69,8 @@ export const StyledMaxButton = styled.button`
   font-size: 14px;
   color: ${({ theme }) => theme.colors.textBlue};
   cursor: pointer;
+
+  &:disabled {
+    color: ${({ theme }) => theme.colors.textDisabled};
+  }
 `;
