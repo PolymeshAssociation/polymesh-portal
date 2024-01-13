@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 
 const toastConfig = {
-  autoClose: 4000,
+  autoClose: 5000,
   hideProgressBar: true,
   pauseOnHover: true,
   containerId: 'notification-center',

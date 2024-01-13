@@ -33,42 +33,54 @@ const useTransferPolyx = () => {
     if (!sdk || !selectedAccount) return undefined;
 
     let unsubCb: UnsubCallback | null = null;
-    (async () => {
-      unsubCb = await sdk.accountManagement.getAccountBalance(
-        { account: selectedAccount },
-        async (balance) => {
-          setAvailableBalance(balance.free);
+    try {
+      (async () => {
+        unsubCb = await sdk.accountManagement.getAccountBalance(
+          { account: selectedAccount },
+          async (balance) => {
+            setAvailableBalance(balance.free);
 
-          const getMaxTransferablePolyx = async (
-            withMemo?: boolean,
-          ): Promise<BigNumber> => {
-            const transferTx = await sdk.network.transferPolyx({
-              amount: balance.free,
-              to: selectedAccount,
-              memo: withMemo ? 'Dummy memo' : undefined,
-            });
-            const transferFees = await transferTx.getTotalFees();
-            const transferFee = transferFees.fees.total;
-            const payingAccount =
-              transferFees.payingAccountData.account.address;
-            // check if the account is subsidised
-            const max =
-              payingAccount === selectedAccount
-                ? balance.free.minus(transferFee)
-                : balance.free;
-            return max;
-          };
+            const getMaxTransferablePolyx = async (
+              withMemo?: boolean,
+            ): Promise<BigNumber> => {
+              const transferTx = await sdk.network.transferPolyx({
+                amount: balance.free,
+                to: selectedAccount,
+                memo: withMemo ? 'Dummy memo' : undefined,
+              });
+              const transferFees = await transferTx.getTotalFees();
+              const transferFee = transferFees.fees.total;
+              const payingAccount =
+                transferFees.payingAccountData.account.address;
+              // check if the account is subsidised
+              const max =
+                payingAccount === selectedAccount
+                  ? balance.free.minus(transferFee)
+                  : balance.free;
+              return max;
+            };
+            try {
+              const [maxTransferable, maxTransferableWithMemo] =
+                await Promise.all([
+                  getMaxTransferablePolyx(),
+                  getMaxTransferablePolyx(true),
+                ]);
 
-          const [maxTransferable, maxTransferableWithMemo] = await Promise.all([
-            getMaxTransferablePolyx(),
-            getMaxTransferablePolyx(true),
-          ]);
-
-          setMaxTransferablePolyx(maxTransferable);
-          setMaxTransferablePolyxWithMemo(maxTransferableWithMemo);
-        },
-      );
-    })();
+              setMaxTransferablePolyx(maxTransferable);
+              setMaxTransferablePolyxWithMemo(maxTransferableWithMemo);
+            } catch (error) {
+              setMaxTransferablePolyx(balance.free);
+              setMaxTransferablePolyxWithMemo(balance.free);
+              notifyError(
+                'Error estimating transaction fee. The max transferable amount does not account for transaction fees',
+              );
+            }
+          },
+        );
+      })();
+    } catch (error) {
+      notifyError((error as Error).message);
+    }
 
     return () => (unsubCb ? unsubCb() : undefined);
   }, [sdk, selectedAccount]);
