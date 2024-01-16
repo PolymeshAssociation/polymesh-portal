@@ -1,12 +1,11 @@
-import { ReactNode, FC } from 'react';
+import { ReactNode, FC, useContext } from 'react';
 import { SkeletonLoader } from '~/components/UiKit';
 import {
   TMultiSigArgs,
   TMultiSigCallArgs,
   TMultiSigArgsFormatted,
 } from '../../../../types';
-import { useMultiSigItemArgs } from './hooks';
-import { convertIfNameValue, isPrimitive, parseValue } from './helpers';
+import { processCallParameters, isPrimitive, parseValue } from './helpers';
 import {
   StyledSkeletonWrapper,
   StyledTableWrapper,
@@ -16,15 +15,15 @@ import {
   StyledTableCell,
   StyledTableHeadCell,
   StyledTableHeadContent,
-  StyledTableSection,
 } from './styles';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { capitalizeFirstLetter } from '~/helpers/formatters';
 
 interface IArgsTableProps {
   rawArgs: TMultiSigArgs;
   call: string;
-  callIndex?: string;
+  callIndex: string;
   module: string;
-  id: number;
 }
 
 export const ArgsTable: FC<IArgsTableProps> = ({
@@ -32,15 +31,24 @@ export const ArgsTable: FC<IArgsTableProps> = ({
   call,
   callIndex,
   module,
-  id,
 }) => {
-  const args = useMultiSigItemArgs(id, module, call, rawArgs, callIndex);
+  const args = [
+    {
+      index: callIndex,
+      module: capitalizeFirstLetter(module),
+      call: capitalizeFirstLetter(call),
+      args: rawArgs,
+    },
+  ];
+  const {
+    api: { polkadotApi },
+  } = useContext(PolymeshContext);
 
   const renderTable = (
     paramsToRender: unknown,
     isFirstRender: boolean = false,
   ): ReactNode => {
-    if (isPrimitive(paramsToRender as string | number)) {
+    if (isPrimitive(paramsToRender as string | number | boolean)) {
       return (
         <StyledTableCell>{`${parseValue(
           paramsToRender as string | number,
@@ -48,17 +56,26 @@ export const ArgsTable: FC<IArgsTableProps> = ({
       );
     }
     if (Array.isArray(paramsToRender)) {
-      return paramsToRender.map((param: TMultiSigArgsFormatted, i) =>
-        isFirstRender ? (
+      if (paramsToRender.length > 1) {
+        return paramsToRender.map((param: TMultiSigArgsFormatted, i) => (
           // eslint-disable-next-line react/no-array-index-key
-          <StyledTableSection key={i}>{renderTable(param)}</StyledTableSection>
-        ) : (
-          renderTable(param)
-        ),
-      );
+          <StyledTableRow key={i} $withBorder={isFirstRender}>
+            <StyledTableHeadCell>
+              <StyledTableHeadContent>{i}</StyledTableHeadContent>
+            </StyledTableHeadCell>
+            <StyledTableSubRow>
+              {renderTable(param as unknown)}
+            </StyledTableSubRow>
+          </StyledTableRow>
+        ));
+      }
+      return renderTable(paramsToRender[0]);
     }
     if (typeof paramsToRender === 'object') {
-      const renderableParams = convertIfNameValue(paramsToRender!);
+      const renderableParams = processCallParameters(
+        paramsToRender!,
+        polkadotApi!,
+      );
       return Object.entries(renderableParams as TMultiSigArgs).map(
         ([key, value], i) => {
           return (
@@ -78,7 +95,7 @@ export const ArgsTable: FC<IArgsTableProps> = ({
     return null;
   };
 
-  if (!args.length) {
+  if (!args.length || !polkadotApi) {
     return (
       <StyledSkeletonWrapper>
         <SkeletonLoader height={200} />
@@ -96,8 +113,4 @@ export const ArgsTable: FC<IArgsTableProps> = ({
       </StyledTable>
     </StyledTableWrapper>
   );
-};
-
-ArgsTable.defaultProps = {
-  callIndex: undefined,
 };

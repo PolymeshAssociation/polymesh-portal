@@ -52,8 +52,9 @@ export function splitCamelCase(text: string): string {
     return text;
   }
 
-  // Use regex to identify camelCase or UpperCamelCase
-  const match = text.match(/([a-z]+|[A-Z][a-z]*)/g);
+  // Regex to identify camelCase or UpperCamelCase
+  // Note: this function will also split by non alpha numeric characters e.g. underscore
+  const match = text.match(/([a-z0-9]+|[A-Z][a-z0-9]*)/g);
 
   if (match) {
     return match.join(' ');
@@ -104,10 +105,8 @@ export const accountKeyToAddress = (key: string, ss58Prefix: BigNumber) => {
 export const capitalizeFirstLetter = (text: string) => {
   const capitalizedString = text
     .split(' ')
-    .reduce(
-      (str, word) => `${str} ${word.charAt(0).toUpperCase()}${word.slice(1)}`,
-      '',
-    );
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
   return capitalizedString;
 };
 
@@ -122,4 +121,8 @@ export const padTicker = (inputString: string): string => {
   const paddedString = inputString + '\0'.repeat(nullsNeeded);
 
   return paddedString;
+};
+
+export const removeHexPrefix = (text: string) => {
+  return text.startsWith('0x') ? text.substring(2) : text;
 };

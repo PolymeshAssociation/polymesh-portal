@@ -42,13 +42,6 @@ export const StyledTableSubRow = styled.div`
   flex: 1 0 auto;
 `;
 
-export const StyledTableSection = styled.div`
-  min-width: fit-content;
-  &:not(:last-child) {
-    border-bottom: 3px solid #e6e6e6;
-  }
-`;
-
 export const StyledTableHeadCell = styled.div`
   display: flex;
   font-weight: 500;

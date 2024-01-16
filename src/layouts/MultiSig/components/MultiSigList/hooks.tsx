@@ -1,12 +1,12 @@
 import { useState, useContext, useEffect } from 'react';
 import { useMultiSigContext } from '~/context/MultiSigContext';
-import { splitCamelCase } from '~/helpers/formatters';
 import { notifyError } from '~/helpers/notifications';
 import { IMultiSigListItem, TMultiSigArgs } from '../../types';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { IProposalQueryResponse } from '~/constants/queries/types';
 import { getMultisigProposalsQuery } from '~/helpers/graphqlQueries';
+import { splitCamelCase } from '~/helpers/formatters';
 
 export const useMultiSigList = () => {
   const [proposalsList, setProposalsList] = useState<IMultiSigListItem[]>([]);
@@ -15,6 +15,9 @@ export const useMultiSigList = () => {
     api: { gqlClient },
   } = useContext(PolymeshContext);
   const { multiSigAccount } = useContext(AccountContext);
+  const {
+    api: { polkadotApi },
+  } = useContext(PolymeshContext);
   const {
     activeProposalsIds,
     multiSigAccountKey,
@@ -29,7 +32,7 @@ export const useMultiSigList = () => {
   }, [pendingProposalsLoading]);
 
   useEffect(() => {
-    if (pendingProposalsLoading || !gqlClient) {
+    if (pendingProposalsLoading || !polkadotApi || !gqlClient) {
       return;
     }
     if (
@@ -84,6 +87,13 @@ export const useMultiSigList = () => {
             datetime,
           } = currentProposal;
           const [module, call] = txTag.split('.');
+
+          const rawCallIndex = polkadotApi.tx[module][call].callIndex;
+          // for consistency we use the hex representation of the call index
+          const callIndex = Array.from(rawCallIndex)
+            .map((entry) => entry.toString(16).padStart(2, '0'))
+            .join('');
+
           return {
             expiry,
             status,
@@ -93,6 +103,7 @@ export const useMultiSigList = () => {
             call: splitCamelCase(call),
             proposalId: proposal.id.toNumber(),
             module: splitCamelCase(module),
+            callIndex,
             createdBlockId,
             creatorAccount,
             updatedBlockId,
@@ -115,6 +126,7 @@ export const useMultiSigList = () => {
     multiSigAccountKey,
     pendingProposals,
     pendingProposalsLoading,
+    polkadotApi,
   ]);
 
   return {

@@ -35,7 +35,6 @@ export const ListItemDetails: React.FC<IListItemDetailsProps> = ({
               module={item.module}
               call={item.call}
               callIndex={item.callIndex}
-              id={item.proposalId}
             />
           )}
         </>
