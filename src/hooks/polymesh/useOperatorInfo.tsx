@@ -120,19 +120,15 @@ const useOperatorInfo = () => {
     const getCurrentValidators = async () => {
       try {
         const currentOperators =
-          await polkadotApi.query.staking.erasStakers.entries(
+          await polkadotApi.query.staking.erasStakers.keys(
             currentEraIndex.toNumber(),
           );
-        const opperatorArray = currentOperators.map(
-          ([
-            {
-              args: [, accountId],
-            }, // exposure // PalletStakingExposure information also available
-          ]) => {
+        const operatorArray = currentOperators.map(
+          ({ args: [, accountId] }) => {
             return accountId.toString();
           },
         );
-        setCurrentEraOperators(opperatorArray);
+        setCurrentEraOperators(operatorArray);
       } catch (error) {
         notifyError((error as Error).message);
       }
