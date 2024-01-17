@@ -15,7 +15,8 @@ const Footer: React.FC<IFooterProps> = ({ isLandingPage }) => {
     <StyledFooter $isLandingPage={isLandingPage}>
       <StyledContainer $isLandingPage={isLandingPage}>
         <Text color="secondary">
-          © 2023 Polymesh Association. All rights reserved
+          © {new Date().getFullYear()} Polymesh Association. All rights
+          reserved
         </Text>
         <StyledLinkList>
           <li>
