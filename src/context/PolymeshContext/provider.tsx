@@ -130,6 +130,21 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setInitialized(true);
       } catch (error) {
         notifyGlobalError((error as Error).message);
+        // this is a hacky work around for wallet errors due to chrome preloading
+        // the page and not passing the correct url from a new tab. Preloading may
+        // still cause authorization requests from incorrect pages requiring rejection
+        // and manual reload
+        if (
+          (error as Error).message ===
+            // error message from polywallet, polkadot.js
+            'Invalid url chrome://newtab/, expected to start with http: or https: or ipfs: or ipns:' ||
+          // error message from talisman extension
+          (error as Error).message.includes('URL protocol unsupported')
+        ) {
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }
       } finally {
         setConnecting(false);
       }
