@@ -26,7 +26,6 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const {
     api: { sdk, signingManager },
     state: { initialized },
-    settings: { defaultExtension },
   } = useContext(PolymeshContext);
   const [account, setAccount] = useState<Account | MultiSig | null>(null);
   const [multiSigAccount, setMultiSigAccount] = useState<MultiSig | null>(null);
@@ -67,57 +66,12 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const { balance: selectedAccountBalance, balanceIsLoading } =
     useBalance(selectedAccount);
 
-  // Get list of connected accounts from the signing manager
-  useEffect(() => {
-    if (!signingManager) {
-      setAllAccounts([]);
-      setAllAccountsWithMeta([]);
-      return;
-    }
-    (async () => {
-      // This is only applicable to the polywallet as other wallets return `newAccounts` on initial subscription
-      if (defaultExtension !== 'polywallet') return;
-      try {
-        const connectedAccounts = await signingManager.getAccounts();
-        const accountsWithMeta = await signingManager.getAccountsWithMeta();
-
-        if (!connectedAccounts.length) {
-          throw new Error('No injected accounts found in the connected wallet');
-        }
-        const filteredAccounts = connectedAccounts.filter(
-          (address) => !blockedWallets.includes(address),
-        );
-        if (!filteredAccounts.length) {
-          throw new Error(
-            'All injected accounts are in your blocked accounts list',
-          );
-        }
-        const filteredAccountsWithMeta = accountsWithMeta.filter(
-          (accountWithMeta) =>
-            !blockedWallets.includes(accountWithMeta.address),
-        );
-        setAllAccounts(filteredAccounts);
-        setAllAccountsWithMeta(filteredAccountsWithMeta);
-      } catch (error) {
-        notifyGlobalError((error as Error).message);
-        setAllAccounts([]);
-        setAllAccountsWithMeta([]);
-      }
-    })();
-  }, [signingManager, blockedWallets, defaultExtension]);
-
   // Perform actions when account change occurs in extension
   useEffect(() => {
-    // Flag to track mounted state as the Polywallet onAccountChange unsub function doesn't work
-    // TODO: remove flag when the polywallet is fixed to correctly unsubscribe
-    let isMounted = true;
-
     if (!signingManager) {
       setAllAccounts([]);
       setAllAccountsWithMeta([]);
-      return () => {
-        isMounted = false;
-      };
+      return () => {};
     }
 
     const unsubCb = signingManager.onAccountChange(async (newAccounts) => {
@@ -137,25 +91,18 @@ const AccountProvider = ({ children }: IProviderProps) => {
             'All injected accounts are in your blocked accounts list',
           );
         }
-        if (isMounted) {
-          setAllAccounts(
-            filteredNewAccounts.map((acc) => acc.address.toString()),
-          );
-          setAllAccountsWithMeta(filteredNewAccounts);
-        }
+        setAllAccounts(
+          filteredNewAccounts.map((acc) => acc.address.toString()),
+        );
+        setAllAccountsWithMeta(filteredNewAccounts);
       } catch (error) {
         notifyGlobalError((error as Error).message);
-        if (isMounted) {
-          setAllAccounts([]);
-          setAllAccountsWithMeta([]);
-        }
+        setAllAccounts([]);
+        setAllAccountsWithMeta([]);
       }
     }, true);
 
-    return () => {
-      isMounted = false;
-      unsubCb();
-    };
+    return () => (unsubCb ? unsubCb() : undefined);
   }, [blockedWallets, signingManager]);
 
   // Set a new selected account only if the previously account
