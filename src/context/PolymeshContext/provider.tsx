@@ -5,6 +5,7 @@ import { EventRecord } from '@polymeshassociation/polymesh-sdk/types';
 import PolymeshContext from './context';
 import { useLocalStorage } from '~/hooks/utility';
 import { notifyGlobalError } from '~/helpers/notifications';
+import { runMigration } from '~/helpers/localStorageMigrations';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -27,6 +28,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     useState<BrowserExtensionSigningManager | null>(null);
   const [connecting, setConnecting] = useState<boolean | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [migrationCompleted, setMigrationCompleted] = useState(false);
+
   const [defaultExtension, setDefaultExtension] = useLocalStorage<string>(
     'defaultExtension',
     '',
@@ -135,9 +138,16 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     [],
   );
 
-  // Trigger signing manager initialization automatically when recent used extension data exists
-  // Or reload window when RPC or Middleware url is changed
   useEffect(() => {
+    // Run migration logic on startup
+    runMigration({ middlewareUrl, setMiddlewareUrl });
+    setMigrationCompleted(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!migrationCompleted) return;
+
     if (nodeUrlRef.current && nodeUrl !== nodeUrlRef.current) {
       window.location.reload();
     }
@@ -169,11 +179,12 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     connectWallet(defaultExtension);
   }, [
     connectWallet,
-    initialized,
     defaultExtension,
-    nodeUrl,
-    middlewareUrl,
+    initialized,
     middlewareKey,
+    middlewareUrl,
+    migrationCompleted,
+    nodeUrl,
   ]);
 
   // Effect to subscribe to events
