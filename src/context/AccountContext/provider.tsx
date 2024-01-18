@@ -47,6 +47,11 @@ const AccountProvider = ({ children }: IProviderProps) => {
     'blockedWallets',
     [],
   );
+  const [rememberSelectedAccount, setRememberSelectedAccount] = useLocalStorage(
+    'rememberSelectedAccount',
+    true,
+  );
+
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [allIdentities, setAllIdentities] = useState<(Identity | null)[]>([]);
   const [primaryKey, setPrimaryKey] = useState<string>('');
@@ -171,13 +176,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
   }, [allAccounts, defaultAccount, selectedAccount]);
 
   useEffect(() => {
-    const rememberSelectedAccount = localStorage.getItem(
-      'rememberSelectedAccount',
-    );
-    if (rememberSelectedAccount === 'true' && selectedAccount) {
+    if (rememberSelectedAccount === true && selectedAccount) {
       setDefaultAccount(selectedAccount);
     }
-  }, [selectedAccount, setDefaultAccount]);
+  }, [rememberSelectedAccount, selectedAccount, setDefaultAccount]);
 
   // Set account instance when selected account changes
   useEffect(() => {
@@ -431,6 +433,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
       multiSigAccount,
       selectedAccountBalance,
       balanceIsLoading,
+      rememberSelectedAccount,
+      setRememberSelectedAccount,
     }),
     [
       account,
@@ -451,10 +455,12 @@ const AccountProvider = ({ children }: IProviderProps) => {
       multiSigAccount,
       primaryKey,
       refreshAccountIdentity,
+      rememberSelectedAccount,
       secondaryKeys,
       selectedAccount,
       selectedAccountBalance,
       setDefaultAccount,
+      setRememberSelectedAccount,
       unblockWalletAddress,
     ],
   );

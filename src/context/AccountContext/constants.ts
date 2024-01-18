@@ -51,6 +51,8 @@ export interface IAccountContext {
   multiSigAccount: MultiSig | null;
   selectedAccountBalance: IAccountBalance;
   balanceIsLoading: boolean;
+  rememberSelectedAccount: boolean;
+  setRememberSelectedAccount: (shouldRemember: boolean) => void;
 }
 
 export const initialState = {
@@ -78,4 +80,6 @@ export const initialState = {
   multiSigAccount: null,
   selectedAccountBalance: { free: '', locked: '', total: '' },
   balanceIsLoading: false,
+  rememberSelectedAccount: true,
+  setRememberSelectedAccount: () => {},
 };

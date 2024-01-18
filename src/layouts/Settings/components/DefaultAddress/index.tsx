@@ -3,7 +3,7 @@ import { Icon, Modal } from '~/components';
 import { Heading, Button, DropdownSelect, Text } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
 import { formatKey } from '~/helpers/formatters';
-import { useLocalStorage, useWindowWidth } from '~/hooks/utility';
+import { useWindowWidth } from '~/hooks/utility';
 import {
   StyledValue,
   StyledButtonWrapper,
@@ -20,11 +20,9 @@ export const DefaultAddress = () => {
     setDefaultAccount,
     allAccounts,
     blockedWallets,
+    rememberSelectedAccount,
+    setRememberSelectedAccount,
   } = useContext(AccountContext);
-  const [rememberSelectedAccount, setRememberSelectedAccount] = useLocalStorage(
-    'rememberSelectedAccount',
-    false,
-  );
   const [shouldRemember, setShouldRemember] = useState(rememberSelectedAccount);
   const [addressSelectExpanded, setAddressSelectExpanded] = useState(false);
   const [newDefaultAddress, setNewDefaultAddress] = useState<string>('');
