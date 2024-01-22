@@ -47,7 +47,6 @@ export const useRewardTable = (
   >([]);
   const {
     api: { gqlClient },
-    ss58Prefix,
   } = useContext(PolymeshContext);
   const { account, accountLoading, identity, identityLoading } =
     useContext(AccountContext);
@@ -88,8 +87,7 @@ export const useRewardTable = (
     if (
       currentTab !== ERewardTableTabs.IDENTITY_REWARDS ||
       (tabRef.current && currentTab !== tabRef.current && pageIndex !== 0) ||
-      !gqlClient ||
-      !ss58Prefix
+      !gqlClient
     ) {
       return undefined;
     }
@@ -127,14 +125,13 @@ export const useRewardTable = (
                 notifyError(error.message);
                 return;
               }
-              const parsedData = parseIdentityRewards(
-                data.events.nodes,
-                ss58Prefix,
-              );
+              const parsedData = parseIdentityRewards(data.stakingEvents.nodes);
 
               setTableData(parsedData);
-              setTotalItems(data.events.totalCount);
-              setTotalPages(Math.ceil(data.events.totalCount / pageSize));
+              setTotalItems(data.stakingEvents.totalCount);
+              setTotalPages(
+                Math.ceil(data.stakingEvents.totalCount / pageSize),
+              );
             },
           );
       } catch (error) {
@@ -149,15 +146,7 @@ export const useRewardTable = (
         querySubscription.unsubscribe();
       }
     };
-  }, [
-    currentTab,
-    gqlClient,
-    identity,
-    identityLoading,
-    pageIndex,
-    pageSize,
-    ss58Prefix,
-  ]);
+  }, [currentTab, gqlClient, identity, identityLoading, pageIndex, pageSize]);
 
   // Update table data for Account Rewards tab
   useEffect(() => {
@@ -192,7 +181,7 @@ export const useRewardTable = (
             query: StakingRewardsQuery({
               offset: pageIndex * pageSize,
               pageSize,
-              accountRawKey: account.key,
+              accountRawKey: account.address,
             }),
             fetchPolicy: 'cache-and-network',
           })
@@ -203,11 +192,13 @@ export const useRewardTable = (
                 notifyError(error.message);
                 return;
               }
-              const parsedData = parseAccountRewards(data.events.nodes);
+              const parsedData = parseAccountRewards(data.stakingEvents.nodes);
 
               setTableData(parsedData);
-              setTotalItems(data.events.totalCount);
-              setTotalPages(Math.ceil(data.events.totalCount / pageSize));
+              setTotalItems(data.stakingEvents.totalCount);
+              setTotalPages(
+                Math.ceil(data.stakingEvents.totalCount / pageSize),
+              );
             },
           );
       } catch (error) {
@@ -237,9 +228,6 @@ export const useRewardTable = (
       throw new Error('gqlClient is not provided');
     }
 
-    if (!ss58Prefix) {
-      throw new Error('ss58Prefix is not provided');
-    }
     setDownloadDisabled(true);
     try {
       const batchSize = 100;
@@ -263,7 +251,7 @@ export const useRewardTable = (
         queryOptions = {
           offset: 0,
           pageSize: 0,
-          accountRawKey: account?.key,
+          accountRawKey: account?.address,
         };
       } else {
         throw new Error('unknown currentTab value');
@@ -290,7 +278,7 @@ export const useRewardTable = (
                 query: StakingRewardsQuery(queryOpts),
               })
               .then(({ data }) =>
-                parseIdentityRewards(data.events.nodes, ss58Prefix),
+                parseIdentityRewards(data.stakingEvents.nodes),
               );
           })(),
         );
@@ -312,14 +300,7 @@ export const useRewardTable = (
     } finally {
       setDownloadDisabled(false);
     }
-  }, [
-    account?.key,
-    currentTab,
-    gqlClient,
-    identity?.did,
-    ss58Prefix,
-    totalItems,
-  ]);
+  }, [account?.address, currentTab, gqlClient, identity?.did, totalItems]);
 
   return {
     table: useReactTable<IAccountRewardItem | IIdentityRewardItem>({

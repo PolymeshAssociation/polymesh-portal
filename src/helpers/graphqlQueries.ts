@@ -261,20 +261,19 @@ export const StakingRewardsQuery = ({
   }
 
   const accountFilter = accountRawKey
-    ? `eventArg1: {equalTo: "${accountRawKey}" }`
+    ? `stashAccount: {equalTo: "${accountRawKey}" }`
     : '';
   const identityFilter = identityId
-    ? `eventArg0: {equalTo: "${identityId}" }`
+    ? `identityId: {equalTo: "${identityId}" }`
     : '';
 
   const query = gql`
     query {
-      events(
+      stakingEvents(
         first: ${pageSize}
         offset: ${offset}
         orderBy: CREATED_AT_DESC
         filter: {
-          moduleId: { equalTo: staking }
           eventId: { equalTo: Reward }
           ${accountFilter}
           ${identityFilter}
@@ -289,15 +288,12 @@ export const StakingRewardsQuery = ({
         }
         nodes {
           id
-          blockId
-          moduleId
+          createdBlockId
           eventId
-          eventArg0
-          eventArg1
-          eventArg2
-          block {
-            datetime
-          }
+          identityId
+          stashAccount
+          amount
+          datetime
         }
       }
     }

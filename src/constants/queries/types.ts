@@ -134,19 +134,16 @@ export interface IDistributionsQueryResponse {
 
 export interface IStakingRewardEvent {
   id: string;
-  blockId: number;
-  block: {
-    datetime: string;
-  };
-  eventArg0: string;
-  eventArg1: string;
-  eventArg2: string;
+  createdBlockId: number;
+  datetime: string;
+  identityId: string;
+  stashAccount: string;
+  amount: string;
   eventId: string;
-  moduleId: string;
 }
 
 export interface IRewardsQueryResponse {
-  events: {
+  stakingEvents: {
     nodes: IStakingRewardEvent[];
     totalCount: number;
   };

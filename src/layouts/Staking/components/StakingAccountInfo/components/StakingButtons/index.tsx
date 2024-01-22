@@ -53,7 +53,7 @@ export const StakingButtons: React.FC<IStakingButtonsProps> = ({
         variant="secondary"
         onClick={() =>
           window.open(
-            `https://community.polymesh.live/hc/en-us/articles/6827378456220-How-to-stake-with-the-Polymesh-App`,
+            'https://community.polymesh.live/hc/en-us/articles/12131464556060-How-to-stake-on-the-Polymesh-Portal',
             '_blank',
           )
         }
