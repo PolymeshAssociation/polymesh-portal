@@ -20,6 +20,13 @@ Crafted with a responsive design for seamless use on different devices, includin
 - Displays POLYX token balances, account status, identity ID, signing key details, transaction history, and asset transfer history.
 - Allows sending/receiving POLYX and removal of signing keys.
 
+#### Staking Page
+
+- Perform staking actions such as bonding tokens and nominating node operators to stake your POLYX with.
+- View details of your staking account.
+- View chain information related to staking.
+- View and download staking reward history.
+
 #### Portfolio Page
 
 - Efficiently manage Fungible and Non-fungible assets and customize portfolios.
@@ -36,6 +43,11 @@ Crafted with a responsive design for seamless use on different devices, includin
 - Full support for Fungible and Non-fungible assets.
 - View pending, affirmed, and failed settlement instructions with full details.
 - Supports creation of settlement venues and basic/advanced settlement instructions.
+
+#### Multisig Page
+
+- View and approve pending multisig transactions.
+- View historical multisig transactions.
 
 #### Authorizations Page
 
