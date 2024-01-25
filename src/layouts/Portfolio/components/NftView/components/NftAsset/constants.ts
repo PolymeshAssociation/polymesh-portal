@@ -5,7 +5,7 @@ export enum EInfoType {
 
 export interface INftArgs {
   metaKey: string;
-  metaValue: string;
+  metaValue: string | number | boolean;
   metaDescription?: string;
 }
 export interface INftAsset {

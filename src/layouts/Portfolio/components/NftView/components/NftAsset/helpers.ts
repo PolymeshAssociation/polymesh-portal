@@ -84,6 +84,48 @@ export const getNftCollectionAndStatus = async (
   };
 };
 
+function processProperty(attr: {
+  trait_type?: string;
+  value?: string | number | boolean;
+}): {
+  metaKey: string;
+  metaValue: string | number | boolean;
+} {
+  const { trait_type: metaKey, value: metaValue } = attr;
+
+  if (!metaKey || metaValue === undefined || metaValue === null) {
+    return {
+      metaKey: metaKey || 'unknown property',
+      metaValue: typeof attr === 'object' ? JSON.stringify(attr) : attr,
+    };
+  }
+  if (typeof metaValue === 'object') {
+    return { metaKey, metaValue: JSON.stringify(metaValue) };
+  }
+  return { metaKey, metaValue };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function processProperties(data: any[] | Record<string, any> | undefined): {
+  metaKey: string;
+  metaValue: string | number | boolean;
+}[] {
+  if (!data) {
+    return [];
+  }
+
+  if (Array.isArray(data)) {
+    return data.map((attr) => processProperty(attr));
+  }
+  if (typeof data === 'object') {
+    return Object.entries(data).map(([key, value]) => {
+      return processProperty({ trait_type: key, value });
+    });
+  }
+
+  return [];
+}
+
 export const getNftDetails = async (
   nft: Nft,
   isLocked: boolean,
@@ -108,22 +150,43 @@ export const getNftDetails = async (
       const rawData = await reader?.read();
       if (rawData.value) {
         const parsedData = JSON.parse(rawData.value);
-        parsedNft.imgUrl = (await getNftImageUrl(nft, parsedData)) || '';
+        const {
+          image: imageUri,
+          attributes: rawAttributes,
+          properties: rawProperties,
+          name: rawName,
+          description: rawDescription,
+          ...rawOtherProperties
+        } = parsedData;
 
-        if (parsedData.attributes) {
-          const attributes = parsedData.attributes.map(
-            (attr: { trait_type?: string; value?: string | number }) => {
-              const { trait_type: metaKey, value: metaValue } = attr;
-              return { metaKey, metaValue };
-            },
-          );
-          parsedNft.offChainDetails = attributes;
+        parsedNft.imgUrl = (await getNftImageUrl(nft, imageUri)) || '';
+
+        if (rawAttributes) {
+          const attributes = processProperties(rawAttributes);
+          parsedNft.offChainDetails = parsedNft.offChainDetails
+            ? parsedNft.offChainDetails.concat(attributes)
+            : attributes;
         }
-        if (parsedData.name) {
-          parsedNft.name = parsedData.name;
+
+        if (rawProperties) {
+          const properties = processProperties(rawProperties);
+          parsedNft.offChainDetails = parsedNft.offChainDetails
+            ? parsedNft.offChainDetails.concat(properties)
+            : properties;
         }
-        if (parsedData.description) {
-          parsedNft.description = parsedData.description;
+
+        if (rawOtherProperties) {
+          const otherProperties = processProperties(rawOtherProperties);
+          parsedNft.offChainDetails = parsedNft.offChainDetails
+            ? parsedNft.offChainDetails.concat(otherProperties)
+            : otherProperties;
+        }
+
+        if (rawName) {
+          parsedNft.name = rawName;
+        }
+        if (rawDescription) {
+          parsedNft.description = rawDescription;
         }
       }
     }

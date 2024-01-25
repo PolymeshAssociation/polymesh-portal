@@ -11,7 +11,7 @@ import {
 
 interface IPropertiesItemProps {
   propKey: string;
-  propValue?: string | number | null;
+  propValue?: string | number | boolean | null;
   propCopy?: string;
   propDescription?: string;
   propIsLocked?: string | null;
@@ -36,7 +36,7 @@ export const PropertiesItem: React.FC<IPropertiesItemProps> = ({
         {propValue}
       </a>
     ) : (
-      propValue
+      propValue?.toString()
     );
 
   return (

@@ -38,14 +38,14 @@ export const getExternalNftImageUrl = async (
 
 export const getNftImageUrl = async (
   nft: Nft,
-  nftOffchainMetadata?: { image: string | null },
+  image?: string | null,
 ): Promise<string | null> => {
   let imageUri = await nft.getImageUri();
   if (!imageUri) {
-    if (!nftOffchainMetadata) {
+    if (!image) {
       imageUri = await getExternalNftImageUrl(nft);
     } else {
-      imageUri = nftOffchainMetadata.image;
+      imageUri = image;
     }
   }
   return imageUri ? convertIpfsLink(imageUri) : null;
