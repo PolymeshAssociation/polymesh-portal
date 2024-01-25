@@ -68,7 +68,7 @@ export const StakingAccountInfo = () => {
     stakingAccountIsLoading,
     nominations,
     amountUnbonding,
-    totalBonded,
+    amountActive,
   } = stakingAccountInfo;
 
   const { isMobile } = useWindowWidth();
@@ -218,7 +218,7 @@ export const StakingAccountInfo = () => {
       case EModalOptions.UNBOND:
         return (
           <UnbondModal
-            totalBonded={totalBonded?.toNumber() || 0}
+            amountActive={amountActive?.toNumber() || 0}
             executeAction={executeAction}
             handleClose={() => toggleModal(null)}
           />

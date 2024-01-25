@@ -11,17 +11,17 @@ import { useModalForm } from '../ModalForm/hooks';
 import { AmountInput, ButtonContainer, DurationInfo } from '../ModalForm';
 
 interface IUnbondModalProps {
-  totalBonded: number;
+  amountActive: number;
   executeAction: (action: EModalActions, args: TStakeArgs) => void;
   handleClose: () => void;
 }
 
 export const UnbondModal: React.FC<IUnbondModalProps> = ({
-  totalBonded,
+  amountActive,
   executeAction,
   handleClose,
 }) => {
-  const formMethods = useModalForm(EModalOptions.UNBOND, totalBonded);
+  const formMethods = useModalForm(EModalOptions.UNBOND, amountActive);
 
   const onSubmit = (data: Pick<IStakeForm, 'amount'>) => {
     executeAction(EModalActions.UNBOND, {
@@ -36,7 +36,7 @@ export const UnbondModal: React.FC<IUnbondModalProps> = ({
   return (
     // eslint-disable-next-line react/jsx-props-no-spreading
     <FormProvider {...formMethods}>
-      <AmountInput balanceLabel="Bonded" balance={totalBonded} />
+      <AmountInput balanceLabel="Bonded" balance={amountActive} isUnbond />
       <DurationInfo label="Unbonding duration" tooltip />
       <ButtonContainer>
         <Button variant="modalSecondary" onClick={handleClose}>

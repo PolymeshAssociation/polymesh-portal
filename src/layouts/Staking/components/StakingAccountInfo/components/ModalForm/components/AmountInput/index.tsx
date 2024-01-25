@@ -13,12 +13,14 @@ import { UseMaxButton, StyledAvailableBalance } from './styles';
 interface IAmountInputProps {
   balanceLabel: string;
   balance: number;
+  isUnbond?: boolean;
   withAmountValidation?: boolean;
 }
 
 export const AmountInput: React.FC<IAmountInputProps> = ({
   balanceLabel,
   balance,
+  isUnbond = false,
   withAmountValidation = false,
 }) => {
   const {
@@ -37,7 +39,7 @@ export const AmountInput: React.FC<IAmountInputProps> = ({
   return (
     <div>
       <Text size="medium" bold marginBottom={3}>
-        POLYX Amount to Bond
+        POLYX Amount to {isUnbond ? 'Unbond' : 'Bond'}
       </Text>
       <InputWrapper>
         {/* eslint-disable-next-line react/jsx-props-no-spreading */}
