@@ -70,7 +70,7 @@ export const Details: React.FC<IDetailsProps> = ({ details }) => {
           />
         )}
         <PropertiesItem
-          propKey="Collection Owner"
+          propKey={isNftCollection ? 'Collection Owner' : 'Owner'}
           propValue={formatDid(owner, 8, 8)}
           propCopy={owner}
           isPink
