@@ -55,7 +55,10 @@ const useTransferPolyx = () => {
               // check if the account is subsidised
               const max =
                 payingAccount === selectedAccount
-                  ? balance.free.minus(transferFee)
+                  ? BigNumber.max(
+                      balance.free.minus(transferFee),
+                      new BigNumber(0),
+                    )
                   : balance.free;
               return max;
             };
