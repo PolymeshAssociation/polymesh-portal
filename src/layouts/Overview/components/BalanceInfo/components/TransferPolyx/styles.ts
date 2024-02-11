@@ -22,12 +22,19 @@ export const StyledInputWrapper = styled.div`
   font-weight: 500;
 `;
 
+export const InputWithButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  position: relative;
+`;
+
 export const StyledInput = styled.input`
   border: 1px solid #8f8f8f;
   border-radius: 8px;
   padding: 9px 16px;
   font-size: 14px;
   outline: none;
+  width: 100%;
 `;
 
 export const StyledLabel = styled.label`
@@ -43,30 +50,55 @@ export const StyledCaption = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 10px;
   font-size: 14px;
   font-weight: 400;
 `;
 
 export const StyledErrorMessage = styled.span`
-  position: absolute;
-  top: 0;
-  right: 0;
+  display: flex;
+  justify-content: flex-end;
   font-size: 12px;
   font-weight: 500;
   color: #db2c3e;
 `;
 
-export const StyledMaxButton = styled.button`
+export const StyledMaxButton = styled.button<{ $maxSet?: boolean }>`
   position: absolute;
-  right: 10px;
-  bottom: 38px;
+  right: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
-  background-color: transparent;
+  padding: 0px 10px;
+  height: 28px;
+  border-radius: 14px;
+  background-color: ${({ $maxSet }) => ($maxSet ? `transparent` : `#170087`)};
   font-size: 14px;
-  color: ${({ theme }) => theme.colors.textBlue};
-  cursor: pointer;
+  color: ${({ $maxSet, theme }) =>
+    $maxSet ? theme.colors.textPrimary : 'white'};
+  cursor: ${({ $maxSet }) => ($maxSet ? 'unset' : `pointer`)};
+  border: 1px solid transparent;
+
+  &:hover:enabled {
+    background: ${({ $maxSet }) => ($maxSet ? `` : `#100255`)};
+  }
+  &:active:enabled {
+    background-color: ${({ $maxSet }) => ($maxSet ? '' : `#170087`)};
+  }
+
+  &:disabled {
+    border: 1px solid ${({ theme }) => theme.colors.textDisabled};
+    background: transparent;
+    color: ${({ theme }) => theme.colors.textDisabled};
+  }
+`;
+
+export const StyledIconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px;
+  margin-right: 4px;
+  border-radius: 100%;
+  background-color: #00aa5e;
+  color: white;
 `;

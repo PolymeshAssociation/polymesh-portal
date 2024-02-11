@@ -1,7 +1,7 @@
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTransferPolyx } from '~/hooks/polymesh';
-import { Modal } from '~/components';
+import { Icon, Modal } from '~/components';
 import { Heading, Button } from '~/components/UiKit';
 import {
   StyledModalWrapper,
@@ -12,6 +12,8 @@ import {
   StyledCaption,
   StyledMaxButton,
   StyledErrorMessage,
+  InputWithButtonWrapper,
+  StyledIconWrapper,
 } from './styles';
 import { formatBalance } from '~/helpers/formatters';
 import { TRANSFER_INPUTS, createFormConfig } from './constants';
@@ -22,7 +24,6 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
   toggleModal,
 }) => {
   const {
-    availableBalance,
     transferPolyx,
     transactionInProcess,
     selectedAccount,
@@ -46,9 +47,29 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
       checkAddressValidity,
     }),
   );
+  const [useMax, setUseMax] = useState(false);
+
   const memo = watch('memo');
   const memoRef = useRef<string | null>(null);
+  const amount = watch('amount');
+  const amountRef = useRef<string | null>(null);
+
   const { isMobile } = useWindowWidth();
+
+  const maxTransferable = useMemo(() => {
+    return memo ? maxTransferablePolyxWithMemo : maxTransferablePolyx;
+  }, [maxTransferablePolyx, maxTransferablePolyxWithMemo, memo]);
+
+  useEffect(() => {
+    if (amount.current === null) {
+      amount.current = amount;
+      return;
+    }
+    if (useMax && !maxTransferable.eq(amount) && amountRef.current !== amount) {
+      setUseMax(false);
+    }
+    amountRef.current = amount;
+  }, [amount, maxTransferable, useMax]);
 
   useEffect(() => {
     if (memoRef.current === null) {
@@ -61,13 +82,14 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
     memoRef.current = memo;
   }, [memo, trigger]);
 
-  const handleUseMax = () => {
-    setValue(
-      'amount',
-      memo ? maxTransferablePolyxWithMemo : maxTransferablePolyx,
-    );
+  useEffect(() => {
+    if (!useMax) {
+      return;
+    }
+    setValue('amount', maxTransferable.toString());
+
     trigger();
-  };
+  }, [maxTransferable, setValue, trigger, useMax]);
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     transferPolyx(data as ITransfer);
@@ -83,30 +105,44 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
           ({ label, id, placeholder, withCaption, withButton }) => (
             <StyledInputWrapper key={id}>
               <StyledLabel htmlFor={id}>{label}</StyledLabel>
-              <StyledInput
-                // eslint-disable-next-line react/jsx-props-no-spreading
-                {...register(id)}
-                id={id}
-                placeholder={placeholder}
-              />
-              {withButton && (
-                <StyledMaxButton onClick={handleUseMax}>
-                  Use max
-                </StyledMaxButton>
-              )}
-              {withCaption && (
-                <StyledCaption>
-                  Available balance{' '}
-                  <span>
-                    {formatBalance(availableBalance.toString())} POLYX
-                  </span>
-                </StyledCaption>
-              )}
+              <InputWithButtonWrapper>
+                <StyledInput
+                  // eslint-disable-next-line react/jsx-props-no-spreading
+                  {...register(id)}
+                  id={id}
+                  placeholder={placeholder}
+                />
+                {withButton && (
+                  <StyledMaxButton
+                    $maxSet={useMax}
+                    disabled={maxTransferable.eq(0)}
+                    onClick={() => setUseMax(true)}
+                  >
+                    {useMax ? (
+                      <>
+                        <StyledIconWrapper>
+                          <Icon name="Check" size="14px" />
+                        </StyledIconWrapper>
+                        Max set
+                      </>
+                    ) : (
+                      'Use max'
+                    )}
+                  </StyledMaxButton>
+                )}
+              </InputWithButtonWrapper>
               {errors[id] ? (
                 <StyledErrorMessage>
                   {(errors[id]?.message as string) || ''}
                 </StyledErrorMessage>
               ) : null}
+
+              {withCaption && (
+                <StyledCaption>
+                  Max transferable, after fee{' '}
+                  <span>{formatBalance(maxTransferable.toString())} POLYX</span>
+                </StyledCaption>
+              )}
             </StyledInputWrapper>
           ),
         )}

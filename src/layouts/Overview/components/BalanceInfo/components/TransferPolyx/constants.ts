@@ -9,16 +9,16 @@ const INPUT_NAMES = {
 
 export const TRANSFER_INPUTS = [
   {
+    label: 'Send to',
+    id: INPUT_NAMES.TO,
+    placeholder: 'Enter Address',
+  },
+  {
     label: 'Amount',
     id: INPUT_NAMES.AMOUNT,
     placeholder: 'Enter Amount',
     withCaption: true,
     withButton: true,
-  },
-  {
-    label: 'Send to',
-    id: INPUT_NAMES.TO,
-    placeholder: 'Enter Address',
   },
   {
     label: 'Memo (Optional - this will be public)',
