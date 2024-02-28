@@ -15,7 +15,7 @@
     "@polkadot/util": "12.4.2",
     "@polkadot/util-crypto": "12.4.2",
     "@polymeshassociation/browser-extension-signing-manager": "^2.2.0",
-    "@polymeshassociation/polymesh-sdk": "v23.0.2",
+    "@polymeshassociation/polymesh-sdk": "23.0.3",
     "@tanstack/react-table": "^8.7.9",
     "events": "^3.3.0",
     "graphql": "^16.8.0",
