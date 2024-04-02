@@ -38,6 +38,10 @@ export interface IStakingAccountInfo {
     operatorAccount: string;
     value: BigNumber;
   }[];
+  currentEraStakedOperators: {
+    operatorAccount: string;
+    value: BigNumber;
+  }[];
   nominatedEra: BigNumber | null;
 }
 
@@ -56,12 +60,27 @@ interface Preferences {
 }
 
 export type OperatorPrefObject = Record<string, Preferences>;
+
+export type OperatorLastSlashObject = Record<string, BigNumber>;
+
+export interface IEraStakers {
+  operatorAccount: string;
+  totalStaked: BigNumber;
+  ownStaked: BigNumber;
+  others: Record<string, BigNumber>;
+}
+
 export interface IOperatorInfo {
   activeSessionOperators: string[];
   maxOperatorCount: BigNumber | null;
   operatorCount: number | null;
   waitingOperators: string[];
   operatorsWithCommission: OperatorPrefObject;
+  operatorStakers: {
+    activeEra: IEraStakers[];
+    currentEra: IEraStakers[];
+  };
+  operatorLastSlashRecord: OperatorLastSlashObject;
 }
 
 export interface IStakingContext {
@@ -112,6 +131,7 @@ export const initialStakingAccountInfo: IStakingAccountInfo = {
   rewardDestination: null,
   nominations: [],
   activelyStakedOperators: [],
+  currentEraStakedOperators: [],
   nominatedEra: null,
 };
 
@@ -130,6 +150,11 @@ export const initialOperatorInfo: IOperatorInfo = {
   operatorCount: null,
   waitingOperators: [],
   operatorsWithCommission: {},
+  operatorStakers: {
+    activeEra: [],
+    currentEra: [],
+  },
+  operatorLastSlashRecord: {},
 };
 
 export const initialState: IStakingContext = {

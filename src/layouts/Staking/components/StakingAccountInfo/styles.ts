@@ -82,7 +82,13 @@ export const StyledTextWrapper = styled.div`
   padding: 30px 0px;
 `;
 
-export const StyledElectionMessage = styled.p`
+export const StyledMessageGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+export const StyledStakingMessage = styled.p`
   font-size: 14px;
   font-weight: 500;
   color: rgb(255, 196, 12);

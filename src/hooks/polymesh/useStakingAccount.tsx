@@ -39,8 +39,11 @@ const useStakingAccount = () => {
     latestStakingEventBlockHash,
     shouldRefetch,
     setShouldRefetch,
+    operatorInfo: { operatorStakers },
   } = useContext(StakingContext);
 
+  const { activeEra: activeEraStakers, currentEra: currentEraStakers } =
+    operatorStakers;
   const { selectedAccount } = useContext(AccountContext);
   const [stakingAccountIsLoading, setStakingAccountIsLoading] = useState(true);
   const [accountInfoLoading, setAccountInfoLoading] = useState(true);
@@ -80,6 +83,9 @@ const useStakingAccount = () => {
   const [activelyStakedOperators, setActivelyStakedOperators] = useState<
     { operatorAccount: string; value: BigNumber }[]
   >(stakingAccountInfo.activelyStakedOperators);
+  const [currentEraStakedOperators, setCurrentEraStakedOperators] = useState<
+    { operatorAccount: string; value: BigNumber }[]
+  >(stakingAccountInfo.currentEraStakedOperators);
 
   const stakingKeys = useRef<(string | null)[]>([
     stakingAccountInfo.stashAddress,
@@ -236,40 +242,38 @@ const useStakingAccount = () => {
     }
   }, [getStakingDetails, polkadotApi, selectedAccount]);
 
-  const getActivelyStakedOperators = useCallback(async () => {
-    if (!polkadotApi) return [];
-
-    const allEraStakers =
-      await polkadotApi.query.staking.erasStakersClipped.entries(
-        (activeEraIndex as BigNumber).toNumber(),
-      );
-
-    // We only want the operators we are actively staking with in the active era
-    const backedOperators: Array<{
+  // get staked operators and amounts for the current era
+  useEffect(() => {
+    if (!stashAddress) return;
+    const backedOperators: {
       operatorAccount: string;
       value: BigNumber;
-    }> = [];
+    }[] = [];
 
-    allEraStakers.forEach(
-      ([
-        {
-          args: [, operatorAccountId],
-        },
-        stakersClipped,
-      ]) => {
-        const operatorAccount = operatorAccountId.toString();
+    currentEraStakers.forEach(({ operatorAccount, others }) => {
+      if (Object.keys(others).includes(stashAddress)) {
+        backedOperators.push({ operatorAccount, value: others[stashAddress] });
+      }
+    });
+    setCurrentEraStakedOperators(backedOperators);
+  }, [currentEraStakers, stashAddress]);
 
-        stakersClipped.others.forEach((entry) => {
-          if (entry.who.toString() === stashAddress) {
-            const value = balanceToBigNumber(entry.value.unwrap());
-            backedOperators.push({ operatorAccount, value });
-          }
-        });
-      },
-    );
+  // get staked operators and amounts for the active era. Active era will be different
+  // than the current era after the election until the start of the next era.
+  useEffect(() => {
+    if (!stashAddress) return;
+    const backedOperators: {
+      operatorAccount: string;
+      value: BigNumber;
+    }[] = [];
 
-    return backedOperators;
-  }, [activeEraIndex, polkadotApi, stashAddress]);
+    activeEraStakers.forEach(({ operatorAccount, others }) => {
+      if (Object.keys(others).includes(stashAddress)) {
+        backedOperators.push({ operatorAccount, value: others[stashAddress] });
+      }
+    });
+    setActivelyStakedOperators(backedOperators);
+  }, [activeEraStakers, stashAddress]);
 
   const getNominations = useCallback(async () => {
     if (!polkadotApi) return;
@@ -280,7 +284,6 @@ const useStakingAccount = () => {
       if (nominatedAccounts.isNone) {
         setNominations([]);
         setNominatedEra(null);
-        setActivelyStakedOperators([]);
         return;
       }
       const {
@@ -291,14 +294,12 @@ const useStakingAccount = () => {
       const nominated = targets.map((target) => target.toString());
       setNominations(nominated);
       setNominatedEra(u32ToBigNumber(submittedIn));
-      const activeNominations = await getActivelyStakedOperators();
-      setActivelyStakedOperators(activeNominations);
     } catch (error) {
       notifyError((error as Error).message);
     } finally {
       setStakingAccountIsLoading(false);
     }
-  }, [getActivelyStakedOperators, polkadotApi, stashAddress]);
+  }, [polkadotApi, stashAddress]);
 
   useEffect(() => {
     if (!polkadotApi || !currentEraIndex) {
@@ -358,6 +359,7 @@ const useStakingAccount = () => {
       rewardDestination,
       nominations,
       activelyStakedOperators,
+      currentEraStakedOperators,
       nominatedEra,
     });
   }, [
@@ -376,6 +378,7 @@ const useStakingAccount = () => {
     nominations,
     activelyStakedOperators,
     nominatedEra,
+    currentEraStakedOperators,
   ]);
 };
 

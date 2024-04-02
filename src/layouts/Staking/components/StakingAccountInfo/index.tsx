@@ -43,7 +43,8 @@ import {
   StyledWrapper,
   StyledButtonWrapper,
   StyledModalContent,
-  StyledElectionMessage,
+  StyledStakingMessage,
+  StyledMessageGroup,
 } from './styles';
 import { formatMillisecondsToTime } from '~/helpers/formatters';
 
@@ -59,7 +60,15 @@ export const StakingAccountInfo = () => {
   const {
     stakingAccountInfo,
     refetchAccountInfo,
-    eraStatus: { electionInProgress, epochTimeRemaining },
+    eraStatus: {
+      electionInProgress,
+      epochTimeRemaining,
+      eraDurationTime,
+      epochDurationTime,
+      currentEraIndex,
+      activeEra,
+    },
+    operatorInfo: { operatorsWithCommission, operatorLastSlashRecord },
   } = useContext(StakingContext);
   const {
     controllerAddress,
@@ -69,8 +78,10 @@ export const StakingAccountInfo = () => {
     nominations,
     amountUnbonding,
     amountActive,
+    activelyStakedOperators,
+    nominatedEra,
+    currentEraStakedOperators,
   } = stakingAccountInfo;
-
   const { isMobile } = useWindowWidth();
 
   const [cardWidth, setCardWidth] = useState<number>(0);
@@ -295,6 +306,164 @@ export const StakingAccountInfo = () => {
     };
   }, []);
 
+  const checkNominations = useMemo(() => {
+    // check we have at least 1 operator nominated from the eligible operators
+    const hasNominationInOperators = nominations.some((nomination) =>
+      Object.keys(operatorsWithCommission).includes(nomination),
+    );
+    // check all nominations are for available operators
+    const allNominationsInOperators = nominations.every((nomination) =>
+      Object.keys(operatorsWithCommission).includes(nomination),
+    );
+    return { hasNominationInOperators, allNominationsInOperators };
+  }, [nominations, operatorsWithCommission]);
+
+  const alertMessage = useMemo(() => {
+    if (
+      !amountActive ||
+      !eraDurationTime ||
+      !epochDurationTime ||
+      (nominations.length > 0 && !nominatedEra) ||
+      !currentEraIndex ||
+      !activeEra.index
+    ) {
+      return null;
+    }
+    if (amountActive.eq(0)) {
+      return (
+        <StyledStakingMessage>
+          You must bond tokens if you wish to continue staking.
+        </StyledStakingMessage>
+      );
+    }
+
+    if (nominations.length === 0) {
+      return (
+        <StyledStakingMessage>
+          You must nomination at least one operator to begin staking.
+        </StyledStakingMessage>
+      );
+    }
+    if (!checkNominations.hasNominationInOperators) {
+      let messageSuffix = 'Update your nominations to continue staking.';
+      if (activelyStakedOperators.length === 0) {
+        if (nominatedEra!.eq(currentEraIndex)) {
+          messageSuffix = 'Update your nominations to begin staking.';
+        }
+        messageSuffix = 'Update your nominations to resume staking.';
+      }
+      return (
+        <StyledStakingMessage>
+          None of your nominations are currently eligible for election.{' '}
+          {messageSuffix}
+        </StyledStakingMessage>
+      );
+    }
+    if (
+      !currentEraIndex.eq(activeEra.index) &&
+      activelyStakedOperators.length === 0 &&
+      currentEraStakedOperators.length > 0
+    ) {
+      return (
+        <StyledStakingMessage>
+          You will start/resume staking at the commencement of the next era.
+        </StyledStakingMessage>
+      );
+    }
+    if (
+      activelyStakedOperators.length === 0 &&
+      nominatedEra!.eq(currentEraIndex)
+    ) {
+      return (
+        <StyledStakingMessage>
+          Your tokens are bonded but not staked in this era. Your tokens should
+          automatically start staking in the era following the next election of
+          node operators. (max{' '}
+          {Math.floor(
+            eraDurationTime.plus(epochDurationTime).div(3600000).toNumber(),
+          )}{' '}
+          hrs)
+        </StyledStakingMessage>
+      );
+    }
+    if (activelyStakedOperators.length === 0) {
+      return (
+        <StyledStakingMessage>
+          You are not staking in the current era. Your nominated operator(s) may
+          be oversubscribed or may not have been elected.
+        </StyledStakingMessage>
+      );
+    }
+    return null;
+  }, [
+    activeEra.index,
+    activelyStakedOperators.length,
+    amountActive,
+    checkNominations.hasNominationInOperators,
+    currentEraIndex,
+    currentEraStakedOperators.length,
+    epochDurationTime,
+    eraDurationTime,
+    nominatedEra,
+    nominations.length,
+  ]);
+
+  const slashMessage = useMemo(() => {
+    if (
+      nominations.length === 0 ||
+      !nominatedEra ||
+      Object.keys(operatorLastSlashRecord).length === 0
+    ) {
+      return null;
+    }
+    const renominationRequired = nominations.some(
+      (nomination) =>
+        operatorLastSlashRecord[nomination] &&
+        nominatedEra.lte(operatorLastSlashRecord[nomination]),
+    );
+
+    if (renominationRequired) {
+      return (
+        <StyledStakingMessage>
+          One or more of the operators you have nominated has committed an
+          offense and had their nominations invalidated. Update your nominations
+          if you wish to renominate them.
+        </StyledStakingMessage>
+      );
+    }
+    return null;
+  }, [nominatedEra, nominations, operatorLastSlashRecord]);
+
+  const ineligibleNominationsMessage = useMemo(() => {
+    if (
+      checkNominations.hasNominationInOperators &&
+      !checkNominations.allNominationsInOperators
+    ) {
+      return (
+        <StyledStakingMessage>
+          One of more of your nominations are not eligible for election.
+          Consider updating your nominations.
+        </StyledStakingMessage>
+      );
+    }
+    return null;
+  }, [
+    checkNominations.hasNominationInOperators,
+    checkNominations.allNominationsInOperators,
+  ]);
+
+  const electionInProgressMessage = useMemo(() => {
+    if (electionInProgress === 'Open' && epochTimeRemaining) {
+      return (
+        <StyledStakingMessage>
+          An election of Node Operators is in progress. Staking actions will be
+          available in {formatMillisecondsToTime(epochTimeRemaining.toNumber())}
+          .
+        </StyledStakingMessage>
+      );
+    }
+    return null;
+  }, [electionInProgress, epochTimeRemaining]);
   const stakingAccountDetails = () => {
     if (stakingAccountIsLoading) {
       return <SkeletonLoader height="100%" />;
@@ -306,15 +475,18 @@ export const StakingAccountInfo = () => {
         ) : (
           <NoStakingInfo />
         )}
+        {(alertMessage ||
+          ineligibleNominationsMessage ||
+          slashMessage ||
+          electionInProgressMessage) && (
+          <StyledMessageGroup>
+            {alertMessage}
+            {ineligibleNominationsMessage}
+            {slashMessage}
+            {electionInProgressMessage}
+          </StyledMessageGroup>
+        )}
         <div>
-          {electionInProgress === 'Open' && (
-            <StyledElectionMessage>
-              An election of Node Operators is in progress. Staking actions will
-              be available in{' '}
-              {epochTimeRemaining &&
-                formatMillisecondsToTime(epochTimeRemaining.toNumber())}
-            </StyledElectionMessage>
-          )}
           <StyledButtonWrapper $cardWidth={cardWidth}>
             <StakingButtons
               disabled={actionInProgress}

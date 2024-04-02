@@ -1,12 +1,19 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { u32ToBigNumber } from '@polymeshassociation/polymesh-sdk/utils/conversion';
+import {
+  balanceToBigNumber,
+  u32ToBigNumber,
+} from '@polymeshassociation/polymesh-sdk/utils/conversion';
 import type { Perbill } from '@polkadot/types/interfaces';
 import type { Compact, bool } from '@polkadot/types-codec';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
 import { StakingContext } from '~/context/StakingContext';
-import { OperatorPrefObject } from '~/context/StakingContext/constants';
+import {
+  IEraStakers,
+  OperatorLastSlashObject,
+  OperatorPrefObject,
+} from '~/context/StakingContext/constants';
 
 interface ValidatorPrefs {
   commission: Compact<Perbill>;
@@ -18,7 +25,7 @@ const useOperatorInfo = () => {
     api: { polkadotApi },
   } = useContext(PolymeshContext);
   const {
-    eraStatus: { currentEraIndex },
+    eraStatus: { currentEraIndex, activeEra },
     setOperatorInfo,
     operatorInfo,
     latestStakingEventBlockHash,
@@ -35,8 +42,16 @@ const useOperatorInfo = () => {
   );
   const [operatorsWithCommission, setOperatorsWithCommission] =
     useState<OperatorPrefObject>({});
-  const [currentEraOperators, setCurrentEraOperators] = useState<string[]>([]);
   const [waitingOperators, setWaitingOperators] = useState<string[]>([]);
+  const [currentEraStakers, setCurrentEraStakers] = useState<IEraStakers[]>(
+    operatorInfo.operatorStakers.currentEra,
+  );
+  const [activeEraStakers, setActiveEraStakers] = useState<IEraStakers[]>(
+    operatorInfo.operatorStakers.activeEra,
+  );
+  const [operatorLastSlashRecord, setOperatorLastSlashRecord] =
+    useState<OperatorLastSlashObject>(operatorInfo.operatorLastSlashRecord);
+  const activeEraRef = useRef<BigNumber | null>(null);
 
   // Get maximum number of operators per era
   useEffect(() => {
@@ -111,40 +126,147 @@ const useOperatorInfo = () => {
     };
   }, [polkadotApi]);
 
-  // Get the list of Validators for the "Current" Era
+  const getEraStakers = useCallback(
+    async (eraIndex: BigNumber) => {
+      const eraStakerExposure =
+        await polkadotApi!.query.staking.erasStakers.entries(
+          eraIndex.toNumber(),
+        );
+      const eraStakers: IEraStakers[] = [];
+
+      eraStakerExposure.forEach(
+        ([
+          {
+            args: [, operatorAccountId],
+          },
+          stakersClipped,
+        ]) => {
+          const operatorAccount = operatorAccountId.toString();
+          const totalStaked = balanceToBigNumber(stakersClipped.total.unwrap());
+          const ownStaked = balanceToBigNumber(stakersClipped.own.unwrap());
+          const others: Record<string, BigNumber> = {};
+
+          stakersClipped.others.forEach((entry) => {
+            const who = entry.who.toString();
+            const value = balanceToBigNumber(entry.value.unwrap());
+            others[who] = value;
+          });
+          eraStakers.push({
+            operatorAccount,
+            totalStaked,
+            ownStaked,
+            others,
+          });
+        },
+      );
+      return eraStakers;
+    },
+    [polkadotApi],
+  );
+
+  // Get the staking details for the "Current" Era
   useEffect(() => {
     if (!polkadotApi || !currentEraIndex) {
       return;
     }
 
-    const getCurrentValidators = async () => {
+    const getStakingDetails = async () => {
       try {
-        const currentOperators =
-          await polkadotApi.query.staking.erasStakers.keys(
-            currentEraIndex.toNumber(),
-          );
-        const operatorArray = currentOperators.map(
-          ({ args: [, accountId] }) => {
-            return accountId.toString();
-          },
-        );
-        setCurrentEraOperators(operatorArray);
+        const currentStakers = await getEraStakers(currentEraIndex);
+        setCurrentEraStakers(currentStakers);
       } catch (error) {
         notifyError((error as Error).message);
       }
     };
 
-    getCurrentValidators();
-  }, [currentEraIndex, polkadotApi]);
+    getStakingDetails();
+  }, [currentEraIndex, getEraStakers, polkadotApi]);
 
-  // Get list of waiting Operations
+  // Get the staking details for the "Active" Era
   useEffect(() => {
-    if (!currentEraOperators || !operatorsWithCommission) return;
+    if (
+      !polkadotApi ||
+      !currentEraIndex ||
+      !activeEra.index ||
+      (activeEraRef.current && activeEra.index.eq(activeEraRef.current))
+    ) {
+      return;
+    }
+
+    const activeEraIndex = activeEra.index;
+    if (currentEraIndex.eq(activeEraIndex)) {
+      // return if currentEraStakers hasn't loaded yet
+      if (currentEraStakers.length === 0) {
+        return;
+      }
+      setActiveEraStakers(currentEraStakers);
+      activeEraRef.current = activeEraIndex;
+      return;
+    }
+    const getStakingDetails = async () => {
+      try {
+        const activeStakers = await getEraStakers(activeEraIndex);
+        setActiveEraStakers(activeStakers);
+        activeEraRef.current = activeEraIndex;
+      } catch (error) {
+        notifyError((error as Error).message);
+      }
+    };
+
+    getStakingDetails();
+  }, [
+    activeEra.index,
+    currentEraIndex,
+    currentEraStakers,
+    getEraStakers,
+    polkadotApi,
+  ]);
+
+  // Get list of waiting Operators
+  useEffect(() => {
+    if (!currentEraStakers || !operatorsWithCommission) return;
     const waiting = Object.keys(operatorsWithCommission).filter(
-      (operator) => !currentEraOperators.includes(operator),
+      (operator) =>
+        !currentEraStakers.some((entry) => entry.operatorAccount === operator),
     );
     setWaitingOperators(waiting);
-  }, [currentEraOperators, operatorsWithCommission]);
+  }, [currentEraStakers, operatorsWithCommission]);
+
+  // Get slash records for operators
+  useEffect(() => {
+    const operators = Object.keys(operatorsWithCommission);
+
+    if (!polkadotApi || operators.length === 0) {
+      return () => {};
+    }
+    let unsubSlashes: () => void;
+    const getLastSlashedEras = async () => {
+      try {
+        unsubSlashes = await polkadotApi.query.staking.slashingSpans.multi(
+          operators,
+          (slashingSpans) => {
+            const slashRecord: OperatorLastSlashObject = {};
+            slashingSpans.forEach((optionSlashingSpan, index) => {
+              if (optionSlashingSpan.isSome) {
+                slashRecord[operators[index]] = u32ToBigNumber(
+                  optionSlashingSpan.unwrap().lastNonzeroSlash,
+                );
+              }
+            });
+            setOperatorLastSlashRecord(slashRecord);
+          },
+        );
+      } catch (error) {
+        notifyError((error as Error).message);
+      }
+    };
+    getLastSlashedEras();
+    return () => {
+      if (unsubSlashes) {
+        unsubSlashes();
+      }
+    };
+  }, [operatorsWithCommission, polkadotApi]);
 
   useEffect(() => {
     setOperatorInfo({
@@ -153,6 +275,11 @@ const useOperatorInfo = () => {
       operatorCount,
       waitingOperators,
       operatorsWithCommission,
+      operatorStakers: {
+        activeEra: activeEraStakers,
+        currentEra: currentEraStakers,
+      },
+      operatorLastSlashRecord,
     });
   }, [
     activeSessionOperators,
@@ -161,6 +288,9 @@ const useOperatorInfo = () => {
     setOperatorInfo,
     waitingOperators,
     operatorsWithCommission,
+    currentEraStakers,
+    activeEraStakers,
+    operatorLastSlashRecord,
   ]);
 };
 

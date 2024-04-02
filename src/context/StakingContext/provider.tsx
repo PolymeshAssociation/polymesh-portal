@@ -52,7 +52,7 @@ const StakingProvider = ({ children }: IProviderProps) => {
     stakingAccountInfo.stashAddress,
   ]);
 
-  // latestStakingEventBlockHash can be used to trigger updates of chain querie
+  // latestStakingEventBlockHash can be used to trigger updates of chain queries
   useEffect(() => {
     if (!subscribedEventRecords.events.length) return;
     if (

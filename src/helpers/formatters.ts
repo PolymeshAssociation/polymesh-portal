@@ -89,9 +89,19 @@ export const formatMillisecondsToTime = (
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = Math.floor(totalSeconds % 60);
 
-  if (days > 0) return `${days} days ${hours} hr`;
-  if (hours > 0) return `${hours} hr ${minutes} mins`;
-  return `${minutes} min ${seconds} sec`;
+  if (days > 0) {
+    return `${days} day${days !== 1 ? 's' : ''} ${hours} hr${
+      hours !== 1 ? 's' : ''
+    }`;
+  }
+  if (hours > 0) {
+    return `${hours} hr${hours !== 1 ? 's' : ''} ${minutes} min${
+      minutes !== 1 ? 's' : ''
+    }`;
+  }
+  return `${minutes} min${minutes !== 1 ? 's' : ''} ${seconds} sec${
+    seconds !== 1 ? 's' : ''
+  }`;
 };
 
 export const accountKeyToAddress = (key: string, ss58Prefix: BigNumber) => {
