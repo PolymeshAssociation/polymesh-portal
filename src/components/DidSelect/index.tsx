@@ -122,6 +122,7 @@ const DidSelect = () => {
             <StyledExpandedSelect>
               {allIdentities.map((option) => (
                 <StyledLabel
+                  $textAlign="left"
                   key={option?.did}
                   htmlFor={option?.did}
                   $selected={selected?.did === option?.did}
