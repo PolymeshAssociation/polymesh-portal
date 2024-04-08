@@ -68,7 +68,7 @@ export const MenuButton = styled.button<{ $fullWidth: boolean }>`
   padding: 0;
   background-color: transparent;
   cursor: pointer;
-  ${({ $fullWidth }) => ($fullWidth ? 'transform: rotate(180deg);' : '')}
+  transform: ${({ $fullWidth }) => !$fullWidth && 'rotate(180deg)'};
   transition: transform 250ms ease-out;
 `;
 

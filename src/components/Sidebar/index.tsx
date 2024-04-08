@@ -103,13 +103,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
   const handleOpenLink = (url: string) => window.open(url, '_blank');
 
   useEffect(() => {
-    if (isMobile) return;
-
-    if (isTablet) {
-      setFullWidth(false);
-    } else {
-      setFullWidth(true);
-    }
+    if (!isMobile) setFullWidth(!isTablet);
   }, [isMobile, isTablet]);
 
   const sidebarExpanded = isMobile ? mobileMenuOpen : fullWidth;
