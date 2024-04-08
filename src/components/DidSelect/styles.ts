@@ -60,7 +60,10 @@ export const StyledInput = styled.input`
   overflow: hidden;
 `;
 
-export const StyledLabel = styled.label<{ $selected: boolean }>`
+export const StyledLabel = styled.label<{
+  $selected: boolean;
+  $textAlign?: 'left' | 'right' | 'center' | 'justify';
+}>`
   display: block;
   max-width: 100%;
   overflow: hidden;
@@ -69,11 +72,11 @@ export const StyledLabel = styled.label<{ $selected: boolean }>`
   padding: 12px 16px;
   border-radius: 62px;
   font-size: 14px;
+  text-align: ${({ $textAlign }) => $textAlign || 'inherit'};
   ${({ $selected, theme }) =>
-    $selected ? `background-color: ${theme.colors.pinkBackground};` : ''}
+    $selected && `background-color: ${theme.colors.pinkBackground};`}
   cursor: pointer;
   transition: background-color 250ms ease-out;
-
   &:not(:first-child) {
     margin-top: 10px;
   }
