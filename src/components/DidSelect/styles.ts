@@ -66,6 +66,7 @@ export const StyledLabel = styled.label<{ $selected: boolean }>`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  text-align: left;
   padding: 12px 16px;
   border-radius: 62px;
   font-size: 14px;
