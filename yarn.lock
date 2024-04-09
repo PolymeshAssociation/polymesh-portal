@@ -2015,10 +2015,10 @@
     "@polkadot/util-crypto" "^12.4.2"
     "@polymeshassociation/signing-manager-types" "^3.1.0"
 
-"@polymeshassociation/polymesh-sdk@24.0.0-alpha.20":
-  version "24.0.0-alpha.20"
-  resolved "https://registry.yarnpkg.com/@polymeshassociation/polymesh-sdk/-/polymesh-sdk-24.0.0-alpha.20.tgz#f0b3a3485d5d0c273a99a384c86cdfe86bbf4050"
-  integrity sha512-EJLto7eqgAo74d9GJak0VHVgcLZ8wQelY8b65ulEUThNAAbHkb1hstY6sbR+WnHtKWxGu5diMZ4z1wYGlcrezA==
+"@polymeshassociation/polymesh-sdk@24.0.0":
+  version "24.0.0"
+  resolved "https://registry.yarnpkg.com/@polymeshassociation/polymesh-sdk/-/polymesh-sdk-24.0.0.tgz#fbb121c89395f52ca67373c0130a86dd48ef5714"
+  integrity sha512-Z5+v3Emsv+NBiwPAPVt2FxJElj/aF2sWW9hZ7Vewt7+9ym3yvSzJtH1cnGbXjGaZd1mxN9osEUFxgrEZnhcL6Q==
   dependencies:
     "@apollo/client" "^3.8.1"
     "@polkadot/api" "10.9.1"
