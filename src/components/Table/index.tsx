@@ -152,17 +152,13 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
   );
 
   const renderTabs = () => {
-    if (!tabs || tabs.length < 2) return null;
+    if (!tabs || tabs.length < 2 || !setTab) return null;
 
     if (isMobile) {
-      if (loading) return <SkeletonLoader height="36px" />;
-
       return (
         <DropdownSelect
           options={tabs}
-          onChange={(tabItem) =>
-            (setTab as Dispatch<SetStateAction<S>>)(tabItem as S)
-          }
+          onChange={(tabItem) => setTab(tabItem as S)}
           selected={tab}
           error={undefined}
           placeholder="Select tab"
@@ -173,21 +169,15 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
 
     return (
       <StyledTabsWrapper>
-        {tabs.map((tabItem) =>
-          loading ? (
-            <SkeletonLoader key={tabItem} />
-          ) : (
-            <StyledTabItem
-              key={tabItem}
-              $selected={tabItem === tab}
-              onClick={() =>
-                (setTab as Dispatch<SetStateAction<S>>)(tabItem as S)
-              }
-            >
-              {tabItem}
-            </StyledTabItem>
-          ),
-        )}
+        {tabs.map((tabItem) => (
+          <StyledTabItem
+            key={tabItem}
+            $selected={tabItem === tab}
+            onClick={() => setTab(tabItem as S)}
+          >
+            {tabItem}
+          </StyledTabItem>
+        ))}
       </StyledTabsWrapper>
     );
   };
