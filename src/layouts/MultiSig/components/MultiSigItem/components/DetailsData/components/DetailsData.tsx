@@ -6,7 +6,6 @@ import { ModuleCell } from './ModuleCell';
 import { VoteCell } from './VotesCell';
 import { StatusCell } from './StatusCell';
 import { StyledInfo, StyledInfoBlock, StyledInfoLink } from '../styles';
-import { ERawMultiSigStatus } from '~/constants/queries/types';
 
 interface IDetailsProps {
   item: IMultiSigListItem;
@@ -23,8 +22,8 @@ const createSubscanExtrinsicUrl = (
   }extrinsic/${createdBlockId}-${extrinsicIdx}`;
 };
 
-const createSubscanBlockUrl = (createdBlockId: string) => {
-  return `${import.meta.env.VITE_SUBSCAN_URL}block/${createdBlockId}`;
+const createSubscanBlockEventsUrl = (createdBlockId: string) => {
+  return `${import.meta.env.VITE_SUBSCAN_URL}block/${createdBlockId}?tab=event`;
 };
 
 export const DetailsData: React.FC<IDetailsProps> = ({
@@ -36,10 +35,9 @@ export const DetailsData: React.FC<IDetailsProps> = ({
     item.createdBlockId,
     item.extrinsicIdx,
   );
-  const subscanUrlUpdatedBlock =
-    item.status === ERawMultiSigStatus.REJECTED
-      ? createSubscanBlockUrl(item.updatedBlockId)
-      : createSubscanExtrinsicUrl(item.updatedBlockId, 0);
+  const subscanUrlUpdatedBlock = createSubscanBlockEventsUrl(
+    item.updatedBlockId,
+  );
   return (
     <StyledInfo>
       <StyledInfoBlock>
