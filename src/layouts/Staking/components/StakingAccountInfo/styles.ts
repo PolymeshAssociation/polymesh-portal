@@ -93,3 +93,9 @@ export const StyledStakingMessage = styled.p`
   font-weight: 500;
   color: rgb(255, 196, 12);
 `;
+
+export const StyledLink = styled.a`
+  display: inline-block;
+  font-weight: 600;
+  text-decoration: underline;
+`;
