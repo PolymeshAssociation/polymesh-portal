@@ -13,6 +13,7 @@ import {
   StyledBottomInfo,
   StyledButtonWrapper,
   Separator,
+  StyledLink,
 } from './styles';
 import { formatDid } from '~/helpers/formatters';
 import { Details } from './components/Details';
@@ -111,10 +112,17 @@ export const DidInfo = () => {
     if (!activeIdentity) {
       return (
         <Text size="small">
-          The selected key is not linked to a Polymesh Account. To use this key,
-          you can either onboard it through a Polymesh Customer Due Diligence
-          Provider to create a new Polymesh Account, or have the key assigned to
-          an existing Polymesh Account.
+          Complete onboarding to link this key to a new Polymesh account. If you
+          have already completed onboarding and want to assign this key to an
+          existing account,{' '}
+          <StyledLink
+            href={import.meta.env.VITE_ASSIGN_KEY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            click here
+          </StyledLink>{' '}
+          to learn how.
         </Text>
       );
     }
@@ -171,7 +179,7 @@ export const DidInfo = () => {
           <div className="did-wrapper">
             {!identityLoading && !identity ? (
               <Text bold size="large" marginTop={isSmallScreen ? 0 : 22}>
-                Your account is incomplete
+                This key is not linked to an account
               </Text>
             ) : (
               <>
@@ -213,23 +221,13 @@ export const DidInfo = () => {
         </StyledBottomInfo>
         <StyledButtonWrapper>
           {!identityLoading && !identity ? (
-            <>
-              <Button
-                onClick={() =>
-                  window.open(import.meta.env.VITE_ONBOARDING_URL, '_blank')
-                }
-              >
-                Create account
-              </Button>
-              <Button
-                variant="transparent"
-                onClick={() =>
-                  window.open(import.meta.env.VITE_ASSIGN_KEY_URL, '_blank')
-                }
-              >
-                Assign key to account
-              </Button>
-            </>
+            <Button
+              onClick={() =>
+                window.open(import.meta.env.VITE_ONBOARDING_URL, '_blank')
+              }
+            >
+              Complete onboarding
+            </Button>
           ) : (
             <>
               {identityLoading && (

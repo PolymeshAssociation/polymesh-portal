@@ -5,6 +5,7 @@ import {
   StyledTextWrapper,
   IconWrapper,
   StyledButtonWrapper,
+  StyledLink,
 } from '../../styles';
 
 interface INoIdentityInfoProps {
@@ -24,15 +25,23 @@ export const NoIdentityInfo: React.FC<INoIdentityInfoProps> = ({
         </IconWrapper>
       )}
       <div className="heading-wrapper">
-        <Heading type="h4">Your account is incomplete</Heading>
+        <Heading type="h4">This key is not linked to an account</Heading>
       </div>
     </StyledTopInfo>
     <StyledTextWrapper>
       <Text size="medium">
         Your key must be linked to a Polymesh Account before you can start
-        staking. To stake with this key, you can either onboard it through a
-        Polymesh Customer Due Diligence Provider to create a new Polymesh
-        Account, or assign the key to an existing Polymesh Account.
+        staking. Complete onboarding to link this key to a new Polymesh account.
+        If you have already completed onboarding and want to assign this key to
+        an existing account,{' '}
+        <StyledLink
+          href={import.meta.env.VITE_ASSIGN_KEY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          click here
+        </StyledLink>{' '}
+        to learn how.
       </Text>
     </StyledTextWrapper>
     <StyledButtonWrapper $cardWidth={cardWidth}>
@@ -41,15 +50,7 @@ export const NoIdentityInfo: React.FC<INoIdentityInfoProps> = ({
           window.open(import.meta.env.VITE_ONBOARDING_URL, '_blank')
         }
       >
-        Create account
-      </Button>
-      <Button
-        variant="secondary"
-        onClick={() =>
-          window.open(import.meta.env.VITE_ASSIGN_KEY_URL, '_blank')
-        }
-      >
-        Assign key to account
+        Complete onboarding
       </Button>
     </StyledButtonWrapper>
   </>

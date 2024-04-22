@@ -140,3 +140,9 @@ export const StyledButtonWrapper = styled.div`
   justify-content: center;
   gap: 10px;
 `;
+
+export const StyledLink = styled.a`
+  display: inline-block;
+  font-weight: 600;
+  text-decoration: underline;
+`;
