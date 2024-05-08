@@ -162,7 +162,8 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
 
   const isFailedCanBeAffirmed =
     type === EInstructionTypes.FAILED &&
-    isSettleManual &&
+    (isSettleManual ||
+      instructionDetails?.type === InstructionType.SettleOnAffirmation) &&
     affirmationStatus &&
     affirmationStatus !== 'Affirmed';
 
