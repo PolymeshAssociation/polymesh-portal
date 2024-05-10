@@ -57,6 +57,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [secondaryKeys, setSecondaryKeys] = useState<string[]>([]);
   const [accountLoading, setAccountLoading] = useState(true);
   const [identityLoading, setIdentityLoading] = useState(true);
+  const [primaryKeyLoading, setPrimaryKeyLoading] = useState(true);
+  const [secondaryKeysLoading, setSecondaryKeysLoading] = useState(true);
   const [allKeyInfo, setAllKeyInfo] = useState<IInfoByKey[]>([]);
   const [identityHasValidCdd, setIdentityHasValidCdd] =
     useState<boolean>(false);
@@ -136,6 +138,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
     }
 
     setAccountLoading(true);
+    setIdentityLoading(true);
+    setPrimaryKeyLoading(true);
+    setSecondaryKeysLoading(true);
+
     (async () => {
       try {
         const accountInstance = await sdk.accountManagement.getAccount({
@@ -197,6 +203,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
   // Get identity data when sdk is initialized
   useEffect(() => {
+    if (accountLoading) return;
     if (!account || !sdk || !initialized || !allSigningAccounts.length) {
       setIdentity(null);
       setAllIdentities([]);
@@ -227,7 +234,9 @@ const AccountProvider = ({ children }: IProviderProps) => {
           );
         });
 
-        setIdentity(accIdentity);
+        if (!accountLoading) {
+          setIdentity(accIdentity);
+        }
         setAllIdentities(uniqueIdentities);
       } catch (error) {
         notifyGlobalError((error as Error).message);
@@ -238,29 +247,45 @@ const AccountProvider = ({ children }: IProviderProps) => {
         setShouldRefreshIdentity(false);
       }
     })();
-  }, [sdk, account, shouldRefreshIdentity, initialized, allSigningAccounts]);
+  }, [
+    sdk,
+    account,
+    shouldRefreshIdentity,
+    initialized,
+    allSigningAccounts,
+    accountLoading,
+  ]);
 
   // Subscribe to primary identity keys
   useEffect(() => {
+    if (identityLoading) return undefined;
     if (!identity) {
-      return setPrimaryKey('');
+      setPrimaryKey('');
+      setPrimaryKeyLoading(false);
+      return undefined;
     }
 
     let unsubCb: UnsubCallback;
 
     (async () => {
       unsubCb = await identity.getPrimaryAccount((primaryAccount) => {
-        setPrimaryKey(primaryAccount.account.address);
+        if (!identityLoading) {
+          setPrimaryKey(primaryAccount.account.address);
+          setPrimaryKeyLoading(false);
+        }
       });
     })();
 
     return () => (unsubCb ? unsubCb() : undefined);
-  }, [identity]);
+  }, [identity, identityLoading]);
 
   // Subscribe to secondary identity keys
   useEffect(() => {
+    if (identityLoading) return undefined;
     if (!identity) {
-      return setSecondaryKeys([]);
+      setSecondaryKeys([]);
+      setSecondaryKeysLoading(false);
+      return undefined;
     }
 
     let unsubCb: UnsubCallback;
@@ -270,12 +295,15 @@ const AccountProvider = ({ children }: IProviderProps) => {
         const keys = secondaryAccounts.map(
           ({ account: { address } }) => address,
         );
-        setSecondaryKeys(keys);
+        if (!identityLoading) {
+          setSecondaryKeys(keys);
+          setSecondaryKeysLoading(false);
+        }
       });
     })();
 
     return () => (unsubCb ? unsubCb() : undefined);
-  }, [identity]);
+  }, [identity, identityLoading]);
 
   // Check identity CDD status
   useEffect(() => {
@@ -293,7 +321,9 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
   // Get total balance for all keys associated with current DID
   useEffect(() => {
-    if (!sdk || !primaryKey || identityLoading) return;
+    if (!sdk || !primaryKey || primaryKeyLoading || secondaryKeysLoading) {
+      return;
+    }
 
     (async () => {
       const balancesByKey = await Promise.all(
@@ -330,7 +360,14 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
       setAllKeyInfo(balancesByKey);
     })();
-  }, [allAccounts, identityLoading, primaryKey, sdk, secondaryKeys]);
+  }, [
+    allAccounts,
+    primaryKey,
+    primaryKeyLoading,
+    sdk,
+    secondaryKeys,
+    secondaryKeysLoading,
+  ]);
 
   const blockWalletAddress = useCallback(
     (address: string) => {
