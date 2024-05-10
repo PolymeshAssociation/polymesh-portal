@@ -1,5 +1,9 @@
 import { useState, useRef, useEffect, useContext } from 'react';
-import { Identity } from '@polymeshassociation/polymesh-sdk/types';
+import type {
+  Account,
+  Identity,
+  MultiSig,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { AccountContext } from '~/context/AccountContext';
 import { Icon } from '~/components';
 import {
@@ -13,10 +17,14 @@ import {
 import { formatDid } from '~/helpers/formatters';
 import { notifyError } from '~/helpers/notifications';
 import { SkeletonLoader } from '../UiKit';
+import { PolymeshContext } from '~/context/PolymeshContext';
 
 const DidSelect = () => {
   const { setSelectedAccount, allAccounts, identity, allIdentities } =
     useContext(AccountContext);
+  const {
+    api: { sdk },
+  } = useContext(PolymeshContext);
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState<Identity | null>(null);
   const [truncateLength, setTruncateLength] = useState<number | null>(null);
@@ -64,6 +72,23 @@ const DidSelect = () => {
         return;
       }
 
+      const { keyType } = await account.getTypeInfo();
+      if (keyType === 'MultiSig') {
+        const multisigAccount = await sdk!.accountManagement.getAccount({
+          address: account.address,
+        });
+        const { signers } = await (multisigAccount as MultiSig).details();
+
+        const connectedAccount = signers.find((signer) =>
+          allAccounts.includes((signer as Account).address),
+        );
+
+        if (connectedAccount) {
+          setSelectedAccount((connectedAccount as Account).address);
+          return;
+        }
+      }
+
       const { data } = await selectedIdentity.getSecondaryAccounts();
       const connectedAccount = data.find((accInstance) =>
         allAccounts.includes(accInstance.account.toHuman()),
@@ -71,6 +96,31 @@ const DidSelect = () => {
 
       if (connectedAccount) {
         setSelectedAccount(connectedAccount.account.address);
+        return;
+      }
+
+      for (let i = 0; i < data.length; i += 1) {
+        const { account: secondaryAccount } = data[i];
+        const { keyType: secondaryKeyType } =
+          // eslint-disable-next-line no-await-in-loop
+          await secondaryAccount.getTypeInfo();
+        if (secondaryKeyType === 'MultiSig') {
+          // eslint-disable-next-line no-await-in-loop
+          const multisigAccount = await sdk!.accountManagement.getAccount({
+            address: secondaryAccount.address,
+          });
+          // eslint-disable-next-line no-await-in-loop
+          const { signers } = await (multisigAccount as MultiSig).details();
+
+          const connectedSecondaryAccount = signers.find((signer) =>
+            allAccounts.includes((signer as Account).address),
+          );
+
+          if (connectedSecondaryAccount) {
+            setSelectedAccount((connectedSecondaryAccount as Account).address);
+            return;
+          }
+        }
       }
     } catch (error) {
       notifyError((error as Error).message);
