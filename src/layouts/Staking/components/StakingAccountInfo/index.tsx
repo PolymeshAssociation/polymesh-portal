@@ -441,7 +441,7 @@ export const StakingAccountInfo = () => {
     ) {
       return (
         <StyledStakingMessage>
-          One of more of your nominations are not eligible for election.
+          One or more of your nominations are not eligible for election.
           Consider updating your nominations.
         </StyledStakingMessage>
       );
