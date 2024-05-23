@@ -117,11 +117,10 @@ export const useMultiSigTable = () => {
           }
 
           const { params } = proposal;
-          const module = params[1]?.value.call_module;
-          const call = params[1]?.value.call_function;
-          const callIndex = params[1]?.value.call_index;
-          const expiry = params[2]?.value ? new Date(params[2]?.value) : null;
-          const args = params[1]?.value.call_args;
+          const module = params.proposal.section;
+          const call = params.proposal.method;
+          const expiry = params.expiry ? new Date(params.expiry) : null;
+          const { args } = params.proposal;
 
           return {
             ...rawProposal,
@@ -129,7 +128,6 @@ export const useMultiSigTable = () => {
             call: splitByUnderscore(call),
             expiry,
             module: splitCamelCase(module),
-            callIndex,
           };
         });
 
@@ -141,7 +139,6 @@ export const useMultiSigTable = () => {
             creatorAccount,
             module,
             call,
-            callIndex,
             approvalCount,
             rejectionCount,
             datetime,
@@ -151,7 +148,6 @@ export const useMultiSigTable = () => {
             creatorAccount,
             module,
             call,
-            callIndex,
             votes: { approvalCount, rejectionCount },
             datetime,
             status: status as ERawMultiSigStatus,

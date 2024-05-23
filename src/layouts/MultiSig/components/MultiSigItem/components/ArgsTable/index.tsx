@@ -22,19 +22,12 @@ import { capitalizeFirstLetter } from '~/helpers/formatters';
 interface IArgsTableProps {
   rawArgs: TMultiSigArgs;
   call: string;
-  callIndex: string;
   module: string;
 }
 
-export const ArgsTable: FC<IArgsTableProps> = ({
-  rawArgs,
-  call,
-  callIndex,
-  module,
-}) => {
+export const ArgsTable: FC<IArgsTableProps> = ({ rawArgs, call, module }) => {
   const args = [
     {
-      index: callIndex,
       module: capitalizeFirstLetter(module),
       call: capitalizeFirstLetter(call),
       args: rawArgs,

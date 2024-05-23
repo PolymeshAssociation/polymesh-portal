@@ -187,29 +187,16 @@ export interface IProposalQueryResponse {
 export interface IRawMultiSigExtrinsic {
   blockId: string;
   extrinsicIdx: number;
-  params: [
-    {
-      name: 'multisig';
-      value: string;
-    },
-    {
-      name: 'proposal';
-      value: {
-        call_args: TMultiSigArgs;
-        call_index: string;
-        call_module: string;
-        call_function: string;
-      };
-    },
-    {
-      name: 'expiry';
-      value: number | null;
-    },
-    {
-      name: 'auto_close';
-      value: boolean;
-    },
-  ];
+  params: {
+    proposal: {
+      args: TMultiSigArgs;
+      method: string;
+      section: string;
+    };
+    expiry: number | null;
+    auto_close: boolean;
+    multisig: string;
+  };
 }
 
 export interface IMultisigExtrinsicQueryResponse {

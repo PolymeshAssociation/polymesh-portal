@@ -88,12 +88,6 @@ export const useMultiSigList = () => {
           } = currentProposal;
           const [module, call] = txTag.split('.');
 
-          const rawCallIndex = polkadotApi.tx[module][call].callIndex;
-          // for consistency we use the hex representation of the call index
-          const callIndex = Array.from(rawCallIndex)
-            .map((entry) => entry.toString(16).padStart(2, '0'))
-            .join('');
-
           return {
             expiry,
             status,
@@ -103,7 +97,6 @@ export const useMultiSigList = () => {
             call: splitCamelCase(call),
             proposalId: proposal.id.toNumber(),
             module: splitCamelCase(module),
-            callIndex,
             createdBlockId,
             creatorAccount,
             updatedBlockId,

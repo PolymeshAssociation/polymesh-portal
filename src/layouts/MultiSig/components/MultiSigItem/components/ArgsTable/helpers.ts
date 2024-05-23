@@ -76,7 +76,11 @@ const processBalancesArgs = (
   if (typeof processedArgs === 'object' && !Array.isArray(processedArgs)) {
     polyxKeysToConvert.forEach((key: string) => {
       if (key in args) {
-        const argAsBig = new BigNumber((args as Record<string, number>)[key]);
+        const arg = (args as Record<string, number | string>)[key];
+
+        const argAsBig = new BigNumber(
+          typeof arg === 'string' ? arg.replaceAll(',', '') : arg,
+        );
 
         if (!argAsBig.isNaN()) {
           (processedArgs as Record<string, string>)[key] = `${formatBalance(
@@ -135,6 +139,7 @@ export function processCallParameters(
   objCopy = parseExpiry(objCopy);
 
   const callKeys = [
+    { module: 'section', call: 'method', args: 'args' },
     { module: 'module', call: 'call', args: 'args' },
     { module: 'callModule', call: 'callFunction', args: 'callArgs' },
     { module: 'call_module', call: 'call_function', args: 'call_args' },

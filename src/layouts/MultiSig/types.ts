@@ -20,7 +20,6 @@ export type TMultiSigCall = Record<string, string | number | null>;
 export type TMultiSigCalls = Record<string, TMultiSigCall>;
 
 export type TMultiSigCallArgs = {
-  callIndex: string;
   args: TMultiSigCall;
 };
 
@@ -36,7 +35,6 @@ export type TMultiSigArgsFormatted = {
 export interface IMultiSigListItem extends IRawMultiSigProposal {
   args: TMultiSigArgs;
   call: string;
-  callIndex: string;
   expiry: Date | null;
   module: string;
 }
