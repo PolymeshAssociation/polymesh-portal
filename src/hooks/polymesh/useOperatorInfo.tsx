@@ -41,8 +41,10 @@ const useOperatorInfo = () => {
     operatorInfo.operatorCount,
   );
   const [operatorsWithCommission, setOperatorsWithCommission] =
-    useState<OperatorPrefObject>({});
-  const [waitingOperators, setWaitingOperators] = useState<string[]>([]);
+    useState<OperatorPrefObject>(operatorInfo.operatorsWithCommission);
+  const [waitingOperators, setWaitingOperators] = useState<string[]>(
+    operatorInfo.waitingOperators,
+  );
   const [currentEraStakers, setCurrentEraStakers] = useState<IEraStakers[]>(
     operatorInfo.operatorStakers.currentEra,
   );
