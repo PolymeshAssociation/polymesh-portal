@@ -31,6 +31,8 @@ const useEraStatus = () => {
   const [currentEraIndex, setCurrentEraIndex] = useState<BigNumber | null>(
     eraStatus.currentEraIndex,
   );
+  const [currentSessionIndex, setCurrentSessionIndex] =
+    useState<BigNumber | null>(eraStatus.currentSessionIndex);
   const [currentSlot, setCurrentSlot] = useState<BigNumber | null>(null);
   const [genesisSlot, setGenesisSlot] = useState<BigNumber | null>(null);
   const [eraProgress, setEraProgress] = useState<BigNumber | null>(
@@ -145,6 +147,34 @@ const useEraStatus = () => {
     };
   }, [polkadotApi]);
 
+  // Subscribe to the current session index
+  useEffect(() => {
+    if (!polkadotApi) {
+      setCurrentSessionIndex(null);
+      return undefined;
+    }
+
+    let unsubCurrentSession: () => void;
+
+    const getCurrentEra = async () => {
+      try {
+        unsubCurrentSession = await polkadotApi.query.session.currentIndex(
+          (era) => {
+            setCurrentSessionIndex(u32ToBigNumber(era));
+          },
+        );
+      } catch (error) {
+        notifyError((error as Error).message);
+      }
+    };
+
+    getCurrentEra();
+
+    return () => {
+      if (unsubCurrentSession) unsubCurrentSession();
+    };
+  }, [polkadotApi]);
+
   // Subscribe to the current babe slot
   useEffect(() => {
     if (!polkadotApi) {
@@ -180,7 +210,7 @@ const useEraStatus = () => {
 
     let unsubEpoch: () => void;
 
-    const getCurrentSlot = async () => {
+    const getEpochIndex = async () => {
       try {
         unsubEpoch = await polkadotApi.query.babe.epochIndex((index) => {
           setEpochIndex(u64ToBigNumber(index));
@@ -190,7 +220,7 @@ const useEraStatus = () => {
       }
     };
 
-    getCurrentSlot();
+    getEpochIndex();
 
     return () => {
       if (unsubEpoch) unsubEpoch();
@@ -253,9 +283,9 @@ const useEraStatus = () => {
     if (
       !polkadotApi ||
       !index ||
-      !genesisSlot ||
+      !epochStartSlot ||
       !epochDurationBlocks ||
-      !sessionsPerEra
+      !currentSessionIndex
     ) {
       setEraStartSessionIndex(null);
       setEraStartSlot(null);
@@ -270,11 +300,11 @@ const useEraStatus = () => {
             index.toString(),
           );
         const startSession = u32ToBigNumber(eraStartSession.unwrapOrDefault());
-        const startSlot = genesisSlot.plus(
-          startSession.times(epochDurationBlocks),
+        const calculatedEraStartSlot = epochStartSlot.minus(
+          currentSessionIndex.minus(startSession).times(epochDurationBlocks),
         );
         setEraStartSessionIndex(startSession);
-        setEraStartSlot(startSlot);
+        setEraStartSlot(calculatedEraStartSlot);
       } catch (error) {
         notifyError((error as Error).message);
       }
@@ -284,12 +314,12 @@ const useEraStatus = () => {
   }, [
     polkadotApi,
     activeEra,
-    genesisSlot,
+    epochStartSlot,
     epochDurationBlocks,
-    sessionsPerEra,
+    currentSessionIndex,
   ]);
 
-  // Calculate the epoch/session start and end slot
+  // Calculate the epoch/session start
   useEffect(() => {
     if (!genesisSlot || !epochIndex || !epochDurationBlocks) {
       setEpochStartSlot(null);
@@ -310,11 +340,13 @@ const useEraStatus = () => {
 
   // Calculate the current era epoch/session number
   useEffect(() => {
-    if (!eraStartSessionIndex || !epochIndex) {
+    if (!eraStartSessionIndex || !currentSessionIndex) {
       return;
     }
-    setEraSessionNumber(epochIndex.minus(eraStartSessionIndex).plus(1));
-  }, [epochIndex, eraStartSessionIndex]);
+    setEraSessionNumber(
+      currentSessionIndex.minus(eraStartSessionIndex).plus(1),
+    );
+  }, [currentSessionIndex, eraStartSessionIndex]);
 
   const eraDurationBlocks = useMemo(() => {
     if (!epochDurationBlocks || !sessionsPerEra) return null;
@@ -409,6 +441,7 @@ const useEraStatus = () => {
     setEraStatus({
       activeEra,
       currentEraIndex,
+      currentSessionIndex,
       epochIndex,
       eraDurationBlocks,
       eraDurationTime,
@@ -442,6 +475,7 @@ const useEraStatus = () => {
     timeToNextElection,
     electionInProgress,
     getTimeUntilEraStart,
+    currentSessionIndex,
   ]);
 };
 

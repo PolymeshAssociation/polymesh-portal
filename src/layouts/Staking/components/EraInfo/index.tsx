@@ -21,7 +21,7 @@ export const EraInfo = () => {
   const {
     eraStatus: {
       activeEra,
-      epochIndex,
+      currentSessionIndex,
       eraProgress,
       epochProgress,
       eraSessionNumber,
@@ -70,7 +70,7 @@ export const EraInfo = () => {
       !eraProgress ||
       !epochDurationBlocks ||
       !epochProgress ||
-      !epochIndex ||
+      !currentSessionIndex ||
       !eraSessionNumber ||
       !timeToNextElection ||
       !sessionsPerEra ||
@@ -117,7 +117,9 @@ export const EraInfo = () => {
               duration={epochDurationBlocks.toNumber()}
               progress={epochProgress.toNumber()}
             />
-            <Heading type="h4">Session #{epochIndex.toNumber()}</Heading>
+            <Heading type="h4">
+              Session #{currentSessionIndex.toNumber()}
+            </Heading>
             <Label>Era Session: </Label>
             <Value>
               {eraSessionNumber.toString()} of {sessionsPerEra.toNumber()}

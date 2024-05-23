@@ -3,6 +3,7 @@ import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 export interface IEraStatus {
   activeEra: { index: BigNumber | null; start: BigNumber | null };
   currentEraIndex: BigNumber | null;
+  currentSessionIndex: BigNumber | null;
   epochIndex: BigNumber | null;
   eraDurationBlocks: BigNumber | null;
   eraDurationTime: BigNumber | null;
@@ -101,6 +102,7 @@ export interface IStakingContext {
 export const initialEraStatus: IEraStatus = {
   activeEra: { index: null, start: null },
   currentEraIndex: null,
+  currentSessionIndex: null,
   epochIndex: null,
   eraDurationBlocks: null,
   eraDurationTime: null,
