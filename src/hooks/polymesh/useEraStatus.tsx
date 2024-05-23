@@ -33,27 +33,17 @@ const useEraStatus = () => {
   );
   const [currentSessionIndex, setCurrentSessionIndex] =
     useState<BigNumber | null>(eraStatus.currentSessionIndex);
-  const [currentSlot, setCurrentSlot] = useState<BigNumber | null>(null);
-  const [genesisSlot, setGenesisSlot] = useState<BigNumber | null>(null);
-  const [eraProgress, setEraProgress] = useState<BigNumber | null>(
-    eraStatus.eraProgress,
-  );
   const [epochIndex, setEpochIndex] = useState<BigNumber | null>(
     eraStatus.epochIndex,
   );
-  const [epochProgress, setEpochProgress] = useState<BigNumber | null>(
-    eraStatus.epochProgress,
-  );
-  const [eraSessionNumber, setEraSessionNumber] = useState<BigNumber | null>(
-    eraStatus.eraSessionNumber,
-  );
-  const [eraStartSlot, setEraStartSlot] = useState<BigNumber | null>(null);
-  const [eraStartSessionIndex, setEraStartSessionIndex] =
-    useState<BigNumber | null>(null);
-  const [epochStartSlot, setEpochStartSlot] = useState<BigNumber | null>(null);
   const [electionInProgress, setElectionInProgress] = useState<
     'Open' | 'Closed' | null
   >(eraStatus.electionInProgress);
+  const [currentSlot, setCurrentSlot] = useState<BigNumber | null>(null);
+  const [genesisSlot, setGenesisSlot] = useState<BigNumber | null>(null);
+  const [eraStartSlot, setEraStartSlot] = useState<BigNumber | null>(null);
+  const [eraStartSessionIndex, setEraStartSessionIndex] =
+    useState<BigNumber | null>(null);
 
   const {
     epochDurationBlocks,
@@ -83,6 +73,90 @@ const useEraStatus = () => {
       ),
     };
   }, [polkadotApi]);
+
+  const epochStartSlot = useMemo(() => {
+    if (!genesisSlot || !epochIndex || !epochDurationBlocks) {
+      return null;
+    }
+    return genesisSlot.plus(epochIndex.times(epochDurationBlocks));
+  }, [genesisSlot, epochIndex, epochDurationBlocks]);
+
+  const eraProgress = useMemo(() => {
+    if (!currentSlot || !eraStartSlot) return null;
+    return currentSlot.minus(eraStartSlot);
+  }, [currentSlot, eraStartSlot]);
+
+  const epochProgress = useMemo(() => {
+    if (!currentSlot || !epochStartSlot) return null;
+    return currentSlot.minus(epochStartSlot);
+  }, [currentSlot, epochStartSlot]);
+
+  const eraSessionNumber = useMemo(() => {
+    if (!eraStartSessionIndex || !currentSessionIndex) return null;
+    return currentSessionIndex.minus(eraStartSessionIndex).plus(1);
+  }, [currentSessionIndex, eraStartSessionIndex]);
+
+  const eraDurationBlocks = useMemo(() => {
+    if (!epochDurationBlocks || !sessionsPerEra) return null;
+    return epochDurationBlocks.times(sessionsPerEra);
+  }, [epochDurationBlocks, sessionsPerEra]);
+
+  const eraDurationTime = useMemo(() => {
+    if (!eraDurationBlocks || !expectedBlockTime) return null;
+    return eraDurationBlocks.times(expectedBlockTime);
+  }, [eraDurationBlocks, expectedBlockTime]);
+
+  const eraTimeRemaining = useMemo(() => {
+    if (!eraProgress || !eraDurationTime || !expectedBlockTime) return null;
+    return eraDurationTime.minus(eraProgress.times(expectedBlockTime));
+  }, [eraProgress, eraDurationTime, expectedBlockTime]);
+
+  const epochDurationTime = useMemo(() => {
+    if (!epochDurationBlocks || !expectedBlockTime) return null;
+    return epochDurationBlocks.times(expectedBlockTime);
+  }, [epochDurationBlocks, expectedBlockTime]);
+
+  const epochTimeRemaining = useMemo(() => {
+    if (!epochProgress || !epochDurationTime || !expectedBlockTime) return null;
+    return epochDurationTime.minus(epochProgress.times(expectedBlockTime));
+  }, [epochProgress, epochDurationTime, expectedBlockTime]);
+
+  const electionOpenSlot = useMemo(() => {
+    if (
+      !electionLookahead ||
+      !eraStartSlot ||
+      !sessionsPerEra ||
+      !epochDurationBlocks ||
+      !eraDurationBlocks ||
+      !currentSlot
+    ) {
+      return null;
+    }
+    // Election closes at the end of the 2nd to last epoch
+    const closeSlot = eraStartSlot.plus(
+      epochDurationBlocks.times(sessionsPerEra.minus(1)),
+    );
+    let openSlot = closeSlot.minus(electionLookahead);
+    // If the open slot has already passed for the active era, report planned open slot for the next era
+    if (openSlot.lt(currentSlot)) {
+      openSlot = openSlot.plus(eraDurationBlocks);
+    }
+    return openSlot;
+  }, [
+    currentSlot,
+    electionLookahead,
+    epochDurationBlocks,
+    eraDurationBlocks,
+    eraStartSlot,
+    sessionsPerEra,
+  ]);
+
+  const timeToNextElection = useMemo(() => {
+    if (!currentSlot || !electionOpenSlot || !expectedBlockTime) {
+      return null;
+    }
+    return electionOpenSlot.minus(currentSlot).times(expectedBlockTime);
+  }, [currentSlot, electionOpenSlot, expectedBlockTime]);
 
   // Subscribe to the active era
   useEffect(() => {
@@ -258,12 +332,12 @@ const useEraStatus = () => {
 
   // Get the chain genesis slot
   useEffect(() => {
-    const getSlot = async () => {
-      if (!polkadotApi) {
-        setGenesisSlot(null);
-        return;
-      }
+    if (!polkadotApi) {
+      setGenesisSlot(null);
+      return;
+    }
 
+    const getSlot = async () => {
       try {
         const slot = await polkadotApi.query.babe.genesisSlot();
         setGenesisSlot(u64ToBigNumber(slot));
@@ -272,9 +346,7 @@ const useEraStatus = () => {
       }
     };
 
-    if (polkadotApi) {
-      getSlot();
-    }
+    getSlot();
   }, [polkadotApi]);
 
   // Calculate the Era start and End slot
@@ -289,7 +361,6 @@ const useEraStatus = () => {
     ) {
       setEraStartSessionIndex(null);
       setEraStartSlot(null);
-
       return;
     }
 
@@ -319,60 +390,6 @@ const useEraStatus = () => {
     currentSessionIndex,
   ]);
 
-  // Calculate the epoch/session start
-  useEffect(() => {
-    if (!genesisSlot || !epochIndex || !epochDurationBlocks) {
-      setEpochStartSlot(null);
-      return;
-    }
-    const epochStart = genesisSlot.plus(epochIndex.times(epochDurationBlocks));
-    setEpochStartSlot(epochStart);
-  }, [epochDurationBlocks, epochIndex, genesisSlot]);
-
-  // Calculate the current era and epoch progress
-  useEffect(() => {
-    if (!currentSlot || !eraStartSlot || !epochStartSlot) {
-      return;
-    }
-    setEraProgress(currentSlot.minus(eraStartSlot));
-    setEpochProgress(currentSlot.minus(epochStartSlot));
-  }, [currentSlot, epochStartSlot, eraStartSlot]);
-
-  // Calculate the current era epoch/session number
-  useEffect(() => {
-    if (!eraStartSessionIndex || !currentSessionIndex) {
-      return;
-    }
-    setEraSessionNumber(
-      currentSessionIndex.minus(eraStartSessionIndex).plus(1),
-    );
-  }, [currentSessionIndex, eraStartSessionIndex]);
-
-  const eraDurationBlocks = useMemo(() => {
-    if (!epochDurationBlocks || !sessionsPerEra) return null;
-    return epochDurationBlocks.times(sessionsPerEra);
-  }, [epochDurationBlocks, sessionsPerEra]);
-
-  const eraDurationTime = useMemo(() => {
-    if (!eraDurationBlocks || !expectedBlockTime) return null;
-    return eraDurationBlocks.times(expectedBlockTime);
-  }, [eraDurationBlocks, expectedBlockTime]);
-
-  const eraTimeRemaining = useMemo(() => {
-    if (!eraProgress || !eraDurationTime || !expectedBlockTime) return null;
-    return eraDurationTime.minus(eraProgress.times(expectedBlockTime));
-  }, [eraProgress, eraDurationTime, expectedBlockTime]);
-
-  const epochDurationTime = useMemo(() => {
-    if (!epochDurationBlocks || !expectedBlockTime) return null;
-    return epochDurationBlocks.times(expectedBlockTime);
-  }, [epochDurationBlocks, expectedBlockTime]);
-
-  const epochTimeRemaining = useMemo(() => {
-    if (!epochProgress || !epochDurationTime || !expectedBlockTime) return null;
-    return epochDurationTime.minus(epochProgress.times(expectedBlockTime));
-  }, [epochProgress, epochDurationTime, expectedBlockTime]);
-
   const getTimeUntilEraStart = useCallback(
     (targetEra: BigNumber, timeToPlanned = false) => {
       if (
@@ -398,45 +415,6 @@ const useEraStatus = () => {
     [activeEra, epochDurationTime, eraDurationTime, eraTimeRemaining],
   );
 
-  const electionOpenSlot = useMemo(() => {
-    if (
-      !electionLookahead ||
-      !eraStartSlot ||
-      !sessionsPerEra ||
-      !epochDurationBlocks ||
-      !eraDurationBlocks ||
-      !currentSlot
-    ) {
-      return null;
-    }
-    // Election closes at the end of the 2nd to last epoch
-    const closeSlot = eraStartSlot.plus(
-      epochDurationBlocks.times(sessionsPerEra.minus(1)),
-    );
-    let openSlot = closeSlot.minus(electionLookahead);
-    // If the slot open slot has already passed for the active era
-    // report planned open slot for the next era
-    if (openSlot.lt(currentSlot)) {
-      openSlot = openSlot.plus(eraDurationBlocks);
-    }
-
-    return openSlot;
-  }, [
-    currentSlot,
-    electionLookahead,
-    epochDurationBlocks,
-    eraDurationBlocks,
-    eraStartSlot,
-    sessionsPerEra,
-  ]);
-
-  const timeToNextElection = useMemo(() => {
-    if (!currentSlot || !electionOpenSlot || !expectedBlockTime) {
-      return null;
-    }
-    return electionOpenSlot.minus(currentSlot).times(expectedBlockTime);
-  }, [currentSlot, electionOpenSlot, expectedBlockTime]);
-
   useEffect(() => {
     setEraStatus({
       activeEra,
@@ -460,22 +438,22 @@ const useEraStatus = () => {
   }, [
     activeEra,
     currentEraIndex,
-    epochDurationBlocks,
-    epochDurationTime,
+    currentSessionIndex,
     epochIndex,
-    epochProgress,
-    epochTimeRemaining,
     eraDurationBlocks,
     eraDurationTime,
-    eraProgress,
-    eraSessionNumber,
     eraTimeRemaining,
+    epochDurationBlocks,
+    epochDurationTime,
+    epochTimeRemaining,
+    eraProgress,
+    epochProgress,
+    eraSessionNumber,
     sessionsPerEra,
     setEraStatus,
     timeToNextElection,
     electionInProgress,
     getTimeUntilEraStart,
-    currentSessionIndex,
   ]);
 };
 
