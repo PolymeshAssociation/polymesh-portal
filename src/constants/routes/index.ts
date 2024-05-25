@@ -155,11 +155,6 @@ export const NAV_LINKS = [
         nestedIcon: 'PolkassemblyIcon',
       },
       {
-        nestedPath: import.meta.env.VITE_BRIDGE_URL,
-        nestedLabel: 'Bridge',
-        nestedIcon: 'BridgeIcon',
-      },
-      {
         nestedPath: import.meta.env.VITE_DEVELOPER_APP_URL,
         nestedLabel: 'Developer App',
         nestedIcon: 'DeveloperIcon',

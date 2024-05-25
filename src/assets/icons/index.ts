@@ -26,7 +26,6 @@ export { ReactComponent as StakingIcon } from './staking-icon.svg';
 export { ReactComponent as ResourcesIcon } from './resources-icon.svg';
 export { ReactComponent as SubscanIcon } from './subscan-icon.svg';
 export { ReactComponent as PolkassemblyIcon } from './polkassembly-icon.svg';
-export { ReactComponent as BridgeIcon } from './bridge-icon.svg';
 export { ReactComponent as DeveloperIcon } from './developer-icon.svg';
 export { ReactComponent as GovernanceIcon } from './governance-icon.svg';
 export { ReactComponent as SettingsIcon } from './settings-icon.svg';
