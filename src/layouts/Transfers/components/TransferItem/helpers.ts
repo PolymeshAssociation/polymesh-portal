@@ -80,7 +80,7 @@ export const getLegErrors = async ({
             nfts: leg.nfts,
           });
 
-    if (!compliance.complies) {
+    if (compliance.requirements.length > 0 && !compliance.complies) {
       errors.push(`Compliance error`);
     }
     if (restrictions.length) {

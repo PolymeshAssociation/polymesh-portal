@@ -35,7 +35,7 @@ export const getDistributionErrors = async ({
       from: await distribution.origin,
     });
 
-  if (!compliance.complies) {
+  if (compliance.requirements.length > 0 && !compliance.complies) {
     errors.push(`Compliance error`);
   }
   if (restrictions.length) {
