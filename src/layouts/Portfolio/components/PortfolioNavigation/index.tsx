@@ -13,12 +13,17 @@ import {
   AddPortfolioMobile,
 } from './styles';
 import { useWindowWidth } from '~/hooks/utility';
-import { DropdownSelect, SkeletonLoader } from '~/components/UiKit';
+import {
+  DropdownSelect,
+  RefreshButton,
+  SkeletonLoader,
+} from '~/components/UiKit';
 
 export const PortfolioNavigation = () => {
   const { identity, identityHasValidCdd, identityLoading } =
     useContext(AccountContext);
-  const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
+  const { allPortfolios, portfolioLoading, getPortfoliosData } =
+    useContext(PortfolioContext);
   const [addExpanded, setAddExpanded] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
@@ -124,6 +129,7 @@ export const PortfolioNavigation = () => {
           {!isTablet && 'Add Portfolio'}
         </AddPortfolioButton>
       )}
+      <RefreshButton onClick={getPortfoliosData} disabled={portfolioLoading} />
       {addExpanded && <PortfolioModal type="add" toggleModal={toggleModal} />}
     </StyledNavBar>
   );
