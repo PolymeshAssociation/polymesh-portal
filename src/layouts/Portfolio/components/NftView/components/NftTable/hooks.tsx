@@ -28,7 +28,7 @@ export const useNftTable = (nftList: INftListItem[]) => {
   );
 
   const nfts = useMemo(() => {
-    const lastIndex = (pageIndex + 1) * defaultPageSize;
+    const lastIndex = (pageIndex + 1) * pageSize;
     const firstIndex = lastIndex - pageSize;
     return nftList
       .map(({ id, ticker, isLocked }) => ({
@@ -49,7 +49,7 @@ export const useNftTable = (nftList: INftListItem[]) => {
       columns: columns as ColumnDef<INftTableItem>[],
       state: { pagination },
       manualPagination: true,
-      pageCount: Math.ceil(nftList.length / defaultPageSize),
+      pageCount: Math.ceil(nftList.length / pageSize),
       onPaginationChange: setPagination,
       getCoreRowModel: getCoreRowModel(),
       getPaginationRowModel: getPaginationRowModel(),
