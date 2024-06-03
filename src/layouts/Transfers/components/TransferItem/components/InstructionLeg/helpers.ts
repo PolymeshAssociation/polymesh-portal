@@ -9,8 +9,8 @@ import {
 import { getNftImageUrl } from '~/layouts/Portfolio/components/NftView/helpers';
 
 export enum EInstructionDirection {
-  INCOMING = 'Incoming',
-  OUTGOING = 'Outgoing',
+  INCOMING = 'Receiving',
+  OUTGOING = 'Sending',
   INTER_PORTFOLIO = 'Inter-Portfolio',
   NONE = 'None',
 }

@@ -108,6 +108,27 @@ export const InstructionLeg: React.FC<ILegProps> = ({
     <StyledLegWrapper>
       <StyledLeg>
         <StyledInfoItem>
+          Direction
+          <Text size="large" bold>
+            {legDetails.direction}
+          </Text>
+        </StyledInfoItem>
+        <StyledInfoItem>
+          Asset
+          <StyledInfoValue>
+            <Icon name="Coins" size="16px" />
+            <Text size="large" bold>
+              {legDetails.asset}
+            </Text>
+          </StyledInfoValue>
+        </StyledInfoItem>
+        <StyledInfoItem>
+          {legDetails.nfts?.length ? 'NFT Count' : 'Amount'}
+          <Text size="large" bold>
+            {legDetails?.amount}
+          </Text>
+        </StyledInfoItem>
+        <StyledInfoItem>
           Sending DID
           <StyledInfoValue
             $affirmationStatus={getAffirmationStatus(
@@ -116,7 +137,9 @@ export const InstructionLeg: React.FC<ILegProps> = ({
             )}
           >
             <Text size="large" bold>
-              {formatDid(legDetails.sendingDid)}
+              {legDetails.sendingDid === identity?.did
+                ? 'Selected DID'
+                : formatDid(legDetails.sendingDid)}
             </Text>
             <CopyToClipboard value={legDetails.sendingDid} />
           </StyledInfoValue>
@@ -136,7 +159,9 @@ export const InstructionLeg: React.FC<ILegProps> = ({
             )}
           >
             <Text size="large" bold>
-              {formatDid(legDetails.receivingDid)}
+              {legDetails.receivingDid === identity?.did
+                ? 'Selected DID'
+                : formatDid(legDetails.receivingDid)}
             </Text>
             <CopyToClipboard value={legDetails.receivingDid} />
           </StyledInfoValue>
@@ -145,27 +170,6 @@ export const InstructionLeg: React.FC<ILegProps> = ({
           Receiving Portfolio
           <Text size="large" bold>
             {legDetails.receivingName}
-          </Text>
-        </StyledInfoItem>
-        <StyledInfoItem>
-          Direction
-          <Text size="large" bold>
-            {legDetails.direction}
-          </Text>
-        </StyledInfoItem>
-        <StyledInfoItem>
-          Asset
-          <StyledInfoValue>
-            <Icon name="Coins" size="16px" />
-            <Text size="large" bold>
-              {legDetails.asset}
-            </Text>
-          </StyledInfoValue>
-        </StyledInfoItem>
-        <StyledInfoItem>
-          Amount
-          <Text size="large" bold>
-            {legDetails?.amount}
           </Text>
         </StyledInfoItem>
         <StyledInfoItem>
