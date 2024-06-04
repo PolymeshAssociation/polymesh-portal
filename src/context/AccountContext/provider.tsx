@@ -153,11 +153,17 @@ const AccountProvider = ({ children }: IProviderProps) => {
       setSelectedAccount(externalKey);
       return;
     }
-    if (allAccounts.includes(defaultAccount) && !externalConnection) {
-      setSelectedAccount(defaultAccount);
+
+    // TODO: double-check
+    if (
+      allAccounts.includes(defaultAccount) &&
+      !externalConnection &&
+      selectedAccount !== externalKey
+    ) {
+      setSelectedAccount(selectedAccount || defaultAccount);
       return;
     }
-    setSelectedAccount(selectedAccount);
+    setSelectedAccount(selectedAccount || defaultAccount);
   }, [
     allAccounts,
     defaultAccount,

@@ -177,8 +177,7 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
           {showExternalKey && (
             <StyledLabel
               htmlFor={externalKey}
-              selected={selectedKeyName === 'External Key'}
-              // selected={ externalKey === selectedAccount}
+              selected={externalKey === selectedAccount}
               $placement={placement}
             >
               <span>
