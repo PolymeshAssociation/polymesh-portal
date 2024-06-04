@@ -34,10 +34,16 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
     (IHistoricalItem | ITokenItem | INftTransactionItem)[]
   >([]);
   const {
+    externalConnection,
     api: { gqlClient },
   } = useContext(PolymeshContext);
-  const { account, accountLoading, identity, identityLoading } =
-    useContext(AccountContext);
+  const {
+    account,
+    accountLoading,
+    identity,
+    identityLoading,
+    externalIdentity,
+  } = useContext(AccountContext);
 
   const [tableLoading, setTableLoading] = useState(false);
   const tabRef = useRef<string>('');
@@ -59,10 +65,11 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
     ) {
       setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     }
-  }, [account, currentTab]);
+  }, [account?.address, currentTab]);
 
   // Reset page index when identity changes
   useEffect(() => {
+    // TODO: check me
     if (
       identity?.did !== identityRef.current &&
       currentTab === EActivityTableTabs.TOKEN_ACTIVITY
@@ -92,6 +99,7 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
           size: new BigNumber(pageSize),
           start: new BigNumber(pageIndex * pageSize),
         });
+
         const parsedData = await parseExtrinsicHistory(data);
         setTableData(parsedData);
         if (count) {
@@ -127,7 +135,10 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
     if (identityLoading) {
       return;
     }
-    if (!identity) {
+    if (
+      (!externalConnection && !identity) ||
+      (externalConnection && !externalIdentity?.identity?.did)
+    ) {
       setTableData([]);
       tabRef.current = currentTab;
       identityRef.current = undefined;
@@ -139,7 +150,9 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
       try {
         const { data } = await gqlClient.query<ITransactionsQueryResponse>({
           query: transferEventsQuery({
-            identityId: identity.did,
+            identityId: externalConnection
+              ? (externalIdentity?.identity?.did as string)
+              : (identity?.did as string),
             portfolioId: null,
             offset: pageIndex * pageSize,
             pageSize,
@@ -158,11 +171,22 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
         notifyError((error as Error).message);
       } finally {
         tabRef.current = currentTab;
-        identityRef.current = identity.did;
+        identityRef.current = externalConnection
+          ? externalIdentity?.identity?.did
+          : identity?.did;
         setTableLoading(false);
       }
     })();
-  }, [currentTab, gqlClient, identity, identityLoading, pageIndex, pageSize]);
+  }, [
+    currentTab,
+    externalConnection,
+    externalIdentity?.identity?.did,
+    gqlClient,
+    identity,
+    identityLoading,
+    pageIndex,
+    pageSize,
+  ]);
 
   const pagination = useMemo(
     () => ({

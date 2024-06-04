@@ -1,7 +1,13 @@
-import { useContext, useEffect, useState, Suspense } from 'react';
-import { useLocation, Navigate } from 'react-router-dom';
-import { PolymeshContext } from '~/context/PolymeshContext';
-import { Footer, Header, Sidebar, LoadingFallback } from '~/components';
+import { useEffect, useState, Suspense } from 'react';
+import { useLocation } from 'react-router-dom';
+// import { PolymeshContext } from '~/context/PolymeshContext';
+import {
+  Footer,
+  Header,
+  Sidebar,
+  LoadingFallback,
+  UserAuth,
+} from '~/components';
 import { StyledMain, StyledPageWrapper } from './styles';
 import { useWindowWidth } from '~/hooks/utility';
 import { Heading } from '~/components/UiKit';
@@ -12,16 +18,16 @@ interface ILayoutProps {
 }
 
 const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
-  const {
-    state: { connecting, initialized },
-    settings: { defaultExtension },
-  } = useContext(PolymeshContext);
+  // const {
+  //   state: { connecting, initialized },
+  //   settings: { defaultExtension },
+  // } = useContext(PolymeshContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isMobile } = useWindowWidth();
   const { pathname } = useLocation();
   const isLandingPage = pathname === '/';
-  const redirectToLanding =
-    !defaultExtension && !isLandingPage && connecting === false && !initialized;
+  // const redirectToLanding =
+  //   !defaultExtension && !isLandingPage && connecting === false && !initialized;
 
   useEffect(() => {
     if (!isMobile) {
@@ -50,32 +56,33 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
 
   return (
     <>
-      {isLandingPage ? (
+      {/* {isLandingPage ? (
         <>
           <StyledMain $isLandingPage={isLandingPage}>{children}</StyledMain>
           <Footer isLandingPage={isLandingPage} />
         </>
-      ) : (
-        <StyledPageWrapper>
-          <Sidebar
-            mobileMenuOpen={mobileMenuOpen}
-            toggleMobileMenu={toggleMobileMenu}
-          />
-          <div className="main-wrapper">
-            <Header toggleMobileMenu={toggleMobileMenu} />
-            <StyledMain $isLandingPage={isLandingPage}>
-              {isMobile && (
-                <Heading type="h2" marginBottom={24}>
-                  {ROUTES.find(({ path }) => path === pathname)?.label || null}
-                </Heading>
-              )}
-              <Suspense fallback={<LoadingFallback />}>{children}</Suspense>
-            </StyledMain>
-            <Footer isLandingPage={isLandingPage} />
-          </div>
-        </StyledPageWrapper>
-      )}
-      {redirectToLanding && <Navigate to="/" replace />}
+      ) : ( */}
+      <StyledPageWrapper>
+        <Sidebar
+          mobileMenuOpen={mobileMenuOpen}
+          toggleMobileMenu={toggleMobileMenu}
+        />
+        <div className="main-wrapper">
+          <Header toggleMobileMenu={toggleMobileMenu} />
+          <StyledMain $isLandingPage={isLandingPage}>
+            {pathname !== '/settings' && <UserAuth />}
+            {isMobile && (
+              <Heading type="h2" marginBottom={24}>
+                {ROUTES.find(({ path }) => path === pathname)?.label || null}
+              </Heading>
+            )}
+            <Suspense fallback={<LoadingFallback />}>{children}</Suspense>
+          </StyledMain>
+          <Footer isLandingPage={isLandingPage} />
+        </div>
+      </StyledPageWrapper>
+      {/* )} */}
+      {/* {redirectToLanding && <Navigate to="/" replace />} */}
     </>
   );
 };

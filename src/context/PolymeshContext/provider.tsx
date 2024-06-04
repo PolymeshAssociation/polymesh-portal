@@ -52,6 +52,9 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       initial: { metadata: '0x', specVersion: '', timestamp: '' },
     },
   );
+  const [externalConnection, setExternalConnection] = useLocalStorage<
+    null | boolean
+  >('externalConnect', null);
 
   const [subscribedEventRecords, setSubscribedEventRecords] = useState<{
     events: EventRecord[];
@@ -62,6 +65,9 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   const middlewareUrlRef = useRef<string | null>(null);
   const middlewareKeyRef = useRef<string | null>(null);
   const latestCallTimestampRef = useRef<number>(0);
+  const signingManagerRef = useRef<
+    BrowserExtensionSigningManager | undefined
+  >();
 
   // Parse chain metadata from local storage
   const metadata = useMemo(() => {
@@ -75,6 +81,51 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
 
     return formattedMetadata;
   }, [localMetadata]);
+
+  const connectAccount = useCallback(
+    async (isExternalConnection: boolean) => {
+      setConnecting(true);
+
+      try {
+        nodeUrlRef.current = nodeUrl;
+        middlewareUrlRef.current = middlewareUrl;
+        middlewareKeyRef.current = middlewareKey;
+        if (!sdkRef.current) {
+          const sdkInstance = await Polymesh.connect({
+            nodeUrl,
+            signingManager: undefined,
+            middlewareV2: {
+              link: middlewareUrl,
+              key: middlewareKey,
+            },
+            polkadot: {
+              noInitWarn: true,
+              metadata,
+            },
+          });
+          sdkRef.current = sdkInstance;
+          setSdk(sdkInstance);
+        } else if (externalConnection) {
+          sdkRef.current.setSigningManager(null);
+        } else {
+          sdkRef.current.setSigningManager(signingManagerRef.current || null);
+        }
+      } catch (error) {
+        notifyGlobalError((error as Error).message);
+      } finally {
+        setConnecting(false);
+        setExternalConnection(isExternalConnection);
+      }
+    },
+    [
+      externalConnection,
+      metadata,
+      middlewareKey,
+      middlewareUrl,
+      nodeUrl,
+      setExternalConnection,
+    ],
+  );
 
   // Create the browser extension signing manager and connect to the Polymesh SDK.
   const connectWallet = useCallback(
@@ -91,7 +142,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
             appName: 'polymesh-portal',
             extensionName,
           });
-        if (!sdkRef.current) {
+
+        if (!sdkRef.current || (sdkRef.current && externalConnection)) {
           const sdkInstance = await Polymesh.connect({
             nodeUrl,
             signingManager: signingManagerInstance,
@@ -104,10 +156,12 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
               metadata,
             },
           });
+
           // return if a newer call of connectWallet is in progress.
-          if (currentTimestamp !== latestCallTimestampRef.current) {
-            return;
-          }
+          // if (currentTimestamp !== latestCallTimestampRef.current) {
+          //   return;
+          // }
+
           sdkRef.current = sdkInstance;
         } else {
           sdkRef.current.setSigningManager(signingManagerInstance);
@@ -116,18 +170,20 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         // of the wallet incorrectly configured the genesis hash for ledger keys which
         // is causing issues for users.
         // TODO: Remove when the wallet is update to allow locking keys to a specific chain
-        if (extensionName !== 'polywallet') {
-          signingManagerInstance.setGenesisHash(
+        if (extensionName && extensionName !== 'polywallet') {
+          signingManagerInstance?.setGenesisHash(
             // eslint-disable-next-line no-underscore-dangle
             sdkRef.current._polkadotApi.genesisHash.toString(),
           );
         }
+        signingManagerRef.current = signingManagerInstance;
         setSigningManager(signingManagerInstance);
-        setDefaultExtension(extensionName);
+        setDefaultExtension(extensionName as string);
         setSdk(sdkRef.current);
         // eslint-disable-next-line no-underscore-dangle
         setPolkadotApi(sdkRef.current._polkadotApi);
         setInitialized(true);
+        setExternalConnection(false);
       } catch (error) {
         notifyGlobalError((error as Error).message);
         // this is a hacky work around for wallet errors due to chrome preloading
@@ -150,7 +206,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [externalConnection],
   );
 
   useEffect(() => {
@@ -162,7 +218,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
 
   useEffect(() => {
     if (!migrationCompleted) return;
-
     if (nodeUrlRef.current && nodeUrl !== nodeUrlRef.current) {
       window.location.reload();
     }
@@ -185,12 +240,12 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     if (
       !defaultExtension ||
       !injectedExtensions.includes(defaultExtension) ||
-      initialized
+      initialized ||
+      externalConnection
     ) {
       setConnecting(false);
       return;
     }
-
     connectWallet(defaultExtension);
   }, [
     connectWallet,
@@ -200,6 +255,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     middlewareUrl,
     migrationCompleted,
     nodeUrl,
+    externalConnection,
   ]);
 
   // Effect to subscribe to events
@@ -227,7 +283,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   // Update locally stored chain metadata. Only a single specVersion is stored per genesis hash.
   useEffect(() => {
     if (!polkadotApi) return;
-
     const {
       runtimeMetadata,
       genesisHash,
@@ -316,11 +371,16 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setMiddlewareKey,
       },
       connectWallet,
+      connectAccount,
+      setExternalConnection,
+      externalConnection,
       ss58Prefix,
       subscribedEventRecords,
     }),
     [
       connectWallet,
+      connectAccount,
+      externalConnection,
       connecting,
       defaultExtension,
       initialized,
@@ -330,6 +390,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       polkadotApi,
       sdk,
       setDefaultExtension,
+      setExternalConnection,
       setMiddlewareKey,
       setMiddlewareUrl,
       setNodeUrl,

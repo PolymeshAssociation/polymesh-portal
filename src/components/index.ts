@@ -13,4 +13,5 @@ export { default as ExtensionSelect } from './ExtensionSelect';
 export { default as LegSelect } from './LegSelect';
 export { default as LoadingFallback } from './LoadingFallback';
 export { default as AssetForm } from './AssetForm';
+export { default as UserAuth } from './UserAuth';
 export * from './AssetForm/components/MemoField';

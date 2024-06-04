@@ -186,7 +186,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                     <StyledCloseBtn
                       onClick={(e) => handleRemoveNft(e, nft?.id.toNumber())}
                     >
-                      <Icon name="CloseCircledIcon" />
+                      <Icon name="CloseCircleIcon" />
                     </StyledCloseBtn>
                   </StyledLabel>
                 ))}

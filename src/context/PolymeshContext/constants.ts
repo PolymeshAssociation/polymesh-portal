@@ -25,6 +25,9 @@ export interface IPolymeshContext {
     setMiddlewareKey: (key: string) => void;
   };
   connectWallet: (extensionName: string) => Promise<void>;
+  connectAccount: (isExternalConnection: boolean) => Promise<void>;
+  setExternalConnection: (externalConnection: boolean) => void;
+  externalConnection: boolean | null;
   ss58Prefix: BigNumber | undefined;
   subscribedEventRecords: {
     events: EventRecord[];
@@ -54,6 +57,9 @@ export const initialState = {
     setMiddlewareKey: () => {},
   },
   connectWallet: async () => {},
+  connectAccount: async () => {},
+  setExternalConnection: () => {},
+  externalConnection: '',
   ss58Prefix: undefined,
   subscribedEventRecords: { events: [], blockHash: '' },
 };

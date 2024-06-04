@@ -20,6 +20,12 @@ export interface IInfoByKey {
   totalBalance: string;
 }
 
+export interface IExternalIdentity {
+  valid: boolean;
+  identity: null | { did: string; validCdd: boolean };
+  applications?: { [key: string]: string }[];
+}
+
 export interface IAccountBalance {
   free: string;
   locked: string;
@@ -53,6 +59,9 @@ export interface IAccountContext {
   balanceIsLoading: boolean;
   rememberSelectedAccount: boolean;
   setRememberSelectedAccount: (shouldRemember: boolean) => void;
+  setExternalKeyAccount: (account: string) => void;
+  externalKey: string;
+  externalIdentity: null | IExternalIdentity;
 }
 
 export const initialState = {
@@ -82,4 +91,6 @@ export const initialState = {
   balanceIsLoading: false,
   rememberSelectedAccount: true,
   setRememberSelectedAccount: () => {},
+  setExternalKeyAccount: () => {},
+  externalKey: '',
 };

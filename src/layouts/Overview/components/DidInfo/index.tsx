@@ -23,9 +23,15 @@ import { useWindowWidth } from '~/hooks/utility';
 export const DidInfo = () => {
   const {
     api: { sdk },
+    externalConnection,
   } = useContext(PolymeshContext);
-  const { identity, identityLoading, identityHasValidCdd } =
-    useContext(AccountContext);
+  const {
+    selectedAccount,
+    identity,
+    identityLoading,
+    identityHasValidCdd,
+    externalIdentity,
+  } = useContext(AccountContext);
   const [expiry, setExpiry] = useState<null | Date | undefined>(undefined);
   const [issuer, setIssuer] = useState<string | null>(null);
   const [claimDetailsLoading, setClaimDetailsLoading] = useState(true);
@@ -103,13 +109,40 @@ export const DidInfo = () => {
 
   const isSmallScreen = isMobile || isSmallDesktop;
 
+  const externalDid = externalConnection ? externalIdentity?.identity?.did : '';
+  const currentIdentity = externalConnection ? externalDid : identity?.did;
+
+  const identityPending =
+    externalConnection && !!externalIdentity?.applications?.length;
+
   const renderBottomInfo = (
     activeIdentity: Identity | null,
     expiryDate: Date | null | undefined,
     issuerDid: string | null,
   ) => {
     const date = parseExpiry(expiryDate);
-    if (!activeIdentity) {
+    if (identityPending) {
+      return (
+        <Text size="small">
+          There are already existing CDD applications bound to this address:{' '}
+          <strong>{selectedAccount}</strong>.
+          <br />
+          It usually takes up to 2 business days for CDD provider to verify your
+          identity.
+          <br />
+          After 2 business days, if your identity is still not verified, please
+          email{' '}
+          <StyledLink href="mailto:support@polymesh.network">
+            support@polymesh.network
+          </StyledLink>{' '}
+          with your Polymesh key address and the identity verification provider
+          that you selected.
+          <br />
+          If you wish you can proceed by creating a new CDD application.
+        </Text>
+      );
+    }
+    if (!activeIdentity && !currentIdentity) {
       return (
         <Text size="small">
           Complete onboarding to link this key to a new Polymesh account. If you
@@ -167,6 +200,25 @@ export const DidInfo = () => {
     );
   };
 
+  const renderButton = () =>
+    identityPending ? (
+      <Button
+        onClick={() =>
+          window.open(import.meta.env.VITE_ONBOARDING_URL, '_blank')
+        }
+      >
+        Create New Application
+      </Button>
+    ) : (
+      <Button
+        onClick={() =>
+          window.open(import.meta.env.VITE_ONBOARDING_URL, '_blank')
+        }
+      >
+        Complete onboarding
+      </Button>
+    );
+
   return (
     <>
       <StyledWrapper>
@@ -177,18 +229,25 @@ export const DidInfo = () => {
             </IconWrapper>
           )}
           <div className="did-wrapper">
-            {!identityLoading && !identity ? (
+            {!identityLoading && !currentIdentity ? (
               <Text bold size="large" marginTop={isSmallScreen ? 0 : 22}>
-                This key is not linked to an account
+                {identityPending
+                  ? 'Existing Applications Found'
+                  : 'This key is not linked to an account'}
               </Text>
             ) : (
               <>
-                {identityHasValidCdd && (
+                {(identityHasValidCdd || externalDid) && (
                   <StyledVerifiedLabel>Verified</StyledVerifiedLabel>
                 )}
                 <Text marginBottom={4}>Your DID</Text>
                 <StyledDidWrapper>
-                  <DidSelect />
+                  {/* TODO: move externalDid to Did select component for UI consistency */}
+                  {externalConnection ? (
+                    <Text>{formatDid(externalDid)}</Text>
+                  ) : (
+                    <DidSelect />
+                  )}
                   <IconWrapper>
                     {identityLoading ? (
                       <SkeletonLoader
@@ -199,7 +258,7 @@ export const DidInfo = () => {
                         highlightColor="rgba(255, 255, 255, 0.24)"
                       />
                     ) : (
-                      <CopyToClipboard value={identity?.did} />
+                      <CopyToClipboard value={identity?.did || externalDid} />
                     )}
                   </IconWrapper>
                 </StyledDidWrapper>
@@ -221,13 +280,7 @@ export const DidInfo = () => {
         </StyledBottomInfo>
         <StyledButtonWrapper>
           {!identityLoading && !identity ? (
-            <Button
-              onClick={() =>
-                window.open(import.meta.env.VITE_ONBOARDING_URL, '_blank')
-              }
-            >
-              Complete onboarding
-            </Button>
+            renderButton()
           ) : (
             <>
               {identityLoading && (

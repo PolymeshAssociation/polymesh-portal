@@ -61,25 +61,25 @@ const Sidebar: React.FC<ISidebarProps> = ({
   const [linksExpanded, setLinksExpanded] = useState(false);
 
   useEffect(() => {
-    if (!signingManager || !sdk) return undefined;
+    if (!sdk) return undefined;
 
     let unsubCb: UnsubCallback | undefined;
 
     (async () => {
       try {
         setNetworkLoading(true);
-
         if (defaultExtension === 'polywallet') {
-          const network = await signingManager.getCurrentNetwork();
-          setWalletNetwork(network);
+          const network = await signingManager?.getCurrentNetwork();
+          // set walletNetwork to null in case manual account connection without signingManager
+          setWalletNetwork(network || null);
 
-          unsubCb = signingManager.onNetworkChange((newNetwork) => {
+          unsubCb = signingManager?.onNetworkChange((newNetwork) => {
             setWalletNetwork(newNetwork);
           });
         } else {
           setWalletNetwork(null);
         }
-
+        // TODO ASK: is there some way to get all networks list from sdk map and find the one with same wssUrl as in settings, to set it as UI displayd network for unconnected users
         const chainNetwork = await sdk.network.getNetworkProperties();
         const chainNetworkLabel = chainNetwork.name.replace('Polymesh ', '');
         setNetworkLabel(chainNetworkLabel);

@@ -12,8 +12,12 @@ import { useWindowWidth } from '~/hooks/utility';
 import { truncateText } from '~/helpers/formatters';
 
 export const KeyInfo = () => {
-  const { selectedAccount, allAccountsWithMeta, keyIdentityRelationships } =
-    useContext(AccountContext);
+  const {
+    selectedAccount,
+    allAccountsWithMeta,
+    keyIdentityRelationships,
+    identityLoading,
+  } = useContext(AccountContext);
   const { isMobile, isSmallDesktop } = useWindowWidth();
   const ref = useRef<HTMLDivElement>(null);
   const [selectedKeyName, setSelectedKeyName] = useState('');
@@ -71,9 +75,9 @@ export const KeyInfo = () => {
           <span className="key-name">{truncatedSelectedKeyName}</span>
         </Text>
         <KeyInfoWrapper>
-          {selectedAccount && keyIdentityRelationships[selectedAccount] ? (
+          {selectedAccount && !identityLoading ? (
             <StyledLabel>
-              {keyIdentityRelationships[selectedAccount]}
+              {keyIdentityRelationships[selectedAccount] || 'External Key'}
             </StyledLabel>
           ) : (
             <SkeletonLoader

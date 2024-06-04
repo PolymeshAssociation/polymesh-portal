@@ -29,7 +29,7 @@ const ExtensionSelect: React.FC<IExtensionSelectProps> = ({ handleClose }) => {
   const walletOptions = useMemo(() => {
     const injectedExtensions =
       BrowserExtensionSigningManager.getExtensionList();
-    return WALLET_CONNECT_OPTIONS.map((option) => ({
+    return Object.values(WALLET_CONNECT_OPTIONS).map((option) => ({
       ...option,
       isInstalled: injectedExtensions.includes(option.extensionName),
     }));

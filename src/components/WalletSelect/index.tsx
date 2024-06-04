@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useContext } from 'react';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { Icon } from '~/components';
 import {
@@ -15,13 +16,16 @@ import { ESelectPlacements, ISelectProps } from './types';
 import { SkeletonLoader } from '../UiKit';
 
 const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
+  const { setExternalConnection } = useContext(PolymeshContext);
   const {
     selectedAccount,
     setSelectedAccount,
+    setExternalKeyAccount,
     allAccountsWithMeta,
     primaryKey,
     secondaryKeys,
     keyIdentityRelationships,
+    externalKey,
   } = useContext(AccountContext);
   const [expanded, setExpanded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -37,8 +41,12 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
     const keyName = allAccountsWithMeta.find(
       ({ address }) => address === selectedAccount,
     )?.meta.name;
-    setSelectedKeyName(keyName || '');
-  }, [selectedAccount, allAccountsWithMeta]);
+
+    const selectedName =
+      externalKey && externalKey === selectedAccount ? 'External Key' : '';
+
+    setSelectedKeyName(keyName || selectedName);
+  }, [selectedAccount, allAccountsWithMeta, externalKey]);
 
   // Close dropdown when clicked outside of it
   useEffect(() => {
@@ -55,7 +63,21 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
   }, [ref]);
 
   const handleAccountChange: React.ReactEventHandler = ({ target }) => {
+    if (selectedAccount === (target as HTMLInputElement).value) {
+      setExpanded(false);
+      return;
+    }
     setSelectedAccount((target as HTMLInputElement).value);
+    setExternalConnection(false);
+    setExpanded(false);
+  };
+
+  const handleExternalAccountSelect = () => {
+    if (selectedAccount === externalKey) {
+      setExpanded(false);
+      return;
+    }
+    setExternalKeyAccount(externalKey);
     setExpanded(false);
   };
 
@@ -86,6 +108,11 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
       }
     };
   }, [selectedAccount]);
+
+  // hide external key in case it's connected with extension
+  const showExternalKey = !allAccountsWithMeta.some(
+    ({ address }) => address === externalKey,
+  );
 
   return selectedAccount ? (
     <StyledSelectWrapper ref={ref} $placement={placement}>
@@ -147,6 +174,26 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
                 />
               </StyledLabel>
             ))}
+          {showExternalKey && (
+            <StyledLabel
+              htmlFor={externalKey}
+              selected={selectedKeyName === 'External Key'}
+              // selected={ externalKey === selectedAccount}
+              $placement={placement}
+            >
+              <span>
+                <span>External Key</span>
+                <span className="key">{formatKey(externalKey, 8, 7)}</span>
+              </span>
+              <StyledInput
+                type="radio"
+                name="key"
+                value={externalKey}
+                id={externalKey}
+                onChange={handleExternalAccountSelect}
+              />
+            </StyledLabel>
+          )}
         </StyledExpandedSelect>
       )}
     </StyledSelectWrapper>

@@ -158,6 +158,8 @@ const DidSelect = () => {
     };
   }, [selected]);
 
+  // console.log(allIdentities);
+
   return selected ? (
     <StyledSelectWrapper ref={ref}>
       {truncateLength ? (

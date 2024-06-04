@@ -9,8 +9,15 @@ import { formatDid } from '~/helpers/formatters';
 export const DidInfo = () => {
   const {
     state: { connecting },
+    externalConnection,
   } = useContext(PolymeshContext);
-  const { identity, identityLoading } = useContext(AccountContext);
+  const { identity, identityLoading, externalIdentity } =
+    useContext(AccountContext);
+  const identityPending =
+    externalConnection && !!externalIdentity?.applications?.length;
+  const did = externalConnection
+    ? externalIdentity?.identity?.did
+    : identity?.did;
 
   return (
     <StyledWrapper>
@@ -24,15 +31,18 @@ export const DidInfo = () => {
         </>
       ) : (
         <>
-          {!!identity && (
+          {!!did && (
             <>
               <Text size="small" bold color="secondary">
-                {formatDid(identity.did)}
+                {formatDid(did)}
               </Text>
-              <CopyToClipboard value={identity.did} />
+              <CopyToClipboard value={did} />
             </>
           )}
-          {!identity && <StyledLabel>Unassigned</StyledLabel>}
+          {identityPending && <StyledLabel>Pending Verification</StyledLabel>}
+          {!identityPending && !identityLoading && !did && (
+            <StyledLabel>Unassigned</StyledLabel>
+          )}
         </>
       )}
     </StyledWrapper>

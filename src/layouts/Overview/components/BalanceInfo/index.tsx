@@ -11,8 +11,10 @@ import {
 } from './styles';
 import { formatBalance } from '~/helpers/formatters';
 import { AccountContext } from '~/context/AccountContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
 
 export const BalanceInfo = () => {
+  const { externalConnection } = useContext(PolymeshContext);
   const {
     identityHasValidCdd,
     accountIsMultisigSigner,
@@ -75,7 +77,11 @@ export const BalanceInfo = () => {
         <StyledButtonGroup>
           <Button
             onClick={toggleTransferModal}
-            disabled={!identityHasValidCdd || accountIsMultisigSigner}
+            disabled={
+              externalConnection ||
+              !identityHasValidCdd ||
+              accountIsMultisigSigner
+            }
           >
             <Icon name="ArrowTopRight" />
             Send
@@ -83,7 +89,11 @@ export const BalanceInfo = () => {
           <Button
             variant="secondary"
             onClick={toggleReceiveModal}
-            disabled={!identityHasValidCdd || accountIsMultisigSigner}
+            disabled={
+              externalConnection ||
+              !identityHasValidCdd ||
+              accountIsMultisigSigner
+            }
           >
             <Icon name="ArrowBottomLeft" />
             Receive
