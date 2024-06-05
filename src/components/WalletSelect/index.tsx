@@ -94,7 +94,7 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
         $expanded={expanded}
         $placement={placement}
       >
-        {placement === 'widget'
+        {placement === 'widget' || !selectedKeyName
           ? formatKey(selectedAccount, truncateLength, truncateLength)
           : selectedKeyName}
         <IconWrapper>
