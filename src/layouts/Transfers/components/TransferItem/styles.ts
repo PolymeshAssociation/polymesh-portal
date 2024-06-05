@@ -43,7 +43,9 @@ export const StyledSelect = styled.div<{ $isSelected: boolean }>`
       $isSelected ? theme.colors.textPink : theme.colors.textDisabled};
   color: ${({ $isSelected, theme }) =>
     $isSelected ? theme.colors.landingBackground : 'transparent'};
-  transition: background-color 250ms ease-out, border 250ms ease-out,
+  transition:
+    background-color 250ms ease-out,
+    border 250ms ease-out,
     color 250ms ease-out;
   cursor: pointer;
 `;

@@ -35,7 +35,8 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
 }) => {
   const { createdVenues, refreshInstructions, instructionsLoading } =
     useContext(InstructionsContext);
-  const { identityLoading, identity } = useContext(AccountContext);
+  const { identityLoading, identity, isExternalConnection } =
+    useContext(AccountContext);
   const [createVenueOpen, setCreateVenueOpen] = useState(false);
   const [sendAssetOpen, setSendAssetOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -103,14 +104,16 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
             variant="modalPrimary"
             onClick={toggleCreateVenue}
             round={!isWidescreen}
-            disabled={identityLoading || !identity}
+            disabled={identityLoading || !identity || isExternalConnection}
           >
             <Icon name="Plus" />
             {isWidescreen && ' Create Venue'}
           </Button>
           <Button
             variant="modalPrimary"
-            disabled={identityLoading || !createdVenues.length}
+            disabled={
+              identityLoading || !createdVenues.length || isExternalConnection
+            }
             onClick={toggleSendAsset}
             round={!isWidescreen}
           >

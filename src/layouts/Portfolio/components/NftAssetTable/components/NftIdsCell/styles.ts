@@ -17,13 +17,13 @@ export const StyledDots = styled.div`
   height: 22px;
   text-align: center;
   font-size: 20px;
-  line-height: .5;
+  line-height: 0.5;
   border: 1px solid ${({ theme }) => theme.colors.shadow};
-  background:  ${({ theme }) => theme.colors.dashboardBackground};
+  background: ${({ theme }) => theme.colors.dashboardBackground};
   border-radius: 50%;
   color: ${({ theme }) => theme.colors.textSecondary};
   transition: opacity 250ms ease-out;
   &:hover {
-    opacity: .6;
+    opacity: 0.6;
   }
 `;

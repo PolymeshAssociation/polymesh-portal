@@ -7,6 +7,7 @@ import {
   StyledInfoList,
   StyledInfoItem,
   StyledCloseMenuButton,
+  StyledIconGroup,
 } from './styles';
 import { Heading } from '../UiKit';
 import { BalanceInfo } from './components/BalanceInfo';
@@ -15,6 +16,8 @@ import { KeysInfo } from './components/KeysInfo';
 import { NotificationInfo } from './components/NotificationInfo';
 import { useWindowWidth } from '~/hooks/utility';
 import Icon from '../Icon';
+import { WalletConnectInfo } from './components/WalletConnectInfo';
+import { WalletSelectButton } from './components/WalletSelectButton';
 
 interface IHeaderProps {
   toggleMobileMenu: () => void;
@@ -64,8 +67,12 @@ const Header: React.FC<IHeaderProps> = ({ toggleMobileMenu }) => {
           )}
           <StyledInfoItem>
             <KeysInfo />
-            <NotificationInfo />
           </StyledInfoItem>
+          <StyledIconGroup>
+            <WalletSelectButton />
+            <WalletConnectInfo />
+            <NotificationInfo />
+          </StyledIconGroup>
         </StyledInfoList>
       </StyledHeaderContainer>
     </StyledHeader>

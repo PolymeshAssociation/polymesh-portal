@@ -13,7 +13,13 @@ body {
   min-height: 100vh;
 }
 
-h1, h2, h3, h4, h5, h6, p {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
   margin: 0;
 }
 
@@ -27,7 +33,7 @@ input {
   outline: none;
 }
 
-input[type="date"] {
+input[type='date'] {
   -webkit-appearance: none;
 }
 
@@ -69,5 +75,9 @@ input:focus {
 .skeleton-wrapper {
   flex-grow: 1;
   width: 100%;
+}
 
+/* Targeting the Zendesk Widget */
+#launcher {
+  z-index: 1 !important;
 }

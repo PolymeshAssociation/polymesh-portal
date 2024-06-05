@@ -21,7 +21,9 @@ export const SelectAllButton = styled.button`
   border: 1px solid transparent;
   color: ${({ theme }) => theme.colors.textBlue};
 
-  transition: border 250ms ease-out, box-shadow 250ms ease-out;
+  transition:
+    border 250ms ease-out,
+    box-shadow 250ms ease-out;
 
   &:hover:enabled {
     border: 1px solid ${({ theme }) => theme.colors.textBlue};
@@ -95,7 +97,9 @@ export const StyledActionButton = styled.button<{ $isReject?: boolean }>`
     $isReject ? theme.colors.textPink : theme.colors.textSuccess};
   box-shadow: ${({ theme }) => `0px 1px 3px ${theme.colors.shadow},
     0px 1px 2px ${theme.colors.shadow}`};
-  transition: background-color 250ms ease-out, color 250ms ease-out,
+  transition:
+    background-color 250ms ease-out,
+    color 250ms ease-out,
     box-shadow 250ms ease-out;
 
   &:not(:first-child) {
@@ -131,7 +135,9 @@ export const ClearSelectionButton = styled.button`
   background-color: ${({ theme }) => theme.colors.textSecondary};
   color: ${({ theme }) => theme.colors.landingBackground};
 
-  transition: background-color 250ms ease-out, color 250ms ease-out;
+  transition:
+    background-color 250ms ease-out,
+    color 250ms ease-out;
 
   &:hover {
     background-color: ${({ theme }) => theme.colors.textPink};

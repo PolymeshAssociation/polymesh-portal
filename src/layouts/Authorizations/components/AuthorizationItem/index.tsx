@@ -43,7 +43,8 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
   const [acceptInProgress, setAcceptInProgress] = useState(false);
   const [rejectInProgress, setRejectInProgress] = useState(false);
   const { handleStatusChange } = useTransactionStatus();
-  const { refreshAccountIdentity } = useContext(AccountContext);
+  const { refreshAccountIdentity, isExternalConnection } =
+    useContext(AccountContext);
   const [searchParams] = useSearchParams();
   const direction = searchParams.get('direction');
   const { isMobile, isTablet } = useWindowWidth();
@@ -152,14 +153,17 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
       <StyledButtonsWrapper $expanded={detailsExpanded}>
         {direction === EAuthorizationDirections.INCOMING ? (
           <>
-            <Button onClick={handleReject} disabled={rejectInProgress}>
+            <Button
+              onClick={handleReject}
+              disabled={rejectInProgress || isExternalConnection}
+            >
               <Icon name="CloseIcon" size="24px" />
               Reject
             </Button>
             <Button
               variant="success"
               onClick={handleAccept}
-              disabled={acceptInProgress}
+              disabled={acceptInProgress || isExternalConnection}
             >
               <Icon name="Check" size="24px" />
               Approve
@@ -169,7 +173,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
           <Button
             variant="secondary"
             onClick={handleReject}
-            disabled={rejectInProgress}
+            disabled={rejectInProgress || isExternalConnection}
           >
             Cancel
           </Button>

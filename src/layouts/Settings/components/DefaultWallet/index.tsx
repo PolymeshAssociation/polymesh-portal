@@ -1,34 +1,33 @@
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useMemo } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
+import { useAuthContext } from '~/context/AuthContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { ExtensionSelect } from '~/components';
 import { StyledLabel, StyledValue } from './styles';
 
 export const DefaultWallet = () => {
   const {
     settings: { defaultExtension },
   } = useContext(PolymeshContext);
-  const [modalOpen, setModalOpen] = useState(false);
+
+  const { setConnectPopup } = useAuthContext();
 
   const injectedExtensions = useMemo(() => {
     return BrowserExtensionSigningManager.getExtensionList();
   }, []);
 
   return (
-    <>
-      <StyledValue onClick={() => setModalOpen((prev) => !prev)}>
-        {defaultExtension ? (
-          <>
-            {defaultExtension}
-            {!injectedExtensions.includes(defaultExtension) && (
+    <StyledValue onClick={() => setConnectPopup('extensions')}>
+      {defaultExtension ? (
+        <>
+          {defaultExtension}
+          {!injectedExtensions.includes(defaultExtension) &&
+            defaultExtension !== 'walletConnect' && (
               <StyledLabel>Not Installed</StyledLabel>
             )}
-          </>
-        ) : (
-          'None'
-        )}
-      </StyledValue>
-      {modalOpen && <ExtensionSelect handleClose={() => setModalOpen(false)} />}
-    </>
+        </>
+      ) : (
+        'None'
+      )}
+    </StyledValue>
   );
 };

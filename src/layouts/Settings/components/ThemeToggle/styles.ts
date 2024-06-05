@@ -42,7 +42,9 @@ export const StyledCheckboxMark = styled.span<{ $isLight: boolean }>`
   box-shadow: ${({ theme }) =>
     `0px 1px 3px ${theme.colors.shadow},
     0px 1px 2px ${theme.colors.shadow}`};
-  transition: background-color 250ms ease-out, left 250ms ease-out;
+  transition:
+    background-color 250ms ease-out,
+    left 250ms ease-out;
 
   & .icon {
     transition: color 250ms ease-out;
@@ -82,6 +84,8 @@ export const StyledSelect = styled.div<{ $isSelected: boolean }>`
     ${({ $isSelected, theme }) =>
       $isSelected ? '#FF2E72' : theme.colors.textDisabled};
   color: ${({ $isSelected }) => ($isSelected ? '#FFFFFF' : 'transparent')};
-  transition: background-color 250ms ease-out, color 250ms ease-out;
+  transition:
+    background-color 250ms ease-out,
+    color 250ms ease-out;
   cursor: pointer;
 `;

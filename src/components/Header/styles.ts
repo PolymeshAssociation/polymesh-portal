@@ -68,10 +68,12 @@ export const StyledInfoItem = styled.li`
     height: 32px;
     background-color: ${({ theme }) => theme.colors.lightAccent};
   }
+`;
 
-  &:last-child {
-    margin-left: 4px;
-  }
+export const StyledIconGroup = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
 `;
 
 export const StyledCloseMenuButton = styled.button`

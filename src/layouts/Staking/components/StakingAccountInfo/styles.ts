@@ -18,6 +18,19 @@ export const StyledWrapper = styled.div`
   @media screen and (max-width: 860px) {
     padding: 24px;
   }
+
+  & .skeleton-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    > br {
+      display: none;
+    }
+  }
+
+  & .react-loading-skeleton {
+    flex: 1;
+  }
 `;
 
 export const StyledButtonWrapper = styled.div<{ $cardWidth?: number }>`

@@ -20,7 +20,8 @@ export const StyledCheckboxWrapper = styled.label<{ $isEnabled: boolean }>`
     height: 18px;
     background-color: #ffffff;
     border-radius: 50%;
-    box-shadow: 0px 1px 3px rgba(30, 30, 30, 0.12),
+    box-shadow:
+      0px 1px 3px rgba(30, 30, 30, 0.12),
       0px 1px 2px rgba(30, 30, 30, 0.24);
     transition: left 250ms ease-out;
   }

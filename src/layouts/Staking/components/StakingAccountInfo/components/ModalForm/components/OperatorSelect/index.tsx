@@ -28,7 +28,7 @@ interface IOperatorSelectProps {
 }
 
 export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
-  currentNominations,
+  currentNominations = [],
 }) => {
   const {
     operatorInfo: { operatorsWithCommission },
@@ -195,8 +195,4 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
       />
     </div>
   );
-};
-
-OperatorSelect.defaultProps = {
-  currentNominations: [],
 };

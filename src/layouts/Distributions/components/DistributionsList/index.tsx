@@ -8,6 +8,7 @@ import {
 import { useSearchParams } from 'react-router-dom';
 import { DistributionsContext } from '~/context/DistributionsContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { AccountContext } from '~/context/AccountContext';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import { Icon } from '~/components';
 import {
@@ -39,6 +40,7 @@ export const DistributionsList: React.FC<IDistributionsListProps> = ({
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
+  const { isExternalConnection } = useContext(AccountContext);
   const { pendingDistributions, distributionsLoading, refreshDistributions } =
     useContext(DistributionsContext);
   const { handleStatusChange } = useTransactionStatus();
@@ -148,14 +150,18 @@ export const DistributionsList: React.FC<IDistributionsListProps> = ({
       <StyledSelectionWrapper>
         <SelectAllButton
           onClick={handleSelectAll}
-          disabled={distributionsLoading || !pendingDistributions.length}
+          disabled={
+            distributionsLoading ||
+            !pendingDistributions.length ||
+            isExternalConnection
+          }
         >
           Select All
         </SelectAllButton>
         {!!selectedItems.length && (
           <StyledButtonWrapper>
             <StyledActionButton
-              disabled={actionInProgress}
+              disabled={actionInProgress || isExternalConnection}
               onClick={() =>
                 executeAction(selectedItems.map(({ claim }) => claim))
               }

@@ -1,7 +1,10 @@
 import { useContext, useMemo, useState } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { WALLET_CONNECT_OPTIONS } from '~/constants/wallets';
+import {
+  EXTENSION_CONNECT_OPTIONS,
+  IExtensionConnectOption,
+} from '~/constants/wallets';
 import { Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
 import { WalletOptionGroup } from './components/WalletOptionGroup';
@@ -29,10 +32,12 @@ const ExtensionSelect: React.FC<IExtensionSelectProps> = ({ handleClose }) => {
   const walletOptions = useMemo(() => {
     const injectedExtensions =
       BrowserExtensionSigningManager.getExtensionList();
-    return WALLET_CONNECT_OPTIONS.map((option) => ({
-      ...option,
-      isInstalled: injectedExtensions.includes(option.extensionName),
-    }));
+    return Object.values(EXTENSION_CONNECT_OPTIONS).map(
+      (option: IExtensionConnectOption) => ({
+        ...option,
+        isInstalled: injectedExtensions.includes(option.extensionName),
+      }),
+    );
   }, []);
 
   const handleWalletSelect: React.ChangeEventHandler = ({ target }) => {

@@ -10,6 +10,7 @@ import { useSearchParams } from 'react-router-dom';
 import { CopyToClipboard, Icon } from '~/components';
 import { Text } from '~/components/UiKit';
 import { ClaimsContext } from '~/context/ClaimsContext';
+import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { toParsedDate } from '~/helpers/dateTime';
 import { formatDid, splitCamelCase } from '~/helpers/formatters';
@@ -33,6 +34,7 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
+  const { isExternalConnection } = useContext(AccountContext);
   const { refreshClaims } = useContext(ClaimsContext);
   const { handleStatusChange } = useTransactionStatus();
   const [revokeInProgress, setRevokeInProgress] = useState(false);
@@ -137,7 +139,10 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
         </StyledClaimItem>
       )}
       {type === EClaimsType.ISSUED && (
-        <RevokeButton disabled={revokeInProgress} onClick={handleRevoke}>
+        <RevokeButton
+          disabled={revokeInProgress || isExternalConnection}
+          onClick={handleRevoke}
+        >
           <Icon name="CloseIcon" size="24px" />
           Revoke
         </RevokeButton>

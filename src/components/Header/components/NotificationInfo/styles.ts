@@ -17,6 +17,10 @@ export const StyledWrapper = styled.div<{ $expanded: boolean }>`
 
   transition: color 250ms ease-out, background-color 250ms ease-out;
 
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.lightAccent};
+  }
+
   & .notification {
     position: absolute;
     top: 2px;

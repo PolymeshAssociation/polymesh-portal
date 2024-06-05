@@ -12,7 +12,9 @@ export const StyledButton = styled.button`
   background-color: transparent;
   padding: 0;
 
-  transition: border 250ms ease-out, box-shadow 250ms ease-out,
+  transition:
+    border 250ms ease-out,
+    box-shadow 250ms ease-out,
     color 250ms ease-out;
 
   &:hover:enabled {

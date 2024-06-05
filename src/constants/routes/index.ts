@@ -160,11 +160,6 @@ export const NAV_LINKS = [
         nestedIcon: 'DeveloperIcon',
       },
       {
-        nestedPath: import.meta.env.VITE_ONBOARDING_URL,
-        nestedLabel: 'Onboarding',
-        nestedIcon: 'Network',
-      },
-      {
         nestedPath: import.meta.env.VITE_TOKENSTUDIO_URL,
         nestedLabel: 'Token Studio',
         nestedIcon: 'PolymathLogo',

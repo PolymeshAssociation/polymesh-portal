@@ -20,6 +20,7 @@ import {
 import { toParsedDate } from '~/helpers/dateTime';
 import { notifyError } from '~/helpers/notifications';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { AccountContext } from '~/context/AccountContext';
 import { getDistributionErrors } from './helpers';
 import { useWindowWidth } from '~/hooks/utility';
 
@@ -41,6 +42,7 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
+  const { isExternalConnection } = useContext(AccountContext);
   const [participantDetails, setParticipantDetails] =
     useState<DistributionParticipant | null>(null);
   const [distributionErrors, setDistributionErrors] = useState<string[]>([]);
@@ -197,7 +199,10 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
           variant="success"
           onClick={() => executeAction(distribution.claim)}
           disabled={
-            actionInProgress || detailsLoading || !!distributionErrors.length
+            actionInProgress ||
+            detailsLoading ||
+            !!distributionErrors.length ||
+            isExternalConnection
           }
         >
           <Icon name="Check" size="24px" />

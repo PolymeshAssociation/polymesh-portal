@@ -11,7 +11,7 @@ export const StyledWrapper = styled.div`
   align-items: center;
   padding: 36px;
   gap: 36px;
-  background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
+  background: linear-gradient(245deg, #bd235d 10%, #000000 90%);
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
   color: rgba(255, 255, 255, 0.82);
@@ -42,6 +42,19 @@ export const StyledWrapper = styled.div`
 
   @media screen and (max-width: 1199px) {
     width: 100%;
+  }
+
+  & .skeleton-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    > br {
+      display: none;
+    }
+  }
+
+  & .react-loading-skeleton {
+    flex: 1;
   }
 `;
 

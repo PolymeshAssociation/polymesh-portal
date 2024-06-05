@@ -46,12 +46,12 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
 
   const {
     data: { table, tab },
-    title,
-    tabs,
-    setTab,
+    title = '',
+    tabs = [],
+    setTab = () => {},
     loading,
-    totalItems,
-    downloadButton,
+    totalItems = 0,
+    downloadButton = undefined,
     handleRowClick,
   } = props;
 
@@ -60,7 +60,6 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
   const {
     pagination: { pageIndex, pageSize },
   } = table.getState();
-  const sizeOptions = [...new Set([pageSize, ...perPageOptions])];
 
   const getCurrentPageItems = () => {
     const { rows } = table.getPaginationRowModel();
@@ -247,7 +246,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
                       }}
                       value={pageSize}
                     >
-                      {sizeOptions.map((option) => (
+                      {perPageOptions.map((option) => (
                         <option className="options" key={option} value={option}>
                           {option}
                         </option>
@@ -297,15 +296,6 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
       </StyledTableFooter>
     </StyledTableWrapper>
   );
-};
-
-Table.defaultProps = {
-  downloadButton: undefined,
-  title: '',
-  tabs: [],
-  setTab: () => {},
-  totalItems: 0,
-  handleRowClick: undefined,
 };
 
 export default Table;

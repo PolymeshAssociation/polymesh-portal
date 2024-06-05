@@ -2,6 +2,8 @@ import { useEffect, useState, useContext } from 'react';
 import { Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
+import { useAuthContext } from '~/context/AuthContext';
+import { EKeyIdentityStatus } from '~/context/AccountContext/constants';
 import { Icon, CopyToClipboard, DidSelect } from '~/components';
 import { Text, Button, SkeletonLoader } from '~/components/UiKit';
 import {
@@ -22,10 +24,15 @@ import { useWindowWidth } from '~/hooks/utility';
 
 export const DidInfo = () => {
   const {
-    api: { sdk },
+    api: { sdk, polkadotApi },
   } = useContext(PolymeshContext);
-  const { identity, identityLoading, identityHasValidCdd } =
-    useContext(AccountContext);
+  const {
+    identity,
+    identityLoading,
+    identityHasValidCdd,
+    keyCddVerificationInfo,
+  } = useContext(AccountContext);
+  const { setIdentityPopup } = useAuthContext();
   const [expiry, setExpiry] = useState<null | Date | undefined>(undefined);
   const [issuer, setIssuer] = useState<string | null>(null);
   const [claimDetailsLoading, setClaimDetailsLoading] = useState(true);
@@ -112,9 +119,9 @@ export const DidInfo = () => {
     if (!activeIdentity) {
       return (
         <Text size="small">
-          Complete onboarding to link this key to a new Polymesh account. If you
-          have already completed onboarding and want to assign this key to an
-          existing account,{' '}
+          Complete onboarding to link this key to a new Polymesh identity. If
+          you have already completed onboarding and want to assign this key to
+          an existing account,{' '}
           <StyledLink
             href={import.meta.env.VITE_ASSIGN_KEY_URL}
             target="_blank"
@@ -138,8 +145,8 @@ export const DidInfo = () => {
     if (expiryDate && expiryDate <= new Date()) {
       return (
         <Text size="small">
-          The previous identity claim associated with this account has expired
-          as of <span>{date}</span>. Please renew your identity verification by
+          The previous identity claim associated with this key has expired as of{' '}
+          <span>{date}</span>. Please renew your identity verification by
           completing the onboarding process with a Polymesh customer due
           diligence provider.
         </Text>
@@ -179,7 +186,7 @@ export const DidInfo = () => {
           <div className="did-wrapper">
             {!identityLoading && !identity ? (
               <Text bold size="large" marginTop={isSmallScreen ? 0 : 22}>
-                This key is not linked to an account
+                This key is not linked to an identity
               </Text>
             ) : (
               <>
@@ -222,8 +229,18 @@ export const DidInfo = () => {
         <StyledButtonWrapper>
           {!identityLoading && !identity ? (
             <Button
+              disabled={
+                polkadotApi?.genesisHash.toString() !==
+                import.meta.env.VITE_GENESIS_HASH
+              }
               onClick={() =>
-                window.open(import.meta.env.VITE_ONBOARDING_URL, '_blank')
+                setIdentityPopup({
+                  type:
+                    keyCddVerificationInfo?.status ===
+                    EKeyIdentityStatus.PENDING
+                      ? 'pending'
+                      : 'providers',
+                })
               }
             >
               Complete onboarding

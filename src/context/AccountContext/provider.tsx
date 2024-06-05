@@ -1,4 +1,11 @@
-import { useState, useEffect, useMemo, useContext, useCallback } from 'react';
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useContext,
+  useCallback,
+  useRef,
+} from 'react';
 import {
   Account,
   MultiSig,
@@ -11,12 +18,15 @@ import {
   AccountKeyType,
   AccountIdentityRelation,
 } from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
+import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
+import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
 import { PolymeshContext } from '../PolymeshContext';
 import AccountContext from './context';
 import { notifyGlobalError } from '~/helpers/notifications';
-import { IInfoByKey } from './constants';
+import { IInfoByKey, IKeyCddState } from './constants';
 import { useLocalStorage } from '~/hooks/utility';
 import { useBalance } from '~/hooks/polymesh';
+import { fetchCddApplicationStatus } from './helpers';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -24,8 +34,9 @@ interface IProviderProps {
 
 const AccountProvider = ({ children }: IProviderProps) => {
   const {
-    api: { sdk, signingManager },
+    api: { polkadotApi, sdk, signingManager },
     state: { initialized },
+    settings: { defaultExtension },
   } = useContext(PolymeshContext);
   const [account, setAccount] = useState<Account | MultiSig | null>(null);
   const [multiSigAccount, setMultiSigAccount] = useState<MultiSig | null>(null);
@@ -67,6 +78,45 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [shouldRefreshIdentity, setShouldRefreshIdentity] = useState(true);
   const { balance: selectedAccountBalance, balanceIsLoading } =
     useBalance(selectedAccount);
+  const keyRecordRef = useRef<
+    Record<
+      string,
+      {
+        account: Account | MultiSigInstance;
+        relationship: AccountIdentityRelation;
+      }
+    >
+  >({});
+  const connectedSigningManagerRef = useRef<
+    BrowserExtensionSigningManager | WalletConnectSigningManager | null
+  >(null);
+  const accountRef = useRef<Account | MultiSigInstance | null>(null);
+
+  const [lastExternalKey, setLastExternalKey] = useState('');
+  const [keyCddVerificationInfo, setKeyCddVerificationInfo] =
+    useState<null | IKeyCddState>(null);
+
+  const refreshAccountIdentity = useCallback(() => {
+    setShouldRefreshIdentity(true);
+  }, [setShouldRefreshIdentity]);
+
+  const blockWalletAddress = useCallback(
+    (address: string) => {
+      setBlockedWallets((prev) => {
+        return [...prev, address];
+      });
+    },
+    [setBlockedWallets],
+  );
+
+  const unblockWalletAddress = useCallback(
+    (address: string) => {
+      setBlockedWallets((prev) =>
+        prev.filter((blockedAddress) => blockedAddress !== address),
+      );
+    },
+    [setBlockedWallets],
+  );
 
   // Perform actions when account change occurs in extension
   useEffect(() => {
@@ -79,7 +129,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
     const unsubCb = signingManager.onAccountChange(async (newAccounts) => {
       try {
         if (!newAccounts.length) {
-          throw new Error('No injected accounts found in the connected wallet');
+          throw new Error('No injected keys found in the connected wallet');
         }
 
         const filteredNewAccounts = (
@@ -107,21 +157,20 @@ const AccountProvider = ({ children }: IProviderProps) => {
     return () => (unsubCb ? unsubCb() : undefined);
   }, [blockedWallets, signingManager]);
 
-  // Set a new selected account only if the previously account
-  // is no longer in the list of connected accounts
+  // Set the selected account on initialization
   useEffect(() => {
-    if (!allAccounts.length) {
-      setSelectedAccount('');
+    if (selectedAccount) {
       return;
     }
-    if (selectedAccount && allAccounts.includes(selectedAccount)) {
-      return;
-    }
-    if (allAccounts.includes(defaultAccount)) {
+    if (defaultAccount) {
       setSelectedAccount(defaultAccount);
       return;
     }
-    setSelectedAccount(allAccounts[0]);
+    if (allAccounts.length > 0) {
+      setSelectedAccount(allAccounts[0]);
+      return;
+    }
+    setSelectedAccount('');
   }, [allAccounts, defaultAccount, selectedAccount]);
 
   useEffect(() => {
@@ -144,14 +193,36 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
     (async () => {
       try {
-        const accountInstance = await sdk.accountManagement.getAccount({
-          address: selectedAccount,
-        });
+        if (accountRef.current?.address !== selectedAccount) {
+          const accountInstance = await sdk.accountManagement.getAccount({
+            address: selectedAccount,
+          });
+          setAccount(accountInstance);
+          accountRef.current = accountInstance;
+        }
+        const signingKeys = signingManager
+          ? await signingManager.getAccounts()
+          : [];
+        const filteredSigningKeys = signingKeys.filter(
+          (key) => !blockedWallets.includes(key),
+        );
+        // check if the key is in the signing manager's keys
+        if (filteredSigningKeys.includes(selectedAccount)) {
+          // if the signing manager has changed connect the new signingManager
+          if (connectedSigningManagerRef.current !== signingManager) {
+            await sdk.setSigningManager(signingManager);
+            connectedSigningManagerRef.current = signingManager;
+          }
+          await sdk.setSigningAccount(accountRef.current);
+        } else {
+          // if the key is not in all accounts (the signingManager)
+          // ensure there is no signing manager attached to the SDK
+          await sdk.setSigningManager(null);
+          connectedSigningManagerRef.current = null;
+          setLastExternalKey(selectedAccount);
+        }
 
-        setAccount(accountInstance);
-        await sdk.setSigningAccount(accountInstance);
-
-        const multiSigInstance = await accountInstance.getMultiSig();
+        const multiSigInstance = await accountRef.current.getMultiSig();
         setMultiSigAccount(multiSigInstance);
         setAccountIsMultisigSigner(!!multiSigInstance);
         setShouldRefreshIdentity(true);
@@ -164,42 +235,98 @@ const AccountProvider = ({ children }: IProviderProps) => {
         setAccountLoading(false);
       }
     })();
-  }, [sdk, selectedAccount]);
+  }, [blockedWallets, defaultExtension, sdk, selectedAccount, signingManager]);
 
+  // Create subscription to keyRecords
   useEffect(() => {
-    if (!sdk || !allAccounts.length) {
+    if (!polkadotApi) return undefined;
+    let unsubKeyRecord: (() => void) | undefined;
+    (async () => {
+      unsubKeyRecord = await polkadotApi.query.identity.keyRecords(
+        selectedAccount,
+        () => {
+          refreshAccountIdentity();
+        },
+      );
+    })();
+
+    return () => {
+      if (unsubKeyRecord) {
+        unsubKeyRecord();
+      }
+    };
+  }, [polkadotApi, refreshAccountIdentity, selectedAccount]);
+
+  // Update accounts and key to identity relationships for new keys
+  useEffect(() => {
+    if (!sdk || (!allAccounts.length && !account)) {
       setAllSigningAccounts([]);
       setKeyIdentityRelationships({});
+      keyRecordRef.current = {};
       return;
     }
 
     (async () => {
       try {
-        const signingAccounts =
-          await sdk.accountManagement.getSigningAccounts();
+        const previousKeyToAccountRecord = keyRecordRef.current;
 
-        const relationshipPromises = signingAccounts.map(async (acc) => {
+        const keyArray = [...allAccounts];
+        if (account && !keyArray.includes(account.address)) {
+          keyArray.push(account.address);
+        }
+
+        const addedKeys = keyArray.filter(
+          (acc) => !previousKeyToAccountRecord[acc],
+        );
+
+        const addedAccountsPromises = addedKeys.map((address) =>
+          sdk.accountManagement.getAccount({ address }),
+        );
+        const addedAccounts = await Promise.all(addedAccountsPromises);
+
+        const addedAccRelationshipsPromises = addedAccounts.map(async (acc) => {
           const { relation } = await acc.getTypeInfo();
+          return { address: acc.address, relation };
+        });
+        const addedAccRelationships = await Promise.all(
+          addedAccRelationshipsPromises,
+        );
+
+        const newKeyRecord = { ...previousKeyToAccountRecord };
+        // Remove entries for keys no longer in keyArray
+        Object.keys(newKeyRecord).forEach((key) => {
+          if (!keyArray.includes(key)) {
+            delete newKeyRecord[key];
+          }
+        });
+        addedAccounts.forEach((acc, idx) => {
           const { address } = acc;
-          return { address, relation };
+          newKeyRecord[address] = {
+            account: acc,
+            relationship: addedAccRelationships[idx].relation,
+          };
         });
 
-        const relationshipsArray = await Promise.all(relationshipPromises);
-
+        // Prepare the final lists of signing accounts and relationships
+        const signingAccounts = keyArray.map(
+          (address) => newKeyRecord[address].account,
+        );
         const relationships: Record<string, AccountIdentityRelation> = {};
-        relationshipsArray.forEach(({ address, relation }) => {
-          relationships[address] = relation;
+        keyArray.forEach((address) => {
+          relationships[address] = newKeyRecord[address].relationship;
         });
 
         setAllSigningAccounts(signingAccounts);
         setKeyIdentityRelationships(relationships);
+        keyRecordRef.current = newKeyRecord;
       } catch (error) {
         notifyGlobalError((error as Error).message);
         setAllSigningAccounts([]);
         setKeyIdentityRelationships({});
+        keyRecordRef.current = {};
       }
     })();
-  }, [allAccounts, sdk]);
+  }, [account, allAccounts, sdk]);
 
   // Get identity data when sdk is initialized
   useEffect(() => {
@@ -234,7 +361,17 @@ const AccountProvider = ({ children }: IProviderProps) => {
           );
         });
 
-        if (!accountLoading) {
+        if (
+          !accountLoading &&
+          // we use the env configured genesis hash to ensure we are querying
+          // the cdd service for the connected chain
+          polkadotApi?.genesisHash.toString() ===
+            import.meta.env.VITE_GENESIS_HASH
+        ) {
+          const keyCddStatusData = await fetchCddApplicationStatus(
+            account.address,
+          );
+          setKeyCddVerificationInfo(keyCddStatusData);
           setIdentity(accIdentity);
         }
         setAllIdentities(uniqueIdentities);
@@ -254,6 +391,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
     initialized,
     allSigningAccounts,
     accountLoading,
+    polkadotApi?.genesisHash,
   ]);
 
   // Subscribe to primary identity keys
@@ -369,28 +507,6 @@ const AccountProvider = ({ children }: IProviderProps) => {
     secondaryKeysLoading,
   ]);
 
-  const blockWalletAddress = useCallback(
-    (address: string) => {
-      setBlockedWallets((prev) => {
-        return [...prev, address];
-      });
-    },
-    [setBlockedWallets],
-  );
-
-  const unblockWalletAddress = useCallback(
-    (address: string) => {
-      setBlockedWallets((prev) =>
-        prev.filter((blockedAddress) => blockedAddress !== address),
-      );
-    },
-    [setBlockedWallets],
-  );
-
-  const refreshAccountIdentity = useCallback(() => {
-    setShouldRefreshIdentity(true);
-  }, [setShouldRefreshIdentity]);
-
   const contextValue = useMemo(
     () => ({
       account,
@@ -419,6 +535,9 @@ const AccountProvider = ({ children }: IProviderProps) => {
       balanceIsLoading,
       rememberSelectedAccount,
       setRememberSelectedAccount,
+      lastExternalKey,
+      keyCddVerificationInfo,
+      isExternalConnection: !allAccounts.includes(selectedAccount),
     }),
     [
       account,
@@ -432,6 +551,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
       blockWalletAddress,
       blockedWallets,
       defaultAccount,
+      keyCddVerificationInfo,
+      lastExternalKey,
       identity,
       identityHasValidCdd,
       identityLoading,

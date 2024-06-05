@@ -76,7 +76,7 @@ export const StyledExpandedSelect = styled.div<{
   overflow-y: scroll;
   overflow-x: hidden;
   max-height: 300px;
-  gap: 10px;
+  gap: 6px;
   padding: 10px 8px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: ${({ theme }) => `0px 15px 25px ${theme.colors.shadow},
@@ -84,21 +84,36 @@ export const StyledExpandedSelect = styled.div<{
   border-radius: 12px;
   ${({ $placement }) =>
     $placement === ESelectPlacements.HEADER
-      ? `
-      top: 120%;
-      right: -76px;
-      width: 300px;
-      `
+      ? css`
+          top: 120%;
+          right: -56px;
+          width: 400px;
+          @media screen and (min-width: 768px) and (max-width: 1023px) {
+            right: -46px;
+            width: 300px;
+          }
+          @media screen and (max-width: 767px) {
+            position: fixed;
+            max-height: unset;
+            top: 52px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
+            padding: 20px;
+          }
+        `
       : ''}
+
   ${({ $placement }) =>
     $placement === ESelectPlacements.WIDGET
-      ? `
-      top: 110%;
-      right: -40px;
-      width: calc(100% + 40px);
-      min-width: 300px;
-      text-align: center;
-      `
+      ? css`
+          top: 110%;
+          right: -40px;
+          width: calc(100% + 40px);
+          min-width: 300px;
+          text-align: center;
+        `
       : ''}
 `;
 
@@ -214,4 +229,18 @@ export const StyledKeyLabel = styled.div<{
       color: ${theme.colors.textBlue};
     `;
   }}
+`;
+
+export const StyledFilter = styled.div`
+  border: ${({ theme }) => `1px solid ${theme.colors.skeletonBase}`};
+  margin: 0 10px;
+  display: flex;
+  padding: 6px;
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+export const StyledFilterInput = styled.input`
+  font-size: 12px;
+  border: none;
+  width: 100%;
 `;

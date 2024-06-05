@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
+import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { EventRecord } from '@polymeshassociation/polymesh-sdk/types';
 import PolymeshContext from './context';
@@ -24,10 +25,12 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   const [polkadotApi, setPolkadotApi] = useState<
     Polymesh['_polkadotApi'] | null
   >(null);
-  const [signingManager, setSigningManager] =
-    useState<BrowserExtensionSigningManager | null>(null);
+  const [signingManager, setSigningManager] = useState<
+    BrowserExtensionSigningManager | WalletConnectSigningManager | null
+  >(null);
   const [connecting, setConnecting] = useState<boolean | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [walletConnectConnected, setWalletConnectConnected] = useState(false);
   const [migrationCompleted, setMigrationCompleted] = useState(false);
 
   const [defaultExtension, setDefaultExtension] = useLocalStorage<string>(
@@ -61,7 +64,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   const nodeUrlRef = useRef<string | null>(null);
   const middlewareUrlRef = useRef<string | null>(null);
   const middlewareKeyRef = useRef<string | null>(null);
-  const latestCallTimestampRef = useRef<number>(0);
 
   // Parse chain metadata from local storage
   const metadata = useMemo(() => {
@@ -76,58 +78,74 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     return formattedMetadata;
   }, [localMetadata]);
 
-  // Create the browser extension signing manager and connect to the Polymesh SDK.
+  const handleWalletConnect = useCallback(async () => {
+    if (!polkadotApi) return;
+
+    try {
+      const themeMode =
+        (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
+      const walletConnectSigningManager =
+        await WalletConnectSigningManager.create({
+          config: {
+            projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
+            metadata: {
+              name: 'Polymesh Portal',
+              description: 'App for interacting with the Polymesh Blockchain',
+              url: 'https://portal.polymesh.network',
+              icons: [
+                'https://assets-global.website-files.com/61c0a31b90958801836efe1b/62d08014db27c031ec24b6f6_polymesh-symbol.svg',
+              ],
+            },
+            chainIds: ['polkadot:6fbd74e5e1d0a61d52ccfe9d4adaed16'], // Polymesh Mainnet
+            optionalChainIds: ['polkadot:2ace05e703aa50b48c0ccccfc8b424f7'], // Polymesh Testnet
+            modalOptions: {
+              themeMode,
+              themeVariables: {
+                '--wcm-accent-color': '#c1246b',
+                '--wcm-background-color': '#c1246b',
+              },
+            },
+            onSessionDelete: () => {
+              notifyGlobalError('The WalletConnect session has disconnected');
+              setWalletConnectConnected(false);
+            },
+          },
+          appName: 'Polymesh Portal',
+          ss58Format: polkadotApi.consts.system.ss58Prefix.toNumber(),
+          genesisHash: polkadotApi.genesisHash.toString(),
+        });
+      setDefaultExtension('walletConnect');
+      setSigningManager(walletConnectSigningManager);
+    } catch (error) {
+      notifyGlobalError((error as Error).message);
+    }
+  }, [polkadotApi, setDefaultExtension]);
+
+  // Create the browser extension signing manager.
   const connectWallet = useCallback(
     async (extensionName: string) => {
-      setConnecting(true);
-      const currentTimestamp = Date.now();
-      latestCallTimestampRef.current = currentTimestamp;
+      if (!polkadotApi || !extensionName) return;
+      if (extensionName === 'walletConnect') {
+        await handleWalletConnect();
+        return;
+      }
       try {
-        nodeUrlRef.current = nodeUrl;
-        middlewareUrlRef.current = middlewareUrl;
-        middlewareKeyRef.current = middlewareKey;
         const signingManagerInstance =
           await BrowserExtensionSigningManager.create({
             appName: 'polymesh-portal',
             extensionName,
           });
-        if (!sdkRef.current) {
-          const sdkInstance = await Polymesh.connect({
-            nodeUrl,
-            signingManager: signingManagerInstance,
-            middlewareV2: {
-              link: middlewareUrl,
-              key: middlewareKey,
-            },
-            polkadot: {
-              noInitWarn: true,
-              metadata,
-            },
-          });
-          // return if a newer call of connectWallet is in progress.
-          if (currentTimestamp !== latestCallTimestampRef.current) {
-            return;
-          }
-          sdkRef.current = sdkInstance;
-        } else {
-          sdkRef.current.setSigningManager(signingManagerInstance);
-        }
-        // We disable filtering by genesis hash for the polywallet as older releases
-        // of the wallet incorrectly configured the genesis hash for ledger keys which
-        // is causing issues for users.
-        // TODO: Remove when the wallet is update to allow locking keys to a specific chain
         if (extensionName !== 'polywallet') {
           signingManagerInstance.setGenesisHash(
-            // eslint-disable-next-line no-underscore-dangle
-            sdkRef.current._polkadotApi.genesisHash.toString(),
+            polkadotApi.genesisHash.toString(),
           );
         }
+
+        signingManagerInstance.setSs58Format(
+          polkadotApi.consts.system.ss58Prefix.toNumber(),
+        );
         setSigningManager(signingManagerInstance);
         setDefaultExtension(extensionName);
-        setSdk(sdkRef.current);
-        // eslint-disable-next-line no-underscore-dangle
-        setPolkadotApi(sdkRef.current._polkadotApi);
-        setInitialized(true);
       } catch (error) {
         notifyGlobalError((error as Error).message);
         // this is a hacky work around for wallet errors due to chrome preloading
@@ -145,13 +163,30 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
             window.location.reload();
           }, 1000);
         }
-      } finally {
-        setConnecting(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [handleWalletConnect, polkadotApi, setDefaultExtension],
   );
+
+  // Effect to track wallet connect connection
+  useEffect(() => {
+    if (!signingManager || defaultExtension !== 'walletConnect') {
+      setWalletConnectConnected(false);
+      return;
+    }
+    const isConnected = (
+      signingManager as WalletConnectSigningManager
+    ).isConnected();
+    setWalletConnectConnected(isConnected);
+  }, [defaultExtension, signingManager]);
+
+  const disconnectWalletConnect = useCallback(async () => {
+    if (signingManager && 'disconnect' in signingManager) {
+      await signingManager.disconnect();
+      setSigningManager(null);
+      setDefaultExtension('');
+    }
+  }, [setDefaultExtension, signingManager]);
 
   useEffect(() => {
     // Run migration logic on startup
@@ -160,6 +195,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Connect to the Polymesh SDK.
   useEffect(() => {
     if (!migrationCompleted) return;
 
@@ -179,28 +215,53 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       window.location.reload();
     }
 
+    setConnecting(true);
+    (async () => {
+      try {
+        nodeUrlRef.current = nodeUrl;
+        middlewareUrlRef.current = middlewareUrl;
+        middlewareKeyRef.current = middlewareKey;
+        if (!sdkRef.current) {
+          const sdkInstance = await Polymesh.connect({
+            nodeUrl,
+            signingManager: undefined,
+            middlewareV2: {
+              link: middlewareUrl,
+              key: middlewareKey,
+            },
+            polkadot: {
+              noInitWarn: true,
+              metadata,
+            },
+          });
+          setSdk(sdkInstance);
+          // eslint-disable-next-line no-underscore-dangle
+          setPolkadotApi(sdkInstance._polkadotApi);
+          sdkRef.current = sdkInstance;
+          setInitialized(true);
+        }
+      } catch (error) {
+        notifyGlobalError((error as Error).message);
+      } finally {
+        setConnecting(false);
+      }
+    })();
+  }, [metadata, middlewareKey, middlewareUrl, migrationCompleted, nodeUrl]);
+
+  // Create an initial signing manager instance for the default extension
+  useEffect(() => {
+    if (signingManager) return;
     const injectedExtensions =
       BrowserExtensionSigningManager.getExtensionList();
-
     if (
       !defaultExtension ||
-      !injectedExtensions.includes(defaultExtension) ||
-      initialized
+      (!injectedExtensions.includes(defaultExtension) &&
+        defaultExtension !== 'walletConnect')
     ) {
-      setConnecting(false);
       return;
     }
-
     connectWallet(defaultExtension);
-  }, [
-    connectWallet,
-    defaultExtension,
-    initialized,
-    middlewareKey,
-    middlewareUrl,
-    migrationCompleted,
-    nodeUrl,
-  ]);
+  }, [connectWallet, defaultExtension, signingManager]);
 
   // Effect to subscribe to events
   useEffect(() => {
@@ -316,6 +377,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setMiddlewareKey,
       },
       connectWallet,
+      walletConnectConnected,
+      disconnectWalletConnect,
       ss58Prefix,
       subscribedEventRecords,
     }),
@@ -323,6 +386,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       connectWallet,
       connecting,
       defaultExtension,
+      disconnectWalletConnect,
       initialized,
       middlewareKey,
       middlewareUrl,
@@ -336,6 +400,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       signingManager,
       ss58Prefix,
       subscribedEventRecords,
+      walletConnectConnected,
     ],
   );
 

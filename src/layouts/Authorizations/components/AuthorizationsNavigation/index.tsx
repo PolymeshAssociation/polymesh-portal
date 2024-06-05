@@ -32,7 +32,7 @@ interface IAuthorizationsNavigationProps {
 export const AuthorizationsNavigation: React.FC<
   IAuthorizationsNavigationProps
 > = ({ notificationsCount }) => {
-  const { identity } = useContext(AccountContext);
+  const { identity, isExternalConnection } = useContext(AccountContext);
   const { refreshAuthorizations, authorizationsLoading } = useContext(
     AuthorizationsContext,
   );
@@ -112,7 +112,7 @@ export const AuthorizationsNavigation: React.FC<
       <StyledActionsWrapper>
         <Button
           variant="modalPrimary"
-          disabled={!identity}
+          disabled={!identity || isExternalConnection}
           onClick={toggleModal}
           round={isSmallScreen}
         >

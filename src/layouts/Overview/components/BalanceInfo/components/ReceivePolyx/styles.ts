@@ -48,11 +48,6 @@ export const StyledButtonsWrapper = styled.div`
 
 export const QRWrapper = styled.div`
   padding: 24px;
-  background: linear-gradient(
-      252.2deg,
-      rgba(255, 255, 255, 0.7) 0%,
-      rgba(255, 255, 255, 0.5) 111.15%
-    ),
-    linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
+  background-color: #f5f5f5;
   border-radius: 24px;
 `;

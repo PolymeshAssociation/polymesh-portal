@@ -51,8 +51,4 @@ const DonutProgressBar: React.FC<DonutProgressBarProps> = ({
   );
 };
 
-DonutProgressBar.defaultProps = {
-  size: defaultSize,
-};
-
 export default DonutProgressBar;

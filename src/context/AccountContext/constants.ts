@@ -26,6 +26,26 @@ export interface IAccountBalance {
   total: string;
 }
 
+export enum EKeyIdentityStatus {
+  VERIFIED = 'Verified',
+  PENDING = 'Pending Verification',
+  UNASSIGNED = 'Unassigned',
+}
+
+export interface IApplication {
+  id: string;
+  address: string;
+  url: string;
+  externalId: string;
+  provider: string;
+  timestamp: string;
+}
+export interface IKeyCddState {
+  identity: null | { did: string; validCdd: boolean };
+  status: EKeyIdentityStatus;
+  applications?: IApplication[];
+}
+
 export interface IAccountContext {
   account: Account | MultiSig | null;
   selectedAccount: string;
@@ -53,6 +73,9 @@ export interface IAccountContext {
   balanceIsLoading: boolean;
   rememberSelectedAccount: boolean;
   setRememberSelectedAccount: (shouldRemember: boolean) => void;
+  lastExternalKey: string;
+  keyCddVerificationInfo: null | IKeyCddState;
+  isExternalConnection: boolean;
 }
 
 export const initialState = {
@@ -82,4 +105,7 @@ export const initialState = {
   balanceIsLoading: false,
   rememberSelectedAccount: true,
   setRememberSelectedAccount: () => {},
+  lastExternalKey: '',
+  keyCddVerificationInfo: null,
+  isExternalConnection: false,
 };

@@ -10,7 +10,8 @@ export const DidInfo = () => {
   const {
     state: { connecting },
   } = useContext(PolymeshContext);
-  const { identity, identityLoading } = useContext(AccountContext);
+  const { identity, identityLoading, keyCddVerificationInfo } =
+    useContext(AccountContext);
 
   return (
     <StyledWrapper>
@@ -32,7 +33,11 @@ export const DidInfo = () => {
               <CopyToClipboard value={identity.did} />
             </>
           )}
-          {!identity && <StyledLabel>Unassigned</StyledLabel>}
+          {!identity && (
+            <StyledLabel>
+              {keyCddVerificationInfo?.status || 'Unassigned'}
+            </StyledLabel>
+          )}
         </>
       )}
     </StyledWrapper>

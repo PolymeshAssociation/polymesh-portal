@@ -1,5 +1,6 @@
 import { useEffect, useState, useContext, useRef } from 'react';
 import { AccountContext } from '~/context/AccountContext';
+import { EKeyIdentityStatus } from '~/context/AccountContext/constants';
 import { Icon, CopyToClipboard, WalletSelect } from '~/components';
 import { SkeletonLoader, Text } from '~/components/UiKit';
 import {
@@ -12,8 +13,12 @@ import { useWindowWidth } from '~/hooks/utility';
 import { truncateText } from '~/helpers/formatters';
 
 export const KeyInfo = () => {
-  const { selectedAccount, allAccountsWithMeta, keyIdentityRelationships } =
-    useContext(AccountContext);
+  const {
+    selectedAccount,
+    allAccountsWithMeta,
+    keyIdentityRelationships,
+    keyCddVerificationInfo,
+  } = useContext(AccountContext);
   const { isMobile, isSmallDesktop } = useWindowWidth();
   const ref = useRef<HTMLDivElement>(null);
   const [selectedKeyName, setSelectedKeyName] = useState('');
@@ -73,7 +78,9 @@ export const KeyInfo = () => {
         <KeyInfoWrapper>
           {selectedAccount && keyIdentityRelationships[selectedAccount] ? (
             <StyledLabel>
-              {keyIdentityRelationships[selectedAccount]}
+              {keyCddVerificationInfo?.status === EKeyIdentityStatus.PENDING
+                ? EKeyIdentityStatus.PENDING
+                : keyIdentityRelationships[selectedAccount]}
             </StyledLabel>
           ) : (
             <SkeletonLoader

@@ -22,7 +22,8 @@ import { useWindowWidth } from '~/hooks/utility';
 
 export const PortfolioInfo = () => {
   const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolioData>();
-  const { identity, identityHasValidCdd } = useContext(AccountContext);
+  const { identity, identityHasValidCdd, isExternalConnection } =
+    useContext(AccountContext);
   const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
   const { deletePortfolio, actionInProgress } = usePortfolio(
     selectedPortfolio?.portfolio,
@@ -116,6 +117,7 @@ export const PortfolioInfo = () => {
         {isMobile && !portfolioLoading && (
           <StyledDeleteButton
             disabled={
+              isExternalConnection ||
               !!selectedPortfolio.assets.length ||
               actionInProgress ||
               !identityHasValidCdd ||
@@ -151,6 +153,7 @@ export const PortfolioInfo = () => {
               variant="primary"
               onClick={toggleMoveModal}
               disabled={
+                isExternalConnection ||
                 !identityHasValidCdd ||
                 selectedPortfolio.custodian.did !== identity?.did
               }
@@ -162,7 +165,11 @@ export const PortfolioInfo = () => {
               <>
                 <Button
                   variant="secondary"
-                  disabled={actionInProgress || !identityHasValidCdd}
+                  disabled={
+                    actionInProgress ||
+                    !identityHasValidCdd ||
+                    isExternalConnection
+                  }
                   onClick={toggleEditModal}
                 >
                   <Icon name="Edit" />
@@ -172,6 +179,7 @@ export const PortfolioInfo = () => {
                   <Button
                     variant="secondary"
                     disabled={
+                      isExternalConnection ||
                       !!selectedPortfolio.assets.length ||
                       actionInProgress ||
                       !identityHasValidCdd ||

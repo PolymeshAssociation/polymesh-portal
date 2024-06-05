@@ -24,7 +24,7 @@ const light = {
     textPurple: '#43195B',
     textSuccess: '#00AA5E',
     textDisabled: '#c7c7c7',
-    lightAccent: '#F0F0F0',
+    lightAccent: '#e8e8e8',
     shadow: 'rgba(30, 30, 30, 0.1)',
     backdrop: 'rgba(21, 41, 53, 0.3)',
     skeletonBase: '#ebebeb',

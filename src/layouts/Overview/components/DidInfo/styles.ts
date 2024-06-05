@@ -7,7 +7,7 @@ export const StyledWrapper = styled.div`
   justify-content: space-between;
   min-height: 244px;
   padding: 24px;
-  background: linear-gradient(252.2deg, #ff2e72 0%, #4a125e 111.15%);
+  background: linear-gradient(245deg, #bd235d 10%, #000000 90%);
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
   border-radius: 24px;
 

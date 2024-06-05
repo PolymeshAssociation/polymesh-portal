@@ -38,7 +38,9 @@ export const StyledNavLink = styled.button`
   border: 1px solid transparent;
   color: ${({ theme }) => theme.colors.textSecondary};
   text-transform: capitalize;
-  transition: color 250ms ease-out, border 250ms ease-out;
+  transition:
+    color 250ms ease-out,
+    border 250ms ease-out;
   &.active {
     border: 1px solid #c7c7c7;
     border-bottom: 1px solid transparent;

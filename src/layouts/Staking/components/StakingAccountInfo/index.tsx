@@ -52,7 +52,7 @@ export const StakingAccountInfo = () => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identityLoading, identity, selectedAccount } =
+  const { identityLoading, identity, selectedAccount, isExternalConnection } =
     useContext(AccountContext);
   const {
     api: { polkadotApi },
@@ -489,13 +489,13 @@ export const StakingAccountInfo = () => {
         <div>
           <StyledButtonWrapper $cardWidth={cardWidth}>
             <StakingButtons
-              disabled={actionInProgress}
+              disabled={actionInProgress || isExternalConnection}
               toggleModal={toggleModal}
               toggleOptions={toggleOptions}
             />
             {stashAddress && optionsExpanded && (
               <StakingButtonOptions
-                disabled={actionInProgress}
+                disabled={actionInProgress || isExternalConnection}
                 executeAction={executeAction}
                 toggleModal={toggleModal}
                 toggleOptions={toggleOptions}
