@@ -61,7 +61,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   const nodeUrlRef = useRef<string | null>(null);
   const middlewareUrlRef = useRef<string | null>(null);
   const middlewareKeyRef = useRef<string | null>(null);
-  const latestCallTimestampRef = useRef<number>(0);
 
   // Parse chain metadata from local storage
   const metadata = useMemo(() => {
@@ -76,59 +75,27 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     return formattedMetadata;
   }, [localMetadata]);
 
-  // Create the browser extension signing manager and connect to the Polymesh SDK.
+  // Create the browser extension signing manager.
   const connectWallet = useCallback(
     async (extensionName: string) => {
-      setConnecting(true);
-      const currentTimestamp = Date.now();
-      latestCallTimestampRef.current = currentTimestamp;
+      if (!polkadotApi || !extensionName) return;
       try {
-        nodeUrlRef.current = nodeUrl;
-        middlewareUrlRef.current = middlewareUrl;
-        middlewareKeyRef.current = middlewareKey;
-        const signingManagerInstance = extensionName
-          ? await BrowserExtensionSigningManager.create({
-              appName: 'polymesh-portal',
-              extensionName,
-            })
-          : null;
-        if (!sdkRef.current) {
-          const sdkInstance = await Polymesh.connect({
-            nodeUrl,
-            signingManager: signingManagerInstance || undefined,
-            middlewareV2: {
-              link: middlewareUrl,
-              key: middlewareKey,
-            },
-            polkadot: {
-              noInitWarn: true,
-              metadata,
-            },
+        const signingManagerInstance =
+          await BrowserExtensionSigningManager.create({
+            appName: 'polymesh-portal',
+            extensionName,
           });
-          // return if a newer call of connectWallet is in progress.
-          if (currentTimestamp !== latestCallTimestampRef.current) {
-            return;
-          }
-          sdkRef.current = sdkInstance;
-        } else {
-          sdkRef.current.setSigningManager(signingManagerInstance);
-        }
-        // We disable filtering by genesis hash for the polywallet as older releases
-        // of the wallet incorrectly configured the genesis hash for ledger keys which
-        // is causing issues for users.
-        // TODO: Remove when the wallet is update to allow locking keys to a specific chain
-        if (extensionName && extensionName !== 'polywallet') {
-          signingManagerInstance?.setGenesisHash(
-            // eslint-disable-next-line no-underscore-dangle
-            sdkRef.current._polkadotApi.genesisHash.toString(),
+        if (extensionName !== 'polywallet') {
+          signingManagerInstance.setGenesisHash(
+            polkadotApi.genesisHash.toString(),
           );
         }
+        signingManagerInstance.setSs58Format(
+          polkadotApi.consts.system.ss58Prefix.toNumber(),
+        );
+
         setSigningManager(signingManagerInstance);
         setDefaultExtension(extensionName);
-        setSdk(sdkRef.current);
-        // eslint-disable-next-line no-underscore-dangle
-        setPolkadotApi(sdkRef.current._polkadotApi);
-        setInitialized(true);
       } catch (error) {
         notifyGlobalError((error as Error).message);
         // this is a hacky work around for wallet errors due to chrome preloading
@@ -146,12 +113,9 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
             window.location.reload();
           }, 1000);
         }
-      } finally {
-        setConnecting(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [polkadotApi, setDefaultExtension],
   );
 
   useEffect(() => {
@@ -161,6 +125,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Connect to the Polymesh SDK.
   useEffect(() => {
     if (!migrationCompleted) return;
 
@@ -180,33 +145,49 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       window.location.reload();
     }
 
+    setConnecting(true);
+    (async () => {
+      try {
+        nodeUrlRef.current = nodeUrl;
+        middlewareUrlRef.current = middlewareUrl;
+        middlewareKeyRef.current = middlewareKey;
+        if (!sdkRef.current) {
+          const sdkInstance = await Polymesh.connect({
+            nodeUrl,
+            signingManager: undefined,
+            middlewareV2: {
+              link: middlewareUrl,
+              key: middlewareKey,
+            },
+            polkadot: {
+              noInitWarn: true,
+              metadata,
+            },
+          });
+          setSdk(sdkInstance);
+          // eslint-disable-next-line no-underscore-dangle
+          setPolkadotApi(sdkInstance._polkadotApi);
+          sdkRef.current = sdkInstance;
+          setInitialized(true);
+        }
+      } catch (error) {
+        notifyGlobalError((error as Error).message);
+      } finally {
+        setConnecting(false);
+      }
+    })();
+  }, [metadata, middlewareKey, middlewareUrl, migrationCompleted, nodeUrl]);
+
+  // Create an initial signing manager instance for the default extension
+  useEffect(() => {
+    if (signingManager) return;
     const injectedExtensions =
       BrowserExtensionSigningManager.getExtensionList();
-
-    const externalKey = localStorage.getItem('externalKey');
-    if (!defaultExtension && externalKey) {
-      connectWallet('');
+    if (!defaultExtension || !injectedExtensions.includes(defaultExtension)) {
       return;
     }
-    if (
-      !defaultExtension ||
-      !injectedExtensions.includes(defaultExtension) ||
-      initialized
-    ) {
-      setConnecting(false);
-      return;
-    }
-
     connectWallet(defaultExtension);
-  }, [
-    connectWallet,
-    defaultExtension,
-    initialized,
-    middlewareKey,
-    middlewareUrl,
-    migrationCompleted,
-    nodeUrl,
-  ]);
+  }, [connectWallet, defaultExtension, signingManager]);
 
   // Effect to subscribe to events
   useEffect(() => {

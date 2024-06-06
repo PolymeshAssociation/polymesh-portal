@@ -11,13 +11,9 @@ import {
   MultiSig,
   Identity,
   UnsubCallback,
-  ErrorCode,
 } from '@polymeshassociation/polymesh-sdk/types';
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
-import {
-  MultiSig as MultiSigInstance,
-  PolymeshError,
-} from '@polymeshassociation/polymesh-sdk/internal';
+import { MultiSig as MultiSigInstance } from '@polymeshassociation/polymesh-sdk/internal';
 import {
   AccountKeyType,
   AccountIdentityRelation,
@@ -38,6 +34,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const {
     api: { sdk, signingManager },
     state: { initialized },
+    settings: { defaultExtension },
   } = useContext(PolymeshContext);
   const [account, setAccount] = useState<Account | MultiSig | null>(null);
   const [multiSigAccount, setMultiSigAccount] = useState<MultiSig | null>(null);
@@ -88,6 +85,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
       }
     >
   >({});
+  const extensionRef = useRef<string>('');
+  const accountRef = useRef<Account | MultiSigInstance | null>(null);
 
   const [externalKey, setExternalKey] = useLocalStorage('externalKey', '');
   const [externalIdentity, setExternalIdentity] =
@@ -176,29 +175,34 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
     (async () => {
       try {
-        const accountInstance = await sdk.accountManagement.getAccount({
-          address: selectedAccount,
-        });
-
-        setAccount(accountInstance);
-        if (allAccounts.includes(selectedAccount)) {
-          try {
-            await sdk.setSigningAccount(accountInstance);
-          } catch (error) {
-            if (
-              !(
-                error instanceof PolymeshError &&
-                error.code === ErrorCode.General &&
-                error.message ===
-                  'There is no Signing Manager attached to the SDK'
-              )
-            ) {
-              throw error;
-            }
+        if (accountRef.current?.address !== selectedAccount) {
+          const accountInstance = await sdk.accountManagement.getAccount({
+            address: selectedAccount,
+          });
+          setAccount(accountInstance);
+          accountRef.current = accountInstance;
+        }
+        const signingKeys = signingManager
+          ? await signingManager.getAccounts()
+          : [];
+        const filteredSigningKeys = signingKeys.filter(
+          (key) => !blockedWallets.includes(key),
+        );
+        // check if the key is in the signing manager's keys
+        if (filteredSigningKeys.includes(selectedAccount)) {
+          // if the signing manager has changed connect the new signingManager
+          if (extensionRef.current !== defaultExtension) {
+            await sdk.setSigningManager(signingManager);
           }
+          await sdk.setSigningAccount(accountRef.current);
+          extensionRef.current = defaultExtension;
+        } else {
+          // if the key is not in all accounts (the signingManager)
+          // ensure there is no signing manager attached to the SDK
+          await sdk.setSigningManager(null);
         }
 
-        const multiSigInstance = await accountInstance.getMultiSig();
+        const multiSigInstance = await accountRef.current.getMultiSig();
         setMultiSigAccount(multiSigInstance);
         setAccountIsMultisigSigner(!!multiSigInstance);
         setShouldRefreshIdentity(true);
@@ -211,7 +215,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
         setAccountLoading(false);
       }
     })();
-  }, [allAccounts, sdk, selectedAccount]);
+  }, [blockedWallets, defaultExtension, sdk, selectedAccount, signingManager]);
 
   // Update accounts and key to identity relationships for new keys
   useEffect(() => {
