@@ -101,25 +101,6 @@ const AccountProvider = ({ children }: IProviderProps) => {
     [setExternalKey],
   );
 
-  // to setselected account from wallet in case user is already connected with external key
-  // useEffect(() => {
-  //   if (connecting) {
-  //     return;
-  //   }
-  //   if (
-  //     selectedAccount &&
-  //     selectedAccount === externalKey &&
-  //     externalKey === defaultAccount &&
-  //     allAccounts.length
-  //   ) {
-  //     console.log('+++++++++++++++++++++++++++++++++');
-  //     const currentAccount = allAccounts.includes(defaultAccount)
-  //       ? defaultAccount
-  //       : allAccounts[0];
-  //     setSelectedAccount(currentAccount);
-  //   }
-  // }, [allAccounts, connecting, defaultAccount, externalKey, selectedAccount]);
-
   // Perform actions when account change occurs in extension
   useEffect(() => {
     if (!signingManager) {
