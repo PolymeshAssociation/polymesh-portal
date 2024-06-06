@@ -86,15 +86,16 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         nodeUrlRef.current = nodeUrl;
         middlewareUrlRef.current = middlewareUrl;
         middlewareKeyRef.current = middlewareKey;
-        const signingManagerInstance =
-          await BrowserExtensionSigningManager.create({
-            appName: 'polymesh-portal',
-            extensionName,
-          });
+        const signingManagerInstance = extensionName
+          ? await BrowserExtensionSigningManager.create({
+              appName: 'polymesh-portal',
+              extensionName,
+            })
+          : null;
         if (!sdkRef.current) {
           const sdkInstance = await Polymesh.connect({
             nodeUrl,
-            signingManager: signingManagerInstance,
+            signingManager: signingManagerInstance || undefined,
             middlewareV2: {
               link: middlewareUrl,
               key: middlewareKey,
@@ -116,8 +117,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         // of the wallet incorrectly configured the genesis hash for ledger keys which
         // is causing issues for users.
         // TODO: Remove when the wallet is update to allow locking keys to a specific chain
-        if (extensionName !== 'polywallet') {
-          signingManagerInstance.setGenesisHash(
+        if (extensionName && extensionName !== 'polywallet') {
+          signingManagerInstance?.setGenesisHash(
             // eslint-disable-next-line no-underscore-dangle
             sdkRef.current._polkadotApi.genesisHash.toString(),
           );
@@ -182,6 +183,11 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     const injectedExtensions =
       BrowserExtensionSigningManager.getExtensionList();
 
+    const externalKey = localStorage.getItem('externalKey');
+    if (!defaultExtension && externalKey) {
+      connectWallet('');
+      return;
+    }
     if (
       !defaultExtension ||
       !injectedExtensions.includes(defaultExtension) ||

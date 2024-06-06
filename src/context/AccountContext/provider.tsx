@@ -25,9 +25,10 @@ import {
 import { PolymeshContext } from '../PolymeshContext';
 import AccountContext from './context';
 import { notifyGlobalError } from '~/helpers/notifications';
-import { IInfoByKey } from './constants';
+import { IInfoByKey, IExternalIdentity } from './constants';
 import { useLocalStorage } from '~/hooks/utility';
 import { useBalance } from '~/hooks/polymesh';
+import { fetchExternalIdentityStatus } from './helpers';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -88,6 +89,37 @@ const AccountProvider = ({ children }: IProviderProps) => {
     >
   >({});
 
+  const [externalKey, setExternalKey] = useLocalStorage('externalKey', '');
+  const [externalIdentity, setExternalIdentity] =
+    useState<null | IExternalIdentity>(null);
+
+  const setExternalAccounKey = useCallback(
+    (address: string) => {
+      setExternalKey(address);
+      setSelectedAccount(address);
+    },
+    [setExternalKey],
+  );
+
+  // to setselected account from wallet in case user is already connected with external key
+  // useEffect(() => {
+  //   if (connecting) {
+  //     return;
+  //   }
+  //   if (
+  //     selectedAccount &&
+  //     selectedAccount === externalKey &&
+  //     externalKey === defaultAccount &&
+  //     allAccounts.length
+  //   ) {
+  //     console.log('+++++++++++++++++++++++++++++++++');
+  //     const currentAccount = allAccounts.includes(defaultAccount)
+  //       ? defaultAccount
+  //       : allAccounts[0];
+  //     setSelectedAccount(currentAccount);
+  //   }
+  // }, [allAccounts, connecting, defaultAccount, externalKey, selectedAccount]);
+
   // Perform actions when account change occurs in extension
   useEffect(() => {
     if (!signingManager) {
@@ -141,7 +173,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       return;
     }
     setSelectedAccount('');
-  }, [allAccounts, defaultAccount, selectedAccount]);
+  }, [allAccounts, defaultAccount, externalKey, selectedAccount]);
 
   useEffect(() => {
     if (rememberSelectedAccount === true && selectedAccount) {
@@ -305,6 +337,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
         });
 
         if (!accountLoading) {
+          const externalIdentityData = await fetchExternalIdentityStatus(
+            account.address,
+          );
+          setExternalIdentity(externalIdentityData);
           setIdentity(accIdentity);
         }
         setAllIdentities(uniqueIdentities);
@@ -489,6 +525,12 @@ const AccountProvider = ({ children }: IProviderProps) => {
       balanceIsLoading,
       rememberSelectedAccount,
       setRememberSelectedAccount,
+      externalKey,
+      externalIdentity,
+      setExternalAccounKey,
+      isExternalConnection: externalKey
+        ? externalKey === selectedAccount
+        : false,
     }),
     [
       account,
@@ -502,6 +544,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
       blockWalletAddress,
       blockedWallets,
       defaultAccount,
+      externalIdentity,
+      externalKey,
       identity,
       identityHasValidCdd,
       identityLoading,
@@ -514,6 +558,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       selectedAccount,
       selectedAccountBalance,
       setDefaultAccount,
+      setExternalAccounKey,
       setRememberSelectedAccount,
       unblockWalletAddress,
     ],

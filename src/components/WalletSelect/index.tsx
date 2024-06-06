@@ -22,6 +22,7 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
     primaryKey,
     secondaryKeys,
     keyIdentityRelationships,
+    externalKey,
   } = useContext(AccountContext);
   const [expanded, setExpanded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -147,6 +148,26 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
                 />
               </StyledLabel>
             ))}
+          {externalKey && (
+            <StyledLabel
+              key={externalKey}
+              htmlFor={externalKey}
+              selected={selectedAccount === externalKey}
+              $placement={placement}
+            >
+              <span>
+                <span className="meta">External Key</span>
+                <span className="key">{formatKey(externalKey, 8, 7)}</span>
+              </span>
+              <StyledInput
+                type="radio"
+                name="key"
+                value={externalKey}
+                id={externalKey}
+                onChange={handleAccountChange}
+              />
+            </StyledLabel>
+          )}
         </StyledExpandedSelect>
       )}
     </StyledSelectWrapper>
