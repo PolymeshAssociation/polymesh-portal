@@ -1,5 +1,7 @@
+import { WalletSelect as WalletSelectComponent } from '~/components';
+import { Text } from '~/components/UiKit';
 import { PopupActionButtons } from '../../../PopupActionButtons';
-import { CustomInput, useInput } from '../../../CustomInput';
+import { StyledWalletSelectContainer } from './styles';
 
 interface IWalletSelectProps {
   handleGoBack: () => void;
@@ -10,20 +12,17 @@ export const WalletSelect = ({
   handleProceed,
   handleGoBack,
 }: IWalletSelectProps) => {
-  const { value, error, handleInputChange } = useInput();
   return (
     <>
-      <CustomInput
-        label="Wallet address"
-        placeholder="Wallet Address"
-        handleChange={handleInputChange}
-        value={value}
-        error={error}
-      />
+      <StyledWalletSelectContainer>
+        <Text marginBottom={8} bold>
+          Wallet Address
+        </Text>
+        <WalletSelectComponent placement="widget" showExternal={false} />
+      </StyledWalletSelectContainer>
       <PopupActionButtons
         onProceed={handleProceed}
         onGoBack={handleGoBack}
-        canProceed={!error && !!value}
         aligned
       />
     </>

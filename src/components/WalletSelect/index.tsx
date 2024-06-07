@@ -14,7 +14,10 @@ import { formatKey } from '~/helpers/formatters';
 import { ESelectPlacements, ISelectProps } from './types';
 import { SkeletonLoader } from '../UiKit';
 
-const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
+const WalletSelect: React.FC<ISelectProps> = ({
+  placement = 'header',
+  showExternal = true,
+}) => {
   const {
     selectedAccount,
     setSelectedAccount,
@@ -23,6 +26,8 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
     secondaryKeys,
     keyIdentityRelationships,
     externalKey,
+    isExternalConnection,
+    allAccounts,
   } = useContext(AccountContext);
   const [expanded, setExpanded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -88,6 +93,15 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
     };
   }, [selectedAccount]);
 
+  const renderSelectedField = () => {
+    if (!showExternal && isExternalConnection) {
+      return 'Select Wallet Address';
+    }
+    return placement === 'widget' || !selectedKeyName
+      ? formatKey(selectedAccount, truncateLength, truncateLength)
+      : selectedKeyName;
+  };
+
   return selectedAccount ? (
     <StyledSelectWrapper ref={ref} $placement={placement}>
       <StyledSelect
@@ -95,9 +109,7 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
         $expanded={expanded}
         $placement={placement}
       >
-        {placement === 'widget' || !selectedKeyName
-          ? formatKey(selectedAccount, truncateLength, truncateLength)
-          : selectedKeyName}
+        {renderSelectedField()}
         <IconWrapper>
           <Icon name="DropdownIcon" />
         </IconWrapper>
@@ -148,26 +160,28 @@ const WalletSelect: React.FC<ISelectProps> = ({ placement = 'header' }) => {
                 />
               </StyledLabel>
             ))}
-          {externalKey && (
-            <StyledLabel
-              key={externalKey}
-              htmlFor={externalKey}
-              selected={selectedAccount === externalKey}
-              $placement={placement}
-            >
-              <span>
-                <span className="meta">External Key</span>
-                <span className="key">{formatKey(externalKey, 8, 7)}</span>
-              </span>
-              <StyledInput
-                type="radio"
-                name="key"
-                value={externalKey}
-                id={externalKey}
-                onChange={handleAccountChange}
-              />
-            </StyledLabel>
-          )}
+          {showExternal &&
+            externalKey &&
+            !allAccounts.includes(externalKey) && (
+              <StyledLabel
+                key={externalKey}
+                htmlFor={externalKey}
+                selected={selectedAccount === externalKey}
+                $placement={placement}
+              >
+                <span>
+                  <span className="meta">External Key</span>
+                  <span className="key">{formatKey(externalKey, 8, 7)}</span>
+                </span>
+                <StyledInput
+                  type="radio"
+                  name="key"
+                  value={externalKey}
+                  id={externalKey}
+                  onChange={handleAccountChange}
+                />
+              </StyledLabel>
+            )}
         </StyledExpandedSelect>
       )}
     </StyledSelectWrapper>

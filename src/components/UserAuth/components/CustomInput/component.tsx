@@ -2,33 +2,38 @@ import { Text } from '~/components/UiKit';
 import { StyledInputContainer, StyledInput } from './styles';
 
 interface ICustomInputProps {
-  label: string;
   placeholder: string;
   value: string;
+  label?: string;
   error?: string;
+  isBig?: boolean;
   handleChange: (value: string) => void;
 }
 
 export const CustomInput = ({
-  label,
   placeholder,
   value,
+  label,
   error,
+  isBig = false,
   handleChange,
 }: ICustomInputProps) => {
   return (
     <StyledInputContainer>
-      <Text bold>{label}</Text>
+      {label && <Text bold>{label}</Text>}
       <StyledInput
+        $isBig={isBig}
         placeholder={placeholder}
         value={value}
         onChange={(e) => handleChange(e.target.value)}
       />
-      {error && <Text>{error}</Text>}
+      {error && <Text size="small">{error}</Text>}
     </StyledInputContainer>
   );
 };
 
 CustomInput.defaultProps = {
   error: '',
+  label: '',
+  isBig: false,
 };

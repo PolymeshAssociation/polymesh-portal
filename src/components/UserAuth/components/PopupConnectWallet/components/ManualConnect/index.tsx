@@ -14,12 +14,26 @@ export const ManualConnect = ({
   navigate,
   handleClose,
 }: IManualConnectProps) => {
-  const { connectWallet } = useContext(PolymeshContext);
+  const {
+    connectWallet,
+    api: { sdk },
+  } = useContext(PolymeshContext);
   const { setExternalAccounKey } = useContext(AccountContext);
 
-  const { value, error, handleInputChange } = useInput();
+  const { value, error, handleInputChange, handleErrorChange } = useInput();
 
   const handleManualWalletConnect = async () => {
+    if (!sdk) {
+      return;
+    }
+    const isValidAddress = sdk.accountManagement.isValidAddress({
+      address: value,
+    });
+    if (!isValidAddress) {
+      handleErrorChange('Invalid wallet address.');
+      return;
+    }
+
     await connectWallet('');
     setExternalAccounKey(value);
     handleClose();

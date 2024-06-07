@@ -1,6 +1,8 @@
 import { Text } from '~/components/UiKit';
 import { CustomInput, useInput } from '../../../CustomInput';
 import { PopupActionButtons } from '../../../PopupActionButtons';
+import { REGEX_EMAIL } from '../../../../constants';
+import { fetchContactUs } from './helpers';
 import { StyledSubtitleWrap, StyledBusinessContainer } from './styles';
 
 interface IBusinessAccountFormProps {
@@ -22,7 +24,19 @@ export const BusinessAccountForm = ({
     value: email,
     error: emailError,
     handleInputChange: changeEmail,
+    handleErrorChange: setEmailError,
   } = useInput();
+
+  const handleSubmit = async () => {
+    if (!email.match(REGEX_EMAIL)) {
+      setEmailError('Please enter correct email');
+      return;
+    }
+    const submitted = await fetchContactUs();
+    if (submitted) {
+      handleProceed();
+    }
+  };
 
   return (
     <>
@@ -34,7 +48,7 @@ export const BusinessAccountForm = ({
       </StyledSubtitleWrap>
       <StyledBusinessContainer>
         <CustomInput
-          label="Name of the Authorized Individual"
+          label="Name"
           placeholder="Full Name"
           handleChange={changeName}
           value={name}
@@ -49,7 +63,7 @@ export const BusinessAccountForm = ({
         />
       </StyledBusinessContainer>
       <PopupActionButtons
-        onProceed={handleProceed}
+        onProceed={handleSubmit}
         onGoBack={handleGoBack}
         canProceed={!nameError && !!name && !emailError && !!email}
         aligned
