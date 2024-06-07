@@ -6,6 +6,9 @@ export const StyledPopupHeaderWrap = styled.div<{ $isWide: boolean }>`
   gap: 8px;
   min-width: 648px;
   max-width: ${({ $isWide }) => ($isWide ? '992px' : '648px')};
+  @media screen and (max-width: 768px) {
+    min-width: fit-content;
+  }
 `;
 
 export const StyledPopupHeader = styled.div`

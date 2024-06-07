@@ -29,7 +29,7 @@ export const ViewUnverified = ({
       </StyledAuthHeaderWrap>
       <StyledAuthButtons>
         <ActionButton
-          title={selectedAccount ? 'Step 1 (complete)' : 'Step 1'}
+          title={selectedAccount ? 'Step 1 (Complete)' : 'Step 1'}
           label="Connect Wallet"
           icon="ConnectWalletIcon"
           status={

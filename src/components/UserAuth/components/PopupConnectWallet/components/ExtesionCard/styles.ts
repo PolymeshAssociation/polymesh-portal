@@ -18,4 +18,7 @@ export const StyledExtensionFeaturesList = styled.ul`
   & > li {
     list-style-type: disc;
   }
+  @media screen and (max-width: 520px) {
+    padding: 12px 0 0 12px;
+  }
 `;

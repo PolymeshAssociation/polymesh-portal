@@ -1,3 +1,4 @@
+import { useWindowWidth } from '~/hooks/utility';
 import { Text, Heading } from '~/components/UiKit';
 import { Icon } from '~/components';
 import { IIdentityProvider } from '../../../../constants';
@@ -13,10 +14,11 @@ interface IProviderCardProps {
 }
 
 export const ProviderCard = ({ provider }: IProviderCardProps) => {
+  const { windowWidth } = useWindowWidth();
   return (
     <ActionCard hovered>
       <StyledProviderContainer>
-        <Icon name={provider.icon} size="88px" />
+        <Icon name={provider.icon} size={windowWidth > 420 ? '88px' : '60px'} />
         <StyledProviderInfo>
           <Heading type="h4">{provider.name}</Heading>
           <div>

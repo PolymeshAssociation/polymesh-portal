@@ -4,6 +4,14 @@ export const StyledProviderContainer = styled.div`
   display: flex;
   justify-content: space-between;
   width: 992px;
+  @media screen and (max-width: 1080px) {
+    width: fit-content;
+    gap: 24px;
+  }
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    width: 100%;
+  }
 `;
 
 export const StyledProviderInfo = styled.div`

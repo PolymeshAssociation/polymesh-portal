@@ -10,7 +10,7 @@ export const StyledAuthContainer = styled.section`
   background: black;
   margin-bottom: 36px;
   background-image: url(${connectBackground});
-  background-size: 100%;
+  background-size: cover;
   color: #ffffff;
 `;
 
