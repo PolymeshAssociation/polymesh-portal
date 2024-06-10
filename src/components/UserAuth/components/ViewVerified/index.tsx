@@ -4,6 +4,7 @@ import { Button, Text } from '~/components/UiKit';
 import { notifyError } from '~/helpers/notifications';
 import { REGEX_EMAIL } from '../../constants';
 import { CustomInput, useInput } from '../CustomInput';
+import { SecondaryButton } from '../SecondaryButton';
 import { fetchEmailSubscription } from './helpers';
 import {
   StyledAuthHeaderWrap,
@@ -28,6 +29,9 @@ export const ViewVerified = ({ handleDismiss }: IViewVerifiedProps) => {
   const [newsletterAccepted, setNewsletterAccepted] = useState(false);
   const [devUpdatesAccepted, setDevUpdatesAccepted] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+
+  const handlePolicyClick = () =>
+    window.open('https://polymesh.network/privacy-policy', '_blank');
 
   const handleSubscribe = async () => {
     if (!email.match(REGEX_EMAIL)) {
@@ -91,7 +95,13 @@ export const ViewVerified = ({ handleDismiss }: IViewVerifiedProps) => {
                 {termsAccepted ? <Icon name="Check" size="12px" /> : null}
               </StyledCheckBox>
               <Text size="small">
-                I have read and accept the Polymesh Privacy Policy
+                I have read and accept the{' '}
+                <SecondaryButton
+                  labelSize="small"
+                  label="Polymesh Privacy Policy"
+                  handleClick={handlePolicyClick}
+                  underlined
+                />
               </Text>
             </StyledCheckboxInput>
             <StyledCheckboxInput>
