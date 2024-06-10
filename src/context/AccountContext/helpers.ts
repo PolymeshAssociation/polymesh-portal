@@ -22,6 +22,11 @@ export const fetchExternalIdentityStatus = async (address: string) => {
   if (!rawData.value) {
     return BLANCK_IDENTITY_STATUS;
   }
-  const parsedData = JSON.parse(rawData.value);
-  return parsedData;
+  try {
+    const parsedData = JSON.parse(rawData.value);
+    return parsedData;
+  } catch (_err) {
+    // TODO: add parse data in case SyntaxError
+    return {};
+  }
 };

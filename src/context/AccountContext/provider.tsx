@@ -322,11 +322,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
         });
 
         if (!accountLoading) {
-          // const externalIdentityData = await fetchExternalIdentityStatus(
-          //   account.address,
-          // );
-          // setExternalIdentity(externalIdentityData);
-          setExternalIdentity(null);
+          const externalIdentityData = await fetchExternalIdentityStatus(
+            account.address,
+          );
+          setExternalIdentity(externalIdentityData);
           setIdentity(accIdentity);
         }
         setAllIdentities(uniqueIdentities);

@@ -1,4 +1,13 @@
-export const fetchEmailSubscription = async (email: string) => {
+type TUserSubscriptionData = {
+  devUpdatesAccepted: boolean;
+  newsletterAccepted: boolean;
+  termsAccepted: boolean;
+  email: string;
+};
+
+export const fetchEmailSubscription = async (
+  subscriptionData: TUserSubscriptionData,
+) => {
   const { status } = await fetch(
     `${import.meta.env.VITE_EXTERNAL_IDENTITY_URL}email`,
     {
@@ -8,12 +17,7 @@ export const fetchEmailSubscription = async (email: string) => {
       },
       method: 'POST',
       // TODO: update payload
-      body: JSON.stringify({
-        devUpdatesAccepted: true,
-        newsletterAccepted: true,
-        termsAccepted: true,
-        email,
-      }),
+      body: JSON.stringify(subscriptionData),
     },
   );
   if (status === 201) {
