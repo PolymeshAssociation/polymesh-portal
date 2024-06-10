@@ -20,8 +20,12 @@ import {
 } from '~/components/UiKit';
 
 export const PortfolioNavigation = () => {
-  const { identity, identityHasValidCdd, identityLoading } =
-    useContext(AccountContext);
+  const {
+    identity,
+    identityHasValidCdd,
+    identityLoading,
+    isExternalConnection,
+  } = useContext(AccountContext);
   const { allPortfolios, portfolioLoading, getPortfoliosData } =
     useContext(PortfolioContext);
   const [addExpanded, setAddExpanded] = useState(false);
@@ -56,7 +60,7 @@ export const PortfolioNavigation = () => {
         <StyledMobileNavigation>
           <AddPortfolioMobile
             onClick={toggleModal}
-            disabled={!identityHasValidCdd}
+            disabled={!identityHasValidCdd || isExternalConnection}
           >
             <Icon name="Plus" />
           </AddPortfolioMobile>
@@ -123,7 +127,7 @@ export const PortfolioNavigation = () => {
       {!isMobile && (
         <AddPortfolioButton
           onClick={toggleModal}
-          disabled={!identityHasValidCdd}
+          disabled={!identityHasValidCdd || isExternalConnection}
         >
           <Icon name="Plus" />
           {!isTablet && 'Add Portfolio'}

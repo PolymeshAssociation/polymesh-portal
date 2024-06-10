@@ -9,7 +9,7 @@ const UserAuth = () => {
   const [verified, setVerified] = useState(false);
 
   useEffect(() => {
-    setVerified(true);
+    setVerified(false);
   }, []);
 
   if (!showAuth) {

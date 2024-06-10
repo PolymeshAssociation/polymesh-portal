@@ -1,4 +1,5 @@
-import { FC, useState } from 'react';
+import { FC, useState, useContext } from 'react';
+import { AccountContext } from '~/context/AccountContext';
 import { Icon } from '~/components';
 import { Button } from '~/components/UiKit';
 import { useMultiSigContext } from '~/context/MultiSigContext';
@@ -19,6 +20,7 @@ export const MultiSigListItem: FC<IMultiSigListItemProps> = ({
 }) => {
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
+  const { isExternalConnection } = useContext(AccountContext);
   const { unsignedProposals } = useMultiSigContext();
 
   const toggleDetails = () => setDetailsExpanded((prev) => !prev);
@@ -30,7 +32,9 @@ export const MultiSigListItem: FC<IMultiSigListItemProps> = ({
       <ListItemDetails item={item} detailsExpanded={detailsExpanded} />
       <StyledButtonsWrapper $expanded={detailsExpanded}>
         <Button
-          disabled={actionInProgress || !canExecuteAction}
+          disabled={
+            actionInProgress || !canExecuteAction || isExternalConnection
+          }
           onClick={() =>
             canExecuteAction &&
             executeAction(EProposalAction.REJECT, item.proposalId)
@@ -41,7 +45,9 @@ export const MultiSigListItem: FC<IMultiSigListItemProps> = ({
         </Button>
         <Button
           variant="success"
-          disabled={actionInProgress || !canExecuteAction}
+          disabled={
+            actionInProgress || !canExecuteAction || isExternalConnection
+          }
           onClick={() =>
             canExecuteAction &&
             executeAction(EProposalAction.APPROVE, item.proposalId)

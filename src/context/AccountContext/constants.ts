@@ -26,10 +26,14 @@ export interface IAccountBalance {
   total: string;
 }
 
+export enum EExternalIdentityStatus {
+  VERIFIED = 'Verified',
+  PENDING = 'Pending Verification',
+  UNASSIGNED = 'Unassigned',
+}
 export interface IExternalIdentity {
-  valid: boolean;
-  identity: null | { did: string; validCdd: boolean };
-  applications?: { [key: string]: string }[];
+  identity: null | string;
+  status: EExternalIdentityStatus;
 }
 
 export interface IAccountContext {

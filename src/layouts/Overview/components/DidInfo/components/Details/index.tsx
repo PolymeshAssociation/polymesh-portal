@@ -60,6 +60,7 @@ export const Details: React.FC<IDetailsProps> = ({
     selectedAccount,
     refreshAccountIdentity,
     accountIsMultisigSigner,
+    isExternalConnection,
   } = useContext(AccountContext);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const { handleStatusChange } = useTransactionStatus();
@@ -305,7 +306,7 @@ export const Details: React.FC<IDetailsProps> = ({
         {primaryIsSelected ? (
           <Button
             variant="modalPrimary"
-            disabled={!selectedKeys.length}
+            disabled={!selectedKeys.length || isExternalConnection}
             onClick={handleRemoveAccounts}
           >
             Remove Keys
@@ -314,7 +315,7 @@ export const Details: React.FC<IDetailsProps> = ({
           <Button
             variant="modalPrimary"
             onClick={handleLeaveIdentity}
-            disabled={accountIsMultisigSigner}
+            disabled={accountIsMultisigSigner || isExternalConnection}
           >
             Leave Identity
           </Button>
