@@ -1,79 +1,61 @@
-import { useState } from 'react';
-import { TIdentityModalType } from '../../constants';
+import { useAuthContext } from '~/context/AuthContext';
+import { Modal } from '~/components';
 import { PopupHeader } from '../PopupHeader';
 import { ProviderSelect } from './components/ProviderSelect';
 import { ProviderInfo } from './components/ProviderInfo';
-import { BusinessAccount } from './components/BusinessAccount';
+import { PendingInfo } from './components/PendingInfo';
+import { StyledModalContent } from './styles';
 
-interface IPopupVerifyIdentityProps {
-  handleClose: () => void;
-  handleVerify: () => void;
-}
-
-export const PopupVerifyIdentity = ({
-  handleClose,
-  handleVerify,
-}: IPopupVerifyIdentityProps) => {
-  const [modalType, setModalType] = useState<TIdentityModalType>('providers');
-
-  const handleNavigate = (type: TIdentityModalType) => setModalType(type);
+export const PopupVerifyIdentity = () => {
+  const { identityPopup, setIdentityPopup } = useAuthContext();
 
   const renderPopupContent = () => {
-    switch (modalType) {
+    switch (identityPopup) {
       case 'providers':
-        return (
-          <ProviderSelect
-            handleClose={handleClose}
-            handleNavigate={handleNavigate}
-          />
-        );
+        return <ProviderSelect />;
       case 'Jumio':
       case 'Netki':
       case 'Fractal':
-        return (
-          <ProviderInfo
-            providerName={modalType}
-            navigate={() => handleNavigate('providers')}
-          />
-        );
-      case 'business':
-        return (
-          <BusinessAccount
-            handleClose={() => {
-              handleClose();
-              handleVerify();
-            }}
-            handleGoBack={() => handleNavigate('providers')}
-          />
-        );
+      case 'MockID':
+        return <ProviderInfo providerName={identityPopup} />;
+      // case 'business':
+      //   return (
+      //     <BusinessAccount
+      //       handleClose={() => {
+      //         handleClose();
+      //         handleVerify();
+      //       }}
+      //       handleGoBack={() => handleNavigate('providers')}
+      //     />
+      //   );
+      case 'pending':
+        return <PendingInfo />;
+
       default:
-        return (
-          <ProviderSelect
-            handleClose={handleClose}
-            handleNavigate={handleNavigate}
-          />
-        );
+        return <ProviderSelect />;
     }
   };
 
+  if (!identityPopup) {
+    return null;
+  }
+
   return (
-    <>
-      <PopupHeader
-        title={
-          modalType === 'business'
-            ? 'Polymesh for businesses'
-            : 'Verify Identity'
-        }
-        subTitle={
-          modalType === 'providers'
-            ? 'We are required to verify everyone’s identity on Polymesh to ensure security for all. Please proceed with choosing a third party CDD provider to verify your identity.'
-            : ''
-        }
-        icon="ConnectIdentityIcon"
-        handleClick={handleClose}
-        isWide={modalType !== 'business'}
-      />
-      {renderPopupContent()}
-    </>
+    <Modal handleClose={() => setIdentityPopup(null)} customWidth="fit-content">
+      <StyledModalContent>
+        <PopupHeader
+          title="Verify Identity"
+          subTitle={
+            identityPopup === 'providers'
+              ? 'We are required to verify everyone’s identity on Polymesh to ensure security for all. Please proceed with choosing a third party CDD provider to verify your identity.'
+              : ''
+          }
+          icon="ConnectIdentityIcon"
+          handleClick={() => setIdentityPopup(null)}
+          isWide
+        />
+        {renderPopupContent()}
+      </StyledModalContent>
+    </Modal>
   );
 };

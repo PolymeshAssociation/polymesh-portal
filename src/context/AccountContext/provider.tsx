@@ -199,7 +199,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
         } else {
           // if the key is not in all accounts (the signingManager)
           // ensure there is no signing manager attached to the SDK
-          await sdk.setSigningManager(null);
+          // TODO: check me
+          // await sdk.setSigningManager(null);
         }
 
         const multiSigInstance = await accountRef.current.getMultiSig();

@@ -12,6 +12,7 @@ interface IExtensionCardProps {
 
 export const ExtensionCard = ({ wallet }: IExtensionCardProps) => {
   const { windowWidth } = useWindowWidth();
+
   return (
     <ActionCard hovered>
       <StyledExtensionName>

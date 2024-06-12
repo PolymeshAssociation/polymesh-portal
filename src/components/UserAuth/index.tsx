@@ -1,18 +1,15 @@
-import { useState, useEffect } from 'react';
-import { useLocalStorage } from '~/hooks/utility';
+import { useContext } from 'react';
+import { AccountContext } from '~/context/AccountContext';
+import { useAuthContext } from '~/context/AuthContext';
 import { ViewUnverified } from './components/ViewUnverified';
 import { ViewVerified } from './components/ViewVerified';
 import { StyledAuthContainer } from './styles';
 
 const UserAuth = () => {
-  const [showAuth, setShowAuth] = useLocalStorage('showAuth', true);
-  const [verified, setVerified] = useState(false);
+  const { selectedAccount } = useContext(AccountContext);
+  const { showAuth, setShowAuth, verified } = useAuthContext();
 
-  useEffect(() => {
-    setVerified(false);
-  }, []);
-
-  if (!showAuth) {
+  if (!showAuth && !!selectedAccount) {
     return null;
   }
 
@@ -21,7 +18,7 @@ const UserAuth = () => {
       {verified ? (
         <ViewVerified handleDismiss={() => setShowAuth(false)} />
       ) : (
-        <ViewUnverified handleVerify={() => setVerified(true)} />
+        <ViewUnverified />
       )}
     </StyledAuthContainer>
   );

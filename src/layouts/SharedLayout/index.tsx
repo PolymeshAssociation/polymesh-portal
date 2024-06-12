@@ -8,6 +8,8 @@ import {
   LoadingFallback,
   UserAuth,
 } from '~/components';
+import { PopupConnectWallet } from '~/components/UserAuth/components/PopupConnectWallet';
+import { PopupVerifyIdentity } from '~/components/UserAuth/components/PopupVerifyIdentity';
 import { StyledMain, StyledPageWrapper } from './styles';
 import { useWindowWidth } from '~/hooks/utility';
 import { Heading } from '~/components/UiKit';
@@ -83,6 +85,8 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
       </StyledPageWrapper>
       {/* )} */}
       {/* {redirectToLanding && <Navigate to="/" replace />} */}
+      <PopupConnectWallet />
+      <PopupVerifyIdentity />
     </>
   );
 };

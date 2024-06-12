@@ -1,3 +1,5 @@
+import { notifyError } from '~/helpers/notifications';
+
 export const fetchIdentityProviderLink = async (
   address: string,
   provider: string,
@@ -19,15 +21,22 @@ export const fetchIdentityProviderLink = async (
       }),
     },
   );
-  if (!body || status !== 201) {
+  if (!body) {
     return null;
   }
 
   const reader = body.pipeThrough(new TextDecoderStream()).getReader();
   const rawData = await reader?.read();
+
   if (!rawData.value) {
     return null;
   }
   const parsedData = JSON.parse(rawData.value);
+
+  if (status === 400) {
+    notifyError(parsedData.message);
+    return { link: '' };
+  }
+
   return parsedData;
 };

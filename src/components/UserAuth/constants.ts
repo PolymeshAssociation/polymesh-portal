@@ -9,6 +9,13 @@ import {
   TWalletName,
 } from '~/constants/wallets';
 
+import {
+  JUMIO_IDENTITY_PROVIDER,
+  NETKI_IDENTITY_PROVIDER,
+  FRACTAL_IDENTITY_PROVIDER,
+  MOCKID_IDENTITY_PROVIDER,
+} from '~/context/AuthContext/constants';
+
 export enum EActionButtonStatus {
   ACTION_ACTIVE = 'active',
   ACTION_DISABLED = 'disabled',
@@ -16,29 +23,7 @@ export enum EActionButtonStatus {
   ACTION_DONE = 'done',
 }
 
-export type TAuthModalType = 'connect' | 'identify' | null;
-
-export type TConnectModalType =
-  | 'extensions'
-  | typeof POLYMESH_WALLET
-  | typeof POLKADOT_WALLET
-  | typeof TALISMAN_WALLET
-  | typeof SUBWALLET_WALLET
-  | typeof NOVA_WALLET
-  | 'manual'
-  | 'wallet';
-
-export const JUMIO_IDENTITY_PROVIDER = 'Jumio';
-export const NETKI_IDENTITY_PROVIDER = 'Netki';
-export const FRACTAL_IDENTITY_PROVIDER = 'Fractal';
-
-export type TIdentityModalType =
-  | 'providers'
-  | typeof JUMIO_IDENTITY_PROVIDER
-  | typeof NETKI_IDENTITY_PROVIDER
-  | typeof FRACTAL_IDENTITY_PROVIDER
-  | 'business';
-
+// TODO: update info for NOVA Wallet
 export const WALLET_FEATURES_LIST = {
   [POLYMESH_WALLET as TWalletName]: [
     'Most convenient',
@@ -57,12 +42,40 @@ export const WALLET_FEATURES_LIST = {
     'Multichain support',
     'Browser support: Google Chrome',
   ],
+  [NOVA_WALLET as TWalletName]: [
+    'Multichain support',
+    'Browser support: Google Chrome',
+  ],
+};
+
+export const SUPPORTED_BROWSERS = {
+  [POLYMESH_WALLET as TWalletName]: {
+    tickers: ['Chrome'],
+    names: ['Google Chrome'],
+  },
+  [POLKADOT_WALLET as TWalletName]: {
+    tickers: ['Chrome', 'Firefox'],
+    names: ['Google Chrome', 'Firefox'],
+  },
+  [SUBWALLET_WALLET as TWalletName]: {
+    tickers: ['Chrome', 'Firefox', 'Edg'],
+    names: ['Google Chrome', 'Firefox', 'Brave', 'Edge'],
+  },
+  [TALISMAN_WALLET as TWalletName]: {
+    tickers: ['Chrome'],
+    names: ['Google Chrome'],
+  },
+  [NOVA_WALLET as TWalletName]: {
+    tickers: ['Chrome'],
+    names: ['Google Chrome'],
+  },
 };
 
 export type TIdentityProviderNames =
   | typeof JUMIO_IDENTITY_PROVIDER
   | typeof NETKI_IDENTITY_PROVIDER
-  | typeof FRACTAL_IDENTITY_PROVIDER;
+  | typeof FRACTAL_IDENTITY_PROVIDER
+  | typeof MOCKID_IDENTITY_PROVIDER;
 
 export interface IIdentityProvider {
   name: TIdentityProviderNames;
@@ -120,6 +133,16 @@ export const IDENTITY_PROVIDERS: {
       'Take a picture of a government issued ID front and back',
       'Take a selfie',
     ],
+  },
+  [MOCKID_IDENTITY_PROVIDER]: {
+    name: MOCKID_IDENTITY_PROVIDER,
+    link: 'mock',
+    icon: 'MockIdProviderIcon' as TIcons,
+    requirements: [
+      'This will create a CDD claim for the address without verifying any documents.',
+      'Mock CDD is for testing purposes only and is not available for mainnet.',
+    ],
+    steps: [],
   },
 };
 

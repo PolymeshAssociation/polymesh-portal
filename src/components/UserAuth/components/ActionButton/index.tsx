@@ -35,7 +35,16 @@ export const ActionButton = ({
       <StyledActionButton $status={status} onClick={handleButtonClick}>
         <Icon name={icon} size="24px" className="icon" />
         <StyledActionLabelWrap>
-          <StyledActionLabel $status={status}>{label}</StyledActionLabel>
+          {status === EActionButtonStatus.ACTION_PENDING ? (
+            <>
+              <StyledActionLabel>{label}:</StyledActionLabel>
+              <StyledActionLabel $status={status} $underlined>
+                Pending
+              </StyledActionLabel>
+            </>
+          ) : (
+            <StyledActionLabel $status={status}>{label}</StyledActionLabel>
+          )}
         </StyledActionLabelWrap>
       </StyledActionButton>
     </StyledActionButtonWrapper>

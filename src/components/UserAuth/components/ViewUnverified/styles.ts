@@ -7,9 +7,3 @@ export const StyledAuthButtons = styled.div`
     flex-direction: column;
   }
 `;
-
-export const StyledModalContent = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-`;

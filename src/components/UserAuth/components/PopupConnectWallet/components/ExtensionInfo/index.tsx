@@ -1,8 +1,11 @@
-import { Text, Heading } from '~/components/UiKit';
+import { useAuthContext } from '~/context/AuthContext';
 import { WALLET_CONNECT_OPTIONS } from '~/constants/wallets';
-import { TConnectModalType } from '../../../../constants';
+import { Text, Heading } from '~/components/UiKit';
+import { TConnectModalType } from '~/context/AuthContext/constants';
 import { PopupActionButtons } from '../../../PopupActionButtons';
 import { SecondaryButton } from '../../../SecondaryButton';
+import { BrowserSupport } from '../BrowserSupport';
+import { isSupportedBrowser } from './helpers';
 import {
   StyledExtensionInfo,
   StyledExtensionInfoItem,
@@ -12,17 +15,20 @@ import {
 
 interface IExtensionInfoProps {
   selectedExtension: Partial<TConnectModalType>;
-  navigate: (type: TConnectModalType) => void;
 }
 
-export const ExtensionInfo = ({
-  selectedExtension,
-  navigate,
-}: IExtensionInfoProps) => {
+export const ExtensionInfo = ({ selectedExtension }: IExtensionInfoProps) => {
+  const { setConnectPopup } = useAuthContext();
+
   const currentExtension = WALLET_CONNECT_OPTIONS[selectedExtension];
 
   const handleDownloadExtension = () =>
     window.open(currentExtension?.downloadUrl, '_blank');
+
+  const handleProceed = () => {
+    // reload all app to inject provider from extension
+    window.location.reload();
+  };
 
   const renderPostInstallInfo = () => {
     switch (selectedExtension) {
@@ -58,6 +64,15 @@ export const ExtensionInfo = ({
     }
   };
 
+  const isMobileDevice =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    );
+
+  if (!isSupportedBrowser(selectedExtension) && !isMobileDevice) {
+    return <BrowserSupport walletName={selectedExtension} />;
+  }
+
   return (
     <>
       <StyledExtensionInfo>
@@ -80,13 +95,20 @@ export const ExtensionInfo = ({
         </StyledExtensionInfoItem>
         <StyledExtensionInfoItem>
           <StyledExtensionItemNumber>3</StyledExtensionItemNumber>
-          <Text>Once you’ve setup your wallet account, select “Proceed”</Text>
+          <Text>
+            Once you’ve setup your wallet account, select “Proceed” to reload
+            the page
+          </Text>
+        </StyledExtensionInfoItem>
+        <StyledExtensionInfoItem>
+          <StyledExtensionItemNumber>4</StyledExtensionItemNumber>
+          <Text>Connect with installed extension</Text>
         </StyledExtensionInfoItem>
         {renderPostInstallInfo()}
       </StyledExtensionInfo>
       <PopupActionButtons
-        onProceed={() => navigate('wallet')}
-        onGoBack={() => navigate('extensions')}
+        onProceed={handleProceed}
+        onGoBack={() => setConnectPopup('extensions')}
       />
     </>
   );

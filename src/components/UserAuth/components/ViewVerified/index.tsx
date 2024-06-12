@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { useAuthContext } from '~/context/AuthContext';
+import { notifyError } from '~/helpers/notifications';
 import { Icon } from '~/components';
 import { Button, Text } from '~/components/UiKit';
-import { notifyError } from '~/helpers/notifications';
 import { REGEX_EMAIL } from '../../constants';
 import { CustomInput, useInput } from '../CustomInput';
 import { SecondaryButton } from '../SecondaryButton';
@@ -23,6 +24,7 @@ interface IViewVerifiedProps {
 }
 
 export const ViewVerified = ({ handleDismiss }: IViewVerifiedProps) => {
+  const { setShowAuth } = useAuthContext();
   const { value: email, error, handleInputChange } = useInput();
 
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -48,6 +50,7 @@ export const ViewVerified = ({ handleDismiss }: IViewVerifiedProps) => {
 
     if (isSubscribed) {
       setSubscribed(true);
+      setShowAuth(false);
     } else {
       notifyError('Subscription failed! Please, try again');
     }

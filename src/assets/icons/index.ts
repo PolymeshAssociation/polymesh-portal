@@ -73,3 +73,4 @@ export { ReactComponent as ConnectIdentityIcon } from './connect-identity.svg';
 export { ReactComponent as JumioProviderIcon } from './jumio-logo.svg';
 export { ReactComponent as NetkiProviderIcon } from './netki-logo.svg';
 export { ReactComponent as FractalProviderIcon } from './fractal-logo.svg';
+export { ReactComponent as MockIdProviderIcon } from './mockid-logo.svg';

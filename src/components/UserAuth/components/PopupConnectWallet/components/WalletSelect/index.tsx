@@ -1,17 +1,11 @@
 import { WalletSelect as WalletSelectComponent } from '~/components';
 import { Text } from '~/components/UiKit';
+import { useAuthContext } from '~/context/AuthContext';
 import { PopupActionButtons } from '../../../PopupActionButtons';
 import { StyledWalletSelectContainer } from './styles';
 
-interface IWalletSelectProps {
-  handleGoBack: () => void;
-  handleProceed: () => void;
-}
-
-export const WalletSelect = ({
-  handleProceed,
-  handleGoBack,
-}: IWalletSelectProps) => {
+export const WalletSelect = () => {
+  const { setConnectPopup } = useAuthContext();
   return (
     <>
       <StyledWalletSelectContainer>
@@ -21,8 +15,8 @@ export const WalletSelect = ({
         <WalletSelectComponent placement="widget" showExternal={false} />
       </StyledWalletSelectContainer>
       <PopupActionButtons
-        onProceed={handleProceed}
-        onGoBack={handleGoBack}
+        onProceed={() => setConnectPopup(null)}
+        onGoBack={() => setConnectPopup('extensions')}
         aligned
       />
     </>

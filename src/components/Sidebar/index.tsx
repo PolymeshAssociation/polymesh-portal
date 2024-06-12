@@ -61,7 +61,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
   const [linksExpanded, setLinksExpanded] = useState(false);
 
   useEffect(() => {
-    if (!signingManager || !sdk) return undefined;
+    if (!sdk) return undefined;
 
     let unsubCb: UnsubCallback | undefined;
 
@@ -70,10 +70,10 @@ const Sidebar: React.FC<ISidebarProps> = ({
         setNetworkLoading(true);
 
         if (defaultExtension === 'polywallet') {
-          const network = await signingManager.getCurrentNetwork();
-          setWalletNetwork(network);
+          const network = await signingManager?.getCurrentNetwork();
+          setWalletNetwork(network || null);
 
-          unsubCb = signingManager.onNetworkChange((newNetwork) => {
+          unsubCb = signingManager?.onNetworkChange((newNetwork) => {
             setWalletNetwork(newNetwork);
           });
         } else {

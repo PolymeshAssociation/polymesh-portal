@@ -1,4 +1,4 @@
-import { EExternalIdentityStatus, IExternalIdentity } from './constants';
+import { EExternalIdentityStatus } from './constants';
 
 const BLANCK_IDENTITY = {
   identity: null,
@@ -23,20 +23,25 @@ export const fetchExternalIdentityStatus = async (address: string) => {
     }
     const reader = body.pipeThrough(new TextDecoderStream()).getReader();
     const rawResponse = await reader?.read();
-    const parsedData: IExternalIdentity = BLANCK_IDENTITY;
 
     if (!rawResponse.value) {
-      return parsedData;
+      return BLANCK_IDENTITY;
     }
+
     if (rawResponse.value.includes('provider')) {
-      parsedData.status = EExternalIdentityStatus.PENDING;
+      return {
+        identity: null,
+        status: EExternalIdentityStatus.PENDING,
+      };
     }
     if (rawResponse.value.includes('did')) {
       const responseArr = rawResponse.value.split('"did":"');
-      parsedData.identity = responseArr[1].slice(0, 66);
-      parsedData.status = EExternalIdentityStatus.VERIFIED;
+      return {
+        identity: responseArr[1].slice(0, 66),
+        status: EExternalIdentityStatus.VERIFIED,
+      };
     }
-    return parsedData;
+    return BLANCK_IDENTITY;
   } catch (err) {
     return BLANCK_IDENTITY;
   }

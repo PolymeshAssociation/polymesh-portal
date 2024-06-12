@@ -1,6 +1,8 @@
 import { useMemo, useContext } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { useAuthContext } from '~/context/AuthContext';
+import { TConnectModalType } from '~/context/AuthContext/constants';
 import {
   WALLET_CONNECT_OPTIONS,
   PlatformOptions,
@@ -9,23 +11,11 @@ import {
 import { Text } from '~/components/UiKit';
 import { ExtensionCard } from '../ExtesionCard';
 import { SecondaryButton } from '../../../SecondaryButton';
-import { TConnectModalType } from '../../../../constants';
 import { StyledExtensionList, StyledExtensionBox } from './styles';
 
-interface IExtensionSelectProps {
-  handleNavigate: (type: TConnectModalType) => void;
-  handleClose: () => void;
-}
-
-export const ExtensionSelect = ({
-  handleNavigate,
-  handleClose,
-}: IExtensionSelectProps) => {
-  const {
-    connectWallet,
-    // settings: { defaultExtension },
-    // state: { initialized },
-  } = useContext(PolymeshContext);
+export const ExtensionSelect = () => {
+  const { connectWallet } = useContext(PolymeshContext);
+  const { setConnectPopup } = useAuthContext();
 
   const isMobileDevice =
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -35,10 +25,12 @@ export const ExtensionSelect = ({
   const walletOptions = useMemo(() => {
     const injectedExtensions =
       BrowserExtensionSigningManager.getExtensionList();
-    return Object.values(WALLET_CONNECT_OPTIONS).map((option) => ({
-      ...option,
-      isInstalled: injectedExtensions.includes(option.extensionName),
-    }));
+    return Object.values(WALLET_CONNECT_OPTIONS).map(
+      (option: IWalletConnectOption) => ({
+        ...option,
+        isInstalled: injectedExtensions.includes(option.extensionName),
+      }),
+    );
   }, []);
 
   const filteredOptions = walletOptions.filter(
@@ -55,15 +47,14 @@ export const ExtensionSelect = ({
     // .filter(({ recommended }) => recommended) TODO: clarify if needed!
     .sort((a, b) => Number(b.isInstalled) - Number(a.isInstalled));
 
-  const handleExtensionClick = (
+  const handleExtensionClick = async (
     wallet: IWalletConnectOption & { isInstalled: boolean },
   ) => {
     if (wallet.isInstalled) {
-      connectWallet(wallet.extensionName);
-      handleClose();
+      connectWallet(wallet.extensionName).then(() => setConnectPopup('wallet'));
       return;
     }
-    handleNavigate(wallet.walletName as TConnectModalType);
+    setConnectPopup(wallet.walletName as TConnectModalType);
   };
 
   return (
@@ -87,7 +78,7 @@ export const ExtensionSelect = ({
         <Text bold>Advanced:</Text>
         <SecondaryButton
           label="Manually onboard an existing key"
-          handleClick={() => handleNavigate('manual')}
+          handleClick={() => setConnectPopup('manual')}
         />
       </div>
     </>

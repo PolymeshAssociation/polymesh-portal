@@ -1,24 +1,16 @@
-import { useState } from 'react';
-import { TConnectModalType } from '../../constants';
+import { useAuthContext } from '~/context/AuthContext';
 import { Text } from '~/components/UiKit';
+import { Modal } from '~/components';
 import { PopupHeader } from '../PopupHeader';
 import { SecondaryButton } from '../SecondaryButton';
 import { ExtensionSelect } from './components/ExtensionSelect';
 import { ExtensionInfo } from './components/ExtensionInfo';
 import { ManualConnect } from './components/ManualConnect';
 import { WalletSelect } from './components/WalletSelect';
+import { StyledModalContent } from './styles';
 
-interface IPopupConnectWalletProps {
-  handleProceed: () => void;
-  handleClose: () => void;
-}
-export const PopupConnectWallet = ({
-  handleProceed,
-  handleClose,
-}: IPopupConnectWalletProps) => {
-  const [modalType, setModalType] = useState<TConnectModalType>('extensions');
-
-  const handleNavigate = (type: TConnectModalType) => setModalType(type);
+export const PopupConnectWallet = () => {
+  const { connectPopup, setConnectPopup } = useAuthContext();
 
   const handleOpenArticle = () =>
     window.open(
@@ -27,7 +19,7 @@ export const PopupConnectWallet = ({
     );
 
   const renderPopupSubtitle = () => {
-    switch (modalType) {
+    switch (connectPopup) {
       case 'extensions':
       case 'Polymesh':
       case 'Polkadot':
@@ -43,71 +35,57 @@ export const PopupConnectWallet = ({
   };
 
   const renderPopupContent = () => {
-    switch (modalType) {
+    switch (connectPopup) {
       case 'extensions':
-        return (
-          <ExtensionSelect
-            handleNavigate={handleNavigate}
-            handleClose={handleClose}
-          />
-        );
+        return <ExtensionSelect />;
       case 'Polymesh':
       case 'Polkadot':
       case 'Talisman':
       case 'Subwallet':
       case 'Nova':
-        return (
-          <ExtensionInfo
-            selectedExtension={modalType}
-            navigate={handleNavigate}
-          />
-        );
+        return <ExtensionInfo selectedExtension={connectPopup} />;
       case 'manual':
-        return (
-          <ManualConnect navigate={handleNavigate} handleClose={handleClose} />
-        );
+        return <ManualConnect />;
       case 'wallet':
-        return (
-          <WalletSelect
-            handleProceed={handleProceed}
-            handleGoBack={() => handleNavigate('extensions')}
-          />
-        );
+        return <WalletSelect />;
       default:
-        return (
-          <ExtensionSelect
-            handleNavigate={handleNavigate}
-            handleClose={handleClose}
-          />
-        );
+        return <ExtensionSelect />;
     }
   };
 
+  if (!connectPopup) {
+    return null;
+  }
+
   return (
-    <>
-      <PopupHeader
-        title={
-          modalType === 'manual' ? 'Manually Connect Wallet' : 'Connect Wallet'
-        }
-        subTitle={renderPopupSubtitle()}
-        icon="ConnectWalletIcon"
-        handleClick={handleClose}
-      >
-        {modalType === 'manual' ? (
-          <Text bold size="large">
-            In order to fully utilize Polymesh, you need to connect a supported
-            wallet key. For a list of supported wallets and help with this
-            process{' '}
-            <SecondaryButton
-              label="view our help articles"
-              labelSize="large"
-              underlined
-              handleClick={handleOpenArticle}
-            />
-          </Text>
-        ) : null}
-      </PopupHeader>
-      {renderPopupContent()}
-    </>
+    <Modal handleClose={() => setConnectPopup(null)} customWidth="fit-content">
+      <StyledModalContent>
+        <PopupHeader
+          title={
+            connectPopup === 'manual'
+              ? 'Manually Connect Wallet'
+              : 'Connect Wallet'
+          }
+          subTitle={renderPopupSubtitle()}
+          icon="ConnectWalletIcon"
+          handleClick={() => setConnectPopup(null)}
+        >
+          {connectPopup === 'manual' ? (
+            <Text bold size="large">
+              In order to fully utilize Polymesh, you need to connect a
+              supported wallet key. For a list of supported wallets and help
+              with this process{' '}
+              <SecondaryButton
+                label="view our help articles"
+                labelSize="large"
+                underlined
+                handleClick={handleOpenArticle}
+              />
+            </Text>
+          ) : null}
+        </PopupHeader>
+        {renderPopupContent()}
+      </StyledModalContent>
+    </Modal>
   );
 };

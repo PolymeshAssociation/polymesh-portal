@@ -1,28 +1,30 @@
-import { useState, useContext } from 'react';
+import { useContext } from 'react';
 import { AccountContext } from '~/context/AccountContext';
-import { EActionButtonStatus, TAuthModalType } from '../../constants';
-import { Modal } from '~/components';
+import { useAuthContext } from '~/context/AuthContext';
+import { EExternalIdentityStatus } from '~/context/AccountContext/constants';
+import { EActionButtonStatus } from '../../constants';
 import { ActionButton } from '../ActionButton';
 import { PopupWelcome } from '../PopupWelcome';
-import { PopupConnectWallet } from '../PopupConnectWallet';
-import { PopupVerifyIdentity } from '../PopupVerifyIdentity';
 import { StyledAuthHeaderWrap, StyledAuthHeader } from '../../styles';
-import { StyledAuthButtons, StyledModalContent } from './styles';
+import { StyledAuthButtons } from './styles';
 
-export const ViewUnverified = ({
-  handleVerify,
-}: {
-  handleVerify: () => void;
-}) => {
-  const { selectedAccount } = useContext(AccountContext);
+export const ViewUnverified = () => {
+  const { selectedAccount, externalIdentity } = useContext(AccountContext);
+  const { setConnectPopup, setIdentityPopup } = useAuthContext();
 
-  const [authModal, setAuthModal] = useState<TAuthModalType>(null);
-
-  const handleCloseModal = () => setAuthModal(null);
+  const getIdentityButtonStatus = () => {
+    if (externalIdentity?.status === EExternalIdentityStatus.PENDING) {
+      return EActionButtonStatus.ACTION_PENDING;
+    }
+    if (!selectedAccount) {
+      return EActionButtonStatus.ACTION_DISABLED;
+    }
+    return EActionButtonStatus.ACTION_ACTIVE;
+  };
 
   return (
     <>
-      <PopupWelcome handleSetup={() => setAuthModal('connect')} />
+      <PopupWelcome handleSetup={() => setConnectPopup('extensions')} />
 
       <StyledAuthHeaderWrap>
         <StyledAuthHeader>Get Started with Polymesh</StyledAuthHeader>
@@ -37,38 +39,26 @@ export const ViewUnverified = ({
               ? EActionButtonStatus.ACTION_DONE
               : EActionButtonStatus.ACTION_ACTIVE
           }
-          handleClick={() => setAuthModal('connect')}
+          handleClick={() => setConnectPopup('extensions')}
         />
         <ActionButton
-          title="Step 2"
+          title={
+            externalIdentity?.status === EExternalIdentityStatus.PENDING
+              ? 'Step 2 (In Progress)'
+              : 'Step 2'
+          }
           label="Verify Identity"
           icon="ConnectIdentityIcon"
-          status={
-            selectedAccount
-              ? EActionButtonStatus.ACTION_ACTIVE
-              : EActionButtonStatus.ACTION_DISABLED
+          status={getIdentityButtonStatus()}
+          handleClick={() =>
+            setIdentityPopup(
+              externalIdentity?.status === EExternalIdentityStatus.PENDING
+                ? 'pending'
+                : 'providers',
+            )
           }
-          handleClick={() => setAuthModal('identify')}
         />
       </StyledAuthButtons>
-
-      {authModal && (
-        <Modal handleClose={handleCloseModal} customWidth="fit-content">
-          <StyledModalContent>
-            {authModal === 'connect' ? (
-              <PopupConnectWallet
-                handleClose={handleCloseModal}
-                handleProceed={() => setAuthModal('identify')}
-              />
-            ) : (
-              <PopupVerifyIdentity
-                handleClose={handleCloseModal}
-                handleVerify={handleVerify}
-              />
-            )}
-          </StyledModalContent>
-        </Modal>
-      )}
     </>
   );
 };

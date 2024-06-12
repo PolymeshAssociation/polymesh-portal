@@ -1,24 +1,17 @@
 import { useContext } from 'react';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { TConnectModalType } from '../../../../constants';
+import { useAuthContext } from '~/context/AuthContext';
 import { PopupActionButtons } from '../../../PopupActionButtons';
 import { CustomInput, useInput } from '../../../CustomInput';
 
-interface IManualConnectProps {
-  navigate: (type: TConnectModalType) => void;
-  handleClose: () => void;
-}
-
-export const ManualConnect = ({
-  navigate,
-  handleClose,
-}: IManualConnectProps) => {
+export const ManualConnect = () => {
   const {
     connectWallet,
     api: { sdk },
   } = useContext(PolymeshContext);
   const { setExternalAccounKey } = useContext(AccountContext);
+  const { setConnectPopup } = useAuthContext();
 
   const { value, error, handleInputChange, handleErrorChange } = useInput();
 
@@ -36,7 +29,7 @@ export const ManualConnect = ({
 
     await connectWallet('');
     setExternalAccounKey(value);
-    handleClose();
+    setConnectPopup(null);
   };
 
   return (
@@ -50,7 +43,7 @@ export const ManualConnect = ({
       />
       <PopupActionButtons
         onProceed={handleManualWalletConnect}
-        onGoBack={() => navigate('extensions')}
+        onGoBack={() => setConnectPopup('extensions')}
         canProceed={!error && !!value}
       />
     </>
