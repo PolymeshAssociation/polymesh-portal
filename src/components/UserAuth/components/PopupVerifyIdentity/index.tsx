@@ -4,6 +4,7 @@ import { PopupHeader } from '../PopupHeader';
 import { ProviderSelect } from './components/ProviderSelect';
 import { ProviderInfo } from './components/ProviderInfo';
 import { PendingInfo } from './components/PendingInfo';
+import { BusinessAccount } from './components/BusinessAccount';
 import { StyledModalContent } from './styles';
 
 export const PopupVerifyIdentity = () => {
@@ -18,16 +19,8 @@ export const PopupVerifyIdentity = () => {
       case 'Fractal':
       case 'MockID':
         return <ProviderInfo providerName={identityPopup} />;
-      // case 'business':
-      //   return (
-      //     <BusinessAccount
-      //       handleClose={() => {
-      //         handleClose();
-      //         handleVerify();
-      //       }}
-      //       handleGoBack={() => handleNavigate('providers')}
-      //     />
-      //   );
+      case 'business':
+        return <BusinessAccount />;
       case 'pending':
         return <PendingInfo />;
 

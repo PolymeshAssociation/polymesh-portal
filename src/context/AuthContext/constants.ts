@@ -39,8 +39,8 @@ export type TIdentityModalType =
   | typeof NETKI_IDENTITY_PROVIDER
   | typeof FRACTAL_IDENTITY_PROVIDER
   | typeof MOCKID_IDENTITY_PROVIDER
+  | 'business'
   | 'pending';
-//   | 'business';
 
 export type TConnectModalType =
   | 'extensions'

@@ -1,4 +1,5 @@
 import { Text } from '~/components/UiKit';
+import { notifyError } from '~/helpers/notifications';
 import { CustomInput, useInput } from '../../../CustomInput';
 import { PopupActionButtons } from '../../../PopupActionButtons';
 import { REGEX_EMAIL } from '../../../../constants';
@@ -32,9 +33,11 @@ export const BusinessAccountForm = ({
       setEmailError('Please enter correct email');
       return;
     }
-    const submitted = await fetchContactUs();
+    const submitted = await fetchContactUs({ firstName: name, email });
     if (submitted) {
       handleProceed();
+    } else {
+      notifyError('Something went wrong! Please try again');
     }
   };
 
@@ -65,7 +68,7 @@ export const BusinessAccountForm = ({
       <PopupActionButtons
         onProceed={handleSubmit}
         onGoBack={handleGoBack}
-        canProceed={!nameError && !!name && !emailError && !!email}
+        // canProceed={!nameError && !!name && !emailError && !!email}
         aligned
       />
     </>

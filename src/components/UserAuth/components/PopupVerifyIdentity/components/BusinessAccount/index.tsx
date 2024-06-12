@@ -1,17 +1,12 @@
 import { useState } from 'react';
+import { useAuthContext } from '~/context/AuthContext';
 import { Text, Heading, Button } from '~/components/UiKit';
 import { BusinessAccountForm } from '../BusinessAccountForm';
 import { StyledSuccessContainer } from './styles';
 
-interface IBusinessAccountProps {
-  handleGoBack: () => void;
-  handleClose: () => void;
-}
+export const BusinessAccount = () => {
+  const { setIdentityPopup } = useAuthContext();
 
-export const BusinessAccount = ({
-  handleGoBack,
-  handleClose,
-}: IBusinessAccountProps) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   if (formSubmitted) {
@@ -22,7 +17,7 @@ export const BusinessAccount = ({
           <Text size="large">We will reach out to you shortly</Text>
         </StyledSuccessContainer>
         <Button
-          onClick={handleClose}
+          onClick={() => setIdentityPopup(null)}
           variant="modalPrimary"
           className="back-btn"
         >
@@ -34,7 +29,7 @@ export const BusinessAccount = ({
 
   return (
     <BusinessAccountForm
-      handleGoBack={handleGoBack}
+      handleGoBack={() => setIdentityPopup('providers')}
       handleProceed={() => setFormSubmitted(true)}
     />
   );

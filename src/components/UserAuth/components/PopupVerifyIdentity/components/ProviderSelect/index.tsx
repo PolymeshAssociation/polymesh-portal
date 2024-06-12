@@ -20,10 +20,6 @@ export const ProviderSelect = () => {
 
   const [isTestnet, setIsTestnet] = useState(false);
 
-  const navigateToContactUs = () => {
-    window.open('https://polymesh.network/contact-us', '_blank');
-  };
-
   useEffect(() => {
     if (!sdk) return;
 
@@ -59,7 +55,7 @@ export const ProviderSelect = () => {
       <StyledProvidersContainer>{renderProviders()}</StyledProvidersContainer>
       <SecondaryButton
         label="I need to onboard as a business"
-        handleClick={navigateToContactUs}
+        handleClick={() => setIdentityPopup('business')}
       />
       <PopupActionButtons
         goBackLabel="Close"
