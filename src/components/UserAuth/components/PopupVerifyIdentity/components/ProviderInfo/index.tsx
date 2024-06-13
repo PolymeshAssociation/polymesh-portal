@@ -8,11 +8,12 @@ import { Icon } from '~/components';
 import {
   TIdentityProviderNames,
   IDENTITY_PROVIDERS,
+  IDENTITY_PROVIDER_MOCK,
 } from '../../../../constants';
 import { ActionCard } from '../../../ActionCard';
 import { PopupActionButtons } from '../../../PopupActionButtons';
 import { SecondaryButton } from '../../../SecondaryButton';
-import { fetchIdentityProviderLink } from './helpers';
+import { fetchIdentityProviderLink, fetchMockCdd } from './helpers';
 import {
   StyledProviderContainer,
   StyledProviderInfo,
@@ -32,7 +33,10 @@ export const ProviderInfo = ({ providerName }: IProvideInfoProps) => {
     useContext(AccountContext);
   const { setIdentityPopup } = useAuthContext();
 
-  const provider = IDENTITY_PROVIDERS[providerName];
+  const provider =
+    providerName === MOCKID_IDENTITY_PROVIDER
+      ? IDENTITY_PROVIDER_MOCK
+      : IDENTITY_PROVIDERS[providerName];
 
   const handleOpenProviderDesktop = () => {
     if (!providerLink) return;
@@ -46,10 +50,14 @@ export const ProviderInfo = ({ providerName }: IProvideInfoProps) => {
         provider.link,
       );
       if (providerName === MOCKID_IDENTITY_PROVIDER) {
+        const isCddCreated = await fetchMockCdd(selectedAccount);
+        if (isCddCreated) {
+          refreshAccountIdentity();
+        }
+      } else {
         refreshAccountIdentity();
-        return;
+        setProviderLink(data.link);
       }
-      setProviderLink(data.link);
     })();
   }, [provider.link, providerName, refreshAccountIdentity, selectedAccount]);
 
@@ -105,7 +113,7 @@ export const ProviderInfo = ({ providerName }: IProvideInfoProps) => {
           </ActionCard>
         )}
       </StyledProviderContainer>
-      <PopupActionButtons onGoBack={() => setIdentityPopup(null)} />
+      <PopupActionButtons onGoBack={() => setIdentityPopup('providers')} />
     </>
   );
 };

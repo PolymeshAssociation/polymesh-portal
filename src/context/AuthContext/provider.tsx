@@ -2,7 +2,11 @@ import { useState, useEffect, useContext, useMemo } from 'react';
 import { AccountContext } from '~/context/AccountContext';
 import { EExternalIdentityStatus } from '~/context/AccountContext/constants';
 import { useLocalStorage } from '~/hooks/utility';
-import { TConnectModalType, TIdentityModalType } from './constants';
+import {
+  TConnectModalType,
+  TIdentityModalType,
+  REGEX_MOBILE_DEVICE,
+} from './constants';
 import AuthContext from './context';
 
 interface IAuthProviderProps {
@@ -20,6 +24,7 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
   const [identityPopup, setIdentityPopup] = useState<TIdentityModalType | null>(
     null,
   );
+  const [isNewWalletMobile, setIsNewWalletMobile] = useState(false);
 
   useEffect(() => {
     if (externalIdentity?.status === EExternalIdentityStatus.VERIFIED) {
@@ -29,18 +34,31 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
     }
   }, [externalIdentity?.status, selectedAccount]);
 
+  const isMobileDevice = REGEX_MOBILE_DEVICE.test(navigator.userAgent);
+
   const contextValue = useMemo(
     () => ({
       showAuth,
       verified,
       connectPopup,
       identityPopup,
+      isNewWalletMobile,
+      isMobileDevice,
       setShowAuth,
       setVerified,
       setConnectPopup,
       setIdentityPopup,
+      setIsNewWalletMobile,
     }),
-    [connectPopup, identityPopup, setShowAuth, showAuth, verified],
+    [
+      connectPopup,
+      identityPopup,
+      isMobileDevice,
+      isNewWalletMobile,
+      setShowAuth,
+      showAuth,
+      verified,
+    ],
   );
 
   return (

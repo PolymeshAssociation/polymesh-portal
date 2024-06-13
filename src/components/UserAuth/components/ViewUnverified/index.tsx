@@ -24,7 +24,7 @@ export const ViewUnverified = () => {
 
   return (
     <>
-      <PopupWelcome handleSetup={() => setConnectPopup('extensions')} />
+      <PopupWelcome />
 
       <StyledAuthHeaderWrap>
         <StyledAuthHeader>Get Started with Polymesh</StyledAuthHeader>

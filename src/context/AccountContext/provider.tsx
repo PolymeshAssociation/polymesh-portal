@@ -21,7 +21,11 @@ import {
 import { PolymeshContext } from '../PolymeshContext';
 import AccountContext from './context';
 import { notifyGlobalError } from '~/helpers/notifications';
-import { IInfoByKey, IExternalIdentity } from './constants';
+import {
+  IInfoByKey,
+  IExternalIdentity,
+  EExternalIdentityStatus,
+} from './constants';
 import { useLocalStorage } from '~/hooks/utility';
 import { useBalance } from '~/hooks/polymesh';
 import { fetchExternalIdentityStatus } from './helpers';
@@ -99,6 +103,19 @@ const AccountProvider = ({ children }: IProviderProps) => {
     },
     [setExternalKey],
   );
+
+  useEffect(() => {
+    if (externalIdentity?.status !== EExternalIdentityStatus.PENDING) {
+      return undefined;
+    }
+    const pollingInterval = setInterval(async () => {
+      const externalIdentityData =
+        await fetchExternalIdentityStatus(selectedAccount);
+      setExternalIdentity(externalIdentityData);
+    }, 10000);
+
+    return () => clearInterval(pollingInterval);
+  }, [externalIdentity?.status, selectedAccount]);
 
   // Perform actions when account change occurs in extension
   useEffect(() => {

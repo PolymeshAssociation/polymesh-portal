@@ -11,10 +11,13 @@ export interface IAuthContext {
   verified: boolean;
   connectPopup: null | TConnectModalType;
   identityPopup: null | TIdentityModalType;
+  isNewWalletMobile: boolean;
+  isMobileDevice: boolean;
   setShowAuth: (showAuth: boolean) => void;
   setVerified: (verified: boolean) => void;
   setConnectPopup: (popup: TConnectModalType | null) => void;
   setIdentityPopup: (popup: TIdentityModalType | null) => void;
+  setIsNewWalletMobile: (isNewWallet: boolean) => void;
 }
 
 export const initialState: IAuthContext = {
@@ -22,10 +25,13 @@ export const initialState: IAuthContext = {
   verified: false,
   connectPopup: null,
   identityPopup: null,
+  isNewWalletMobile: false,
+  isMobileDevice: false,
   setShowAuth: () => {},
   setVerified: () => {},
   setConnectPopup: () => {},
   setIdentityPopup: () => {},
+  setIsNewWalletMobile: () => {},
 };
 
 export const JUMIO_IDENTITY_PROVIDER = 'Jumio';
@@ -44,6 +50,7 @@ export type TIdentityModalType =
 
 export type TConnectModalType =
   | 'extensions'
+  | 'extensionsMobile'
   | typeof POLYMESH_WALLET
   | typeof POLKADOT_WALLET
   | typeof TALISMAN_WALLET
@@ -52,3 +59,6 @@ export type TConnectModalType =
   | 'manual'
   | 'wallet'
   | 'browser';
+
+export const REGEX_MOBILE_DEVICE =
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;

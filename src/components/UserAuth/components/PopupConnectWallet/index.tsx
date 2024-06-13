@@ -5,12 +5,13 @@ import { PopupHeader } from '../PopupHeader';
 import { SecondaryButton } from '../SecondaryButton';
 import { ExtensionSelect } from './components/ExtensionSelect';
 import { ExtensionInfo } from './components/ExtensionInfo';
+import { ExtensionInfoMobile } from './components/ExtensionInfoMobile';
 import { ManualConnect } from './components/ManualConnect';
 import { WalletSelect } from './components/WalletSelect';
 import { StyledModalContent } from './styles';
 
 export const PopupConnectWallet = () => {
-  const { connectPopup, setConnectPopup } = useAuthContext();
+  const { connectPopup, setConnectPopup, isMobileDevice } = useAuthContext();
 
   const handleOpenArticle = () =>
     window.open(
@@ -37,13 +38,14 @@ export const PopupConnectWallet = () => {
   const renderPopupContent = () => {
     switch (connectPopup) {
       case 'extensions':
+      case 'extensionsMobile':
         return <ExtensionSelect />;
       case 'Polymesh':
       case 'Polkadot':
       case 'Talisman':
       case 'Subwallet':
       case 'Nova':
-        return <ExtensionInfo selectedExtension={connectPopup} />;
+        return isMobileDevice ? <ExtensionInfoMobile /> : <ExtensionInfo />;
       case 'manual':
         return <ManualConnect />;
       case 'wallet':

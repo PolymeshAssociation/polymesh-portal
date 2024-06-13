@@ -19,6 +19,7 @@ export const StyledActionButton = styled.button<{
   border: 1px solid;
   border-radius: 16px;
   padding: 31px 8px;
+  transition: all 250ms ease-out;
   border-color: ${({ $status }) =>
     $status === EActionButtonStatus.ACTION_DONE
       ? '#ffffff'
@@ -37,6 +38,21 @@ export const StyledActionButton = styled.button<{
         : getActionLabelColor($status)};
     & > svg {
       fill: transparent;
+    }
+  }
+  &:hover {
+    background-color: ${({ $status }) =>
+      $status === EActionButtonStatus.ACTION_DISABLED
+        ? 'rgba(0, 0, 0, 0.4)'
+        : '#ffffff'};
+    border-color: ${({ $status }) =>
+      $status === EActionButtonStatus.ACTION_DISABLED ? '#ADADAD' : '#ff2e72'};
+    & > div,
+    & > div > span {
+      color: ${({ $status }) =>
+        $status === EActionButtonStatus.ACTION_DISABLED
+          ? '#ADADAD'
+          : '#FF2E72'};
     }
   }
 `;

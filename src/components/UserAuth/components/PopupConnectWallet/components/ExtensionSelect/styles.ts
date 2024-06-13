@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 
-export const StyledExtensionList = styled.ul`
+export const StyledExtensionList = styled.ul<{ $isMobile: boolean }>`
   margin-top: 8px;
-  display: grid;
+  display: ${({ $isMobile }) => ($isMobile ? 'flex' : 'grid')};
+  flex-direction: column;
   grid-template-columns: repeat(4, 205px);
   gap: 16px;
   @media screen and (max-width: 920px) {
@@ -15,11 +16,11 @@ export const StyledExtensionList = styled.ul`
   }
 `;
 
-export const StyledExtensionBox = styled.li`
+export const StyledExtensionBox = styled.li<{ $isMobile: boolean }>`
   position: relative;
-  height: 235px;
+  height: ${({ $isMobile }) => ($isMobile ? 'fit-content' : '235px')};
   cursor: pointer;
   @media screen and (max-width: 520px) {
-    height: 212px;
+    height: ${({ $isMobile }) => ($isMobile ? 'fit-content' : '212px')};
   }
 `;

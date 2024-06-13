@@ -21,6 +21,7 @@ export const fetchIdentityProviderLink = async (
       }),
     },
   );
+
   if (!body) {
     return null;
   }
@@ -39,4 +40,26 @@ export const fetchIdentityProviderLink = async (
   }
 
   return parsedData;
+};
+
+export const fetchMockCdd = async (address: string) => {
+  const { status } = await fetch(
+    `${import.meta.env.VITE_EXTERNAL_IDENTITY_URL}mock-cdd/`,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        address,
+        id: 'testID',
+      }),
+    },
+  );
+  if (status !== 201) {
+    notifyError('Something went wrong! Please try again');
+    return false;
+  }
+  return true;
 };

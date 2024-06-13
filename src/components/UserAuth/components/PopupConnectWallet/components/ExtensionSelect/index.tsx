@@ -15,12 +15,7 @@ import { StyledExtensionList, StyledExtensionBox } from './styles';
 
 export const ExtensionSelect = () => {
   const { connectWallet } = useContext(PolymeshContext);
-  const { setConnectPopup } = useAuthContext();
-
-  const isMobileDevice =
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent,
-    );
+  const { setConnectPopup, isMobileDevice } = useAuthContext();
 
   const walletOptions = useMemo(() => {
     const injectedExtensions =
@@ -63,9 +58,10 @@ export const ExtensionSelect = () => {
         <Text size="large" bold>
           Pick a wallet to continue:
         </Text>
-        <StyledExtensionList>
+        <StyledExtensionList $isMobile={isMobileDevice}>
           {sortedOptions.map((wallet) => (
             <StyledExtensionBox
+              $isMobile={isMobileDevice}
               key={wallet.walletName}
               onClick={() => handleExtensionClick(wallet)}
             >

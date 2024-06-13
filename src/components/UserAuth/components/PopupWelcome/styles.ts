@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import connectBackground from '~/assets/connect-bg.svg';
+import connectBackgroundMobile from '~/assets/connect-bg-mobile.svg';
 
 export const StyledWelcomeWrapper = styled.div`
   width: 976px;
@@ -31,6 +32,18 @@ export const StyledWelcomeWrapper = styled.div`
     background-image: url(${connectBackground});
     background-size: cover;
   }
+  @media screen and (max-width: 1080px) {
+    max-width: 600px;
+    height: fit-content;
+  }
+  @media screen and (max-width: 768px) {
+    max-width: 100%;
+    width: 100%;
+    padding: 0;
+    &::after {
+      background-image: url(${connectBackgroundMobile});
+    }
+  }
 `;
 
 export const StyledWelcomePopup = styled.div`
@@ -43,6 +56,12 @@ export const StyledWelcomePopup = styled.div`
   z-index: 5;
   & > p:first-of-type {
     margin-top: -20px;
+  }
+  @media screen and (max-width: 1080px) {
+    padding: 0 0 0 160px;
+  }
+  @media screen and (max-width: 768px) {
+    padding: 0;
   }
 `;
 
@@ -58,6 +77,12 @@ export const StyledButtonsContainer = styled.div`
     &:hover {
       background: transparent;
       opacity: 0.8;
+    }
+  }
+  @media screen and (max-width: 540px) {
+    flex-direction: column-reverse;
+    & > button {
+      width: 100%;
     }
   }
 `;

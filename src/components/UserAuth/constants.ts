@@ -42,10 +42,11 @@ export const WALLET_FEATURES_LIST = {
     'Multichain support',
     'Browser support: Google Chrome',
   ],
-  [NOVA_WALLET as TWalletName]: [
-    'Multichain support',
-    'Browser support: Google Chrome',
-  ],
+};
+
+export const WALLET_FEATURES_LIST_MOBILE = {
+  [SUBWALLET_WALLET as TWalletName]: 'Mobile and Desktop',
+  [NOVA_WALLET as TWalletName]: 'Mobile only',
 };
 
 export const SUPPORTED_BROWSERS = {
@@ -84,6 +85,17 @@ export interface IIdentityProvider {
   requirements: string[];
   steps: string[];
 }
+
+export const IDENTITY_PROVIDER_MOCK: IIdentityProvider = {
+  name: MOCKID_IDENTITY_PROVIDER,
+  link: 'mock',
+  icon: 'MockIdProviderIcon' as TIcons,
+  requirements: [
+    'This will create a CDD claim for the address without verifying any documents.',
+    'Mock CDD is for testing purposes only and is not available for mainnet.',
+  ],
+  steps: [],
+};
 
 export const IDENTITY_PROVIDERS: {
   [key: string]: IIdentityProvider;
@@ -133,16 +145,6 @@ export const IDENTITY_PROVIDERS: {
       'Take a picture of a government issued ID front and back',
       'Take a selfie',
     ],
-  },
-  [MOCKID_IDENTITY_PROVIDER]: {
-    name: MOCKID_IDENTITY_PROVIDER,
-    link: 'mock',
-    icon: 'MockIdProviderIcon' as TIcons,
-    requirements: [
-      'This will create a CDD claim for the address without verifying any documents.',
-      'Mock CDD is for testing purposes only and is not available for mainnet.',
-    ],
-    steps: [],
   },
 };
 

@@ -13,14 +13,11 @@ import {
   StyledExtraBoldText,
 } from './styles';
 
-interface IExtensionInfoProps {
-  selectedExtension: Partial<TConnectModalType>;
-}
+export const ExtensionInfo = () => {
+  const { connectPopup, setConnectPopup, isMobileDevice } = useAuthContext();
 
-export const ExtensionInfo = ({ selectedExtension }: IExtensionInfoProps) => {
-  const { setConnectPopup } = useAuthContext();
-
-  const currentExtension = WALLET_CONNECT_OPTIONS[selectedExtension];
+  const currentExtension =
+    WALLET_CONNECT_OPTIONS[connectPopup as TConnectModalType];
 
   const handleDownloadExtension = () =>
     window.open(currentExtension?.downloadUrl, '_blank');
@@ -31,7 +28,7 @@ export const ExtensionInfo = ({ selectedExtension }: IExtensionInfoProps) => {
   };
 
   const renderPostInstallInfo = () => {
-    switch (selectedExtension) {
+    switch (connectPopup) {
       case 'Polymesh':
       case 'Talisman':
       case 'Subwallet':
@@ -64,13 +61,8 @@ export const ExtensionInfo = ({ selectedExtension }: IExtensionInfoProps) => {
     }
   };
 
-  const isMobileDevice =
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent,
-    );
-
-  if (!isSupportedBrowser(selectedExtension) && !isMobileDevice) {
-    return <BrowserSupport walletName={selectedExtension} />;
+  if (!isSupportedBrowser(connectPopup as string) && !isMobileDevice) {
+    return <BrowserSupport walletName={connectPopup as string} />;
   }
 
   return (

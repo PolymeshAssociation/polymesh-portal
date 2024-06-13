@@ -1,10 +1,18 @@
+import { useAuthContext } from '~/context/AuthContext';
 import { useWindowWidth } from '~/hooks/utility';
-import { IWalletConnectOption } from '~/constants/wallets';
+import { IWalletConnectOption, SUBWALLET_WALLET } from '~/constants/wallets';
 import { Text } from '~/components/UiKit';
 import { Icon } from '~/components';
-import { WALLET_FEATURES_LIST } from '../../../../constants';
+import {
+  WALLET_FEATURES_LIST,
+  WALLET_FEATURES_LIST_MOBILE,
+} from '../../../../constants';
 import { ActionCard } from '../../../ActionCard';
-import { StyledExtensionName, StyledExtensionFeaturesList } from './styles';
+import {
+  StyledExtensionName,
+  StyledExtensionFeaturesList,
+  StyledExtensionNameMobile,
+} from './styles';
 
 interface IExtensionCardProps {
   wallet: IWalletConnectOption;
@@ -12,23 +20,39 @@ interface IExtensionCardProps {
 
 export const ExtensionCard = ({ wallet }: IExtensionCardProps) => {
   const { windowWidth } = useWindowWidth();
+  const { isMobileDevice } = useAuthContext();
 
   return (
     <ActionCard hovered>
-      <StyledExtensionName>
+      <StyledExtensionName $isMobile={isMobileDevice}>
         <Icon
-          name={wallet.iconName}
-          size={windowWidth > 520 ? '48px' : '28px'}
+          name={
+            wallet.walletName === SUBWALLET_WALLET && isMobileDevice
+              ? 'SubwalletSymbolMobile'
+              : wallet.iconName
+          }
+          size={windowWidth > 520 || isMobileDevice ? '48px' : '28px'}
         />
-        <Text size="large">{wallet.walletName}</Text>
+        {isMobileDevice ? (
+          <StyledExtensionNameMobile>
+            <Text size="large" bold>
+              {wallet.walletName}
+            </Text>
+            <Text>({WALLET_FEATURES_LIST_MOBILE[wallet.walletName]})</Text>
+          </StyledExtensionNameMobile>
+        ) : (
+          <Text size="large">{wallet.walletName}</Text>
+        )}
       </StyledExtensionName>
-      <StyledExtensionFeaturesList>
-        {WALLET_FEATURES_LIST[wallet.walletName].map((item) => (
-          <li key={item}>
-            <Text size="small">{item}</Text>
-          </li>
-        ))}
-      </StyledExtensionFeaturesList>
+      {!isMobileDevice && (
+        <StyledExtensionFeaturesList>
+          {WALLET_FEATURES_LIST[wallet.walletName].map((item) => (
+            <li key={item}>
+              <Text size="small">{item}</Text>
+            </li>
+          ))}
+        </StyledExtensionFeaturesList>
+      )}
     </ActionCard>
   );
 };

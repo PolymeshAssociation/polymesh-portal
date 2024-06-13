@@ -1,30 +1,28 @@
 import { useState } from 'react';
-import { notifyError } from '~/helpers/notifications';
 import { Icon } from '~/components';
-import { Button, Text } from '~/components/UiKit';
-import { REGEX_EMAIL } from '../../constants';
-import { CustomInput, useInput } from '../CustomInput';
-import { SecondaryButton } from '../SecondaryButton';
-import { fetchEmailSubscription } from './helpers';
+import { Button, Text, Heading } from '~/components/UiKit';
+import { notifyError } from '~/helpers/notifications';
 import {
-  StyledAuthHeaderWrap,
-  StyledAuthHeader,
-  StyledCloseButton,
-} from '../../styles';
+  CustomInput,
+  useInput,
+} from '~/components/UserAuth/components/CustomInput';
+import { SecondaryButton } from '~/components/UserAuth/components/SecondaryButton';
+import { REGEX_EMAIL } from '~/components/UserAuth/constants';
+import { fetchEmailSubscription } from '~/components/UserAuth/components/ViewVerified/helpers';
 import {
-  StyledEmailField,
-  StyledCheckboxesContainer,
+  StyledNewsContainer,
+  StyledInputsContainer,
   StyledCheckboxInput,
   StyledCheckBox,
 } from './styles';
 
-interface IViewVerifiedProps {
-  handleDismiss: () => void;
-}
-
-export const ViewVerified = ({ handleDismiss }: IViewVerifiedProps) => {
-  const { value: email, error, handleInputChange } = useInput();
-
+export const NewsModal = () => {
+  const {
+    value: email,
+    error,
+    handleInputChange,
+    handleErrorChange,
+  } = useInput();
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [newsletterAccepted, setNewsletterAccepted] = useState(false);
   const [devUpdatesAccepted, setDevUpdatesAccepted] = useState(false);
@@ -35,7 +33,7 @@ export const ViewVerified = ({ handleDismiss }: IViewVerifiedProps) => {
 
   const handleSubscribe = async () => {
     if (!email.match(REGEX_EMAIL)) {
-      notifyError('Please enter a valid E-mail');
+      handleErrorChange('Please enter a valid E-mail');
       return;
     }
 
@@ -52,43 +50,27 @@ export const ViewVerified = ({ handleDismiss }: IViewVerifiedProps) => {
       notifyError('Subscription failed! Please, try again');
     }
   };
-
   const needToCheck = !newsletterAccepted && !devUpdatesAccepted;
 
   return (
-    <>
-      <StyledAuthHeaderWrap>
-        <StyledAuthHeader>Onboarding Complete!</StyledAuthHeader>
-        <StyledCloseButton onClick={handleDismiss}>
-          <Icon name="CloseCircledIcon" size="24px" />
-        </StyledCloseButton>
-      </StyledAuthHeaderWrap>
-      <h4>
+    <StyledNewsContainer>
+      <Heading type="h4">
         {subscribed
-          ? 'You’ve been subscribed to our newsletter, thank you!'
-          : 'You’re all set to fully utilize Polymesh network!'}
-      </h4>
-
-      {!subscribed && (
-        <div>
-          <h5>Subscribe to our newsletter for news and updates</h5>
-          <StyledEmailField>
+          ? 'Thank You!'
+          : 'Subscribe to our newsletter for news and updates'}
+      </Heading>
+      {subscribed ? (
+        <Text size="large">You’ve been subscribed to our newsletter!</Text>
+      ) : (
+        <>
+          <StyledInputsContainer>
             <CustomInput
               placeholder="Enter E-mail"
               handleChange={handleInputChange}
               value={email}
-              error=""
+              error={error}
               isBig
             />
-            <Button
-              onClick={handleSubscribe}
-              variant="modalSecondary"
-              disabled={!email || !!error || needToCheck || !termsAccepted}
-            >
-              Subscribe
-            </Button>
-          </StyledEmailField>
-          <StyledCheckboxesContainer>
             <StyledCheckboxInput>
               <StyledCheckBox
                 $checked={termsAccepted}
@@ -130,9 +112,17 @@ export const ViewVerified = ({ handleDismiss }: IViewVerifiedProps) => {
                 important upcoming features and changes
               </Text>
             </StyledCheckboxInput>
-          </StyledCheckboxesContainer>
-        </div>
+          </StyledInputsContainer>
+          <Button
+            variant="modalPrimary"
+            className="subscribe-btn"
+            disabled={!email || !!error || !termsAccepted || needToCheck}
+            onClick={handleSubscribe}
+          >
+            Subscribe
+          </Button>
+        </>
       )}
-    </>
+    </StyledNewsContainer>
   );
 };

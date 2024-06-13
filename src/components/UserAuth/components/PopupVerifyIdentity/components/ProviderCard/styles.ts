@@ -24,3 +24,10 @@ export const StyledProviderRegList = styled.ul`
     max-width: 100%;
   }
 `;
+
+export const StyledTestnetLabel = styled.div`
+  padding: 16px 24px 24px 24px;
+  border: ${({ theme }) => `1px solid ${theme.colors.shadow}`};
+  border-radius: 16px;
+  cursor: pointer;
+`;

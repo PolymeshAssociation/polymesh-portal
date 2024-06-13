@@ -12,6 +12,23 @@ export const StyledProvidersContainer = styled.ul`
   }
 `;
 
+export const StyledTestnetContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  @media screen and (max-width: 680px) {
+    flex-direction: column;
+  }
+`;
+
+export const StyledTestnetList = styled.ul`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  @media screen and (max-width: 680px) {
+    margin-top: 24px;
+  }
+`;
+
 export const StyleProviderBox = styled.li`
   position: relative;
 `;

@@ -68,7 +68,8 @@ export const BusinessAccountForm = ({
       <PopupActionButtons
         onProceed={handleSubmit}
         onGoBack={handleGoBack}
-        // canProceed={!nameError && !!name && !emailError && !!email}
+        proceedLabel="Contact Us"
+        canProceed={!nameError && !!name && !emailError && !!email}
         aligned
       />
     </>

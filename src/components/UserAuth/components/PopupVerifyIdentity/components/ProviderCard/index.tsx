@@ -1,26 +1,40 @@
 import { useWindowWidth } from '~/hooks/utility';
 import { Text, Heading } from '~/components/UiKit';
 import { Icon } from '~/components';
+import { MOCKID_IDENTITY_PROVIDER } from '~/context/AuthContext/constants';
 import { IIdentityProvider } from '../../../../constants';
 import { ActionCard } from '../../../ActionCard';
 import {
   StyledProviderContainer,
   StyledProviderInfo,
   StyledProviderRegList,
+  StyledTestnetLabel,
 } from './styles';
 
 interface IProviderCardProps {
   provider: IIdentityProvider;
+  isTestnet: boolean;
 }
 
-export const ProviderCard = ({ provider }: IProviderCardProps) => {
+export const ProviderCard = ({ provider, isTestnet }: IProviderCardProps) => {
   const { windowWidth } = useWindowWidth();
+  if (isTestnet && provider.name !== MOCKID_IDENTITY_PROVIDER) {
+    return (
+      <StyledTestnetLabel>
+        <Heading type="h4">{provider.name} [Not for TESTNET]</Heading>
+      </StyledTestnetLabel>
+    );
+  }
+
   return (
     <ActionCard hovered>
       <StyledProviderContainer>
         <Icon name={provider.icon} size={windowWidth > 420 ? '88px' : '60px'} />
         <StyledProviderInfo>
-          <Heading type="h4">{provider.name}</Heading>
+          <Heading type="h4">
+            {provider.name}{' '}
+            {provider.name === MOCKID_IDENTITY_PROVIDER && '[TESTNET]'}
+          </Heading>
           <div>
             <Text size="small" bold>
               REQUIREMENTS
