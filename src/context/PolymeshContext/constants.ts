@@ -3,6 +3,7 @@ import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-ext
 import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { EventRecord } from '@polymeshassociation/polymesh-sdk/types';
+import { stringToColor } from '../../helpers/formatters';
 
 export interface IPolymeshContext {
   state: {
@@ -27,6 +28,8 @@ export interface IPolymeshContext {
     setMiddlewareUrl: (url: string) => void;
     middlewareKey: string;
     setMiddlewareKey: (key: string) => void;
+    ipfsProviderUrl: string;
+    setIpfsProviderUrl: (key: string) => void;
   };
   connectWallet: (extensionName: string) => Promise<void>;
   walletConnectConnected: boolean;
@@ -58,6 +61,8 @@ export const initialState = {
     setMiddlewareUrl: () => {},
     middlewareKey: '',
     setMiddlewareKey: () => {},
+    ipfsProviderUrl: '',
+    setIpfsProviderUrl: () => {},
   },
   connectWallet: async () => {},
   walletConnectConnected: false,
@@ -65,3 +70,6 @@ export const initialState = {
   ss58Prefix: undefined,
   subscribedEventRecords: { events: [], blockHash: '' },
 };
+
+export const IPFS_PROVIDER_URL =
+  import.meta.env.VITE_IPFS_PROVIDER_URL || 'https://ipfs.io/ipfs';

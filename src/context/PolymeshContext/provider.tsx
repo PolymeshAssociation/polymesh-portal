@@ -4,6 +4,7 @@ import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { EventRecord } from '@polymeshassociation/polymesh-sdk/types';
 import PolymeshContext from './context';
+import { IPFS_PROVIDER_URL } from './constants';
 import { useLocalStorage } from '~/hooks/utility';
 import { notifyGlobalError } from '~/helpers/notifications';
 import { runMigration } from '~/helpers/localStorageMigrations';
@@ -54,6 +55,10 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     {
       initial: { metadata: '0x', specVersion: '', timestamp: '' },
     },
+  );
+  const [ipfsProviderUrl, setIpfsProviderUrl] = useLocalStorage<string>(
+    'ipfsProviderUrl',
+    IPFS_PROVIDER_URL,
   );
 
   const [subscribedEventRecords, setSubscribedEventRecords] = useState<{
@@ -375,6 +380,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setMiddlewareUrl,
         middlewareKey,
         setMiddlewareKey,
+        ipfsProviderUrl,
+        setIpfsProviderUrl,
       },
       connectWallet,
       walletConnectConnected,
@@ -401,6 +408,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       ss58Prefix,
       subscribedEventRecords,
       walletConnectConnected,
+      ipfsProviderUrl,
+      setIpfsProviderUrl,
     ],
   );
 
