@@ -3,6 +3,7 @@ import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-ext
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { EventRecord } from '@polymeshassociation/polymesh-sdk/types';
 import PolymeshContext from './context';
+import { IPFS_PROVIDER_URL } from './constants';
 import { useLocalStorage } from '~/hooks/utility';
 import { notifyGlobalError } from '~/helpers/notifications';
 import { runMigration } from '~/helpers/localStorageMigrations';
@@ -51,6 +52,10 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     {
       initial: { metadata: '0x', specVersion: '', timestamp: '' },
     },
+  );
+  const [ipfsProviderUrl, setIpfsProviderUrl] = useLocalStorage<string>(
+    'ipfsProviderUrl',
+    IPFS_PROVIDER_URL,
   );
 
   const [subscribedEventRecords, setSubscribedEventRecords] = useState<{
@@ -314,6 +319,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setMiddlewareUrl,
         middlewareKey,
         setMiddlewareKey,
+        ipfsProviderUrl,
+        setIpfsProviderUrl,
       },
       connectWallet,
       ss58Prefix,
@@ -336,6 +343,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       signingManager,
       ss58Prefix,
       subscribedEventRecords,
+      ipfsProviderUrl,
+      setIpfsProviderUrl,
     ],
   );
 

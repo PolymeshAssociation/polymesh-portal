@@ -2,6 +2,7 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { EventRecord } from '@polymeshassociation/polymesh-sdk/types';
+import { stringToColor } from '../../helpers/formatters';
 
 export interface IPolymeshContext {
   state: {
@@ -23,6 +24,8 @@ export interface IPolymeshContext {
     setMiddlewareUrl: (url: string) => void;
     middlewareKey: string;
     setMiddlewareKey: (key: string) => void;
+    ipfsProviderUrl: string;
+    setIpfsProviderUrl: (key: string) => void;
   };
   connectWallet: (extensionName: string) => Promise<void>;
   ss58Prefix: BigNumber | undefined;
@@ -52,8 +55,13 @@ export const initialState = {
     setMiddlewareUrl: () => {},
     middlewareKey: '',
     setMiddlewareKey: () => {},
+    ipfsProviderUrl: '',
+    setIpfsProviderUrl: () => {},
   },
   connectWallet: async () => {},
   ss58Prefix: undefined,
   subscribedEventRecords: { events: [], blockHash: '' },
 };
+
+export const IPFS_PROVIDER_URL =
+  import.meta.env.VITE_IPFS_PROVIDER_URL || 'https://ipfs.io/ipfs';

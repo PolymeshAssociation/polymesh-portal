@@ -1,9 +1,16 @@
+import { IPFS_PROVIDER_URL } from '~/context/PolymeshContext/constants';
 import { Nft } from '@polymeshassociation/polymesh-sdk/internal';
 
 export const convertIpfsLink = (uri: string): string => {
-  return uri.startsWith('ipfs://')
-    ? uri.replace('ipfs://', 'https://ipfs.io/ipfs/')
-    : uri;
+  const rawIpfsUrl: string =
+    JSON.parse(localStorage.getItem('ipfsProviderUrl') || '') ||
+    IPFS_PROVIDER_URL;
+  const ipfsUrl =
+    rawIpfsUrl.charAt(rawIpfsUrl.length - 1) === '/'
+      ? rawIpfsUrl
+      : `${rawIpfsUrl}/`;
+
+  return uri.startsWith('ipfs://') ? `${uri.replace('ipfs://', ipfsUrl)}` : uri;
 };
 
 export const getNftTokenUri = async (nft: Nft): Promise<string | null> => {
