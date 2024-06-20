@@ -63,6 +63,7 @@ export const StyledLabel = styled.div`
   background: #f5f5f5;
   padding: 2px 8px;
   border-radius: 12px;
+  color: '#1E1E1E';
 `;
 
 export const StyledCloseBtn = styled.div`
