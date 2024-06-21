@@ -9,6 +9,7 @@ import {
   StyledLabel,
   IconWrapper,
   StyledKeyLabel,
+  StyledFilterInput,
 } from './styles';
 import { formatKey } from '~/helpers/formatters';
 import { ESelectPlacements, ISelectProps } from './types';
@@ -33,6 +34,7 @@ const WalletSelect: React.FC<ISelectProps> = ({
   const ref = useRef<HTMLDivElement>(null);
   const [selectedKeyName, setSelectedKeyName] = useState('');
   const [truncateLength, setTruncateLength] = useState<number | undefined>();
+  const [filter, setFilter] = useState('');
 
   useEffect(() => {
     if (!selectedAccount) {
@@ -51,6 +53,7 @@ const WalletSelect: React.FC<ISelectProps> = ({
     const handleClickOutside: EventListenerOrEventListenerObject = (event) => {
       if (ref.current && !ref.current.contains(event.target as Node | null)) {
         setExpanded(false);
+        setFilter('');
       }
     };
 
@@ -63,10 +66,12 @@ const WalletSelect: React.FC<ISelectProps> = ({
   const handleAccountChange: React.ReactEventHandler = ({ target }) => {
     setSelectedAccount((target as HTMLInputElement).value);
     setExpanded(false);
+    setFilter('');
   };
 
   const handleDropdownToggle = () => {
     setExpanded((prev) => !prev);
+    setFilter('');
   };
 
   useEffect(() => {
@@ -116,6 +121,11 @@ const WalletSelect: React.FC<ISelectProps> = ({
       </StyledSelect>
       {expanded && (
         <StyledExpandedSelect $placement={placement}>
+          <StyledFilterInput
+            autoFocus
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          />
           {allAccountsWithMeta
             .sort((a, b) => {
               // place selected key first
@@ -130,6 +140,13 @@ const WalletSelect: React.FC<ISelectProps> = ({
 
               return 0;
             })
+            .filter(
+              (account) =>
+                account.address.toLowerCase().includes(filter.toLowerCase()) ||
+                account.meta.name
+                  ?.toLocaleLowerCase()
+                  .includes(filter.toLowerCase()),
+            )
             .map(({ address, meta }) => (
               <StyledLabel
                 key={address}
@@ -162,6 +179,7 @@ const WalletSelect: React.FC<ISelectProps> = ({
             ))}
           {showExternal &&
             externalKey &&
+            externalKey.toLowerCase().includes(filter.toLowerCase()) &&
             !allAccounts.includes(externalKey) && (
               <StyledLabel
                 key={externalKey}

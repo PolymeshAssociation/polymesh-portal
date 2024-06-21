@@ -1,14 +1,15 @@
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useMemo } from 'react';
+import { useAuthContext } from '~/context/AuthContext';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { ExtensionSelect } from '~/components';
 import { StyledLabel, StyledValue } from './styles';
 
 export const DefaultWallet = () => {
   const {
     settings: { defaultExtension },
   } = useContext(PolymeshContext);
-  const [modalOpen, setModalOpen] = useState(false);
+
+  const { setConnectPopup } = useAuthContext();
 
   const injectedExtensions = useMemo(() => {
     return BrowserExtensionSigningManager.getExtensionList();
@@ -16,7 +17,7 @@ export const DefaultWallet = () => {
 
   return (
     <>
-      <StyledValue onClick={() => setModalOpen((prev) => !prev)}>
+      <StyledValue onClick={() => setConnectPopup('extensions')}>
         {defaultExtension ? (
           <>
             {defaultExtension}
@@ -28,7 +29,6 @@ export const DefaultWallet = () => {
           'None'
         )}
       </StyledValue>
-      {modalOpen && <ExtensionSelect handleClose={() => setModalOpen(false)} />}
     </>
   );
 };
