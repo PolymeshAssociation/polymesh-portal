@@ -235,7 +235,6 @@ export const historicalDistributionsQuery = ({
           eventId
           id
           nodeId
-          updatedAt
           updatedBlockId
         }
       }

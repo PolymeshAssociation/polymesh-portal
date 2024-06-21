@@ -121,7 +121,6 @@ export interface IDistribution {
   eventId: string;
   id: string;
   nodeId: string;
-  updatedAt: string;
   updatedBlockId: string;
 }
 
