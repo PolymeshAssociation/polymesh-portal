@@ -32,6 +32,7 @@ export const IpfsProvider = () => {
 
   const handleApply = () => {
     setIpfsProviderUrl(customIpfsUrl);
+    setModalExpanded(false);
   };
 
   const handleClose = () => {

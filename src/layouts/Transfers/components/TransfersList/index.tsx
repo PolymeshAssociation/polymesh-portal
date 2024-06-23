@@ -22,6 +22,7 @@ import {
   TransfersPlaceholder,
 } from './styles';
 import { TransferItem } from '../TransferItem';
+import { getLegErrors } from '../TransferItem/helpers';
 import { notifyError } from '~/helpers/notifications';
 import {
   EInstructionTypes,
@@ -50,6 +51,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const type = searchParams.get('type');
   const typeRef = useRef<string | null>(null);
   const [actionInProgress, setActionInProgress] = useState(false);
+  const [invalidInstructions, setInvalidInstructions] = useState<number[]>([]);
   const { isWidescreen, isMobile } = useWindowWidth();
 
   const currentTabInstructions =
@@ -62,6 +64,52 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
 
     setSelectedItems([]);
   }, [type, selectedItems]);
+
+  useEffect(() => {
+    if (
+      (type !== 'pending' && typeRef.current !== 'pending') ||
+      !currentTabInstructions ||
+      !sdk
+    ) {
+      return;
+    }
+    (async () => {
+      const instructionsWithErrors = await Promise.all(
+        currentTabInstructions?.map(async (instruction) => {
+          const { data } = await instruction.getLegs();
+          const { data: affirmations } = await instruction.getAffirmations();
+          const details = await instruction.details();
+          const block = await sdk.network.getLatestBlock();
+          const uniqueAffirmations = affirmations.filter(
+            (a, index, self) =>
+              index ===
+              self.findIndex((t) => t.identity.did === a.identity.did),
+          );
+          const legErrors = await Promise.all(
+            data.map(async (leg) => ({
+              leg,
+              errors: await getLegErrors({
+                leg,
+                affirmationsData: uniqueAffirmations,
+                instructionDetails: details,
+                latestBlock: block.toNumber(),
+              }),
+            })),
+          );
+          if (legErrors.some((leg) => leg.errors.length)) {
+            return instruction.id.toNumber();
+          } else {
+            return null;
+          }
+        }),
+      );
+      const filteredInstructions = instructionsWithErrors.filter(
+        (instruction) => instruction,
+      );
+
+      setInvalidInstructions(filteredInstructions as number[]);
+    })();
+  }, [type, sdk, currentTabInstructions]);
 
   const handleItemSelect = (selectedInstruction: Instruction) => {
     typeRef.current = type;
@@ -94,14 +142,19 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
     setSelectedItems([]);
   };
 
-  const executeBatch = async (action: `${EActionTypes}`) => {
+  const executeBatch = async (
+    action: `${EActionTypes}`,
+    items?: Instruction[],
+  ) => {
     if (!sdk || !account) return;
 
     let unsubCb: UnsubCallback | undefined;
 
     try {
       setActionInProgress(true);
-      const transactions = await createTransactions(action, selectedItems);
+
+      const itemsToExecute = items || selectedItems;
+      const transactions = await createTransactions(action, itemsToExecute);
 
       if (!transactions) return;
 
@@ -167,6 +220,15 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
     }
   };
 
+  const handleApproveValidBatch = () => {
+    const validInctructionsSelected = currentTabInstructions?.filter(
+      (instruction) => !invalidInstructions.includes(instruction.id.toNumber()),
+    );
+
+    setSelectedItems(validInctructionsSelected as Instruction[]);
+    executeBatch(EActionTypes.AFFIRM, validInctructionsSelected);
+  };
+
   const sortInstructions = (instructions: Instruction[]) => {
     switch (sortBy) {
       case ESortOptions.NEWEST:
@@ -212,10 +274,10 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
             {type === EInstructionTypes.PENDING && (
               <StyledActionButton
                 disabled={actionInProgress || isExternalConnection}
-                onClick={() => executeBatch(EActionTypes.AFFIRM)}
+                onClick={handleApproveValidBatch}
               >
                 <Icon name="Check" size="24px" />
-                {!isMobile && 'Approve'}
+                {!isMobile && 'Approve Valid'}
               </StyledActionButton>
             )}
             {/* {type === EInstructionTypes.FAILED && (
