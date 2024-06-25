@@ -531,10 +531,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       externalKey,
       externalIdentity,
       setExternalAccounKey,
-      isExternalConnection:
-        !!externalKey &&
-        externalKey === selectedAccount &&
-        !allAccounts.includes(selectedAccount),
+      isExternalConnection: !allAccounts.includes(selectedAccount),
     }),
     [
       account,
