@@ -1,6 +1,6 @@
 import { useAuthContext } from '~/context/AuthContext';
 import { useWindowWidth } from '~/hooks/utility';
-import { IWalletConnectOption, SUBWALLET_WALLET } from '~/constants/wallets';
+import { IWalletConnectOption } from '~/constants/wallets';
 import { Text } from '~/components/UiKit';
 import { Icon } from '~/components';
 import {
@@ -26,11 +26,7 @@ export const ExtensionCard = ({ wallet }: IExtensionCardProps) => {
     <ActionCard hovered>
       <StyledExtensionName $isMobile={isMobileDevice}>
         <Icon
-          name={
-            wallet.walletName === SUBWALLET_WALLET && isMobileDevice
-              ? 'SubwalletSymbolMobile'
-              : wallet.iconName
-          }
+          name={wallet.iconName}
           size={windowWidth > 520 || isMobileDevice ? '48px' : '28px'}
         />
         {isMobileDevice ? (
