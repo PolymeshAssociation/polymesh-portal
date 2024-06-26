@@ -21,8 +21,3 @@ export const SecondaryButton = ({
     </StyledSecondaryButton>
   );
 };
-
-SecondaryButton.defaultProps = {
-  underlined: false,
-  labelSize: 'medium',
-};

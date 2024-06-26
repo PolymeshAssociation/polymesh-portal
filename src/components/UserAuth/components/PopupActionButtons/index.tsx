@@ -11,12 +11,12 @@ interface IPopupActionButtonsProps {
 }
 
 export const PopupActionButtons = ({
-  proceedLabel,
-  goBackLabel,
+  proceedLabel = 'Preceed',
+  goBackLabel = 'Back',
   aligned = false,
   canProceed = true,
-  onProceed,
-  onGoBack,
+  onProceed = undefined,
+  onGoBack = undefined,
 }: IPopupActionButtonsProps) => {
   return (
     <StyledActionButtonsWrap $aligned={aligned}>
@@ -37,13 +37,4 @@ export const PopupActionButtons = ({
       )}
     </StyledActionButtonsWrap>
   );
-};
-
-PopupActionButtons.defaultProps = {
-  proceedLabel: 'Proceed',
-  goBackLabel: 'Back',
-  aligned: false,
-  canProceed: true,
-  onProceed: null,
-  onGoBack: null,
 };

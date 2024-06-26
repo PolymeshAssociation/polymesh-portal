@@ -21,9 +21,10 @@ export const DefaultWallet = () => {
         {defaultExtension ? (
           <>
             {defaultExtension}
-            {!injectedExtensions.includes(defaultExtension) && (
-              <StyledLabel>Not Installed</StyledLabel>
-            )}
+            {!injectedExtensions.includes(defaultExtension) &&
+              defaultExtension !== 'walletConnect' && (
+                <StyledLabel>Not Installed</StyledLabel>
+              )}
           </>
         ) : (
           'None'

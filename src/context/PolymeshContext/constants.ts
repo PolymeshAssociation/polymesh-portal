@@ -1,5 +1,6 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
+import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { EventRecord } from '@polymeshassociation/polymesh-sdk/types';
 
@@ -10,7 +11,10 @@ export interface IPolymeshContext {
   };
   api: {
     sdk: Polymesh | null;
-    signingManager: BrowserExtensionSigningManager | null;
+    signingManager:
+      | BrowserExtensionSigningManager
+      | WalletConnectSigningManager
+      | null;
     polkadotApi: Polymesh['_polkadotApi'] | null;
     gqlClient: ApolloClient<NormalizedCacheObject> | null;
   };

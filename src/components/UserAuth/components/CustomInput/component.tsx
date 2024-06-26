@@ -13,8 +13,8 @@ interface ICustomInputProps {
 export const CustomInput = ({
   placeholder,
   value,
-  label,
-  error,
+  label = '',
+  error = '',
   isBig = false,
   handleChange,
 }: ICustomInputProps) => {
@@ -30,10 +30,4 @@ export const CustomInput = ({
       {error && <Text size="small">{error}</Text>}
     </StyledInputContainer>
   );
-};
-
-CustomInput.defaultProps = {
-  error: '',
-  label: '',
-  isBig: false,
 };

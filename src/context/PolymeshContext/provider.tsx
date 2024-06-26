@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
+import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { EventRecord } from '@polymeshassociation/polymesh-sdk/types';
 import PolymeshContext from './context';
@@ -24,8 +25,9 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   const [polkadotApi, setPolkadotApi] = useState<
     Polymesh['_polkadotApi'] | null
   >(null);
-  const [signingManager, setSigningManager] =
-    useState<BrowserExtensionSigningManager | null>(null);
+  const [signingManager, setSigningManager] = useState<
+    BrowserExtensionSigningManager | WalletConnectSigningManager | null
+  >(null);
   const [connecting, setConnecting] = useState<boolean | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [migrationCompleted, setMigrationCompleted] = useState(false);
@@ -75,10 +77,54 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     return formattedMetadata;
   }, [localMetadata]);
 
+  const handleWalletConnect = async () => {
+    if (!polkadotApi) return;
+
+    try {
+      const themeMode =
+        (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
+      const walletConnectSigningManager =
+        await WalletConnectSigningManager.create({
+          config: {
+            projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
+            metadata: {
+              name: 'Polymesh Portal',
+              description: 'App for interacting with the Polymesh Blockchain',
+              url: 'https://portal.polymesh.network',
+              icons: [
+                'https://assets-global.website-files.com/61c0a31b90958801836efe1b/62d08014db27c031ec24b6f6_polymesh-symbol.svg',
+              ],
+            },
+            chainIds: ['polkadot:6fbd74e5e1d0a61d52ccfe9d4adaed16'],
+            optionalChainIds: ['polkadot:2ace05e703aa50b48c0ccccfc8b424f7'],
+            modalOptions: {
+              themeMode,
+              themeVariables: {
+                '--wcm-z-index': '999999',
+                '--wcm-accent-color': '#c1246b',
+                '--wcm-background-color': '#c1246b',
+              },
+            },
+          },
+          appName: 'Polymesh Portal',
+          ss58Format: polkadotApi.consts.system.ss58Prefix.toNumber(),
+          genesisHash: polkadotApi.genesisHash.toString(),
+        });
+      setDefaultExtension('walletConnect');
+      setSigningManager(walletConnectSigningManager);
+    } catch (error) {
+      notifyGlobalError((error as Error).message);
+    }
+  };
+
   // Create the browser extension signing manager.
   const connectWallet = useCallback(
     async (extensionName: string) => {
       if (!polkadotApi || !extensionName) return;
+      if (extensionName === 'walletConnect') {
+        await handleWalletConnect();
+        return;
+      }
       try {
         const signingManagerInstance =
           await BrowserExtensionSigningManager.create({
@@ -180,10 +226,15 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
 
   // Create an initial signing manager instance for the default extension
   useEffect(() => {
+    // TODO: check me
     if (signingManager) return;
     const injectedExtensions =
       BrowserExtensionSigningManager.getExtensionList();
-    if (!defaultExtension || !injectedExtensions.includes(defaultExtension)) {
+    if (
+      !defaultExtension ||
+      (!injectedExtensions.includes(defaultExtension) &&
+        defaultExtension !== 'walletConnect')
+    ) {
       return;
     }
     connectWallet(defaultExtension);

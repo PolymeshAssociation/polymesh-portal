@@ -19,9 +19,9 @@ interface IPopupHeaderProps {
 export const PopupHeader = ({
   title,
   icon,
-  subTitle,
+  subTitle = '',
   isWide = false,
-  children,
+  children = null,
   handleClick,
 }: IPopupHeaderProps) => {
   return (
@@ -44,10 +44,4 @@ export const PopupHeader = ({
       )}
     </StyledPopupHeaderWrap>
   );
-};
-
-PopupHeader.defaultProps = {
-  subTitle: '',
-  children: null,
-  isWide: false,
 };

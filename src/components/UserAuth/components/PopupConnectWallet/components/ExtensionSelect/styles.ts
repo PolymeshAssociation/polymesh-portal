@@ -4,8 +4,12 @@ export const StyledExtensionList = styled.ul<{ $isMobile: boolean }>`
   margin-top: 8px;
   display: ${({ $isMobile }) => ($isMobile ? 'flex' : 'grid')};
   flex-direction: column;
-  grid-template-columns: repeat(4, 205px);
+  grid-template-columns: repeat(5, 205px);
   gap: 16px;
+  @media screen and (max-width: 1200px) {
+    grid-template-columns: repeat(3, 205px);
+    justify-content: center;
+  }
   @media screen and (max-width: 920px) {
     grid-template-columns: repeat(2, 205px);
     justify-content: center;
