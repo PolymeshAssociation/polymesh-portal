@@ -46,12 +46,12 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
 
   const {
     data: { table, tab },
-    title,
-    tabs,
-    setTab,
+    title = '',
+    tabs = [],
+    setTab = () => {},
     loading,
-    totalItems,
-    downloadButton,
+    totalItems = 0,
+    downloadButton = undefined,
     handleRowClick,
   } = props;
 
@@ -297,15 +297,6 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
       </StyledTableFooter>
     </StyledTableWrapper>
   );
-};
-
-Table.defaultProps = {
-  downloadButton: undefined,
-  title: '',
-  tabs: [],
-  setTab: () => {},
-  totalItems: 0,
-  handleRowClick: undefined,
 };
 
 export default Table;

@@ -23,7 +23,7 @@ const Tooltip: React.FC<ITooltipProps> = ({
   className = '',
   position = 'bottom-right',
   maxWidth = 250,
-  children,
+  children = null,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const labelRef = useRef<HTMLButtonElement | null>(null);
@@ -64,13 +64,6 @@ const Tooltip: React.FC<ITooltipProps> = ({
       </TooltipContainer>
     </StyledLabel>
   );
-};
-
-Tooltip.defaultProps = {
-  className: '',
-  position: 'bottom-right',
-  maxWidth: 250,
-  children: null,
 };
 
 export default Tooltip;
