@@ -18,6 +18,7 @@ export const BalanceInfo = () => {
     accountIsMultisigSigner,
     selectedAccountBalance,
     balanceIsLoading,
+    isExternalConnection,
   } = useContext(AccountContext);
   const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [receiveModalOpen, setReceiveModalOpen] = useState(false);
@@ -75,7 +76,11 @@ export const BalanceInfo = () => {
         <StyledButtonGroup>
           <Button
             onClick={toggleTransferModal}
-            disabled={!identityHasValidCdd || accountIsMultisigSigner}
+            disabled={
+              !identityHasValidCdd ||
+              accountIsMultisigSigner ||
+              isExternalConnection
+            }
           >
             <Icon name="ArrowTopRight" />
             Send
@@ -83,7 +88,11 @@ export const BalanceInfo = () => {
           <Button
             variant="secondary"
             onClick={toggleReceiveModal}
-            disabled={!identityHasValidCdd || accountIsMultisigSigner}
+            disabled={
+              !identityHasValidCdd ||
+              accountIsMultisigSigner ||
+              isExternalConnection
+            }
           >
             <Icon name="ArrowBottomLeft" />
             Receive

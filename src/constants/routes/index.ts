@@ -159,11 +159,11 @@ export const NAV_LINKS = [
         nestedLabel: 'Developer App',
         nestedIcon: 'DeveloperIcon',
       },
-      {
-        nestedPath: import.meta.env.VITE_ONBOARDING_URL,
-        nestedLabel: 'Onboarding',
-        nestedIcon: 'Network',
-      },
+      // {
+      //   nestedPath: import.meta.env.VITE_ONBOARDING_URL,
+      //   nestedLabel: 'Onboarding',
+      //   nestedIcon: 'Network',
+      // },
       {
         nestedPath: import.meta.env.VITE_TOKENSTUDIO_URL,
         nestedLabel: 'Token Studio',

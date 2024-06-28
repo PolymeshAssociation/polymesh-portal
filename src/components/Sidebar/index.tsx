@@ -5,7 +5,7 @@ import {
 } from '@polymeshassociation/browser-extension-signing-manager/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useNotifications } from '~/hooks/polymesh';
-import { CopyToClipboard, Icon } from '~/components';
+import { CopyToClipboard, Icon, Modal } from '~/components';
 import {
   NotificationCounter,
   WarningLabel,
@@ -32,6 +32,7 @@ import { notifyError } from '~/helpers/notifications';
 import { useWindowWidth } from '~/hooks/utility';
 import { formatBalance, formatDid } from '~/helpers/formatters';
 import { AccountContext } from '~/context/AccountContext';
+import { NewsModal } from './components/NewsModal';
 
 interface ISidebarProps {
   mobileMenuOpen: boolean;
@@ -59,9 +60,10 @@ const Sidebar: React.FC<ISidebarProps> = ({
   const { isMobile, isTablet } = useWindowWidth();
   const [fullWidth, setFullWidth] = useState(!isMobile);
   const [linksExpanded, setLinksExpanded] = useState(false);
+  const [newsModal, setNewsModal] = useState(false);
 
   useEffect(() => {
-    if (!signingManager || !sdk) return undefined;
+    if (!sdk) return undefined;
 
     let unsubCb: UnsubCallback | undefined;
 
@@ -70,10 +72,10 @@ const Sidebar: React.FC<ISidebarProps> = ({
         setNetworkLoading(true);
 
         if (defaultExtension === 'polywallet') {
-          const network = await signingManager.getCurrentNetwork();
-          setWalletNetwork(network);
+          const network = await signingManager?.getCurrentNetwork();
+          setWalletNetwork(network || null);
 
-          unsubCb = signingManager.onNetworkChange((newNetwork) => {
+          unsubCb = signingManager?.onNetworkChange((newNetwork) => {
             setWalletNetwork(newNetwork);
           });
         } else {
@@ -264,6 +266,18 @@ const Sidebar: React.FC<ISidebarProps> = ({
                             </li>
                           ),
                         )}
+                        <li>
+                          <StyledExpandedLink
+                            onClick={() => setNewsModal(true)}
+                          >
+                            <Icon
+                              name="PolymeshSymbol"
+                              className="link-icon"
+                              size="24px"
+                            />
+                            Newsletter
+                          </StyledExpandedLink>
+                        </li>
                       </ExpandedLinks>
                     )}
                   </StyledNavLink>
@@ -273,6 +287,14 @@ const Sidebar: React.FC<ISidebarProps> = ({
           </StyledNavList>
         </nav>
       </div>
+      {newsModal && (
+        <Modal
+          handleClose={() => setNewsModal(false)}
+          customWidth="fit-content"
+        >
+          <NewsModal />
+        </Modal>
+      )}
     </StyledSidebar>
   );
 };

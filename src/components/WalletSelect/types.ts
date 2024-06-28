@@ -5,4 +5,5 @@ export enum ESelectPlacements {
 
 export interface ISelectProps {
   placement?: `${ESelectPlacements}`;
+  showExternal?: boolean;
 }

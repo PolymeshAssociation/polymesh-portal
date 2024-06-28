@@ -215,3 +215,10 @@ export const StyledKeyLabel = styled.div<{
     `;
   }}
 `;
+
+export const StyledFilterInput = styled.input`
+  font-size: 12px;
+  border: none;
+  border-bottom: ${({ theme }) => `1px solid ${theme.colors.shadow}`};
+  margin: 0 14px;
+`;

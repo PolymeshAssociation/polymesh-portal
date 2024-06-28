@@ -10,7 +10,7 @@ export const DidInfo = () => {
   const {
     state: { connecting },
   } = useContext(PolymeshContext);
-  const { identity, identityLoading } = useContext(AccountContext);
+  const { identityLoading, externalIdentity } = useContext(AccountContext);
 
   return (
     <StyledWrapper>
@@ -24,15 +24,19 @@ export const DidInfo = () => {
         </>
       ) : (
         <>
-          {!!identity && (
+          {!!externalIdentity?.identity && (
             <>
               <Text size="small" bold color="secondary">
-                {formatDid(identity.did)}
+                {formatDid(externalIdentity?.identity)}
               </Text>
-              <CopyToClipboard value={identity.did} />
+              <CopyToClipboard value={externalIdentity?.identity as string} />
             </>
           )}
-          {!identity && <StyledLabel>Unassigned</StyledLabel>}
+          {!externalIdentity?.identity && (
+            <StyledLabel>
+              {externalIdentity?.status || 'Unussigned'}
+            </StyledLabel>
+          )}
         </>
       )}
     </StyledWrapper>

@@ -42,7 +42,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { account } = useContext(AccountContext);
+  const { account, isExternalConnection } = useContext(AccountContext);
   const { allInstructions, instructionsLoading, refreshInstructions } =
     useContext(InstructionsContext);
   const { handleStatusChange } = useTransactionStatus();
@@ -185,7 +185,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
       <StyledSelectionWrapper>
         <SelectAllButton
           onClick={handleSelectAll}
-          disabled={instructionsLoading}
+          disabled={isExternalConnection || instructionsLoading}
         >
           Select All
         </SelectAllButton>
@@ -193,7 +193,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
           <StyledButtonWrapper>
             <StyledActionButton
               $isReject
-              disabled={actionInProgress}
+              disabled={actionInProgress || isExternalConnection}
               onClick={() => executeBatch(EActionTypes.REJECT)}
             >
               <Icon name="CloseIcon" size="24px" />
@@ -202,7 +202,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
             {type === EInstructionTypes.AFFIRMED && (
               <StyledActionButton
                 $isReject
-                disabled={actionInProgress}
+                disabled={actionInProgress || isExternalConnection}
                 onClick={() => executeBatch(EActionTypes.WITHDRAW)}
               >
                 <Icon name="Check" size="24px" />
@@ -211,7 +211,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
             )}
             {type === EInstructionTypes.PENDING && (
               <StyledActionButton
-                disabled={actionInProgress}
+                disabled={actionInProgress || isExternalConnection}
                 onClick={() => executeBatch(EActionTypes.AFFIRM)}
               >
                 <Icon name="Check" size="24px" />

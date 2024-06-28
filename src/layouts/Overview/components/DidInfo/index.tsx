@@ -2,6 +2,8 @@ import { useEffect, useState, useContext } from 'react';
 import { Identity } from '@polymeshassociation/polymesh-sdk/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
+import { useAuthContext } from '~/context/AuthContext';
+import { EExternalIdentityStatus } from '~/context/AccountContext/constants';
 import { Icon, CopyToClipboard, DidSelect } from '~/components';
 import { Text, Button, SkeletonLoader } from '~/components/UiKit';
 import {
@@ -24,8 +26,14 @@ export const DidInfo = () => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identity, identityLoading, identityHasValidCdd } =
-    useContext(AccountContext);
+  const {
+    identity,
+    identityLoading,
+    identityHasValidCdd,
+    externalIdentity,
+    selectedAccount,
+  } = useContext(AccountContext);
+  const { setIdentityPopup } = useAuthContext();
   const [expiry, setExpiry] = useState<null | Date | undefined>(undefined);
   const [issuer, setIssuer] = useState<string | null>(null);
   const [claimDetailsLoading, setClaimDetailsLoading] = useState(true);
@@ -109,6 +117,15 @@ export const DidInfo = () => {
     issuerDid: string | null,
   ) => {
     const date = parseExpiry(expiryDate);
+    if (externalIdentity?.status === EExternalIdentityStatus.PENDING) {
+      return (
+        <Text size="small">
+          There are already existing CDD applications bound to this address:{' '}
+          {formatDid(selectedAccount)}.<br />
+          If you wish you can proceed by creating a new CDD application.
+        </Text>
+      );
+    }
     if (!activeIdentity) {
       return (
         <Text size="small">
@@ -179,7 +196,9 @@ export const DidInfo = () => {
           <div className="did-wrapper">
             {!identityLoading && !identity ? (
               <Text bold size="large" marginTop={isSmallScreen ? 0 : 22}>
-                This key is not linked to an account
+                {externalIdentity?.status === EExternalIdentityStatus.PENDING
+                  ? 'Existing Applications Found'
+                  : 'This key is not linked to an account'}
               </Text>
             ) : (
               <>
@@ -221,12 +240,10 @@ export const DidInfo = () => {
         </StyledBottomInfo>
         <StyledButtonWrapper>
           {!identityLoading && !identity ? (
-            <Button
-              onClick={() =>
-                window.open(import.meta.env.VITE_ONBOARDING_URL, '_blank')
-              }
-            >
-              Complete onboarding
+            <Button onClick={() => setIdentityPopup('providers')}>
+              {externalIdentity?.status === EExternalIdentityStatus.PENDING
+                ? 'Create New Application'
+                : 'Complete onboarding'}
             </Button>
           ) : (
             <>

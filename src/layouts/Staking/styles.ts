@@ -6,7 +6,7 @@ export const OverviewGrid = styled.div`
   align-items: stretch;
   flex-wrap: wrap;
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
   gap: 36px;
 
   @media screen and (min-width: 1680px) {

@@ -58,7 +58,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identity } = useContext(AccountContext);
+  const { identity, isExternalConnection } = useContext(AccountContext);
   const [instructionDetails, setInstructionDetails] =
     useState<InstructionDetails | null>(null);
   const [instructionLegs, setInstructionLegs] = useState<
@@ -214,7 +214,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
       )}
       <StyledButtonsWrapper $expanded={detailsExpanded}>
         <Button
-          disabled={detailsLoading || actionInProgress}
+          disabled={detailsLoading || actionInProgress || isExternalConnection}
           onClick={() => executeAction(instruction.reject)}
         >
           <Icon name="CloseIcon" size="24px" />
@@ -224,7 +224,9 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           isFailedCanWithdrawAffirmation) && (
           <>
             <Button
-              disabled={detailsLoading || actionInProgress}
+              disabled={
+                detailsLoading || actionInProgress || isExternalConnection
+              }
               onClick={() => executeAction(instruction.withdraw)}
             >
               <Icon name="Check" size="24px" />
@@ -233,7 +235,9 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
             {isAllowedToSettleManually && type !== EInstructionTypes.FAILED && (
               <Button
                 variant="success"
-                disabled={actionInProgress || legsHaveErrors}
+                disabled={
+                  actionInProgress || legsHaveErrors || isExternalConnection
+                }
                 onClick={() => executeAction(instruction.executeManually)}
               >
                 <Icon name="Check" size="24px" />
@@ -247,6 +251,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
             <Button
               variant="success"
               disabled={
+                isExternalConnection ||
                 detailsLoading ||
                 actionInProgress ||
                 (!isSettleManual && legsHaveErrors) ||
@@ -278,6 +283,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           <Button
             variant="success"
             disabled={
+              isExternalConnection ||
               detailsLoading ||
               actionInProgress ||
               legsHaveErrors ||

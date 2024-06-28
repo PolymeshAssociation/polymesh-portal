@@ -30,7 +30,7 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
   sortBy,
   setSortBy,
 }) => {
-  const { identity } = useContext(AccountContext);
+  const { identity, isExternalConnection } = useContext(AccountContext);
   const { refreshClaims, claimsLoading } = useContext(ClaimsContext);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -104,7 +104,7 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
             variant="modalPrimary"
             onClick={toggleModal}
             round={isSmallScreen}
-            disabled={!identity}
+            disabled={!identity || isExternalConnection}
           >
             <Icon name="Plus" />
             {!isSmallScreen && 'Create New Claim'}

@@ -1,4 +1,11 @@
-import { useState, useEffect, useMemo, useContext, useCallback } from 'react';
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useContext,
+  useCallback,
+  useRef,
+} from 'react';
 import {
   Account,
   MultiSig,
@@ -14,9 +21,14 @@ import {
 import { PolymeshContext } from '../PolymeshContext';
 import AccountContext from './context';
 import { notifyGlobalError } from '~/helpers/notifications';
-import { IInfoByKey } from './constants';
+import {
+  IInfoByKey,
+  IExternalIdentity,
+  EExternalIdentityStatus,
+} from './constants';
 import { useLocalStorage } from '~/hooks/utility';
 import { useBalance } from '~/hooks/polymesh';
+import { fetchExternalIdentityStatus } from './helpers';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -26,6 +38,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const {
     api: { sdk, signingManager },
     state: { initialized },
+    settings: { defaultExtension },
   } = useContext(PolymeshContext);
   const [account, setAccount] = useState<Account | MultiSig | null>(null);
   const [multiSigAccount, setMultiSigAccount] = useState<MultiSig | null>(null);
@@ -67,6 +80,42 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [shouldRefreshIdentity, setShouldRefreshIdentity] = useState(true);
   const { balance: selectedAccountBalance, balanceIsLoading } =
     useBalance(selectedAccount);
+  const keyRecordRef = useRef<
+    Record<
+      string,
+      {
+        account: Account | MultiSigInstance;
+        relationship: AccountIdentityRelation;
+      }
+    >
+  >({});
+  const extensionRef = useRef<string>('');
+  const accountRef = useRef<Account | MultiSigInstance | null>(null);
+
+  const [externalKey, setExternalKey] = useLocalStorage('externalKey', '');
+  const [externalIdentity, setExternalIdentity] =
+    useState<null | IExternalIdentity>(null);
+
+  const setExternalAccounKey = useCallback(
+    (address: string) => {
+      setExternalKey(address);
+      setSelectedAccount(address);
+    },
+    [setExternalKey],
+  );
+
+  useEffect(() => {
+    if (externalIdentity?.status !== EExternalIdentityStatus.PENDING) {
+      return undefined;
+    }
+    const pollingInterval = setInterval(async () => {
+      const externalIdentityData =
+        await fetchExternalIdentityStatus(selectedAccount);
+      setExternalIdentity(externalIdentityData);
+    }, 10000);
+
+    return () => clearInterval(pollingInterval);
+  }, [externalIdentity?.status, selectedAccount]);
 
   // Perform actions when account change occurs in extension
   useEffect(() => {
@@ -107,22 +156,21 @@ const AccountProvider = ({ children }: IProviderProps) => {
     return () => (unsubCb ? unsubCb() : undefined);
   }, [blockedWallets, signingManager]);
 
-  // Set a new selected account only if the previously account
-  // is no longer in the list of connected accounts
+  // Set the selected account on initialization
   useEffect(() => {
-    if (!allAccounts.length) {
-      setSelectedAccount('');
+    if (selectedAccount) {
       return;
     }
-    if (selectedAccount && allAccounts.includes(selectedAccount)) {
-      return;
-    }
-    if (allAccounts.includes(defaultAccount)) {
+    if (defaultAccount) {
       setSelectedAccount(defaultAccount);
       return;
     }
-    setSelectedAccount(allAccounts[0]);
-  }, [allAccounts, defaultAccount, selectedAccount]);
+    if (allAccounts.length > 0) {
+      setSelectedAccount(allAccounts[0]);
+      return;
+    }
+    setSelectedAccount('');
+  }, [allAccounts, defaultAccount, externalKey, selectedAccount]);
 
   useEffect(() => {
     if (rememberSelectedAccount === true && selectedAccount) {
@@ -144,14 +192,35 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
     (async () => {
       try {
-        const accountInstance = await sdk.accountManagement.getAccount({
-          address: selectedAccount,
-        });
+        if (accountRef.current?.address !== selectedAccount) {
+          const accountInstance = await sdk.accountManagement.getAccount({
+            address: selectedAccount,
+          });
+          setAccount(accountInstance);
+          accountRef.current = accountInstance;
+        }
+        const signingKeys = signingManager
+          ? await signingManager.getAccounts()
+          : [];
+        const filteredSigningKeys = signingKeys.filter(
+          (key) => !blockedWallets.includes(key),
+        );
+        // check if the key is in the signing manager's keys
+        if (filteredSigningKeys.includes(selectedAccount)) {
+          // if the signing manager has changed connect the new signingManager
+          if (extensionRef.current !== defaultExtension) {
+            await sdk.setSigningManager(signingManager);
+          }
+          await sdk.setSigningAccount(accountRef.current);
+          extensionRef.current = defaultExtension;
+        } else {
+          // if the key is not in all accounts (the signingManager)
+          // ensure there is no signing manager attached to the SDK
+          // TODO: check me
+          // await sdk.setSigningManager(null);
+        }
 
-        setAccount(accountInstance);
-        await sdk.setSigningAccount(accountInstance);
-
-        const multiSigInstance = await accountInstance.getMultiSig();
+        const multiSigInstance = await accountRef.current.getMultiSig();
         setMultiSigAccount(multiSigInstance);
         setAccountIsMultisigSigner(!!multiSigInstance);
         setShouldRefreshIdentity(true);
@@ -164,42 +233,78 @@ const AccountProvider = ({ children }: IProviderProps) => {
         setAccountLoading(false);
       }
     })();
-  }, [sdk, selectedAccount]);
+  }, [blockedWallets, defaultExtension, sdk, selectedAccount, signingManager]);
 
+  // Update accounts and key to identity relationships for new keys
   useEffect(() => {
-    if (!sdk || !allAccounts.length) {
+    if (!sdk || (!allAccounts.length && !account)) {
       setAllSigningAccounts([]);
       setKeyIdentityRelationships({});
+      keyRecordRef.current = {};
       return;
     }
 
     (async () => {
       try {
-        const signingAccounts =
-          await sdk.accountManagement.getSigningAccounts();
+        const previousKeyToAccountRecord = keyRecordRef.current;
 
-        const relationshipPromises = signingAccounts.map(async (acc) => {
+        const keyArray = [...allAccounts];
+        if (account && !keyArray.includes(account.address)) {
+          keyArray.push(account.address);
+        }
+
+        const addedKeys = keyArray.filter(
+          (acc) => !previousKeyToAccountRecord[acc],
+        );
+
+        const addedAccountsPromises = addedKeys.map((address) =>
+          sdk.accountManagement.getAccount({ address }),
+        );
+        const addedAccounts = await Promise.all(addedAccountsPromises);
+
+        const addedAccRelationshipsPromises = addedAccounts.map(async (acc) => {
           const { relation } = await acc.getTypeInfo();
+          return { address: acc.address, relation };
+        });
+        const addedAccRelationships = await Promise.all(
+          addedAccRelationshipsPromises,
+        );
+
+        const newKeyRecord = { ...previousKeyToAccountRecord };
+        // Remove entries for keys no longer in keyArray
+        Object.keys(newKeyRecord).forEach((key) => {
+          if (!keyArray.includes(key)) {
+            delete newKeyRecord[key];
+          }
+        });
+        addedAccounts.forEach((acc, idx) => {
           const { address } = acc;
-          return { address, relation };
+          newKeyRecord[address] = {
+            account: acc,
+            relationship: addedAccRelationships[idx].relation,
+          };
         });
 
-        const relationshipsArray = await Promise.all(relationshipPromises);
-
+        // Prepare the final lists of signing accounts and relationships
+        const signingAccounts = keyArray.map(
+          (address) => newKeyRecord[address].account,
+        );
         const relationships: Record<string, AccountIdentityRelation> = {};
-        relationshipsArray.forEach(({ address, relation }) => {
-          relationships[address] = relation;
+        keyArray.forEach((address) => {
+          relationships[address] = newKeyRecord[address].relationship;
         });
 
         setAllSigningAccounts(signingAccounts);
         setKeyIdentityRelationships(relationships);
+        keyRecordRef.current = newKeyRecord;
       } catch (error) {
         notifyGlobalError((error as Error).message);
         setAllSigningAccounts([]);
         setKeyIdentityRelationships({});
+        keyRecordRef.current = {};
       }
     })();
-  }, [allAccounts, sdk]);
+  }, [account, allAccounts, sdk]);
 
   // Get identity data when sdk is initialized
   useEffect(() => {
@@ -235,6 +340,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
         });
 
         if (!accountLoading) {
+          const externalIdentityData = await fetchExternalIdentityStatus(
+            account.address,
+          );
+          setExternalIdentity(externalIdentityData);
           setIdentity(accIdentity);
         }
         setAllIdentities(uniqueIdentities);
@@ -419,6 +528,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
       balanceIsLoading,
       rememberSelectedAccount,
       setRememberSelectedAccount,
+      externalKey,
+      externalIdentity,
+      setExternalAccounKey,
+      isExternalConnection: !allAccounts.includes(selectedAccount),
     }),
     [
       account,
@@ -432,6 +545,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
       blockWalletAddress,
       blockedWallets,
       defaultAccount,
+      externalIdentity,
+      externalKey,
       identity,
       identityHasValidCdd,
       identityLoading,
@@ -444,6 +559,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       selectedAccount,
       selectedAccountBalance,
       setDefaultAccount,
+      setExternalAccounKey,
       setRememberSelectedAccount,
       unblockWalletAddress,
     ],
