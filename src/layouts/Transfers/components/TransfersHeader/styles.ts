@@ -126,3 +126,16 @@ export const StyledSort = styled.div`
     background-color: ${({ theme }) => theme.colors.modalBackground};
   }
 `;
+
+export const StyledInstructionCount = styled.div`
+  font-size: 12px;
+  min-width: 18px;
+  padding: 0 2px;
+  height: 18px;
+  color: ${({ theme }) => theme.colors.dashboardBackground};
+  background-color: ${({ theme }) => theme.colors.textPink};
+  border-radius: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
