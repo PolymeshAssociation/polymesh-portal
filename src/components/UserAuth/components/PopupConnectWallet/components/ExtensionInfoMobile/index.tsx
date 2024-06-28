@@ -1,7 +1,7 @@
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useAuthContext } from '~/context/AuthContext';
 import { TConnectModalType } from '~/context/AuthContext/constants';
-import { WALLET_CONNECT_OPTIONS, SUBWALLET_WALLET } from '~/constants/wallets';
+import { WALLET_CONNECT_OPTIONS } from '~/constants/wallets';
 import { Text, Heading, Button } from '~/components/UiKit';
 import { Icon } from '~/components';
 import { SecondaryButton } from '../../../SecondaryButton';
@@ -28,14 +28,7 @@ export const ExtensionInfoMobile = () => {
   return (
     <div>
       <StyledWalletName>
-        <Icon
-          name={
-            connectPopup === SUBWALLET_WALLET
-              ? 'SubwalletSymbolMobile'
-              : currentExtension.iconName
-          }
-          size="75px"
-        />
+        <Icon name={currentExtension.iconName} size="75px" />
         <div>
           <Heading type="h4">{currentExtension?.walletName}</Heading>
           <Text marginTop={8} bold>

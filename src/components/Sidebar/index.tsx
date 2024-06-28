@@ -271,7 +271,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
                             onClick={() => setNewsModal(true)}
                           >
                             <Icon
-                              name="PolymeshLogoIcon"
+                              name="PolymeshSymbol"
                               className="link-icon"
                               size="24px"
                             />
