@@ -1,4 +1,9 @@
-import { Instruction } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  AffirmOrWithdrawInstructionParams,
+  ExecuteManualInstructionParams,
+  Instruction,
+  RejectInstructionParams,
+} from '@polymeshassociation/polymesh-sdk/types';
 
 export enum EInstructionTypes {
   PENDING = 'pending',
@@ -19,6 +24,15 @@ export enum ESortOptions {
 }
 
 export type InstructionAction =
-  | Instruction['reject']
-  | Instruction['affirm']
-  | Instruction['executeManually'];
+  | {
+      method: Instruction['reject'];
+      params?: RejectInstructionParams;
+    }
+  | {
+      method: Instruction['affirm'];
+      params?: AffirmOrWithdrawInstructionParams;
+    }
+  | {
+      method: Instruction['executeManually'];
+      params?: ExecuteManualInstructionParams;
+    };
