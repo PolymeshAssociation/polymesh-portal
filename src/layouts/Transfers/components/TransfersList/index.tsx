@@ -220,8 +220,9 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
       }
     }
   };
-
-  const executeAction = async (action: InstructionAction) => {
+  const executeAction = async (
+    action: InstructionAction | InstructionAction[],
+  ) => {
     if (!sdk) return;
 
     let unsubCb: UnsubCallback | undefined;
@@ -230,16 +231,23 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
       let tx;
       if (Array.isArray(action)) {
         const transactions = await Promise.all(
-          action.map(async (method) => method()),
+          action.map(async (actionItem) => {
+            if (actionItem.params) {
+              return actionItem.method(actionItem.params);
+            }
+            return actionItem.method();
+          }),
         );
         tx = await sdk.createTransactionBatch({
           transactions,
         });
+      } else if (action.params) {
+        tx = await action.method(action.params);
       } else {
-        tx = await action();
+        tx = await action.method();
       }
 
-      unsubCb = await tx.onStatusChange((transaction) =>
+      unsubCb = tx.onStatusChange((transaction) =>
         handleStatusChange(transaction),
       );
       await tx.run();

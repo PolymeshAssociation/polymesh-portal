@@ -24,7 +24,7 @@ import { EInstructionTypes, InstructionAction } from '../../types';
 import {
   getAffirmationStatus,
   getLegErrors,
-  // isLastManualAffirmation,
+  isLastManualAffirmation,
 } from './helpers';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
@@ -44,7 +44,7 @@ interface IAuthorizationItemProps {
   instruction: Instruction;
   onSelect: () => void;
   isSelected: boolean;
-  executeAction: (action: InstructionAction) => void;
+  executeAction: (action: InstructionAction | InstructionAction[]) => void;
   actionInProgress: boolean;
 }
 
@@ -146,15 +146,13 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
       return !!errors.length;
     });
 
-  // //  Not currently possible with the SDK due to settlement checks.
-  // const canAffirmAndExecute =
-  //   isSettleManual &&
-  //   isLastManualAffirmation({
-  //     instructionAffirmations,
-  //     counterparties: calculateCounterparties(instructionLegs),
-  //     identity,
-  //   });
-
+  const canAffirmAndExecute =
+    isSettleManual &&
+    isLastManualAffirmation({
+      instructionAffirmations,
+      counterparties: calculateCounterparties(instructionLegs),
+      identity,
+    });
   const legsHaveErrors = instructionLegs.some(({ errors }) => !!errors.length);
 
   const affirmationStatus =
@@ -215,7 +213,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
       <StyledButtonsWrapper $expanded={detailsExpanded}>
         <Button
           disabled={detailsLoading || actionInProgress || isExternalConnection}
-          onClick={() => executeAction(instruction.reject)}
+          onClick={() => executeAction({ method: instruction.reject })}
         >
           <Icon name="CloseIcon" size="24px" />
           Reject
@@ -227,7 +225,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
               disabled={
                 detailsLoading || actionInProgress || isExternalConnection
               }
-              onClick={() => executeAction(instruction.withdraw)}
+              onClick={() => executeAction({ method: instruction.withdraw })}
             >
               <Icon name="Check" size="24px" />
               Unapprove
@@ -238,7 +236,9 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
                 disabled={
                   actionInProgress || legsHaveErrors || isExternalConnection
                 }
-                onClick={() => executeAction(instruction.executeManually)}
+                onClick={() =>
+                  executeAction({ method: instruction.executeManually })
+                }
               >
                 <Icon name="Check" size="24px" />
                 Settle
@@ -257,26 +257,34 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
                 (!isSettleManual && legsHaveErrors) ||
                 isManualCannotAffirm
               }
-              onClick={() => executeAction(instruction.affirm)}
+              onClick={() => executeAction({ method: instruction.affirm })}
             >
               <Icon name="Check" size="24px" />
               Approve
             </Button>
-            {/* {canAffirmAndExecute && (
+            {canAffirmAndExecute && (
               <Button
                 variant="success"
-                disabled={detailsLoading || actionInProgress || legsHaveErrors}
+                disabled={
+                  detailsLoading ||
+                  actionInProgress ||
+                  legsHaveErrors ||
+                  isExternalConnection
+                }
                 onClick={() =>
                   executeAction([
-                    instruction.affirm,
-                    instruction.executeManually,
+                    { method: instruction.affirm },
+                    {
+                      method: instruction.executeManually,
+                      params: { skipAffirmationCheck: true },
+                    },
                   ])
                 }
               >
                 <Icon name="Check" size="24px" />
                 Approve and Settle
               </Button>
-            )} */}
+            )}
           </>
         )}
         {type === EInstructionTypes.FAILED && (
@@ -289,7 +297,9 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
               legsHaveErrors ||
               !isFullyAffirmed
             }
-            onClick={() => executeAction(instruction.executeManually)}
+            onClick={() =>
+              executeAction({ method: instruction.executeManually })
+            }
           >
             <Icon name="Check" size="24px" />
             Retry Settling
