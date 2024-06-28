@@ -22,6 +22,7 @@ import {
   StyledSortWrapper,
   StyledSort,
   StyledButtonWrapper,
+  StyledInstructionCount,
 } from './styles';
 
 interface ITransfersHeaderProps {
@@ -33,8 +34,12 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
   sortBy,
   setSortBy,
 }) => {
-  const { createdVenues, refreshInstructions, instructionsLoading } =
-    useContext(InstructionsContext);
+  const {
+    createdVenues,
+    refreshInstructions,
+    instructionsLoading,
+    allInstructions,
+  } = useContext(InstructionsContext);
   const { identityLoading, identity } = useContext(AccountContext);
   const [createVenueOpen, setCreateVenueOpen] = useState(false);
   const [sendAssetOpen, setSendAssetOpen] = useState(false);
@@ -73,7 +78,16 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
                 className={type === label ? 'active' : ''}
                 onClick={() => setSearchParams(searchParam)}
               >
-                {instructionsLoading ? <SkeletonLoader width={48} /> : label}
+                <>
+                  {instructionsLoading ? <SkeletonLoader width={48} /> : label}
+                  {instructionsLoading ? (
+                    <SkeletonLoader width={21} />
+                  ) : (
+                    <StyledInstructionCount>
+                      {allInstructions?.[label].length}
+                    </StyledInstructionCount>
+                  )}
+                </>
               </StyledNavLink>
             </li>
           ))}
