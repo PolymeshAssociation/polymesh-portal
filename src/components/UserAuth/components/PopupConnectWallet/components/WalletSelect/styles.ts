@@ -5,6 +5,7 @@ export const StyledWalletSelectContainer = styled.div`
   height: 180px;
   position: relative;
   & > div {
+    border-radius: 8px;
     & > div {
       text-align: left;
       border: 1px solid #8f8f8f;
