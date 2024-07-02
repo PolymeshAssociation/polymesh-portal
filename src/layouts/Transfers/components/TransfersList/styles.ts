@@ -21,7 +21,9 @@ export const SelectAllButton = styled.button`
   border: 1px solid transparent;
   color: ${({ theme }) => theme.colors.textBlue};
 
-  transition: border 250ms ease-out, box-shadow 250ms ease-out;
+  transition:
+    border 250ms ease-out,
+    box-shadow 250ms ease-out;
 
   &:hover:enabled {
     border: 1px solid ${({ theme }) => theme.colors.textBlue};
@@ -95,7 +97,9 @@ export const StyledActionButton = styled.button<{ $isReject?: boolean }>`
     $isReject ? theme.colors.textPink : theme.colors.textSuccess};
   box-shadow: ${({ theme }) => `0px 1px 3px ${theme.colors.shadow},
     0px 1px 2px ${theme.colors.shadow}`};
-  transition: background-color 250ms ease-out, color 250ms ease-out,
+  transition:
+    background-color 250ms ease-out,
+    color 250ms ease-out,
     box-shadow 250ms ease-out;
 
   &:not(:first-child) {
@@ -131,7 +135,9 @@ export const ClearSelectionButton = styled.button`
   background-color: ${({ theme }) => theme.colors.textSecondary};
   color: ${({ theme }) => theme.colors.landingBackground};
 
-  transition: background-color 250ms ease-out, color 250ms ease-out;
+  transition:
+    background-color 250ms ease-out,
+    color 250ms ease-out;
 
   &:hover {
     background-color: ${({ theme }) => theme.colors.textPink};
@@ -149,4 +155,50 @@ export const TransfersPlaceholder = styled.div`
   box-shadow: 0px 20px 40px rgba(30, 30, 30, 0.1);
   border-radius: 32px;
   color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+export const StyledPaginationContainer = styled.div`
+  display: flex;
+  gap: 12px;
+`;
+export const StyledPerPageWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 18px;
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+export const StyledPerPageSelect = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 34px;
+  margin-left: 2px;
+  padding-left: 2px;
+
+  & .dropdown-icon {
+    position: absolute;
+    top: -5%;
+    right: 0;
+    color: ${({ theme }) => theme.colors.textPrimary};
+  }
+
+  & select {
+    position: relative;
+    z-index: 1;
+    appearance: none;
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: ${({ theme }) => theme.colors.textPrimary};
+  }
+
+  & .options {
+    background-color: ${({ theme }) => theme.colors.modalBackground};
+  }
 `;
