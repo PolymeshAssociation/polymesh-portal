@@ -35,7 +35,7 @@ import {
 } from '../../types';
 import { createTransactionChunks, createTransactions } from './helpers';
 import { useWindowWidth } from '~/hooks/utility';
-import { SkeletonLoader } from '~/components/UiKit';
+import { SkeletonLoader, Button } from '~/components/UiKit';
 import { useTransfersPagination } from './hooks';
 
 interface ITransfersListProps {
@@ -58,7 +58,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const typeRef = useRef<string | null>(null);
   const [actionInProgress, setActionInProgress] = useState(false);
   const [invalidInstructions, setInvalidInstructions] = useState<number[]>([]);
-  const { isWidescreen, isMobile } = useWindowWidth();
+  const { isWidescreen, isMobile, isTablet } = useWindowWidth();
 
   const currentTabInstructions =
     !allInstructions || !type
@@ -79,6 +79,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   } = useTransfersPagination(currentTabInstructions?.length || 0, type);
 
   const sizeOptions = [...new Set([pageSize, ...perPageOptions])];
+  const isSmallScreen = isMobile || isTablet;
 
   useEffect(() => {
     if (!selectedItems.length || typeRef.current === type) return;
@@ -357,34 +358,57 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                 />
               ))}
               <StyledPaginationContainer>
-                <StyledPerPageWrapper>
-                  Show:
-                  <StyledPerPageSelect>
-                    <select
-                      onChange={({ target }) => {
-                        setPageSize(Number(target.value));
-                      }}
-                      value={pageSize}
+                {!isSmallScreen && (
+                  <StyledPerPageWrapper>
+                    Show:
+                    <StyledPerPageSelect>
+                      <select
+                        onChange={({ target }) => {
+                          setPageSize(Number(target.value));
+                        }}
+                        value={pageSize}
+                      >
+                        {sizeOptions.map((option) => (
+                          <option
+                            className="options"
+                            key={option}
+                            value={option}
+                          >
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                      <Icon name="DropdownIcon" className="dropdown-icon" />
+                    </StyledPerPageSelect>
+                  </StyledPerPageWrapper>
+                )}
+                {isSmallScreen ? (
+                  <>
+                    <Button disabled={isPrevDisabled} onClick={onPrevPageClick}>
+                      <Icon name="PrevPage" />
+                      Previous
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      disabled={isNextDisabled}
+                      onClick={onNextPageClick}
                     >
-                      {sizeOptions.map((option) => (
-                        <option className="options" key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                    <Icon name="DropdownIcon" className="dropdown-icon" />
-                  </StyledPerPageSelect>
-                </StyledPerPageWrapper>
-                <Pagination
-                  totalItems={totalItems}
-                  currentItems={currentItems}
-                  isPrevDisabled={isPrevDisabled}
-                  isNextDisabled={isNextDisabled}
-                  onFirstPageClick={onFirstPageClick}
-                  onPrevPageClick={onPrevPageClick}
-                  onNextPageClick={onNextPageClick}
-                  onLastPageClick={onLastPageClick}
-                />
+                      Next
+                      <Icon name="NextPage" />
+                    </Button>
+                  </>
+                ) : (
+                  <Pagination
+                    totalItems={totalItems}
+                    currentItems={currentItems}
+                    isPrevDisabled={isPrevDisabled}
+                    isNextDisabled={isNextDisabled}
+                    onFirstPageClick={onFirstPageClick}
+                    onPrevPageClick={onPrevPageClick}
+                    onNextPageClick={onNextPageClick}
+                    onLastPageClick={onLastPageClick}
+                  />
+                )}
               </StyledPaginationContainer>
             </>
           ) : (

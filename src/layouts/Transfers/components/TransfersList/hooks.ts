@@ -63,7 +63,7 @@ export const useTransfersPagination = (
     totalItems,
     currentItems,
     isPrevDisabled: pageIndexRef.current === INITIAL_PAGE_INDEX,
-    isNextDisabled: pageIndexRef.current === getLastPageIndex(),
+    isNextDisabled: currentItems.last === totalItems,
     pageSize,
     setPageSize,
     onFirstPageClick: () => updateCurrentPage(INITIAL_PAGE_INDEX),
