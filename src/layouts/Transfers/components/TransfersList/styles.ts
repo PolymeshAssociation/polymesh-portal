@@ -159,8 +159,10 @@ export const TransfersPlaceholder = styled.div`
 
 export const StyledPaginationContainer = styled.div`
   display: flex;
+  justify-content: center;
   gap: 12px;
 `;
+
 export const StyledPerPageWrapper = styled.div`
   display: flex;
   align-items: center;
