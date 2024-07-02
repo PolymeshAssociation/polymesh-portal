@@ -10,7 +10,7 @@ import { InstructionsContext } from '~/context/InstructionsContext';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useTransactionStatus } from '~/hooks/polymesh';
-import { Icon } from '~/components';
+import { Icon, Pagination } from '~/components';
 import {
   StyledSelectionWrapper,
   SelectAllButton,
@@ -20,8 +20,12 @@ import {
   StyledActionButton,
   ClearSelectionButton,
   TransfersPlaceholder,
+  StyledPaginationContainer,
+  StyledPerPageWrapper,
+  StyledPerPageSelect,
 } from './styles';
 import { TransferItem } from '../TransferItem';
+import { getLegErrors } from '../TransferItem/helpers';
 import { notifyError } from '~/helpers/notifications';
 import {
   EInstructionTypes,
@@ -31,11 +35,14 @@ import {
 } from '../../types';
 import { createTransactionChunks, createTransactions } from './helpers';
 import { useWindowWidth } from '~/hooks/utility';
-import { SkeletonLoader } from '~/components/UiKit';
+import { SkeletonLoader, Button } from '~/components/UiKit';
+import { useTransfersPagination } from './hooks';
 
 interface ITransfersListProps {
   sortBy: ESortOptions;
 }
+
+const perPageOptions = [3, 5, 10, 20, 50];
 
 export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const [selectedItems, setSelectedItems] = useState<Instruction[]>([]);
@@ -50,18 +57,83 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const type = searchParams.get('type');
   const typeRef = useRef<string | null>(null);
   const [actionInProgress, setActionInProgress] = useState(false);
-  const { isWidescreen, isMobile } = useWindowWidth();
+  const [invalidInstructions, setInvalidInstructions] = useState<number[]>([]);
+  const { isWidescreen, isMobile, isTablet } = useWindowWidth();
 
   const currentTabInstructions =
     !allInstructions || !type
       ? null
       : allInstructions[type as keyof GroupedInstructions];
 
+  const {
+    currentItems,
+    totalItems,
+    isPrevDisabled,
+    isNextDisabled,
+    pageSize,
+    setPageSize,
+    onFirstPageClick,
+    onPrevPageClick,
+    onNextPageClick,
+    onLastPageClick,
+  } = useTransfersPagination(currentTabInstructions?.length || 0, type);
+
+  const sizeOptions = [...new Set([pageSize, ...perPageOptions])];
+  const isSmallScreen = isMobile || isTablet;
+
   useEffect(() => {
     if (!selectedItems.length || typeRef.current === type) return;
 
     setSelectedItems([]);
   }, [type, selectedItems]);
+
+  useEffect(() => {
+    if (
+      (type !== 'pending' && typeRef.current !== 'pending') ||
+      !currentTabInstructions ||
+      !sdk
+    ) {
+      return;
+    }
+    (async () => {
+      const instructionsWithErrors = await Promise.all(
+        currentTabInstructions
+          .slice(currentItems.first - 1, currentItems.last)
+          .map(async (instruction) => {
+            const { data } = await instruction.getLegs();
+            const { data: affirmations } = await instruction.getAffirmations();
+            const details = await instruction.details();
+            const block = await sdk.network.getLatestBlock();
+            const uniqueAffirmations = affirmations.filter(
+              (a, index, self) =>
+                index ===
+                self.findIndex((t) => t.identity.did === a.identity.did),
+            );
+            const legErrors = await Promise.all(
+              data.map(async (leg) => ({
+                leg,
+                errors: await getLegErrors({
+                  leg,
+                  affirmationsData: uniqueAffirmations,
+                  instructionDetails: details,
+                  latestBlock: block.toNumber(),
+                }),
+              })),
+            );
+            if (legErrors.some((leg) => leg.errors.length)) {
+              return instruction.id.toNumber();
+            } else {
+              return null;
+            }
+          }),
+      );
+      const filteredInstructions = instructionsWithErrors.filter(
+        (instruction) => instruction,
+      );
+
+      setInvalidInstructions(filteredInstructions as number[]);
+    })();
+  }, [type, sdk, currentTabInstructions]);
 
   const handleItemSelect = (selectedInstruction: Instruction) => {
     typeRef.current = type;
@@ -87,21 +159,31 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const handleSelectAll = () => {
     if (!allInstructions) return;
     typeRef.current = type;
-    setSelectedItems(allInstructions[type as keyof GroupedInstructions]);
+    setSelectedItems(
+      allInstructions[type as keyof GroupedInstructions].slice(
+        currentItems.first - 1,
+        currentItems.last,
+      ),
+    );
   };
 
   const clearSelection = () => {
     setSelectedItems([]);
   };
 
-  const executeBatch = async (action: `${EActionTypes}`) => {
+  const executeBatch = async (
+    action: `${EActionTypes}`,
+    items?: Instruction[],
+  ) => {
     if (!sdk || !account) return;
 
     let unsubCb: UnsubCallback | undefined;
 
     try {
       setActionInProgress(true);
-      const transactions = await createTransactions(action, selectedItems);
+
+      const itemsToExecute = items || selectedItems;
+      const transactions = await createTransactions(action, itemsToExecute);
 
       if (!transactions) return;
 
@@ -167,6 +249,18 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
     }
   };
 
+  const handleApproveValidBatch = () => {
+    const validInctructionsSelected = currentTabInstructions
+      ?.slice(currentItems.first - 1, currentItems.last)
+      .filter(
+        (instruction) =>
+          !invalidInstructions.includes(instruction.id.toNumber()),
+      );
+
+    setSelectedItems(validInctructionsSelected as Instruction[]);
+    executeBatch(EActionTypes.AFFIRM, validInctructionsSelected);
+  };
+
   const sortInstructions = (instructions: Instruction[]) => {
     switch (sortBy) {
       case ESortOptions.NEWEST:
@@ -212,10 +306,10 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
             {type === EInstructionTypes.PENDING && (
               <StyledActionButton
                 disabled={actionInProgress}
-                onClick={() => executeBatch(EActionTypes.AFFIRM)}
+                onClick={handleApproveValidBatch}
               >
                 <Icon name="Check" size="24px" />
-                {!isMobile && 'Approve'}
+                {!isMobile && 'Approve Valid'}
               </StyledActionButton>
             )}
             {/* {type === EInstructionTypes.FAILED && (
@@ -245,18 +339,78 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
       ) : (
         <StyledTransfersList>
           {currentTabInstructions && currentTabInstructions.length ? (
-            sortInstructions(currentTabInstructions).map((instruction) => (
-              <TransferItem
-                key={instruction.toHuman()}
-                instruction={instruction}
-                onSelect={() => handleItemSelect(instruction)}
-                isSelected={selectedItems.some(
-                  (item) => item.toHuman() === instruction.toHuman(),
+            <>
+              {sortInstructions(
+                currentTabInstructions.slice(
+                  currentItems.first - 1,
+                  currentItems.last,
+                ),
+              ).map((instruction) => (
+                <TransferItem
+                  key={instruction.toHuman()}
+                  instruction={instruction}
+                  onSelect={() => handleItemSelect(instruction)}
+                  isSelected={selectedItems.some(
+                    (item) => item.toHuman() === instruction.toHuman(),
+                  )}
+                  executeAction={executeAction}
+                  actionInProgress={actionInProgress}
+                />
+              ))}
+              <StyledPaginationContainer>
+                {!isSmallScreen && (
+                  <StyledPerPageWrapper>
+                    Show:
+                    <StyledPerPageSelect>
+                      <select
+                        onChange={({ target }) => {
+                          setPageSize(Number(target.value));
+                        }}
+                        value={pageSize}
+                      >
+                        {sizeOptions.map((option) => (
+                          <option
+                            className="options"
+                            key={option}
+                            value={option}
+                          >
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                      <Icon name="DropdownIcon" className="dropdown-icon" />
+                    </StyledPerPageSelect>
+                  </StyledPerPageWrapper>
                 )}
-                executeAction={executeAction}
-                actionInProgress={actionInProgress}
-              />
-            ))
+                {isSmallScreen ? (
+                  <>
+                    <Button disabled={isPrevDisabled} onClick={onPrevPageClick}>
+                      <Icon name="PrevPage" />
+                      Previous
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      disabled={isNextDisabled}
+                      onClick={onNextPageClick}
+                    >
+                      Next
+                      <Icon name="NextPage" />
+                    </Button>
+                  </>
+                ) : (
+                  <Pagination
+                    totalItems={totalItems}
+                    currentItems={currentItems}
+                    isPrevDisabled={isPrevDisabled}
+                    isNextDisabled={isNextDisabled}
+                    onFirstPageClick={onFirstPageClick}
+                    onPrevPageClick={onPrevPageClick}
+                    onNextPageClick={onNextPageClick}
+                    onLastPageClick={onLastPageClick}
+                  />
+                )}
+              </StyledPaginationContainer>
+            </>
           ) : (
             <TransfersPlaceholder>No data available</TransfersPlaceholder>
           )}

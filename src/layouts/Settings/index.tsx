@@ -7,6 +7,7 @@ import { DefaultAddress } from './components/DefaultAddress';
 import { DefaultWallet } from './components/DefaultWallet';
 import { MenuItem } from './components/MenuItem';
 import { EndpointUrl, EndpointTypes } from './components/EndpointUrl';
+import { IpfsProvider } from './components/IpfsProvider';
 import { ThemeToggle } from './components/ThemeToggle';
 import { StyledMenuList, StyledSettings } from './styles';
 import { useWindowWidth } from '~/hooks/utility';
@@ -97,6 +98,11 @@ const Settings = () => {
         View Settings
       </Text>
       <StyledMenuList>
+        <MenuItem
+          iconName="Link"
+          description="IPFS Provider"
+          value={<IpfsProvider />}
+        />
         <MenuItem
           iconName="Brush"
           description="Theme"
