@@ -156,3 +156,49 @@ export const TransfersPlaceholder = styled.div`
   border-radius: 32px;
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
+
+export const StyledPaginationContainer = styled.div`
+  display: flex;
+  gap: 12px;
+`;
+export const StyledPerPageWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 18px;
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+export const StyledPerPageSelect = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 34px;
+  margin-left: 2px;
+  padding-left: 2px;
+
+  & .dropdown-icon {
+    position: absolute;
+    top: -5%;
+    right: 0;
+    color: ${({ theme }) => theme.colors.textPrimary};
+  }
+
+  & select {
+    position: relative;
+    z-index: 1;
+    appearance: none;
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: ${({ theme }) => theme.colors.textPrimary};
+  }
+
+  & .options {
+    background-color: ${({ theme }) => theme.colors.modalBackground};
+  }
+`;

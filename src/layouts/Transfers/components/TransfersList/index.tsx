@@ -10,7 +10,7 @@ import { InstructionsContext } from '~/context/InstructionsContext';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useTransactionStatus } from '~/hooks/polymesh';
-import { Icon } from '~/components';
+import { Icon, Pagination } from '~/components';
 import {
   StyledSelectionWrapper,
   SelectAllButton,
@@ -20,6 +20,9 @@ import {
   StyledActionButton,
   ClearSelectionButton,
   TransfersPlaceholder,
+  StyledPaginationContainer,
+  StyledPerPageWrapper,
+  StyledPerPageSelect,
 } from './styles';
 import { TransferItem } from '../TransferItem';
 import { getLegErrors } from '../TransferItem/helpers';
@@ -33,10 +36,13 @@ import {
 import { createTransactionChunks, createTransactions } from './helpers';
 import { useWindowWidth } from '~/hooks/utility';
 import { SkeletonLoader } from '~/components/UiKit';
+import { useTransfersPagination } from './hooks';
 
 interface ITransfersListProps {
   sortBy: ESortOptions;
 }
+
+const perPageOptions = [3, 5, 10, 20, 50];
 
 export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const [selectedItems, setSelectedItems] = useState<Instruction[]>([]);
@@ -59,6 +65,21 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
       ? null
       : allInstructions[type as keyof GroupedInstructions];
 
+  const {
+    currentItems,
+    totalItems,
+    isPrevDisabled,
+    isNextDisabled,
+    pageSize,
+    setPageSize,
+    onFirstPageClick,
+    onPrevPageClick,
+    onNextPageClick,
+    onLastPageClick,
+  } = useTransfersPagination(currentTabInstructions?.length || 0, type);
+
+  const sizeOptions = [...new Set([pageSize, ...perPageOptions])];
+
   useEffect(() => {
     if (!selectedItems.length || typeRef.current === type) return;
 
@@ -75,33 +96,35 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
     }
     (async () => {
       const instructionsWithErrors = await Promise.all(
-        currentTabInstructions?.map(async (instruction) => {
-          const { data } = await instruction.getLegs();
-          const { data: affirmations } = await instruction.getAffirmations();
-          const details = await instruction.details();
-          const block = await sdk.network.getLatestBlock();
-          const uniqueAffirmations = affirmations.filter(
-            (a, index, self) =>
-              index ===
-              self.findIndex((t) => t.identity.did === a.identity.did),
-          );
-          const legErrors = await Promise.all(
-            data.map(async (leg) => ({
-              leg,
-              errors: await getLegErrors({
+        currentTabInstructions
+          .slice(currentItems.first - 1, currentItems.last)
+          .map(async (instruction) => {
+            const { data } = await instruction.getLegs();
+            const { data: affirmations } = await instruction.getAffirmations();
+            const details = await instruction.details();
+            const block = await sdk.network.getLatestBlock();
+            const uniqueAffirmations = affirmations.filter(
+              (a, index, self) =>
+                index ===
+                self.findIndex((t) => t.identity.did === a.identity.did),
+            );
+            const legErrors = await Promise.all(
+              data.map(async (leg) => ({
                 leg,
-                affirmationsData: uniqueAffirmations,
-                instructionDetails: details,
-                latestBlock: block.toNumber(),
-              }),
-            })),
-          );
-          if (legErrors.some((leg) => leg.errors.length)) {
-            return instruction.id.toNumber();
-          } else {
-            return null;
-          }
-        }),
+                errors: await getLegErrors({
+                  leg,
+                  affirmationsData: uniqueAffirmations,
+                  instructionDetails: details,
+                  latestBlock: block.toNumber(),
+                }),
+              })),
+            );
+            if (legErrors.some((leg) => leg.errors.length)) {
+              return instruction.id.toNumber();
+            } else {
+              return null;
+            }
+          }),
       );
       const filteredInstructions = instructionsWithErrors.filter(
         (instruction) => instruction,
@@ -135,7 +158,12 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const handleSelectAll = () => {
     if (!allInstructions) return;
     typeRef.current = type;
-    setSelectedItems(allInstructions[type as keyof GroupedInstructions]);
+    setSelectedItems(
+      allInstructions[type as keyof GroupedInstructions].slice(
+        currentItems.first - 1,
+        currentItems.last,
+      ),
+    );
   };
 
   const clearSelection = () => {
@@ -221,9 +249,12 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   };
 
   const handleApproveValidBatch = () => {
-    const validInctructionsSelected = currentTabInstructions?.filter(
-      (instruction) => !invalidInstructions.includes(instruction.id.toNumber()),
-    );
+    const validInctructionsSelected = currentTabInstructions
+      ?.slice(currentItems.first - 1, currentItems.last)
+      .filter(
+        (instruction) =>
+          !invalidInstructions.includes(instruction.id.toNumber()),
+      );
 
     setSelectedItems(validInctructionsSelected as Instruction[]);
     executeBatch(EActionTypes.AFFIRM, validInctructionsSelected);
@@ -307,18 +338,55 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
       ) : (
         <StyledTransfersList>
           {currentTabInstructions && currentTabInstructions.length ? (
-            sortInstructions(currentTabInstructions).map((instruction) => (
-              <TransferItem
-                key={instruction.toHuman()}
-                instruction={instruction}
-                onSelect={() => handleItemSelect(instruction)}
-                isSelected={selectedItems.some(
-                  (item) => item.toHuman() === instruction.toHuman(),
-                )}
-                executeAction={executeAction}
-                actionInProgress={actionInProgress}
-              />
-            ))
+            <>
+              {sortInstructions(
+                currentTabInstructions.slice(
+                  currentItems.first - 1,
+                  currentItems.last,
+                ),
+              ).map((instruction) => (
+                <TransferItem
+                  key={instruction.toHuman()}
+                  instruction={instruction}
+                  onSelect={() => handleItemSelect(instruction)}
+                  isSelected={selectedItems.some(
+                    (item) => item.toHuman() === instruction.toHuman(),
+                  )}
+                  executeAction={executeAction}
+                  actionInProgress={actionInProgress}
+                />
+              ))}
+              <StyledPaginationContainer>
+                <StyledPerPageWrapper>
+                  Show:
+                  <StyledPerPageSelect>
+                    <select
+                      onChange={({ target }) => {
+                        setPageSize(Number(target.value));
+                      }}
+                      value={pageSize}
+                    >
+                      {sizeOptions.map((option) => (
+                        <option className="options" key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                    <Icon name="DropdownIcon" className="dropdown-icon" />
+                  </StyledPerPageSelect>
+                </StyledPerPageWrapper>
+                <Pagination
+                  totalItems={totalItems}
+                  currentItems={currentItems}
+                  isPrevDisabled={isPrevDisabled}
+                  isNextDisabled={isNextDisabled}
+                  onFirstPageClick={onFirstPageClick}
+                  onPrevPageClick={onPrevPageClick}
+                  onNextPageClick={onNextPageClick}
+                  onLastPageClick={onLastPageClick}
+                />
+              </StyledPaginationContainer>
+            </>
           ) : (
             <TransfersPlaceholder>No data available</TransfersPlaceholder>
           )}
