@@ -1,5 +1,17 @@
+import { Nft } from '@polymeshassociation/polymesh-sdk/types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
-import { parseSingleNftFromPortfolio } from '../../../NftAssetTable/helpers';
+import { getNftImageUrl } from '../../../NftView/helpers';
+
+const parseSingleNftFromPortfolio = async (nft: Nft, isLocked: boolean) => {
+  const imgUrl = await getNftImageUrl(nft);
+  return {
+    ticker: {
+      imgUrl: imgUrl || '',
+    },
+    id: nft.id.toNumber(),
+    isLocked,
+  };
+};
 
 export const parseCollectionFromPortfolio = async (
   { portfolio }: IPortfolioData,

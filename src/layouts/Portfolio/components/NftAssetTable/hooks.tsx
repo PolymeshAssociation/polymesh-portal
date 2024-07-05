@@ -22,6 +22,7 @@ import {
   ITransactionsQueryResponse,
 } from '~/constants/queries/types';
 import { getPortfolioNumber } from '../AssetTable/helpers';
+import { getNftImageUrl } from '../NftView/helpers';
 import { columns } from './config';
 import {
   parseCollectionFromPortfolios,
@@ -31,7 +32,7 @@ import {
   parseNftMovements,
   parseNftTransactions,
 } from './helpers';
-import { ENftAssetsTableTabs, TNftTableItem } from './constants';
+import { ENftAssetsTableTabs, TNftTableItem, INftAssetItem } from './constants';
 
 const initialPaginationState = { pageIndex: 0, pageSize: 10 };
 
@@ -43,6 +44,7 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>(
     initialPaginationState,
   );
+  const [shouldLoadNftImages, setShouldLoadNftImages] = useState(false);
 
   const tabRef = useRef<string>('');
   const portfolioRef = useRef<string | null>(null);
@@ -54,6 +56,14 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
   } = useContext(PolymeshContext);
   const { identity } = useContext(AccountContext);
   const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
+
+  useEffect(() => {
+    if (currentTab === ENftAssetsTableTabs.ALL_NFTS && !shouldLoadNftImages) {
+      setShouldLoadNftImages(true);
+    } else if (shouldLoadNftImages) {
+      setShouldLoadNftImages(false);
+    }
+  }, [currentTab]);
 
   useEffect(() => {
     if (tableDataLoading) return;
@@ -179,6 +189,39 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
     portfolioId,
     portfolioLoading,
   ]);
+
+  useEffect(() => {
+    if (!shouldLoadNftImages) {
+      return;
+    }
+
+    if (currentTab !== ENftAssetsTableTabs.ALL_NFTS) {
+      return;
+    }
+
+    (async () => {
+      try {
+        if (!(tableData[0] as INftAssetItem)?.nft && !!tableData.length) {
+          return;
+        }
+
+        const newTableData = await Promise.all(
+          tableData.map(async (item) => {
+            const imageUrl = await getNftImageUrl((item as INftAssetItem).nft);
+            (item as INftAssetItem).ticker.imgUrl = imageUrl as string;
+            return item;
+          }),
+        );
+        if (newTableData.length) {
+          setTableData(newTableData);
+          setShouldLoadNftImages(false);
+        }
+      } catch (error) {
+        notifyError((error as Error).message);
+        return;
+      }
+    })();
+  }, [tableData, currentTab, shouldLoadNftImages]);
 
   const pagination = useMemo(
     () => ({

@@ -1,4 +1,3 @@
-import { Nft } from '@polymeshassociation/polymesh-sdk/types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 import {
   IMovementQueryResponse,
@@ -11,20 +10,6 @@ import {
   ICollectionItem,
   INftTransactionItem,
 } from './constants';
-
-export const parseSingleNftFromPortfolio = async (
-  nft: Nft,
-  isLocked: boolean,
-) => {
-  const imgUrl = await getNftImageUrl(nft);
-  return {
-    ticker: {
-      imgUrl: imgUrl || '',
-    },
-    id: nft.id.toNumber(),
-    isLocked,
-  };
-};
 
 export const parseCollectionFromPortfolio = async ({
   portfolio,
@@ -95,21 +80,29 @@ export const parseNftAssetsFromPortfolio = async ({
       const { name: collectionName } = await rawCollection.details();
       const freeNfts = await Promise.all(
         free.map(async (nft) => {
-          const parsedNft = await parseSingleNftFromPortfolio(nft, false);
           return {
-            ...parsedNft,
+            id: nft.id.toNumber(),
+            ticker: {
+              imgUrl: '',
+            },
+            isLocked: false,
             collectionTicker: rawCollection.ticker,
             collectionName,
+            nft,
           };
         }),
       );
       const lockedNfts = await Promise.all(
         locked.map(async (nft) => {
-          const parsedNft = await parseSingleNftFromPortfolio(nft, true);
           return {
-            ...parsedNft,
+            ticker: {
+              imgUrl: '',
+            },
+            id: nft.id.toNumber(),
+            isLocked: true,
             collectionTicker: rawCollection.ticker,
             collectionName,
+            nft,
           };
         }),
       );

@@ -1,3 +1,5 @@
+import { Nft } from '@polymeshassociation/polymesh-sdk/types';
+
 export enum ENftAssetsTableTabs {
   COLLECTIONS = 'collections',
   ALL_NFTS = 'all nfts',
@@ -24,6 +26,7 @@ export interface INftAssetItem {
   collectionTicker: string;
   collectionName: string;
   isLocked: boolean;
+  nft: Nft;
 }
 
 export interface INftMovementItem {
