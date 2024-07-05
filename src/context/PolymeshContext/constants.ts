@@ -3,7 +3,6 @@ import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-ext
 import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { EventRecord } from '@polymeshassociation/polymesh-sdk/types';
-import { stringToColor } from '../../helpers/formatters';
 
 export interface IPolymeshContext {
   state: {

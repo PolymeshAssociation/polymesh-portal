@@ -1,5 +1,5 @@
-import { IPFS_PROVIDER_URL } from '~/context/PolymeshContext/constants';
 import { Nft } from '@polymeshassociation/polymesh-sdk/internal';
+import { IPFS_PROVIDER_URL } from '~/context/PolymeshContext/constants';
 
 export const convertIpfsLink = (uri: string): string => {
   const rawIpfsUrl: string =

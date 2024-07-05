@@ -63,7 +63,7 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
     } else if (shouldLoadNftImages) {
       setShouldLoadNftImages(false);
     }
-  }, [currentTab]);
+  }, [currentTab, shouldLoadNftImages]);
 
   useEffect(() => {
     if (tableDataLoading) return;
@@ -208,8 +208,13 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
         const newTableData = await Promise.all(
           tableData.map(async (item) => {
             const imageUrl = await getNftImageUrl((item as INftAssetItem).nft);
-            (item as INftAssetItem).ticker.imgUrl = imageUrl as string;
-            return item;
+            return {
+              ...item,
+              ticker: {
+                ...(item as INftAssetItem).ticker,
+                imgUrl: imageUrl as string,
+              },
+            };
           }),
         );
         if (newTableData.length) {
@@ -218,7 +223,6 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
         }
       } catch (error) {
         notifyError((error as Error).message);
-        return;
       }
     })();
   }, [tableData, currentTab, shouldLoadNftImages]);

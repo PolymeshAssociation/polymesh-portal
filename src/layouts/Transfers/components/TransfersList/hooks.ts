@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const DEFAULT_PAGE_SIZE = 10;
 const INITIAL_PAGE_INDEX = 1;
@@ -15,21 +15,29 @@ export const useTransfersPagination = (
   });
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
-  const getLastPageIndex = () => Math.ceil(totalItems / pageSize) - 1;
+  const getLastPageIndex = useCallback(
+    () => Math.ceil(totalItems / pageSize) - 1,
+    [pageSize, totalItems],
+  );
 
-  const updateCurrentPage = (index: number) => {
-    pageIndexRef.current = index;
-    const lastPage = getLastPageIndex();
-    const first =
-      index === INITIAL_PAGE_INDEX ? INITIAL_PAGE_INDEX : index * pageSize + 1;
+  const updateCurrentPage = useCallback(
+    (index: number) => {
+      pageIndexRef.current = index;
+      const lastPage = getLastPageIndex();
+      const first =
+        index === INITIAL_PAGE_INDEX
+          ? INITIAL_PAGE_INDEX
+          : index * pageSize + 1;
 
-    if (lastPage > 1) {
-      const last = index === lastPage ? totalItems : first - 1 + pageSize;
-      setCurrentItems({ first, last });
-    } else {
-      setCurrentItems({ first, last: totalItems });
-    }
-  };
+      if (lastPage > 1) {
+        const last = index === lastPage ? totalItems : first - 1 + pageSize;
+        setCurrentItems({ first, last });
+      } else {
+        setCurrentItems({ first, last: totalItems });
+      }
+    },
+    [getLastPageIndex, pageSize, totalItems],
+  );
 
   const onPrevPageClick = () => {
     if (pageIndexRef.current === 1) {
@@ -52,12 +60,12 @@ export const useTransfersPagination = (
     if (pageIndexRef.current) {
       updateCurrentPage(INITIAL_PAGE_INDEX);
     }
-  }, [type, totalItems]);
+  }, [type, totalItems, updateCurrentPage]);
 
   useEffect(() => {
     // to re-render pagination
     updateCurrentPage(pageIndexRef.current);
-  }, [pageSize]);
+  }, [pageSize, updateCurrentPage]);
 
   return {
     totalItems,

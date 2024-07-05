@@ -1,6 +1,6 @@
 import { Nft } from '@polymeshassociation/polymesh-sdk/types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
-import { getNftImageUrl } from '../../../NftView/helpers';
+import { getNftImageUrl } from '../../helpers';
 
 const parseSingleNftFromPortfolio = async (nft: Nft, isLocked: boolean) => {
   const imgUrl = await getNftImageUrl(nft);

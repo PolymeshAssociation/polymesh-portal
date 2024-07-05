@@ -4,7 +4,6 @@ import { Button, Heading, Text } from '~/components/UiKit';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { IPFS_PROVIDER_URL } from '~/context/PolymeshContext/constants';
 import { formatDid } from '~/helpers/formatters';
-import { convertIpfsLink } from '~/layouts/Portfolio/components/NftView/helpers';
 import { useWindowWidth } from '~/hooks/utility';
 import {
   StyledButtonWrapper,

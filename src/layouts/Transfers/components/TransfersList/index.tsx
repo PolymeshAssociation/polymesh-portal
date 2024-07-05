@@ -122,9 +122,8 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
             );
             if (legErrors.some((leg) => leg.errors.length)) {
               return instruction.id.toNumber();
-            } else {
-              return null;
             }
+            return null;
           }),
       );
       const filteredInstructions = instructionsWithErrors.filter(
@@ -133,7 +132,13 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
 
       setInvalidInstructions(filteredInstructions as number[]);
     })();
-  }, [type, sdk, currentTabInstructions]);
+  }, [
+    type,
+    sdk,
+    currentTabInstructions,
+    currentItems.first,
+    currentItems.last,
+  ]);
 
   const handleItemSelect = (selectedInstruction: Instruction) => {
     typeRef.current = type;
