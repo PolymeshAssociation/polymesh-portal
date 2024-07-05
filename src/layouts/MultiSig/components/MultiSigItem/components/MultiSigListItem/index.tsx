@@ -20,24 +20,25 @@ export const MultiSigListItem: FC<IMultiSigListItemProps> = ({
 }) => {
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
-  const { isExternalConnection } = useContext(AccountContext);
+  const { selectedAccount, isExternalConnection } = useContext(AccountContext);
   const { unsignedProposals } = useMultiSigContext();
 
   const toggleDetails = () => setDetailsExpanded((prev) => !prev);
 
-  const canExecuteAction = unsignedProposals.includes(item.proposalId);
+  const canApprove = unsignedProposals.includes(item.proposalId);
+  const canReject =
+    selectedAccount === item.creatorAccount
+      ? item.approvalCount <= 1 && item.rejectionCount === 0
+      : unsignedProposals.includes(item.proposalId);
 
   return (
     <StyledCard>
       <ListItemDetails item={item} detailsExpanded={detailsExpanded} />
       <StyledButtonsWrapper $expanded={detailsExpanded}>
         <Button
-          disabled={
-            actionInProgress || !canExecuteAction || isExternalConnection
-          }
+          disabled={actionInProgress || !canReject || isExternalConnection}
           onClick={() =>
-            canExecuteAction &&
-            executeAction(EProposalAction.REJECT, item.proposalId)
+            canReject && executeAction(EProposalAction.REJECT, item.proposalId)
           }
         >
           <Icon name="CloseIcon" size="24px" />
@@ -45,11 +46,9 @@ export const MultiSigListItem: FC<IMultiSigListItemProps> = ({
         </Button>
         <Button
           variant="success"
-          disabled={
-            actionInProgress || !canExecuteAction || isExternalConnection
-          }
+          disabled={actionInProgress || !canApprove || isExternalConnection}
           onClick={() =>
-            canExecuteAction &&
+            canApprove &&
             executeAction(EProposalAction.APPROVE, item.proposalId)
           }
         >
