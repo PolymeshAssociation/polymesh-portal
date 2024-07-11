@@ -36,6 +36,8 @@ import { ENftAssetsTableTabs, TNftTableItem, INftAssetItem } from './constants';
 
 const initialPaginationState = { pageIndex: 0, pageSize: 10 };
 
+const imageUrlCache = new Map();
+
 export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
   const [tableData, setTableData] = useState<TNftTableItem[]>([]);
   const [tableDataLoading, setTableDataLoading] = useState(false);
@@ -45,6 +47,7 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
     initialPaginationState,
   );
   const [shouldLoadNftImages, setShouldLoadNftImages] = useState(false);
+  const imagesLoadedRef = useRef(false);
 
   const tabRef = useRef<string>('');
   const portfolioRef = useRef<string | null>(null);
@@ -58,12 +61,16 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
   const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
 
   useEffect(() => {
-    if (currentTab === ENftAssetsTableTabs.ALL_NFTS && !shouldLoadNftImages) {
+    if (
+      currentTab === ENftAssetsTableTabs.ALL_NFTS &&
+      !imagesLoadedRef.current
+    ) {
       setShouldLoadNftImages(true);
-    } else if (shouldLoadNftImages) {
-      setShouldLoadNftImages(false);
     }
-  }, [currentTab, shouldLoadNftImages]);
+    if (currentTab !== ENftAssetsTableTabs.ALL_NFTS) {
+      imagesLoadedRef.current = false;
+    }
+  }, [currentTab]);
 
   useEffect(() => {
     if (tableDataLoading) return;
@@ -191,7 +198,7 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
   ]);
 
   useEffect(() => {
-    if (!shouldLoadNftImages) {
+    if (!shouldLoadNftImages || imagesLoadedRef.current) {
       return;
     }
 
@@ -207,12 +214,19 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
 
         const newTableData = await Promise.all(
           tableData.map(async (item) => {
-            const imageUrl = await getNftImageUrl((item as INftAssetItem).nft);
+            const { nft } = item as INftAssetItem;
+            let imageUrl = imageUrlCache.get(nft.uuid);
+
+            if (!imageUrl) {
+              imageUrl = await getNftImageUrl(nft);
+              imageUrlCache.set(nft.uuid, imageUrl);
+            }
+
             return {
               ...item,
               ticker: {
                 ...(item as INftAssetItem).ticker,
-                imgUrl: imageUrl as string,
+                imgUrl: imageUrl,
               },
             };
           }),
@@ -220,6 +234,7 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
         if (newTableData.length) {
           setTableData(newTableData);
           setShouldLoadNftImages(false);
+          imagesLoadedRef.current = true;
         }
       } catch (error) {
         notifyError((error as Error).message);
