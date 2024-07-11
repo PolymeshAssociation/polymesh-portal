@@ -1,12 +1,7 @@
 import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
-import {
-  Button,
-  DropdownSelect,
-  RefreshButton,
-  SkeletonLoader,
-} from '~/components/UiKit';
+import { Button, DropdownSelect, RefreshButton } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
 import { InstructionsContext } from '~/context/InstructionsContext';
 import { useWindowWidth } from '~/hooks/utility';
@@ -80,10 +75,8 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
                 onClick={() => setSearchParams(searchParam)}
               >
                 <>
-                  {instructionsLoading ? <SkeletonLoader width={48} /> : label}
-                  {instructionsLoading ? (
-                    <SkeletonLoader width={21} />
-                  ) : (
+                  {label}
+                  {!instructionsLoading && (
                     <StyledInstructionCount>
                       {allInstructions?.[label].length}
                     </StyledInstructionCount>
