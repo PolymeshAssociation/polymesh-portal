@@ -48,7 +48,6 @@ const App = () => {
           </SharedLayout>
         </Suspense>
         <ToastContainer
-          enableMultiContainer
           containerId="globalToast"
           position="top-center"
           theme={currentTheme}

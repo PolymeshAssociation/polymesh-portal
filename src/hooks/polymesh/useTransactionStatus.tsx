@@ -75,7 +75,7 @@ const useTransactionStatus = () => {
               timestamp={Date.now()}
             />
           ),
-          type: toast.TYPE.SUCCESS,
+          type: 'success',
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
@@ -94,7 +94,7 @@ const useTransactionStatus = () => {
               timestamp={Date.now()}
             />
           ),
-          type: toast.TYPE.WARNING,
+          type: 'warning',
           isLoading: false,
           autoClose: 5000,
           hideProgressBar: true,
@@ -116,7 +116,7 @@ const useTransactionStatus = () => {
               timestamp={Date.now()}
             />
           ),
-          type: toast.TYPE.ERROR,
+          type: 'error',
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
@@ -136,7 +136,7 @@ const useTransactionStatus = () => {
               timestamp={Date.now()}
             />
           ),
-          type: toast.TYPE.ERROR,
+          type: 'error',
           isLoading: false,
           autoClose: false,
           closeOnClick: true,

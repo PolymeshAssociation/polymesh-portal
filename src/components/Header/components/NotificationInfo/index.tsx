@@ -42,7 +42,6 @@ export const NotificationInfo = () => {
         <ToastContainer
           theme={currentTheme}
           closeButton={<ToastCloseButton />}
-          enableMultiContainer
           containerId="notification-center"
         />
       </StyledNotificationCenter>

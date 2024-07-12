@@ -70,7 +70,7 @@ export const StyledExpandedSelect = styled.div<{
   $placement: `${ESelectPlacements}`;
 }>`
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   overflow-y: scroll;

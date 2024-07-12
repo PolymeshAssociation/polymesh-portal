@@ -67,7 +67,7 @@ export const useStakeStatusChange = () => {
               timestamp={Date.now()}
             />
           ),
-          type: toast.TYPE.SUCCESS,
+          type: 'success',
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
@@ -87,7 +87,7 @@ export const useStakeStatusChange = () => {
               timestamp={Date.now()}
             />
           ),
-          type: toast.TYPE.WARNING,
+          type: 'warning',
           isLoading: false,
           autoClose: 5000,
           hideProgressBar: true,
@@ -109,7 +109,7 @@ export const useStakeStatusChange = () => {
               timestamp={Date.now()}
             />
           ),
-          type: toast.TYPE.ERROR,
+          type: 'error',
           isLoading: false,
           autoClose: false,
           closeOnClick: false,
