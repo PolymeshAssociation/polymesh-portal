@@ -7,6 +7,7 @@ interface ICustomInputProps {
   label?: string;
   error?: string;
   isBig?: boolean;
+  autoFocus?: boolean;
   handleChange: (value: string) => void;
 }
 
@@ -16,12 +17,14 @@ export const CustomInput = ({
   label = '',
   error = '',
   isBig = false,
+  autoFocus = false,
   handleChange,
 }: ICustomInputProps) => {
   return (
     <StyledInputContainer>
       {label && <Text bold>{label}</Text>}
       <StyledInput
+        autoFocus={autoFocus}
         $isBig={isBig}
         placeholder={placeholder}
         value={value}

@@ -372,8 +372,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
             account.address,
           );
           setKeyCddVerificationInfo(keyCddStatusData);
-          setIdentity(accIdentity);
         }
+        setIdentity(accIdentity);
         setAllIdentities(uniqueIdentities);
       } catch (error) {
         notifyGlobalError((error as Error).message);

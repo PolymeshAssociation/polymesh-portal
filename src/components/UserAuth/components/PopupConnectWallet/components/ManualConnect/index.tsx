@@ -33,6 +33,7 @@ export const ManualConnect = () => {
   return (
     <>
       <CustomInput
+        autoFocus
         label="Enter the key to select"
         placeholder="Wallet Key"
         handleChange={handleInputChange}
