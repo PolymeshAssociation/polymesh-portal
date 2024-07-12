@@ -7,13 +7,18 @@ import { StyledAuthContainer } from './styles';
 import { PolymeshContext } from '~/context/PolymeshContext';
 
 const UserAuth = () => {
-  const { selectedAccount, identity } = useContext(AccountContext);
+  const { selectedAccount, identity, identityLoading } =
+    useContext(AccountContext);
   const {
     state: { initialized },
   } = useContext(PolymeshContext);
   const { showAuth, setShowAuth } = useAuthContext();
 
-  if ((!showAuth && !!selectedAccount) || !initialized) {
+  if (
+    (!showAuth && !!selectedAccount) ||
+    !initialized ||
+    (!!selectedAccount && identityLoading)
+  ) {
     return null;
   }
 
