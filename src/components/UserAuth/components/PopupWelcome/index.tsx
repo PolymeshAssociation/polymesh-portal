@@ -1,8 +1,7 @@
 import { useLocalStorage } from '~/hooks/utility';
 import { useAuthContext } from '~/context/AuthContext';
-import { Modal, Icon } from '~/components';
+import { Modal } from '~/components';
 import { Text, Button } from '~/components/UiKit';
-import { StyledCloseButton } from '../../styles';
 import {
   StyledWelcomeWrapper,
   StyledWelcomePopup,
@@ -21,9 +20,6 @@ export const PopupWelcome = () => {
     setConnectPopup(isMobileDevice ? 'extensionsMobile' : 'extensions');
   };
 
-  const handleDismissWelcome = () => {
-    setShowWelcome(false);
-  };
   const defaultAccount = JSON.parse(
     localStorage.getItem('defaultAccount') || 'null',
   );
@@ -35,9 +31,6 @@ export const PopupWelcome = () => {
     <Modal handleClose={() => {}} disableOverflow customWidth="fit-content">
       <StyledWelcomeWrapper>
         <StyledWelcomePopup>
-          <StyledCloseButton onClick={handleDismissWelcome}>
-            <Icon name="CloseCircledIcon" size="24px" />
-          </StyledCloseButton>
           <h3>Welcome to Polymesh!</h3>
           <Text size="large">A Secure Blockchain for Security Tokens</Text>
           <Text size="large">
