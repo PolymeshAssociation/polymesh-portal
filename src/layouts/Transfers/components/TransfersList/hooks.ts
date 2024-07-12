@@ -10,13 +10,13 @@ export const useTransfersPagination = (
   const pageIndexRef = useRef(INITIAL_PAGE_INDEX);
 
   const [currentItems, setCurrentItems] = useState({
-    first: 0,
+    first: 1,
     last: DEFAULT_PAGE_SIZE,
   });
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
   const getLastPageIndex = useCallback(
-    () => Math.ceil(totalItems / pageSize) - 1,
+    () => Math.ceil(totalItems / pageSize),
     [pageSize, totalItems],
   );
 
@@ -24,17 +24,9 @@ export const useTransfersPagination = (
     (index: number) => {
       pageIndexRef.current = index;
       const lastPage = getLastPageIndex();
-      const first =
-        index === INITIAL_PAGE_INDEX
-          ? INITIAL_PAGE_INDEX
-          : index * pageSize + 1;
-
-      if (lastPage > 1) {
-        const last = index === lastPage ? totalItems : first - 1 + pageSize;
-        setCurrentItems({ first, last });
-      } else {
-        setCurrentItems({ first, last: totalItems });
-      }
+      const first = (index - 1) * pageSize + 1;
+      const last = index === lastPage ? totalItems : index * pageSize;
+      setCurrentItems({ first, last });
     },
     [getLastPageIndex, pageSize, totalItems],
   );
@@ -57,9 +49,7 @@ export const useTransfersPagination = (
     if (!type || !totalItems) {
       return;
     }
-    if (pageIndexRef.current) {
-      updateCurrentPage(INITIAL_PAGE_INDEX);
-    }
+    updateCurrentPage(INITIAL_PAGE_INDEX);
   }, [type, totalItems, updateCurrentPage]);
 
   useEffect(() => {

@@ -78,7 +78,6 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
     onLastPageClick,
   } = useTransfersPagination(currentTabInstructions?.length || 0, type);
 
-  const sizeOptions = [...new Set([pageSize, ...perPageOptions])];
   const isSmallScreen = isMobile || isTablet;
 
   useEffect(() => {
@@ -353,23 +352,20 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
         <StyledTransfersList>
           {currentTabInstructions && currentTabInstructions.length ? (
             <>
-              {sortInstructions(
-                currentTabInstructions.slice(
-                  currentItems.first - 1,
-                  currentItems.last,
-                ),
-              ).map((instruction) => (
-                <TransferItem
-                  key={instruction.toHuman()}
-                  instruction={instruction}
-                  onSelect={() => handleItemSelect(instruction)}
-                  isSelected={selectedItems.some(
-                    (item) => item.toHuman() === instruction.toHuman(),
-                  )}
-                  executeAction={executeAction}
-                  actionInProgress={actionInProgress}
-                />
-              ))}
+              {sortInstructions(currentTabInstructions)
+                .slice(currentItems.first - 1, currentItems.last)
+                .map((instruction) => (
+                  <TransferItem
+                    key={instruction.toHuman()}
+                    instruction={instruction}
+                    onSelect={() => handleItemSelect(instruction)}
+                    isSelected={selectedItems.some(
+                      (item) => item.toHuman() === instruction.toHuman(),
+                    )}
+                    executeAction={executeAction}
+                    actionInProgress={actionInProgress}
+                  />
+                ))}
               <StyledPaginationContainer>
                 {!isSmallScreen && (
                   <StyledPerPageWrapper>
@@ -381,7 +377,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                         }}
                         value={pageSize}
                       >
-                        {sizeOptions.map((option) => (
+                        {perPageOptions.map((option) => (
                           <option
                             className="options"
                             key={option}
