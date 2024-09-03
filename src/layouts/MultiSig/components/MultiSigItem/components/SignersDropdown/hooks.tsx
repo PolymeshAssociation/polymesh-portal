@@ -39,24 +39,25 @@ export const useSignersTable = (
   const isSmallScreen = isMobile || isTablet;
 
   const signersList = useMemo(() => {
-    const list = signers.reduce((acc, signer) => {
-      const voteStatus = votes.find(
-        (vote) => vote.signer.signerValue === signer,
-      );
-      const hasAction = voteStatus?.action;
-      if (isHistorical && !hasAction) {
-        return acc;
-      }
-      return [
-        ...acc,
-        {
-          address: signer,
-          status: hasAction || 'Pending',
-        },
-      ];
-    }, [] as ISignerItem[]);
-    const lastIndex = (pageIndex + 1) * pageSize;
+    const list: ISignerItem[] = votes.map(
+      ({ action, signer: { signerValue } }) => ({
+        address: signerValue,
+        status: action,
+      }),
+    );
+    if (!isHistorical) {
+      signers.forEach((signer) => {
+        if (!votes.some((vote) => vote.signer.signerValue === signer)) {
+          list.push({
+            address: signer,
+            status: 'Pending',
+          });
+        }
+      });
+    }
+
     const firstIndex = pageIndex * pageSize;
+    const lastIndex = (pageIndex + 1) * pageSize;
     return list.slice(firstIndex, lastIndex);
   }, [signers, pageIndex, pageSize, votes, isHistorical]);
 
