@@ -1,4 +1,11 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { FieldValues, useForm, ValidationMode } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -16,7 +23,7 @@ import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { PortfolioContext } from '~/context/PortfolioContext';
 import { AuthorizationsContext } from '~/context/AuthorizationsContext';
-import { useTransactionStatus, useTransferPolyx } from '~/hooks/polymesh';
+import { useTransactionStatus } from '~/hooks/polymesh';
 import { notifyError, notifyWarning } from '~/helpers/notifications';
 import {
   INPUT_NAMES,
@@ -27,7 +34,9 @@ import {
 import { removeTimezoneOffset } from '~/helpers/dateTime';
 
 export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
-  const { checkAddressValidity } = useTransferPolyx();
+  const {
+    api: { sdk },
+  } = useContext(PolymeshContext);
   const [type, setType] = useState<AllowedAuthTypes | null>(null);
   const configRef = useRef({
     mode: 'onTouched' as keyof ValidationMode,
@@ -38,6 +47,20 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
     reset,
     formState: { errors },
   } = useFormReturn;
+
+  const checkAddressValidity = useCallback(
+    (address: string) => {
+      if (!sdk) return false;
+
+      try {
+        const isValid = sdk.accountManagement.isValidAddress({ address });
+        return isValid;
+      } catch (error) {
+        return false;
+      }
+    },
+    [sdk],
+  );
 
   //   Multi form config object with auth type as key
   const configOpts = useMemo(
