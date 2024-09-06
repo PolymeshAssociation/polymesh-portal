@@ -175,6 +175,11 @@ const parseDetails = async (
       const txPermissions = getTransactionPermissions(permissions);
 
       return [
+        {
+          permission: 'Key to become secondary',
+          type: null,
+          details: [(await rawData.issuer.getPrimaryAccount()).account.address],
+        },
         getTickerPermissions(permissions),
         await getPortfolioPermissions(permissions),
         txPermissions[0],

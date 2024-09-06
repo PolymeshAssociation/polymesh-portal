@@ -40,7 +40,6 @@ export interface IPermissionTypeValue {
 
 export const disabledAuthTypes = [
   AuthorizationType.AttestPrimaryKeyRotation,
-  AuthorizationType.RotatePrimaryKeyToSecondary,
   AuthorizationType.AddMultiSigSigner,
 ];
 
@@ -51,7 +50,8 @@ export type AllowedAuthTypes =
   | AuthorizationType.AddRelayerPayingKey
   | AuthorizationType.BecomeAgent
   | AuthorizationType.PortfolioCustody
-  | AuthorizationType.RotatePrimaryKey;
+  | AuthorizationType.RotatePrimaryKey
+  | AuthorizationType.RotatePrimaryKeyToSecondary;
 
 export const selectInputsDefaultValue = {
   permissions: false,

@@ -162,6 +162,20 @@ export const configureInputs = (type: `${AuthorizationType}` | null) => {
           type: 'date',
         },
       ];
+    case AuthorizationType.RotatePrimaryKeyToSecondary:
+      return [
+        {
+          id: INPUT_NAMES.TARGET_ACCOUNT,
+          label: 'Target Account',
+          type: 'text',
+          placeholder: 'Enter Account key',
+        },
+        {
+          id: INPUT_NAMES.EXPIRY,
+          label: 'Expiry Date (Optional)',
+          type: 'date',
+        },
+      ];
 
     default:
       return [];
