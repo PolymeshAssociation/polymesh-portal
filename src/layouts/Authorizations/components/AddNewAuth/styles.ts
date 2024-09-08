@@ -173,6 +173,13 @@ export const StyledErrorMessage = styled.span`
   color: #db2c3e;
 `;
 
+export const StyledWarningMessage = styled.span`
+  font-size: 12px;
+  font-weight: 500;
+  color: rgb(255, 196, 12);
+  line-height: 1;
+`;
+
 export const SoonLabel = styled.div`
   display: flex;
   align-items: center;

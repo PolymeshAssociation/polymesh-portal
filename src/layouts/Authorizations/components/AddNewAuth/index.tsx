@@ -17,6 +17,7 @@ import {
   StyledSelectWrapper,
   StyledErrorMessage,
   SoonLabel,
+  StyledWarningMessage,
 } from './styles';
 import {
   configureInputs,
@@ -177,6 +178,18 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
           </StyledExpandedTypeSelect>
         )}
       </StyledTypeSelectWrapper>
+      {selectedAuthType === 'RotatePrimaryKey' && (
+        <StyledWarningMessage>
+          Caution: This will remove the current primary key from your identity
+          and replace it with the target key
+        </StyledWarningMessage>
+      )}
+      {selectedAuthType === 'RotatePrimaryKeyToSecondary' && (
+        <StyledWarningMessage>
+          Note: This will make the current primary key a secondary key and
+          replace it with the target key
+        </StyledWarningMessage>
+      )}
       {!!selectedAuthType && (
         <StyledInputGroup>
           {inputs.map(({ id, label, type, placeholder, values }) => {

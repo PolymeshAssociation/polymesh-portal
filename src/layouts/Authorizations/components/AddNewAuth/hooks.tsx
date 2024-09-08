@@ -308,7 +308,7 @@ export const useSubmitHandler = () => {
         (reservation) => reservation.ticker === ticker,
       );
       if (!tickerReservation) {
-        notifyWarning('Selected ticker does not exist');
+        notifyWarning('Selected ticker is not owned by selected identity');
         return;
       }
 
@@ -353,7 +353,7 @@ export const useSubmitHandler = () => {
 
       const assetEntity = heldAssets.find(({ ticker }) => ticker === asset);
       if (!assetEntity) {
-        notifyWarning('Selected ticker does not exist');
+        notifyWarning('Selected asset is not owned by the selected identity');
         return;
       }
 
@@ -492,7 +492,7 @@ export const useSubmitHandler = () => {
 
       const assetEntity = heldAssets.find(({ ticker }) => ticker === asset);
       if (!assetEntity) {
-        notifyWarning('Selected ticker does not exist');
+        notifyWarning('Selected asset is not owned by the selected identity');
         return;
       }
 
