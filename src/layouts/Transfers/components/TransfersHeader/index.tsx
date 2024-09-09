@@ -76,11 +76,13 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
               >
                 <>
                   {label}
-                  {!instructionsLoading && (
-                    <StyledInstructionCount>
-                      {allInstructions?.[label].length}
-                    </StyledInstructionCount>
-                  )}
+                  {!instructionsLoading &&
+                    allInstructions &&
+                    allInstructions[label]?.length > 0 && (
+                      <StyledInstructionCount>
+                        {allInstructions?.[label].length}
+                      </StyledInstructionCount>
+                    )}
                 </>
               </StyledNavLink>
             </li>
