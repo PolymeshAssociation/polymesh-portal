@@ -1,8 +1,9 @@
 import {
-  AffirmOrWithdrawInstructionParams,
+  AffirmInstructionParams,
   ExecuteManualInstructionParams,
   Instruction,
   RejectInstructionParams,
+  WithdrawInstructionParams,
 } from '@polymeshassociation/polymesh-sdk/types';
 
 export enum EInstructionTypes {
@@ -30,9 +31,13 @@ export type InstructionAction =
     }
   | {
       method: Instruction['affirm'];
-      params?: AffirmOrWithdrawInstructionParams;
+      params?: AffirmInstructionParams;
     }
   | {
       method: Instruction['executeManually'];
       params?: ExecuteManualInstructionParams;
+    }
+  | {
+      method: Instruction['withdraw'];
+      params?: WithdrawInstructionParams;
     };

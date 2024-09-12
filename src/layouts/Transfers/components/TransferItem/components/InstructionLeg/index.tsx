@@ -3,7 +3,6 @@ import {
   InstructionAffirmation,
   Leg,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { NumberedPortfolio } from '@polymeshassociation/polymesh-sdk/internal';
 import { useSearchParams } from 'react-router-dom';
 import { AccountContext } from '~/context/AccountContext';
 import { SkeletonLoader, Text } from '~/components/UiKit';
@@ -65,22 +64,35 @@ export const InstructionLeg: React.FC<ILegProps> = ({
     if (!leg || !identity) return;
 
     (async () => {
+      if ('offChainAmount' in leg) {
+        const parsedData = {
+          sendingDid: leg.from.did,
+          sendingName: 'Off Chain',
+          receivingDid: leg.to.did,
+          receivingName: 'Off Chain',
+          asset: leg.asset,
+          direction: 'Off Chain',
+          amount: leg.offChainAmount.toString(),
+        } as ILegDetails;
+        setLegDetails(parsedData);
+        return;
+      }
       const { from, to, asset } = leg;
       let fromName = '';
       let toName = '';
-      try {
-        if (from instanceof NumberedPortfolio) {
-          fromName = `${from.toHuman().id} / ${await from.getName()}`;
+      if ('id' in from) {
+        try {
+          fromName = `${from.id.toString()} / ${await from.getName()}`;
+        } catch (error) {
+          fromName = `${from.id.toString()} / unknown`;
         }
-      } catch (error) {
-        fromName = `${from.toHuman().id} / unknown`;
       }
-      try {
-        if (to instanceof NumberedPortfolio) {
-          toName = `${to.toHuman().id} / ${await to.getName()}`;
+      if ('id' in to) {
+        try {
+          toName = `${to.id.toString()} / ${await to.getName()}`;
+        } catch (error) {
+          toName = `${to.id.toString()} / unknown`;
         }
-      } catch (error) {
-        toName = `${to.toHuman().id} / unknown`;
       }
       const amount =
         'amount' in leg
@@ -90,9 +102,9 @@ export const InstructionLeg: React.FC<ILegProps> = ({
       const nfts = 'nfts' in leg ? await parseNfts(leg.nfts) : [];
 
       const parsedData = {
-        sendingDid: from.toHuman().did,
+        sendingDid: from.owner.did,
         sendingName: fromName || 'Default',
-        receivingDid: to.toHuman().did,
+        receivingDid: to.owner.did,
         receivingName: toName || 'Default',
         asset: asset.ticker,
         direction: getLegDirection({ from, to, identity }),

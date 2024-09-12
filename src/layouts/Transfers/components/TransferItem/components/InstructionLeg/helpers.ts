@@ -13,6 +13,7 @@ export enum EInstructionDirection {
   OUTGOING = 'Sending',
   INTER_PORTFOLIO = 'Inter-Portfolio',
   NONE = 'None',
+  OFF_CHAIN = 'Off Chain',
 }
 
 export const getLegDirection = ({
@@ -24,16 +25,13 @@ export const getLegDirection = ({
   to: DefaultPortfolio | NumberedPortfolio;
   identity: Identity;
 }) => {
-  if (
-    from.toHuman().did === identity.did &&
-    to.toHuman().did === identity.did
-  ) {
+  if (from.owner.did === identity.did && to.owner.did === identity.did) {
     return EInstructionDirection.INTER_PORTFOLIO;
   }
-  if (from.toHuman().did === identity.did) {
+  if (from.owner.did === identity.did) {
     return EInstructionDirection.OUTGOING;
   }
-  if (to.toHuman().did === identity.did) {
+  if (to.owner.did === identity.did) {
     return EInstructionDirection.INCOMING;
   }
   return EInstructionDirection.NONE;

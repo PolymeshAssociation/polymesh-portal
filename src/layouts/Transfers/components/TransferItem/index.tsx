@@ -1,11 +1,14 @@
 import { useContext, useEffect, useState } from 'react';
 import {
   AffirmationStatus,
+  FungibleLeg,
   Instruction,
   InstructionAffirmation,
   InstructionDetails,
   InstructionType,
   Leg,
+  NftLeg,
+  OffChainLeg,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
@@ -32,7 +35,20 @@ import { notifyError } from '~/helpers/notifications';
 
 const calculateCounterparties = (legs: { leg: Leg; errors: string[] }[]) => {
   const involvedIdentities = legs
-    .map(({ leg: { from, to } }) => [from.toHuman().did, to.toHuman().did])
+    .map(({ leg }) => {
+      // Handling FungibleLeg or NftLeg
+      if ('owner' in leg.from && 'owner' in leg.to) {
+        return [
+          (leg as FungibleLeg | NftLeg).from.owner.did,
+          (leg as FungibleLeg | NftLeg).to.owner.did,
+        ];
+      }
+      // Handling OffChainLeg
+      if ('did' in leg.from && 'did' in leg.to) {
+        return [(leg as OffChainLeg).from.did, (leg as OffChainLeg).to.did];
+      }
+      return [];
+    })
     .flat();
 
   return involvedIdentities.filter(

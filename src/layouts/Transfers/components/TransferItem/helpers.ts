@@ -63,6 +63,11 @@ export const getLegErrors = async ({
   instructionDetails: InstructionDetails;
   latestBlock: number;
 }) => {
+  // We don't check off chain legs for transfer errors
+  if ('offChainAmount' in leg) {
+    return [];
+  }
+
   const { from, to, asset } = leg;
 
   const errors = [];
@@ -107,7 +112,7 @@ export const getLegErrors = async ({
           ) {
             const status = getAffirmationStatus(
               affirmationsData,
-              from.toHuman().did,
+              from.owner.did,
             );
             return status === AffirmationStatus.Affirmed ? '' : error;
           }
@@ -135,11 +140,8 @@ export const getLegErrors = async ({
     instructionDetails.type === InstructionType.SettleOnBlock &&
     instructionDetails.endBlock.toNumber() < latestBlock
   ) {
-    const fromStatus = getAffirmationStatus(
-      affirmationsData,
-      from.toHuman().did,
-    );
-    const toStatus = getAffirmationStatus(affirmationsData, to.toHuman().did);
+    const fromStatus = getAffirmationStatus(affirmationsData, from.owner.did);
+    const toStatus = getAffirmationStatus(affirmationsData, to.owner.did);
     if (
       !(fromStatus === AffirmationStatus.Affirmed) ||
       !(toStatus === AffirmationStatus.Affirmed)
