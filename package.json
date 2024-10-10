@@ -16,7 +16,7 @@
     "@polkadot/util": "12.6.2",
     "@polkadot/util-crypto": "12.6.2",
     "@polymeshassociation/browser-extension-signing-manager": "^2.3.0",
-    "@polymeshassociation/polymesh-sdk": "25.1.1",
+    "@polymeshassociation/polymesh-sdk": "26.0.0-alpha.3",
     "@polymeshassociation/polymesh-types": "^5.12.3",
     "@polymeshassociation/walletconnect-signing-manager": "^1.0.0",
     "@tanstack/react-table": "^8.20.5",
