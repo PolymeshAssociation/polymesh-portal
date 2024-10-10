@@ -46,7 +46,6 @@ import {
   StyledStakingMessage,
   StyledMessageGroup,
 } from './styles';
-import { formatMillisecondsToTime } from '~/helpers/formatters';
 
 export const StakingAccountInfo = () => {
   const {
@@ -61,8 +60,6 @@ export const StakingAccountInfo = () => {
     stakingAccountInfo,
     refetchAccountInfo,
     eraStatus: {
-      electionInProgress,
-      epochTimeRemaining,
       eraDurationTime,
       epochDurationTime,
       currentEraIndex,
@@ -452,18 +449,6 @@ export const StakingAccountInfo = () => {
     checkNominations.allNominationsInOperators,
   ]);
 
-  const electionInProgressMessage = useMemo(() => {
-    if (electionInProgress === 'Open' && epochTimeRemaining) {
-      return (
-        <StyledStakingMessage>
-          An election of Node Operators is in progress. Staking actions will be
-          available in {formatMillisecondsToTime(epochTimeRemaining.toNumber())}
-          .
-        </StyledStakingMessage>
-      );
-    }
-    return null;
-  }, [electionInProgress, epochTimeRemaining]);
   const stakingAccountDetails = () => {
     if (stakingAccountIsLoading) {
       return <SkeletonLoader height="100%" />;
@@ -475,15 +460,11 @@ export const StakingAccountInfo = () => {
         ) : (
           <NoStakingInfo />
         )}
-        {(alertMessage ||
-          ineligibleNominationsMessage ||
-          slashMessage ||
-          electionInProgressMessage) && (
+        {(alertMessage || ineligibleNominationsMessage || slashMessage) && (
           <StyledMessageGroup>
             {alertMessage}
             {ineligibleNominationsMessage}
             {slashMessage}
-            {electionInProgressMessage}
           </StyledMessageGroup>
         )}
         <div>

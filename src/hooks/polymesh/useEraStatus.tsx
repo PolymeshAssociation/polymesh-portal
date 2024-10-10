@@ -65,7 +65,11 @@ const useEraStatus = () => {
         polkadotApi.consts.babe.epochDuration,
       ),
       electionLookahead: u32ToBigNumber(
-        polkadotApi.consts.staking.electionLookahead,
+        polkadotApi.consts.electionProviderMultiPhase.signedPhase,
+      ).plus(
+        u32ToBigNumber(
+          polkadotApi.consts.electionProviderMultiPhase.unsignedPhase,
+        ),
       ),
       sessionsPerEra: u32ToBigNumber(polkadotApi.consts.staking.sessionsPerEra),
       expectedBlockTime: u64ToBigNumber(
@@ -311,11 +315,12 @@ const useEraStatus = () => {
 
     const getElectionStatus = async () => {
       try {
-        unsubElectionStatus = await polkadotApi.query.staking.eraElectionStatus(
-          (status) => {
-            setElectionInProgress(status.type);
-          },
-        );
+        unsubElectionStatus =
+          await polkadotApi.query.electionProviderMultiPhase.currentPhase(
+            (phase) => {
+              setElectionInProgress(phase.isOff ? 'Closed' : 'Open');
+            },
+          );
       } catch (error) {
         notifyError((error as Error).message);
       }

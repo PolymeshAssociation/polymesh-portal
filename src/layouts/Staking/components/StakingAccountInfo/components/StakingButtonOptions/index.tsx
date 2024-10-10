@@ -18,7 +18,6 @@ export const StakingButtonOptions: React.FC<IStakingButtonOptionsProps> = ({
   toggleModal,
 }) => {
   const {
-    eraStatus: { electionInProgress },
     stakingAccountInfo: {
       amountUnbonding,
       amountAvailableToWithdraw,
@@ -30,7 +29,6 @@ export const StakingButtonOptions: React.FC<IStakingButtonOptionsProps> = ({
 
   const optionsRef = useOutsideClick(() => toggleOptions());
 
-  const isElectionInProgress = electionInProgress === 'Open';
   const isRebondDisabled = !!amountUnbonding?.isZero();
   const isWithdrawDisabled = !!amountAvailableToWithdraw?.isZero();
 
@@ -57,12 +55,9 @@ export const StakingButtonOptions: React.FC<IStakingButtonOptionsProps> = ({
     <StyledOptionsContainer ref={optionsRef}>
       <StyledOption
         onClick={() =>
-          handleModalOpen(
-            EModalOptions.CHANGE_NOMINATIONS,
-            isElectionInProgress || !isController,
-          )
+          handleModalOpen(EModalOptions.CHANGE_NOMINATIONS, !isController)
         }
-        $disabled={disabled || isElectionInProgress || !isController}
+        $disabled={disabled || !isController}
       >
         {nominations.length > 0
           ? EModalOptions.CHANGE_NOMINATIONS
@@ -70,45 +65,29 @@ export const StakingButtonOptions: React.FC<IStakingButtonOptionsProps> = ({
       </StyledOption>
       <StyledOption
         onClick={() =>
-          handleModalOpen(
-            EModalOptions.CHANGE_CONTROLLER,
-            isElectionInProgress || !isStash,
-          )
+          handleModalOpen(EModalOptions.CHANGE_CONTROLLER, !isStash)
         }
-        $disabled={disabled || isElectionInProgress || !isStash}
+        $disabled={disabled || !isStash}
       >
         {EModalOptions.CHANGE_CONTROLLER}
       </StyledOption>
       <StyledOption
         onClick={() =>
-          handleModalOpen(
-            EModalOptions.CHANGE_DESTINATION,
-            isElectionInProgress || !isController,
-          )
+          handleModalOpen(EModalOptions.CHANGE_DESTINATION, !isController)
         }
-        $disabled={disabled || isElectionInProgress || !isController}
+        $disabled={disabled || !isController}
       >
         {EModalOptions.CHANGE_DESTINATION}
       </StyledOption>
       <StyledOption
-        onClick={() =>
-          handleAction(
-            EModalActions.CHILL,
-            isElectionInProgress || !isController,
-          )
-        }
-        $disabled={disabled || isElectionInProgress || !isController}
+        onClick={() => handleAction(EModalActions.CHILL, !isController)}
+        $disabled={disabled || !isController}
       >
         Remove Nominations
       </StyledOption>
       <StyledOption
-        onClick={() =>
-          handleModalOpen(
-            EModalOptions.UNBOND,
-            isElectionInProgress || !isController,
-          )
-        }
-        $disabled={disabled || isElectionInProgress || !isController}
+        onClick={() => handleModalOpen(EModalOptions.UNBOND, !isController)}
+        $disabled={disabled || !isController}
       >
         {EModalOptions.UNBOND}
       </StyledOption>
@@ -119,9 +98,7 @@ export const StakingButtonOptions: React.FC<IStakingButtonOptionsProps> = ({
             disabled || isRebondDisabled || !isController,
           )
         }
-        $disabled={
-          disabled || isRebondDisabled || isElectionInProgress || !isController
-        }
+        $disabled={disabled || isRebondDisabled || !isController}
       >
         {EModalOptions.REBOND}
       </StyledOption>
@@ -129,20 +106,10 @@ export const StakingButtonOptions: React.FC<IStakingButtonOptionsProps> = ({
         onClick={() =>
           handleAction(
             EModalActions.WITHDRAW,
-            Boolean(
-              disabled ||
-                isWithdrawDisabled ||
-                isElectionInProgress ||
-                !isController,
-            ),
+            Boolean(disabled || isWithdrawDisabled || !isController),
           )
         }
-        $disabled={
-          disabled ||
-          isWithdrawDisabled ||
-          isElectionInProgress ||
-          !isController
-        }
+        $disabled={disabled || isWithdrawDisabled || !isController}
       >
         Withdraw Unbonded
       </StyledOption>
