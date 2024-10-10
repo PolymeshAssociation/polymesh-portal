@@ -1,28 +1,43 @@
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { encodeAddress } from '@polkadot/util-crypto';
 
+// Generic utility function to format any string with ellipsis
+export const formatStringWithEllipsis = (
+  text: string | undefined | null,
+  startChars = 6,
+  endChars = 4,
+): string => {
+  if (!text) return '';
+  const formattedStartChars = Math.max(3, startChars);
+  const formattedEndChars = Math.max(3, endChars);
+  if (startChars + endChars >= text.length) return text;
+  return `${text.slice(0, formattedStartChars)}...${text.slice(
+    text.length - formattedEndChars,
+  )}`;
+};
+
 export const formatDid = (
   did: string | undefined | null,
   startChars = 6,
   endChars = 4,
 ) => {
-  if (!did) return '';
-  // Ensure startChars and endChars are greater than mins
-  const formattedStartChars = Math.max(5, startChars);
-  const formattedEndChars = Math.max(3, endChars);
-  if (startChars + endChars >= did.length) return did;
-  return `${did.slice(0, formattedStartChars)}...${did.slice(
-    did.length - formattedEndChars,
-  )}`;
+  return formatStringWithEllipsis(did, startChars, endChars);
 };
 
-export const formatKey = (key: string, startChars = 5, endChars = 5) => {
-  const formattedStartChars = Math.max(3, startChars);
-  const formattedEndChars = Math.max(3, endChars);
-  if (startChars + endChars >= key.length) return key;
-  return `${key.slice(0, formattedStartChars)}...${key.slice(
-    key.length - formattedEndChars,
-  )}`;
+export const formatKey = (
+  did: string | undefined | null,
+  startChars = 5,
+  endChars = 5,
+) => {
+  return formatStringWithEllipsis(did, startChars, endChars);
+};
+
+export const formatUid = (
+  did: string | undefined | null,
+  startChars = 8,
+  endChars = 4,
+) => {
+  return formatStringWithEllipsis(did, startChars, endChars);
 };
 
 export const formatBalance = (balance: string | number, decimals = 6) => {
@@ -136,3 +151,33 @@ export const padTicker = (inputString: string): string => {
 export const removeHexPrefix = (text: string) => {
   return text.startsWith('0x') ? text.substring(2) : text;
 };
+
+// Helper function to convert a 16-byte hex string to a UUID formatted string
+export function hexToUuid(hex: string): string {
+  const unprefixedHex = removeHexPrefix(hex);
+
+  // Ensure the hex string is exactly 16 bytes (32 hex characters)
+  if (unprefixedHex.length !== 32) {
+    throw new Error(
+      `Invalid hex length. Expected 16 bytes (32 hex characters), received ${unprefixedHex.length}`,
+    );
+  }
+
+  // Insert dashes to form a UUID format
+  return `${unprefixedHex.slice(0, 8)}-${unprefixedHex.slice(8, 12)}-${unprefixedHex.slice(12, 16)}-${unprefixedHex.slice(16)}`;
+}
+
+// Helper function to convert a UUID formatted string to a 16-byte hex string with a 0x prefix
+export function uuidToHex(uuid: string): string {
+  // Regex to check if it's a valid UUID format
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  if (!uuidRegex.test(uuid)) {
+    throw new Error('Invalid UUID format.');
+  }
+
+  // Remove dashes and add '0x' prefix
+  const hex = uuid.replace(/-/g, '');
+  return `0x${hex}`;
+}
