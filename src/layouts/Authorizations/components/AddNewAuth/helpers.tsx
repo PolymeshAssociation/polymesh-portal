@@ -1,11 +1,15 @@
 import {
-  FungibleAsset,
   AuthorizationType,
   PermissionGroupType,
   TickerReservation,
+  Asset,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
-import { INPUT_NAMES, IPermissionTypeValue } from './constants';
+import {
+  EntityDataEntry,
+  INPUT_NAMES,
+  IPermissionTypeValue,
+} from './constants';
 
 export const configureInputs = (type: `${AuthorizationType}` | null) => {
   switch (type) {
@@ -197,7 +201,19 @@ export const renderParsedSelectedValue = (
 };
 
 export const isPortfolioData = (
-  entity: FungibleAsset | TickerReservation | IPortfolioData,
+  entity: EntityDataEntry,
 ): entity is IPortfolioData => {
   return (entity as IPortfolioData).name !== undefined;
+};
+
+export const isAsset = (entity: EntityDataEntry): entity is Asset => {
+  return 'id' in entity && 'freeze' in entity;
+};
+
+export const isTickerReservation = (
+  entity: EntityDataEntry,
+): entity is TickerReservation => {
+  return (
+    (entity as TickerReservation).ticker !== undefined && 'extend' in entity
+  );
 };

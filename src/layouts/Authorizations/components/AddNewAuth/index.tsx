@@ -23,6 +23,8 @@ import {
   configureInputs,
   renderParsedSelectedValue,
   isPortfolioData,
+  isTickerReservation,
+  isAsset,
 } from './helpers';
 import { useCustomForm, useSubmitHandler } from './hooks';
 import {
@@ -31,10 +33,9 @@ import {
   IFieldValues,
   AllowedAuthTypes,
   AuthTypesWithRequiredEntity,
-  EntityDataOptions,
 } from './constants';
 import { useWindowWidth } from '~/hooks/utility';
-import { splitCamelCase } from '~/helpers/formatters';
+import { hexToUuid, splitCamelCase } from '~/helpers/formatters';
 
 interface IAddNewAuthProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -260,37 +261,55 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
                                         {value.name}
                                       </StyledTypeOption>
                                     ))
-                                  : (
-                                      entityData[
-                                        selectedAuthType as AuthTypesWithRequiredEntity
-                                      ] as EntityDataOptions
-                                    ).map((entity) =>
-                                      isPortfolioData(entity) ? (
-                                        <StyledTypeOption
-                                          key={entity.name}
-                                          onClick={() => {
-                                            onChange(entity.name);
-                                            trigger(id as keyof IFieldValues);
-                                          }}
-                                        >
-                                          {entity.id &&
-                                          entity.id !== 'default' ? (
-                                            <>{entity.id} / </>
-                                          ) : null}
-                                          {entity.name}
-                                        </StyledTypeOption>
-                                      ) : (
-                                        <StyledTypeOption
-                                          key={entity.ticker}
-                                          onClick={() => {
-                                            onChange(entity.ticker);
-                                            trigger(id as keyof IFieldValues);
-                                          }}
-                                        >
-                                          {entity.ticker}
-                                        </StyledTypeOption>
-                                      ),
-                                    )}
+                                  : entityData[
+                                      selectedAuthType as AuthTypesWithRequiredEntity
+                                    ].map((entity) => {
+                                      if (isPortfolioData(entity)) {
+                                        return (
+                                          <StyledTypeOption
+                                            key={entity.name}
+                                            onClick={() => {
+                                              onChange(entity.name);
+                                              trigger(id as keyof IFieldValues);
+                                            }}
+                                          >
+                                            {entity.id &&
+                                              entity.id !== 'default' && (
+                                                <>{entity.id} / </>
+                                              )}
+                                            {entity.name}
+                                          </StyledTypeOption>
+                                        );
+                                      }
+
+                                      if (isTickerReservation(entity)) {
+                                        return (
+                                          <StyledTypeOption
+                                            key={entity.ticker}
+                                            onClick={() => {
+                                              onChange(entity.ticker);
+                                              trigger(id as keyof IFieldValues);
+                                            }}
+                                          >
+                                            {entity.ticker}
+                                          </StyledTypeOption>
+                                        );
+                                      }
+
+                                      if (isAsset(entity)) {
+                                        return (
+                                          <StyledTypeOption
+                                            key={entity.id}
+                                            onClick={() => {
+                                              onChange(hexToUuid(entity.id));
+                                              trigger(id as keyof IFieldValues);
+                                            }}
+                                          >
+                                            {hexToUuid(entity.id)}
+                                          </StyledTypeOption>
+                                        );
+                                      }
+                                    })}
                               </StyledExpandedTypeSelect>
                             );
                           }}

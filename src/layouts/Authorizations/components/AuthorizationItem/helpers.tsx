@@ -4,6 +4,7 @@ import {
   AuthorizationType,
   DefaultPortfolio,
   JoinIdentityAuthorizationData,
+  KnownPermissionGroup,
   Permissions,
   PolymeshError,
   PortfolioCustodyAuthorizationData,
@@ -17,19 +18,19 @@ import {
   StyledDetailValue,
   StyledExpiryTime,
 } from './styles';
-import { formatDid } from '~/helpers/formatters';
+import { formatDid, hexToUuid } from '~/helpers/formatters';
 
 function getTickerPermissions(permissions: Permissions) {
   const tickerPermission =
     permissions.assets?.type === 'Exclude'
-      ? 'Excluded Tickers'
-      : 'Included Tickers';
+      ? 'Excluded Assets'
+      : 'Included Assets';
 
   let tickerPermissionDetails: string[];
   if (permissions.assets) {
     if (permissions.assets.values.length) {
       tickerPermissionDetails = permissions.assets.values.map((asset) => {
-        return asset.ticker;
+        return hexToUuid(asset.id);
       });
     } else {
       tickerPermissionDetails = ['None'];
@@ -210,7 +211,16 @@ const parseDetails = async (
         {
           permission: 'Asset',
           type: null,
-          details: [details.value.ticker],
+          details: [hexToUuid(details.value.assetId)],
+        },
+        {
+          permission: 'Agent Group',
+          type: null,
+          details: [
+            'type' in details.value
+              ? details.value.type
+              : `Custom permission group: ${details.value.id}`,
+          ],
         },
       ];
 
@@ -226,9 +236,9 @@ const parseDetails = async (
     case AuthorizationType.TransferAssetOwnership:
       return [
         {
-          permission: 'Ticker',
+          permission: 'Asset',
           type: null,
-          details: [details.value],
+          details: [hexToUuid(details.value)],
         },
       ];
 

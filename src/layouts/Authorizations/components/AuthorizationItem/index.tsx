@@ -4,7 +4,7 @@ import {
   NoArgsProcedureMethod,
   UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { useContext, useEffect, useState } from 'react';
+import { ReactElement, useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CopyToClipboard, Icon } from '~/components';
 import { Button, Text } from '~/components/UiKit';
@@ -38,7 +38,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
   accept,
   reject,
 }) => {
-  const [details, setDetails] = useState<JSX.Element | null>(null);
+  const [details, setDetails] = useState<ReactElement | null>(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [acceptInProgress, setAcceptInProgress] = useState(false);
   const [rejectInProgress, setRejectInProgress] = useState(false);

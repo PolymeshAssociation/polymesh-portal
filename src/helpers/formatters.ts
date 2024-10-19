@@ -32,7 +32,7 @@ export const formatKey = (
   return formatStringWithEllipsis(did, startChars, endChars);
 };
 
-export const formatUid = (
+export const formatUuid = (
   did: string | undefined | null,
   startChars = 8,
   endChars = 4,
@@ -164,7 +164,7 @@ export function hexToUuid(hex: string): string {
   }
 
   // Insert dashes to form a UUID format
-  return `${unprefixedHex.slice(0, 8)}-${unprefixedHex.slice(8, 12)}-${unprefixedHex.slice(12, 16)}-${unprefixedHex.slice(16)}`;
+  return `${unprefixedHex.slice(0, 8)}-${unprefixedHex.slice(8, 12)}-${unprefixedHex.slice(12, 16)}-${unprefixedHex.slice(16, 20)}-${unprefixedHex.slice(20)}`;
 }
 
 // Helper function to convert a UUID formatted string to a 16-byte hex string with a 0x prefix

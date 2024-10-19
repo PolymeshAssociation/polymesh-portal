@@ -10,14 +10,13 @@ import { FieldValues, useForm, ValidationMode } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
-  FungibleAsset,
   AuthorizationType,
   CustomPermissionGroup,
   KnownPermissionGroup,
   PermissionGroupType,
   TickerReservation,
   UnsubCallback,
-  NftCollection,
+  Asset,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { PolymeshContext } from '~/context/PolymeshContext';
@@ -32,6 +31,7 @@ import {
   AllowedAuthTypes,
 } from './constants';
 import { removeTimezoneOffset } from '~/helpers/dateTime';
+import { uuidToHex } from '~/helpers/formatters';
 
 export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
   const {
@@ -267,9 +267,7 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
 };
 
 export const useSubmitHandler = () => {
-  const [heldAssets, setHeldAssets] = useState<
-    (FungibleAsset | NftCollection)[]
-  >([]);
+  const [heldAssets, setHeldAssets] = useState<Asset[]>([]);
   const [tickerReservations, setTickerReservations] = useState<
     TickerReservation[]
   >([]);
@@ -348,10 +346,10 @@ export const useSubmitHandler = () => {
     [AuthorizationType.TransferAssetOwnership]: async (data: FieldValues) => {
       if (!sdk) return;
       const target = data.target as string;
-      const asset = data.asset as string;
+      const assetId = uuidToHex(data.asset as string);
       const utcExpiry = data.expiry as string | undefined;
 
-      const assetEntity = heldAssets.find(({ ticker }) => ticker === asset);
+      const assetEntity = heldAssets.find(({ id }) => id === assetId);
       if (!assetEntity) {
         notifyWarning('Selected asset is not owned by the selected identity');
         return;
@@ -483,14 +481,14 @@ export const useSubmitHandler = () => {
     [AuthorizationType.BecomeAgent]: async (data: FieldValues) => {
       if (!sdk) return;
       const target = data.target as string;
-      const asset = data.asset as string;
+      const assetId = uuidToHex(data.asset as string);
       const permissions = data.permissions as
         | `${PermissionGroupType}`
         | 'Custom';
       const utcExpiry = data.expiry as string | undefined;
       const groupId = data.groupId as number | undefined;
 
-      const assetEntity = heldAssets.find(({ ticker }) => ticker === asset);
+      const assetEntity = heldAssets.find(({ id }) => id === assetId);
       if (!assetEntity) {
         notifyWarning('Selected asset is not owned by the selected identity');
         return;

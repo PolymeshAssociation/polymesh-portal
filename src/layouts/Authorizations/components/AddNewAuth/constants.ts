@@ -1,7 +1,7 @@
 import {
-  FungibleAsset,
   AuthorizationType,
   TickerReservation,
+  Asset,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 
@@ -65,7 +65,4 @@ export type AuthTypesWithRequiredEntity =
   | AuthorizationType.BecomeAgent
   | AuthorizationType.TransferAssetOwnership;
 
-export type EntityDataOptions =
-  | FungibleAsset[]
-  | TickerReservation[]
-  | IPortfolioData[];
+export type EntityDataEntry = Asset | TickerReservation | IPortfolioData;
