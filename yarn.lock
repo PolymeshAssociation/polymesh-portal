@@ -1234,10 +1234,10 @@
     "@polkadot/util-crypto" "^12.6.2"
     "@polymeshassociation/signing-manager-types" "^3.2.0"
 
-"@polymeshassociation/polymesh-sdk@26.0.0-alpha.3":
-  version "26.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/@polymeshassociation/polymesh-sdk/-/polymesh-sdk-26.0.0-alpha.3.tgz#ce785ccddc2e27e4036f4f43a27e5465425fd79c"
-  integrity sha512-/dk2GOqepXJX7vS/CJm6kqzSVWX7nLfRaLAfvtOgFIBtyjy5smARY5YgXkJbpse0b6vxmG4VBw3Zv+mdPjo0Cg==
+"@polymeshassociation/polymesh-sdk@26.0.0-beta.1":
+  version "26.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@polymeshassociation/polymesh-sdk/-/polymesh-sdk-26.0.0-beta.1.tgz#930c87fd6eeb5ce0610f3088f11b9d3ebdaf0eff"
+  integrity sha512-4SXB4q78EOdl8/5GJFl1WScoCLSDVs2Db8Vv+HDLR3EJqMX598WFafH9Air4/+lBEQmxGJZtCSgdclu0XMYzoA==
   dependencies:
     "@apollo/client" "^3.8.1"
     "@polkadot/api" "11.2.1"
@@ -1794,7 +1794,7 @@
     semver "^7.6.0"
     ts-api-utils "^1.3.0"
 
-"@typescript-eslint/utils@7.18.0":
+"@typescript-eslint/utils@7.18.0", "@typescript-eslint/utils@^7.0.0":
   version "7.18.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/utils/-/utils-7.18.0.tgz#bca01cde77f95fc6a8d5b0dbcbfb3d6ca4be451f"
   integrity sha512-kK0/rNa2j74XuHVcoCZxdFBMF+aq/vH83CXAOHieC+2Gis4mF8jJXT5eAfyD3K0sAxtPuwxaIOIOvhwzVDt/kw==
@@ -3078,6 +3078,15 @@ eslint-module-utils@^2.9.0:
   integrity sha512-McVbYmwA3NEKwRQY5g4aWMdcZE5xZxV8i8l7CqJSrameuGSQJtSWaL/LxTEzSKKaCcOhlpDR8XEfYXWPrdo/ZQ==
   dependencies:
     debug "^3.2.7"
+
+eslint-plugin-deprecation@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-deprecation/-/eslint-plugin-deprecation-3.0.0.tgz#c0b6bce543c2a01f231d39a1c54fdfebf3560d48"
+  integrity sha512-JuVLdNg/uf0Adjg2tpTyYoYaMbwQNn/c78P1HcccokvhtRphgnRjZDKmhlxbxYptppex03zO76f97DD/yQHv7A==
+  dependencies:
+    "@typescript-eslint/utils" "^7.0.0"
+    ts-api-utils "^1.3.0"
+    tslib "^2.3.1"
 
 eslint-plugin-import@^2.30.0:
   version "2.30.0"
