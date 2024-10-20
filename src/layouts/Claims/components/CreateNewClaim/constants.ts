@@ -47,12 +47,32 @@ export const FORM_CONFIG = {
               .required('Value is required')
               .matches(/^0x[0-9a-fA-F]{64}$/, 'DID must be valid');
           }
-          if (scopeTypes[0] === ScopeType.Ticker) {
+          if (scopeTypes[0] === ScopeType.Asset) {
             return schema
               .required('Value is required')
-              .max(12, 'Value must be 12 characters or less');
+              .test(
+                'is-valid-scope',
+                'Invalid asset ID or ticker',
+                function checkAssetInput(value: string) {
+                  // allow hex formatted assetId
+                  if (value.startsWith('0x')) {
+                    const isHexUuid = /^0x[0-9a-fA-F]{32}$/.test(value);
+                    return isHexUuid;
+                  }
+                  // allow uuid formatted assetId
+                  if (value.length > 12) {
+                    const isUuid =
+                      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+                        value,
+                      );
+                    return isUuid;
+                  }
+                  // allow uppercase tickers less than 1 or equal to 12 characters in length
+                  const isUppercase = value.toUpperCase() === value;
+                  return isUppercase;
+                },
+              );
           }
-
           return schema.required('Value is required');
         }),
     }),

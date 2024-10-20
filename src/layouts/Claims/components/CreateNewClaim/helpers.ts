@@ -5,9 +5,13 @@ import {
   ScopeType,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { IFieldValues, ISelectedClaimItem } from './constants';
+import { uuidToHex } from '~/helpers/formatters';
 
 export const createPlaceholderByScopeType = (type: ScopeType) => {
   switch (type) {
+    case ScopeType.Asset:
+      return 'Enter Asset ID or Ticker';
+
     case ScopeType.Ticker:
       return 'Enter Ticker';
 
@@ -20,6 +24,10 @@ export const createPlaceholderByScopeType = (type: ScopeType) => {
     default:
       return '';
   }
+};
+
+const getFormattedScopeValue = (scopeType: ScopeType, scopeValue: string) => {
+  return scopeType === ScopeType.Asset ? uuidToHex(scopeValue) : scopeValue;
 };
 
 export const createClaimsData = ({
@@ -39,14 +47,14 @@ export const createClaimsData = ({
             code: code as CountryCode,
             scope: {
               type: scopeType,
-              value: scopeValue,
+              value: getFormattedScopeValue(scopeType, scopeValue),
             },
           }
         : {
             type: claimType,
             scope: {
               type: scopeType,
-              value: scopeValue,
+              value: getFormattedScopeValue(scopeType, scopeValue),
             },
           },
   })) as ClaimTarget[];

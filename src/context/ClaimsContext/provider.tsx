@@ -1,14 +1,11 @@
-import {
-  Claim,
-  ClaimData,
-  ClaimScope,
-} from '@polymeshassociation/polymesh-sdk/types';
+import { Claim, ClaimData } from '@polymeshassociation/polymesh-sdk/types';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { notifyError } from '~/helpers/notifications';
 import { AccountContext } from '../AccountContext';
 import { PolymeshContext } from '../PolymeshContext';
 import ClaimsContext from './context';
 import { getScopesFromClaims } from './helpers';
+import { ScopeItem } from './constants';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -21,8 +18,8 @@ const ClaimsProvider = ({ children }: IProviderProps) => {
   const { identity, identityLoading } = useContext(AccountContext);
   const [receivedClaims, setReceivedClaims] = useState<ClaimData<Claim>[]>([]);
   const [issuedClaims, setIssuedClaims] = useState<ClaimData<Claim>[]>([]);
-  const [receivedScopes, setReceivedScopes] = useState<ClaimScope[]>([]);
-  const [issuedScopes, setIssuedScopes] = useState<ClaimScope[]>([]);
+  const [receivedScopes, setReceivedScopes] = useState<ScopeItem[]>([]);
+  const [issuedScopes, setIssuedScopes] = useState<ScopeItem[]>([]);
   const [claimsLoading, setClaimsLoading] = useState(true);
   const [shouldRefetchClaims, setShouldRefetchClaims] = useState(true);
   const identityRef = useRef<string | null>(null);

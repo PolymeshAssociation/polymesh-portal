@@ -13,7 +13,7 @@ const Claims = () => {
   const { receivedScopes, issuedScopes, claimsLoading } =
     useContext(ClaimsContext);
   const [sortBy, setSortBy] = useState<EScopeSortOptions>(
-    EScopeSortOptions.TICKER,
+    EScopeSortOptions.ASSET,
   );
   const [searchParams, setSearchParams] = useSearchParams();
   const type = searchParams.get('type');

@@ -1,14 +1,17 @@
 import {
   ClaimData,
-  ClaimScope,
   Claim,
+  Scope,
 } from '@polymeshassociation/polymesh-sdk/types';
 
+export interface ScopeItem {
+  scope: null | Scope;
+}
 export interface IClaimsContext {
   receivedClaims: ClaimData<Claim>[];
   issuedClaims: ClaimData<Claim>[];
-  receivedScopes: ClaimScope[];
-  issuedScopes: ClaimScope[];
+  receivedScopes: ScopeItem[];
+  issuedScopes: ScopeItem[];
   claimsLoading: boolean;
   refreshClaims: () => void;
 }

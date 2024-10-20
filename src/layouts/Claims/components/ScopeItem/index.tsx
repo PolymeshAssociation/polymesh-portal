@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { CopyToClipboard, Icon } from '~/components';
 import { Button } from '~/components/UiKit';
 import { ClaimsContext } from '~/context/ClaimsContext';
-import { formatDid, stringToColor } from '~/helpers/formatters';
+import { formatDid, hexToUuid, stringToColor } from '~/helpers/formatters';
 import { ClaimItem } from '../ClaimItem';
 import { EClaimsType, EClaimSortOptions } from '../../constants';
 import { filterClaimsByScope } from './helpers';
@@ -46,12 +46,22 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
           <StyledScopeInfo>
             Scope - {scope.type}
             <StyledScopeLabel>
-              {scope.type === ScopeType.Ticker && (
-                <StyledIconWrapper $color={stringToColor(scope.value)}>
-                  <Icon name="Coins" size="12px" />
-                </StyledIconWrapper>
+              {scope.type === ScopeType.Asset && (
+                <>
+                  <StyledIconWrapper $color={stringToColor(scope.value)}>
+                    <Icon name="Coins" size="12px" />
+                  </StyledIconWrapper>
+                  {scope.value.startsWith('0x') ? (
+                    <>
+                      {hexToUuid(scope.value)}
+                      <CopyToClipboard value={scope.value} />
+                    </>
+                  ) : (
+                    scope.value
+                  )}
+                </>
               )}
-              {scope.type === ScopeType.Identity ? (
+              {scope.type === ScopeType.Identity && (
                 <>
                   {formatDid(
                     scope.value,
@@ -60,9 +70,10 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
                   )}
                   <CopyToClipboard value={scope.value} />
                 </>
-              ) : (
-                scope.value
               )}
+              {scope.type !== ScopeType.Asset &&
+                scope.type !== ScopeType.Identity &&
+                scope.value}
             </StyledScopeLabel>
           </StyledScopeInfo>
         ) : (

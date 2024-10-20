@@ -9,7 +9,7 @@ export enum EClaimSortOptions {
 }
 
 export enum EScopeSortOptions {
-  TICKER = 'Scope - Ticker',
+  ASSET = 'Scope - Asset',
   IDENTITY = 'Scope - Identity',
   CUSTOM = 'Scope - Custom',
   NO_SCOPE = 'Scope - None',

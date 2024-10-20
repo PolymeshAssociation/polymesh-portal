@@ -1,26 +1,27 @@
 import {
   Claim,
   ClaimData,
-  ClaimScope,
   ScopedClaim,
   ScopeType,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { ScopeItem } from './constants';
 
-export const getScopesFromClaims = (claims: ClaimData<Claim>[]) => {
+export const getScopesFromClaims = (
+  claims: ClaimData<Claim>[],
+): ScopeItem[] => {
   return claims
     .map(({ claim }) => {
       // eslint-disable-next-line no-prototype-builtins
       if (!claim.hasOwnProperty('scope')) {
-        return { scope: null } as ClaimScope;
+        return { scope: null };
       }
-      if ((claim as ScopedClaim).scope.type === ScopeType.Ticker) {
+      if ((claim as ScopedClaim).scope.type === ScopeType.Asset) {
         return {
           scope: (claim as ScopedClaim).scope,
-          ticker: (claim as ScopedClaim).scope.value,
-        } as ClaimScope;
+        };
       }
 
-      return { scope: (claim as ScopedClaim).scope } as ClaimScope;
+      return { scope: (claim as ScopedClaim).scope };
     })
     .filter(
       (scopeItem, idx, array) =>

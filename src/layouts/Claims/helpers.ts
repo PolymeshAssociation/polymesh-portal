@@ -1,17 +1,16 @@
-import { ClaimScope, ScopeType } from '@polymeshassociation/polymesh-sdk/types';
+import { Scope, ScopeType } from '@polymeshassociation/polymesh-sdk/types';
 import { EScopeSortOptions } from './constants';
 
 export const sortScopesBySortOption = (
-  scopes: ClaimScope[],
+  scopes: { scope: Scope | null }[],
   option: EScopeSortOptions,
 ) => {
   switch (option) {
-    case EScopeSortOptions.TICKER:
+    case EScopeSortOptions.ASSET:
       return scopes.sort((a, b) => {
-        if (!a.scope || !b.scope || b.scope.type !== ScopeType.Ticker)
-          return -1;
+        if (!a.scope || !b.scope || b.scope.type !== ScopeType.Asset) return -1;
 
-        if (a.scope.type === ScopeType.Ticker) {
+        if (a.scope.type === ScopeType.Asset) {
           return 1;
         }
         return 0;

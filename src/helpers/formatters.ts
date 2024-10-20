@@ -169,6 +169,13 @@ export function hexToUuid(hex: string): string {
 
 // Helper function to convert a UUID formatted string to a 16-byte hex string with a 0x prefix
 export function uuidToHex(uuid: string): string {
+  const hexUuidRegex = /^0x[0-9a-fA-F]{32}$/;
+
+  // If it's already in the correct hex format, return it as is
+  if (hexUuidRegex.test(uuid)) {
+    return uuid;
+  }
+
   // Regex to check if it's a valid UUID format
   const uuidRegex =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
