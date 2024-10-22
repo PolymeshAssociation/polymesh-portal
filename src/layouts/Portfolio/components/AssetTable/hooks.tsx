@@ -68,8 +68,9 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
       portfolioLoading ||
       !identity ||
       !gqlClient
-    )
+    ) {
       return;
+    }
 
     if (currentTab !== tabRef.current && pageIndex !== 0) return;
     setTableDataLoading(true);

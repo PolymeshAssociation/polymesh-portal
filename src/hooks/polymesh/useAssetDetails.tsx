@@ -36,6 +36,10 @@ export interface IDetails {
   ticker?: string;
   totalSupply: number;
   collectionId?: number;
+  requiredMediators: string[];
+  venueFilteringEnabled: boolean;
+  permittedVenuesIds: string[];
+  isFrozen: boolean;
 }
 export interface IAssetDetails {
   assetId: string;
@@ -89,6 +93,9 @@ export const useAssetDetails = (assetIdentifier: Asset | string | null) => {
           docs,
           createdAtInfo,
           meta,
+          requiredMediators,
+          venueFilteringDetails,
+          assetIsFrozen,
         ] = await Promise.all([
           asset.details(),
           asset instanceof NftCollection ? asset.getCollectionId() : undefined,
@@ -99,6 +106,9 @@ export const useAssetDetails = (assetIdentifier: Asset | string | null) => {
           asset.documents.get(),
           asset.createdAt(),
           asset.metadata.get(),
+          asset.getRequiredMediators(),
+          asset.getVenueFilteringDetails(),
+          asset.isFrozen(),
         ]);
 
         const {
@@ -156,6 +166,14 @@ export const useAssetDetails = (assetIdentifier: Asset | string | null) => {
             owner: owner.did,
             ticker: ticker || '',
             totalSupply: totalSupply.toNumber(),
+            requiredMediators: requiredMediators.map(
+              (identity) => identity.did,
+            ),
+            venueFilteringEnabled: venueFilteringDetails.isEnabled,
+            permittedVenuesIds: venueFilteringDetails.allowedVenues.map(
+              (venue) => venue.id.toString(),
+            ),
+            isFrozen: assetIsFrozen,
           },
           docs: docs.data,
         });

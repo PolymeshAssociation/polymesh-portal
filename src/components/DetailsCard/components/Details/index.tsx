@@ -4,6 +4,7 @@ import { PropertiesItem } from '../PropertiesItem';
 import { getDateTime, isValidLink } from '../../helpers';
 import { formatDid, splitCamelCase } from '~/helpers/formatters';
 import { IAssetMeta, IDetails } from '~/hooks/polymesh/useAssetDetails';
+import { MediatorList } from '../MediatorList';
 
 interface IDetailsProps {
   details: IDetails;
@@ -24,6 +25,10 @@ export const Details: React.FC<IDetailsProps> = ({ details }) => {
     ticker,
     totalSupply,
     collectionId,
+    requiredMediators,
+    venueFilteringEnabled,
+    permittedVenuesIds,
+    isFrozen,
   } = details;
   return (
     <PropertiesDropdown label="Details" expanded>
@@ -88,6 +93,27 @@ export const Details: React.FC<IDetailsProps> = ({ details }) => {
             isPink={!!isValidLink(meta?.value)}
           />
         ))}
+        <PropertiesItem
+          propKey="Transfers Frozen"
+          propValue={isFrozen ? 'Yes' : 'No'}
+        />
+        <PropertiesItem
+          propKey="Venue filtering status"
+          propValue={venueFilteringEnabled ? 'Enabled' : 'Disabled'}
+          propDescription="When enabled only the permitted settlement venues can create instructions containing this asset"
+        />
+        {permittedVenuesIds.length > 0 && (
+          <PropertiesItem
+            propKey="Permitted Venue ID's"
+            propValue={permittedVenuesIds
+              .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+              .join(', ')}
+            propDescription="ID's for venues allowed to create instructions for the selected asset"
+          />
+        )}
+        {requiredMediators.length > 0 && (
+          <MediatorList mediatorList={requiredMediators} />
+        )}
       </>
     </PropertiesDropdown>
   );

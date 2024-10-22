@@ -36,7 +36,7 @@ export const parseCollectionFromPortfolio = async ({
         };
       }),
     )
-  ).sort((a, b) => a.ticker.assetId.localeCompare(b.ticker.assetId));
+  ).sort((a, b) => a.ticker.name.localeCompare(b.ticker.name));
   return parsedCollectionsList;
 };
 

@@ -81,13 +81,12 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
   }, [currentTab, portfolioId, pageSize, tableDataLoading]);
 
   useEffect(() => {
-    if (!identity || !allPortfolios || portfolioLoading) {
-      return;
-    }
-
     if (
-      currentTab !== ENftAssetsTableTabs.COLLECTIONS &&
-      currentTab !== ENftAssetsTableTabs.ALL_NFTS
+      !identity ||
+      !allPortfolios ||
+      portfolioLoading ||
+      (currentTab !== ENftAssetsTableTabs.COLLECTIONS &&
+        currentTab !== ENftAssetsTableTabs.ALL_NFTS)
     ) {
       return;
     }
@@ -269,7 +268,8 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
       getSortedRowModel: getSortedRowModel(),
       enableSortingRemoval: false,
     }),
-    tableDataLoading: tableDataLoading || currentTab !== tabRef.current,
+    tableDataLoading:
+      tableDataLoading || portfolioLoading || currentTab !== tabRef.current,
     totalItems,
   };
 };

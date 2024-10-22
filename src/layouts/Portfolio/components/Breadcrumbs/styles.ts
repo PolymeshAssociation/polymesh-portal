@@ -8,7 +8,6 @@ export const StyledBreadcrumbsContainer = styled.ul`
 export const StyledBreadcrumb = styled.li`
   font-size: 12px;
   font-weight: 500;
-  text-transform: capitalize;
   &:not(:last-child) {
     cursor: pointer;
     color: ${({ theme }) => theme.colors.textPrimary};
