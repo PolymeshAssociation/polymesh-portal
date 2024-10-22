@@ -45,7 +45,7 @@ export const useAssetForm = (
 
   const getAssetBalance = (asset: string) => {
     const currentAsset = portfolio?.assets.find(
-      (item) => item.asset.ticker === asset,
+      (item) => item.asset.id === asset,
     );
     const balance = currentAsset?.free.toNumber();
     return balance || 0;

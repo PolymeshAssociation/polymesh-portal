@@ -1,6 +1,7 @@
 import { CellContext } from '@tanstack/react-table';
-import { INftMovementItem, INftTransactionItem } from '../../constants';
+import { INftMovementItem } from '../../constants';
 import { StyledNftsCell } from './styles';
+import { INftTransactionItem } from '~/layouts/Overview/components/ActivityTable/constants';
 
 interface INftIdsCellProps {
   info:

@@ -3,8 +3,7 @@ import { PropertiesDropdown } from '../PropertiesDropdown';
 import { PropertiesItem } from '../PropertiesItem';
 import { getDateTime, isValidLink } from '../../helpers';
 import { formatDid, splitCamelCase } from '~/helpers/formatters';
-import { IAssetMeta } from '../../constants';
-import { IDetails } from '~/hooks/polymesh/useAssetDetails';
+import { IAssetMeta, IDetails } from '~/hooks/polymesh/useAssetDetails';
 
 interface IDetailsProps {
   details: IDetails;
@@ -22,6 +21,7 @@ export const Details: React.FC<IDetailsProps> = ({ details }) => {
     metaData,
     name,
     owner,
+    ticker,
     totalSupply,
     collectionId,
   } = details;
@@ -36,6 +36,7 @@ export const Details: React.FC<IDetailsProps> = ({ details }) => {
             propCopy={collectionId.toString()}
           />
         )}
+        <PropertiesItem propKey="Ticker" propValue={ticker} />
         <PropertiesItem
           propKey="Asset Type"
           propValue={splitCamelCase(assetType)}

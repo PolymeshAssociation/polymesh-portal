@@ -4,7 +4,6 @@ import {
   AuthorizationType,
   DefaultPortfolio,
   JoinIdentityAuthorizationData,
-  KnownPermissionGroup,
   Permissions,
   PolymeshError,
   PortfolioCustodyAuthorizationData,

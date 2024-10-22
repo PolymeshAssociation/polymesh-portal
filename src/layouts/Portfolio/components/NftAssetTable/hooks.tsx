@@ -38,7 +38,7 @@ const initialPaginationState = { pageIndex: 0, pageSize: 10 };
 
 const imageUrlCache = new Map();
 
-export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
+export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
   const [tableData, setTableData] = useState<TNftTableItem[]>([]);
   const [tableDataLoading, setTableDataLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(-1);
@@ -49,7 +49,7 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
   const [shouldLoadNftImages, setShouldLoadNftImages] = useState(false);
   const imagesLoadedRef = useRef(false);
 
-  const tabRef = useRef<string>('');
+  const tabRef = useRef<ENftAssetsTableTabs>(ENftAssetsTableTabs.COLLECTIONS);
   const portfolioRef = useRef<string | null>(null);
 
   const [searchParams] = useSearchParams();
@@ -269,7 +269,7 @@ export const useNftAssetTable = (currentTab: `${ENftAssetsTableTabs}`) => {
       getSortedRowModel: getSortedRowModel(),
       enableSortingRemoval: false,
     }),
-    tableDataLoading,
+    tableDataLoading: tableDataLoading || currentTab !== tabRef.current,
     totalItems,
   };
 };

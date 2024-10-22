@@ -20,6 +20,7 @@ import {
   StyledLabel,
   StyledCloseBtn,
 } from './styles';
+import { hexToUuid } from '~/helpers/formatters';
 
 interface INftSelectProps {
   index: string;
@@ -141,7 +142,9 @@ export const NftSelect: React.FC<INftSelectProps> = ({
             $expanded={collectionSelectExpanded}
             $disabled={disabled}
           >
-            {selectedCollection || (
+            {selectedCollection ? (
+              hexToUuid(selectedCollection)
+            ) : (
               <StyledPlaceholder>Select Collection</StyledPlaceholder>
             )}
             <Icon name="ExpandIcon" className="expand-icon" size="18px" />
@@ -154,7 +157,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                     key={collection}
                     onClick={() => handleSelectCollection(collection)}
                   >
-                    {collection}
+                    {hexToUuid(collection)}
                   </StyledSelectOption>
                 ))
               ) : (

@@ -1,4 +1,4 @@
-import { lazy } from 'react';
+import { lazy, ReactElement } from 'react';
 import { TIcons } from '~/assets/icons/types';
 
 const NotFound = lazy(() => import('~/layouts/NotFound'));
@@ -15,7 +15,7 @@ const Staking = lazy(() => import('~/layouts/Staking'));
 interface IRoute {
   path: string;
   label: string | null;
-  component: React.LazyExoticComponent<() => JSX.Element>;
+  component: React.LazyExoticComponent<() => ReactElement>;
 }
 
 interface INavLink {

@@ -4,7 +4,12 @@ import {
   FungibleAsset,
   PortfolioBalance,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { formatBalance, stringToColor } from '~/helpers/formatters';
+import {
+  formatBalance,
+  formatUuid,
+  hexToUuid,
+  stringToColor,
+} from '~/helpers/formatters';
 import { Icon } from '~/components';
 import { Text } from '~/components/UiKit';
 import { useOutsideClick } from '../../hooks';
@@ -66,7 +71,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
     );
     setValidationError(error);
     handleSelectAsset(index, {
-      asset: selectedAsset?.ticker,
+      asset: selectedAsset?.id,
       amount: new BigNumber(error ? 0 : amount),
     });
   };
@@ -141,12 +146,10 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
             >
               {assets && selectedAsset ? (
                 <SelectedOption>
-                  <IconWrapper
-                    $background={stringToColor(selectedAsset.toHuman())}
-                  >
+                  <IconWrapper $background={stringToColor(selectedAsset.id)}>
                     <Icon name="Coins" size="16px" />
                   </IconWrapper>
-                  {selectedAsset.toHuman()}
+                  {formatUuid(hexToUuid(selectedAsset.id))}
                 </SelectedOption>
               ) : (
                 <StyledPlaceholder>Select Asset</StyledPlaceholder>
@@ -161,10 +164,10 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
                       key={asset.toHuman()}
                       onClick={() => handleAssetSelect(asset)}
                     >
-                      <IconWrapper $background={stringToColor(asset.toHuman())}>
+                      <IconWrapper $background={stringToColor(asset.id)}>
                         <Icon name="Coins" size="16px" />
                       </IconWrapper>{' '}
-                      {asset.toHuman()}
+                      {formatUuid(hexToUuid(asset.id))}
                     </StyledSelectOption>
                   ))
                 ) : (

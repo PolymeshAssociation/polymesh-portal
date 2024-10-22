@@ -1,7 +1,7 @@
 import type { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
 export interface IAssetOption {
-  ticker: string;
+  assetId: string;
   amount: number;
   color: string;
   asset: FungibleAsset;
@@ -9,7 +9,7 @@ export interface IAssetOption {
 }
 
 export interface IReducedOption {
-  ticker: string;
+  assetId: string;
   percentage: number;
   color: string;
 }

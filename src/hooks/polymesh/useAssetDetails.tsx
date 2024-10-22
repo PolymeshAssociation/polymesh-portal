@@ -6,13 +6,10 @@ import {
   MetadataLockStatus,
   SecurityIdentifier,
 } from '@polymeshassociation/polymesh-sdk/types';
-import {
-  FungibleAsset,
-  NftCollection,
-} from '@polymeshassociation/polymesh-sdk/internal';
+import { NftCollection } from '@polymeshassociation/polymesh-sdk/internal';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
-import { splitCamelCase } from '~/helpers/formatters';
+import { hexToUuid, splitCamelCase, uuidToHex } from '~/helpers/formatters';
 import { toFormattedTimestamp } from '~/helpers/dateTime';
 
 export interface IAssetMeta {
@@ -36,16 +33,17 @@ export interface IDetails {
   metaData: IAssetMeta[];
   name: string;
   owner: string;
+  ticker?: string;
   totalSupply: number;
   collectionId?: number;
 }
 export interface IAssetDetails {
-  ticker: string;
+  assetId: string;
   details?: IDetails;
   docs?: AssetDocument[];
 }
 
-export const useAssetDetails = (assetOrTicker: Asset | string | null) => {
+export const useAssetDetails = (assetIdentifier: Asset | string | null) => {
   const [assetDetailsLoading, setAssetDetailsLoading] = useState(true);
   const [assetDetails, setAssetDetails] = useState<IAssetDetails>();
 
@@ -54,7 +52,7 @@ export const useAssetDetails = (assetOrTicker: Asset | string | null) => {
   } = useContext(PolymeshContext);
 
   useEffect(() => {
-    if (!sdk || !gqlClient || !assetOrTicker) {
+    if (!sdk || !gqlClient || !assetIdentifier) {
       return;
     }
     setAssetDetailsLoading(true);
@@ -62,10 +60,24 @@ export const useAssetDetails = (assetOrTicker: Asset | string | null) => {
     (async () => {
       try {
         let asset: Asset;
-        if (typeof assetOrTicker === 'string') {
-          asset = await sdk.assets.getAsset({ ticker: assetOrTicker });
+        if (typeof assetIdentifier === 'string') {
+          if (assetIdentifier.length <= 12) {
+            asset = await sdk.assets.getAsset({
+              ticker: assetIdentifier,
+            });
+          } else {
+            let assetId: string;
+            if (!assetIdentifier.startsWith('0x')) {
+              assetId = uuidToHex(assetIdentifier);
+            } else {
+              assetId = assetIdentifier;
+            }
+            asset = await sdk.assets.getAsset({
+              assetId,
+            });
+          }
         } else {
-          asset = assetOrTicker;
+          asset = assetIdentifier;
         }
         const [
           details,
@@ -81,8 +93,7 @@ export const useAssetDetails = (assetOrTicker: Asset | string | null) => {
           asset.details(),
           asset instanceof NftCollection ? asset.getCollectionId() : undefined,
           asset instanceof NftCollection ? asset.collectionKeys() : [],
-          // TODO: remove type guard once `currentFundingRound` is added to NftCollection
-          asset instanceof FungibleAsset ? asset.currentFundingRound() : null,
+          asset.currentFundingRound(),
           asset.getIdentifiers(),
           asset.investorCount(),
           asset.documents.get(),
@@ -97,6 +108,7 @@ export const useAssetDetails = (assetOrTicker: Asset | string | null) => {
           nonFungible: isNftCollection,
           owner,
           totalSupply,
+          ticker,
         } = details;
 
         const metaData = (
@@ -128,7 +140,7 @@ export const useAssetDetails = (assetOrTicker: Asset | string | null) => {
           )
         ).filter((entry) => entry.value !== null);
         setAssetDetails({
-          ticker: asset.ticker,
+          assetId: hexToUuid(asset.id),
           details: {
             assetIdentifiers,
             assetType,
@@ -142,6 +154,7 @@ export const useAssetDetails = (assetOrTicker: Asset | string | null) => {
             metaData,
             name,
             owner: owner.did,
+            ticker: ticker || '',
             totalSupply: totalSupply.toNumber(),
           },
           docs: docs.data,
@@ -152,7 +165,7 @@ export const useAssetDetails = (assetOrTicker: Asset | string | null) => {
         setAssetDetailsLoading(false);
       }
     })();
-  }, [gqlClient, sdk, assetOrTicker]);
+  }, [gqlClient, sdk, assetIdentifier]);
 
   return { assetDetails, assetDetailsLoading };
 };

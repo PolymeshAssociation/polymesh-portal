@@ -12,8 +12,9 @@ import {
   ICollectionItem,
   INftAssetItem,
   INftMovementItem,
-  INftTransactionItem,
 } from './constants';
+import { AssetIdCell } from './components/AssetIdCell';
+import { INftTransactionItem } from '~/layouts/Overview/components/ActivityTable/constants';
 
 const collectionColumnHelper = createColumnHelper<ICollectionItem>();
 const allNftsColumnHelper = createColumnHelper<INftAssetItem>();
@@ -23,21 +24,23 @@ const transactionColumnHelper = createColumnHelper<INftTransactionItem>();
 export const columns = {
   [ENftAssetsTableTabs.COLLECTIONS]: [
     collectionColumnHelper.accessor('ticker', {
-      header: (info) => <CollectionFilter info={info} name="Collection" />,
+      header: (info) => <CollectionFilter info={info} name="Collection Name" />,
       cell: (info) => <TickerCell info={info.getValue()} />,
       enableSorting: true,
       sortingFn: (rowA, rowB) => {
-        const tickerA = rowA.original.ticker.ticker as string;
-        const tickerB = rowB.original.ticker.ticker as string;
+        const tickerA = rowA.original.ticker.name as string;
+        const tickerB = rowB.original.ticker.name as string;
         return tickerA.localeCompare(tickerB);
       },
     }),
+    collectionColumnHelper.accessor('collectionAssetId', {
+      header: 'Collection Asset ID',
+      cell: (info) => (
+        <AssetIdCell assetId={info.getValue()} abbreviate={false} />
+      ),
+    }),
     collectionColumnHelper.accessor('collectionId', {
       header: 'Collection ID',
-      cell: (info) => info.getValue(),
-    }),
-    collectionColumnHelper.accessor('name', {
-      header: 'Name',
       cell: (info) => info.getValue(),
     }),
     collectionColumnHelper.accessor('assetType', {
@@ -51,22 +54,31 @@ export const columns = {
   ],
   [ENftAssetsTableTabs.ALL_NFTS]: [
     allNftsColumnHelper.accessor('ticker', {
-      header: 'NFT Image',
+      header: (info) => <CollectionFilter info={info} name="Collection Name" />,
       cell: (info) => <TickerCell info={info.getValue()} />,
       enableSorting: true,
+      sortingFn: (rowA, rowB) => {
+        const tickerA = rowA.original.ticker.name as string;
+        const tickerB = rowB.original.ticker.name as string;
+        return tickerA.localeCompare(tickerB);
+      },
     }),
-    allNftsColumnHelper.accessor('id', {
+    allNftsColumnHelper.accessor('collectionAssetId', {
+      header: 'Collection Asset ID',
+      cell: (info) => (
+        <AssetIdCell assetId={info.getValue()} abbreviate={false} />
+      ),
+    }),
+    allNftsColumnHelper.accessor('collectionId', {
+      header: 'Collection ID',
+      cell: (info) => info.getValue(),
+    }),
+    allNftsColumnHelper.accessor('nftId', {
       header: 'NFT ID',
       cell: (info) => info.getValue(),
     }),
-    allNftsColumnHelper.accessor('collectionTicker', {
-      header: (info) => (
-        <CollectionFilter info={info} name="Collection Ticker" />
-      ),
-      cell: (info) => info.getValue(),
-    }),
-    allNftsColumnHelper.accessor('collectionName', {
-      header: 'Collection Name',
+    allNftsColumnHelper.accessor('assetType', {
+      header: 'Asset Type',
       cell: (info) => info.getValue(),
     }),
     allNftsColumnHelper.accessor('isLocked', {
@@ -99,9 +111,18 @@ export const columns = {
       header: 'To',
       cell: (info) => <AddressCell address={info.getValue()} />,
     }),
+    transactionColumnHelper.accessor('nameAndTicker', {
+      header: 'Name',
+      enableSorting: false,
+      cell: (info) => {
+        const tokenDetails = info.getValue();
+        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : ''}`;
+      },
+    }),
+
     transactionColumnHelper.accessor('assetId', {
-      header: 'Collection',
-      cell: (info) => info.getValue(),
+      header: 'Asset ID',
+      cell: (info) => <AssetIdCell assetId={info.getValue()} />,
     }),
     transactionColumnHelper.accessor('nftIds', {
       header: 'Token IDs',
@@ -130,9 +151,17 @@ export const columns = {
       header: 'To',
       cell: (info) => info.getValue(),
     }),
+    movementColumnHelper.accessor('nameAndTicker', {
+      header: 'Name',
+      enableSorting: false,
+      cell: (info) => {
+        const tokenDetails = info.getValue();
+        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : ''}`;
+      },
+    }),
     movementColumnHelper.accessor('collection', {
-      header: 'Collection',
-      cell: (info) => info.getValue(),
+      header: 'Asset ID',
+      cell: (info) => <AssetIdCell assetId={info.getValue()} />,
     }),
     movementColumnHelper.accessor('nftIds', {
       header: 'Token IDs',

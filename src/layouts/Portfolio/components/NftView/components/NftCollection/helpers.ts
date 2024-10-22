@@ -19,7 +19,7 @@ export const parseCollectionFromPortfolio = async (
 ) => {
   const collectionsList = await portfolio.getCollections();
   const currectCollection = collectionsList.find(
-    ({ collection }) => collection.ticker === nftCollection,
+    ({ collection }) => collection.id === nftCollection,
   );
 
   if (!currectCollection) {

@@ -32,7 +32,7 @@ import { PolymeshContext } from '~/context/PolymeshContext';
 import { downloadCSV } from '~/helpers/utils';
 
 export const useRewardTable = (
-  currentTab: `${ERewardTableTabs}`,
+  currentTab: ERewardTableTabs,
   index = 0,
   size = 10,
 ) => {
@@ -53,7 +53,7 @@ export const useRewardTable = (
 
   const [tableLoading, setTableLoading] = useState(true);
   const [downloadDisabled, setDownloadDisabled] = useState(false);
-  const tabRef = useRef<string>('');
+  const tabRef = useRef<ERewardTableTabs | ''>('');
   const identityRef = useRef<string | undefined>(undefined);
   const accountRef = useRef<Account | MultiSig | null>(null);
 

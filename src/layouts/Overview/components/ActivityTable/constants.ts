@@ -12,24 +12,6 @@ export const HISTORICAL_COLUMNS = [
   { header: 'Status', accessor: 'success' },
 ];
 
-export const TOKEN_COLUMNS = [
-  {
-    header: 'Instruction ID',
-    accessor: 'id',
-  },
-  {
-    header: 'Date / Time',
-    accessor: 'dateTime',
-  },
-  {
-    header: 'From',
-    accessor: 'from',
-  },
-  { header: 'To', accessor: 'to' },
-  { header: 'Asset', accessor: 'asset' },
-  { header: 'Amount', accessor: 'amount' },
-];
-
 export interface IIdData {
   eventId: string;
   blockId: string;
@@ -37,13 +19,17 @@ export interface IIdData {
   instructionId: string | null;
 }
 
-export interface ITokenItem {
+export interface ITransactionItem {
   id: IIdData;
   dateTime: string;
   from: string;
   to: string;
   amount: string;
   asset: string;
+  tokenDetails: {
+    name: string;
+    ticker: string;
+  };
 }
 
 export interface IHistoricalItem {
@@ -61,6 +47,10 @@ export interface INftTransactionItem {
   to: string;
   nftIds: string[];
   assetId: string;
+  nameAndTicker: {
+    name: string;
+    ticker: string;
+  };
 }
 
 export enum EActivityTableTabs {

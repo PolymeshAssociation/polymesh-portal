@@ -1,24 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { formatBalance } from '~/helpers/formatters';
 import { StyledExpandedOtherAssets, StyledLegendItem } from './styles';
 import { IAssetOption } from '../../constants';
 
 export const LegendItems = ({ assets }: { assets: IAssetOption[] }) => {
   const [otherAssetsExpanded, setOtherAssetsExpanded] = useState(false);
+  const [assetNames, setAssetNames] = useState<Record<string, string>>({}); // To store asset names
+
   const formatBalancePercentage = (percentage: number) =>
     formatBalance(percentage, 2);
-  // only show the tickers with the largest holding count, remaining tickers will
-  // be grouped under other.
+
   const maxTickersToShow = 4;
 
+  // Fetch asset names and store them in state
+  useEffect(() => {
+    const fetchAssetNames = async () => {
+      const names: Record<string, string> = {};
+      await Promise.all(
+        assets.map(async ({ assetId, asset }) => {
+          const { name } = await asset.details();
+          names[assetId] = name;
+        }),
+      );
+      setAssetNames(names);
+    };
+    fetchAssetNames();
+  }, [assets]);
+
   if (assets.length <= maxTickersToShow) {
-    return assets.map(({ ticker, color, percentage }) => (
-      <StyledLegendItem key={ticker} $color={color}>
-        {ticker}
-        <span>{formatBalancePercentage(percentage)}%</span>
-      </StyledLegendItem>
-    ));
+    return (
+      <>
+        {assets.map(({ assetId, color, percentage }) => {
+          const assetName = assetNames[assetId] || assetId;
+          return (
+            <StyledLegendItem key={assetId} $color={color}>
+              {assetName}
+              <span>{formatBalancePercentage(percentage)}%</span>
+            </StyledLegendItem>
+          );
+        })}
+      </>
+    );
   }
+
   // We will count "Other" as the last ticker so split at `maxTickersToShow - 1`
   const assetsToShow = assets.slice(0, maxTickersToShow - 1);
   const otherAssets = assets.slice(maxTickersToShow - 1);
@@ -30,12 +54,15 @@ export const LegendItems = ({ assets }: { assets: IAssetOption[] }) => {
 
   return (
     <>
-      {assetsToShow.map(({ ticker, color, percentage }) => (
-        <StyledLegendItem key={ticker} $color={color}>
-          {ticker}
-          <span>{formatBalancePercentage(percentage)}%</span>
-        </StyledLegendItem>
-      ))}
+      {assetsToShow.map(({ assetId, color, percentage }) => {
+        const assetName = assetNames[assetId] || assetId;
+        return (
+          <StyledLegendItem key={assetId} $color={color}>
+            {assetName}
+            <span>{formatBalancePercentage(percentage)}%</span>
+          </StyledLegendItem>
+        );
+      })}
       <StyledLegendItem
         key="Other"
         $color="#EC4673"
@@ -47,12 +74,15 @@ export const LegendItems = ({ assets }: { assets: IAssetOption[] }) => {
         <span>{formatBalancePercentage(otherPercentage)}%</span>
         {otherAssetsExpanded && (
           <StyledExpandedOtherAssets>
-            {otherAssets.map((option) => (
-              <StyledLegendItem key={option.ticker} $color={option.color}>
-                {option.ticker}
-                <span>{formatBalancePercentage(option.percentage)}%</span>
-              </StyledLegendItem>
-            ))}
+            {otherAssets.map(({ assetId, color, percentage }) => {
+              const assetName = assetNames[assetId] || assetId;
+              return (
+                <StyledLegendItem key={assetId} $color={color}>
+                  {assetName}
+                  <span>{formatBalancePercentage(percentage)}%</span>
+                </StyledLegendItem>
+              );
+            })}
           </StyledExpandedOtherAssets>
         )}
       </StyledLegendItem>

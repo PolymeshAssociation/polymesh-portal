@@ -54,7 +54,7 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
                   {scope.value.startsWith('0x') ? (
                     <>
                       {hexToUuid(scope.value)}
-                      <CopyToClipboard value={scope.value} />
+                      <CopyToClipboard value={hexToUuid(scope.value)} />
                     </>
                   ) : (
                     scope.value

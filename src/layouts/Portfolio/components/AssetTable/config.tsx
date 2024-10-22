@@ -2,7 +2,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { formatBalance } from '~/helpers/formatters';
 import { Icon } from '~/components';
 import { PercentageFilter } from './components/PercentageFilter';
-import { TickerCell } from './components/TickerCell';
+import { TokenCell } from './components/TokenCell';
 import {
   IdCellWrapper,
   IconWrapper,
@@ -19,6 +19,7 @@ import { createTokenActivityLink } from './helpers';
 import { IdCell } from '../NftAssetTable/components/IdCell';
 import { DateCell } from '../NftAssetTable/components/DateCell';
 import { AddressCell } from '../NftAssetTable/components/AddressCell';
+import { AssetIdCell } from '../NftAssetTable/components/AssetIdCell';
 
 const tokenColumnHelper = createColumnHelper<ITokenItem>();
 const transactionColumnHelper = createColumnHelper<ITransactionItem>();
@@ -26,10 +27,17 @@ const movementColumnHelper = createColumnHelper<IMovementItem>();
 
 export const columns = {
   [EAssetsTableTabs.TOKENS]: [
-    tokenColumnHelper.accessor('ticker', {
+    tokenColumnHelper.accessor('tokenDetails', {
       header: 'Token',
       enableSorting: false,
-      cell: (info) => <TickerCell info={info} />,
+      cell: (info) => <TokenCell info={info} />,
+    }),
+    tokenColumnHelper.accessor('assetId', {
+      header: 'Asset ID',
+      enableSorting: false,
+      cell: (info) => (
+        <AssetIdCell assetId={info.getValue()} abbreviate={false} />
+      ),
     }),
     tokenColumnHelper.accessor('percentage', {
       header: (info) => <PercentageFilter info={info} />,
@@ -44,9 +52,7 @@ export const columns = {
       enableSorting: false,
       cell: (info) => {
         const balance = info.getValue();
-        return balance
-          ? `${formatBalance(balance.amount)} ${balance?.ticker}`
-          : '';
+        return balance ? formatBalance(balance) : '';
       },
     }),
     tokenColumnHelper.accessor('locked', {
@@ -54,9 +60,7 @@ export const columns = {
       enableSorting: false,
       cell: (info) => {
         const locked = info.getValue();
-        return locked?.amount
-          ? `${formatBalance(locked.amount)} ${locked?.ticker}`
-          : '-';
+        return locked ? formatBalance(locked) : '-';
       },
     }),
   ],
@@ -92,9 +96,17 @@ export const columns = {
         return <AddressCell address={data as string} />;
       },
     }),
+    transactionColumnHelper.accessor('tokenDetails', {
+      header: 'Name',
+      enableSorting: false,
+      cell: (info) => {
+        const tokenDetails = info.getValue();
+        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : ''}`;
+      },
+    }),
     transactionColumnHelper.accessor('asset', {
-      header: 'Asset',
-      cell: (info) => info.getValue(),
+      header: 'Asset ID',
+      cell: (info) => <AssetIdCell assetId={info.getValue()} />,
     }),
     transactionColumnHelper.accessor('amount', {
       header: 'Amount',
@@ -145,9 +157,17 @@ export const columns = {
       header: 'To',
       cell: (info) => info.getValue(),
     }),
-    movementColumnHelper.accessor('asset', {
-      header: 'Asset',
-      cell: (info) => info.getValue(),
+    movementColumnHelper.accessor('tokenDetails', {
+      header: 'Name',
+      enableSorting: false,
+      cell: (info) => {
+        const tokenDetails = info.getValue();
+        return `${tokenDetails.name}${tokenDetails.ticker ? ` (${tokenDetails.ticker})` : ''}`;
+      },
+    }),
+    movementColumnHelper.accessor('assetId', {
+      header: 'Asset ID',
+      cell: (info) => <AssetIdCell assetId={info.getValue()} />,
     }),
     movementColumnHelper.accessor('amount', {
       header: 'Amount',

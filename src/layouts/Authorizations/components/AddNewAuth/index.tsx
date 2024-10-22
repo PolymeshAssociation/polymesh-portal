@@ -309,6 +309,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
                                           </StyledTypeOption>
                                         );
                                       }
+                                      return undefined;
                                     })}
                               </StyledExpandedTypeSelect>
                             );

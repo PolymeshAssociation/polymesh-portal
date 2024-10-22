@@ -32,7 +32,7 @@ import { PolymeshContext } from '~/context/PolymeshContext';
 
 const initialPaginationState = { pageIndex: 0, pageSize: 10 };
 
-export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
+export const useAssetTable = (currentTab: EAssetsTableTabs) => {
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>(
     initialPaginationState,
   );
@@ -49,7 +49,7 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
     useContext(PortfolioContext);
   const { identity } = useContext(AccountContext);
   const [tableDataLoading, setTableDataLoading] = useState(false);
-  const tabRef = useRef<string>('');
+  const tabRef = useRef<EAssetsTableTabs>(EAssetsTableTabs.TOKENS);
   const portfolioRef = useRef<string | null>(null);
 
   // Reset page index when tabs are switched
@@ -72,11 +72,9 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
       return;
 
     if (currentTab !== tabRef.current && pageIndex !== 0) return;
-
-    setTableData([]);
+    setTableDataLoading(true);
 
     (async () => {
-      setTableDataLoading(true);
       const offset = pageIndex * pageSize;
 
       try {
@@ -148,36 +146,45 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
 
   // Get token table data
   useEffect(() => {
-    if (!identity || !allPortfolios) {
+    const fetchAssets = async () => {
+      if (!identity || !allPortfolios) {
+        setTableData([]);
+        return;
+      }
+      if (currentTab !== EAssetsTableTabs.TOKENS) {
+        return;
+      }
+      setTableDataLoading(true);
+
+      tabRef.current = currentTab;
+      portfolioRef.current = portfolioId;
       setTableData([]);
-      return;
-    }
-    if (currentTab !== EAssetsTableTabs.TOKENS) {
-      return;
-    }
-    tabRef.current = currentTab;
-    portfolioRef.current = portfolioId;
-    setTableData([]);
 
-    if (!portfolioId) {
-      const parsedAssets = parseAssetsFromPortfolios(
-        allPortfolios,
-        totalAssetsAmount,
+      if (!portfolioId) {
+        const parsedAssets = await parseAssetsFromPortfolios(
+          allPortfolios,
+          totalAssetsAmount,
+        );
+        setTableData(parsedAssets);
+        setTotalItems(parsedAssets.length);
+        setTableDataLoading(false);
+        return;
+      }
+
+      const selectedPortfolio = allPortfolios.find(
+        ({ id }) => id === portfolioId,
       );
-      setTableData(parsedAssets);
-      setTotalItems(parsedAssets.length);
-      return;
-    }
 
-    const selectedPortfolio = allPortfolios.find(
-      ({ id }) => id === portfolioId,
-    );
+      if (selectedPortfolio) {
+        const parsedData =
+          await parseAssetsFromSelectedPortfolio(selectedPortfolio);
+        setTableData(parsedData);
+        setTotalItems(parsedData.length);
+        setTableDataLoading(false);
+      }
+    };
 
-    if (selectedPortfolio) {
-      const parsedData = parseAssetsFromSelectedPortfolio(selectedPortfolio);
-      setTableData(parsedData);
-      setTotalItems(parsedData.length);
-    }
+    fetchAssets();
   }, [portfolioId, allPortfolios, totalAssetsAmount, currentTab, identity]);
 
   const pagination = useMemo(
@@ -191,11 +198,11 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
   return {
     table: useReactTable<AssetTableItem>({
       data: tableData,
-      columns: columns[currentTab] as ColumnDef<AssetTableItem>[],
+      columns: columns[tabRef.current] as ColumnDef<AssetTableItem>[],
       state: { pagination },
-      manualPagination: currentTab !== EAssetsTableTabs.TOKENS,
+      manualPagination: tabRef.current !== EAssetsTableTabs.TOKENS,
       pageCount:
-        currentTab !== EAssetsTableTabs.TOKENS
+        tabRef.current !== EAssetsTableTabs.TOKENS
           ? totalPages
           : Math.ceil(tableData.length ? tableData.length / pageSize : 1),
       onPaginationChange: setPagination,
@@ -203,7 +210,8 @@ export const useAssetTable = (currentTab: `${EAssetsTableTabs}`) => {
       getPaginationRowModel: getPaginationRowModel(),
       getSortedRowModel: getSortedRowModel(),
     }),
-    tableDataLoading: tableDataLoading || portfolioLoading,
+    tableDataLoading:
+      tableDataLoading || portfolioLoading || currentTab !== tabRef.current,
     totalItems,
   };
 };

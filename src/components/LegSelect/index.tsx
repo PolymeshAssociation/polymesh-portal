@@ -242,11 +242,11 @@ const LegSelect: React.FC<ILegSelectProps> = ({
   const balance = useMemo(() => {
     if (!selectedSenderPortfolio?.id) return 0;
     const currentAsset = selectedSenderPortfolio.assets.find(
-      (asset) => asset.asset.ticker === selectedAssets[index].asset,
+      (asset) => asset.asset.id === selectedAssets[index].asset,
     );
     if (!currentAsset) return 0;
     const currentAssetBalance = getAssetBalance(
-      currentAsset?.asset.ticker as string,
+      currentAsset?.asset.id as string,
     );
 
     const currentBalance = checkAvailableBalance({

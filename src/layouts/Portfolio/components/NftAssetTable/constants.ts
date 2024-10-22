@@ -1,4 +1,5 @@
 import { Nft } from '@polymeshassociation/polymesh-sdk/types';
+import { INftTransactionItem } from '~/layouts/Overview/components/ActivityTable/constants';
 
 export enum ENftAssetsTableTabs {
   COLLECTIONS = 'collections',
@@ -8,22 +9,27 @@ export enum ENftAssetsTableTabs {
 }
 
 export interface ICollectionItemTicker {
+  assetId: string;
   imgUrl: string;
   ticker?: string;
+  name?: string;
 }
 
 export interface ICollectionItem {
+  collectionAssetId: string;
   collectionId: string;
   ticker: ICollectionItemTicker;
-  name: string;
   assetType: string;
   count: number;
 }
 
 export interface INftAssetItem {
+  assetType: string;
   ticker: ICollectionItemTicker;
-  id: number;
-  collectionTicker: string;
+  nftId: number;
+  collectionAssetId: string;
+  collectionId: string;
+  collectionTicker?: string;
   collectionName: string;
   isLocked: boolean;
   nft: Nft;
@@ -36,20 +42,10 @@ export interface INftMovementItem {
   from: string;
   to: string;
   nftIds: string[];
-}
-
-export interface INftTransactionItem {
-  txId: {
-    eventId: string;
-    blockId: string;
-    extrinsicIdx: number | null;
-    instructionId: string | null;
+  nameAndTicker: {
+    name: string;
+    ticker: string;
   };
-  dateTime: string;
-  from: string;
-  to: string;
-  nftIds: string[];
-  assetId: string;
 }
 
 export type TNftTableItem =

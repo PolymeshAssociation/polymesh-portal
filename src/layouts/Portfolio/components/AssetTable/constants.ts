@@ -6,16 +6,15 @@ export interface IIdData {
 }
 
 export interface ITokenItem {
-  ticker: string;
+  assetId: string;
+  tokenDetails: {
+    assetId: string;
+    name: string;
+    ticker?: string;
+  };
   percentage: number;
-  balance: {
-    amount: number;
-    ticker: string;
-  };
-  locked: {
-    amount: number;
-    ticker: string;
-  };
+  balance: number;
+  locked: number;
 }
 
 export interface ITransactionItem {
@@ -25,6 +24,10 @@ export interface ITransactionItem {
   to: string;
   amount: string;
   asset: string;
+  tokenDetails: {
+    name: string;
+    ticker: string;
+  };
 }
 
 export interface IMovementItem {
@@ -33,7 +36,11 @@ export interface IMovementItem {
   from: string;
   to: string;
   amount: string;
-  asset: string;
+  assetId: string;
+  tokenDetails: {
+    name: string;
+    ticker: string;
+  };
 }
 
 export type AssetTableItem = ITokenItem | ITransactionItem | IMovementItem;

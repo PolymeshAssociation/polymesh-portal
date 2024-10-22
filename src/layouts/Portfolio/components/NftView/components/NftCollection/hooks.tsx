@@ -9,25 +9,27 @@ import {
   parseCollectionFromPortfolio,
   parseCollectionFromPortfolios,
 } from './helpers';
+import { uuidToHex } from '~/helpers/formatters';
 
-export const useNftCollection = () => {
+export const useNftCollection = (assetId?: string) => {
   const [nftList, setNftList] = useState<INftListItem[]>([]);
   const [nftListLoading, setNftListLoading] = useState(true);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
-  const nftCollection = searchParams.get('nftCollection');
+  const nftCollection = assetId && uuidToHex(assetId); // searchParams.get('nftCollection');
 
   const { identity, identityLoading } = useContext(AccountContext);
   const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
 
   useEffect(() => {
-    if (identityLoading || portfolioLoading) {
+    if (identityLoading || portfolioLoading || !nftCollection) {
       setNftList([]);
       setNftListLoading(true);
       return;
     }
-    if (!identity || !nftCollection || !allPortfolios.length) {
+
+    if (!identity || !allPortfolios.length) {
       setNftList([]);
       setNftListLoading(false);
       return;

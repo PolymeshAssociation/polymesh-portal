@@ -33,14 +33,7 @@ const Header: React.FC<IHeaderProps> = ({ toggleMobileMenu }) => {
 
   useEffect(() => {
     const currentPage = ROUTES.find(({ path }) => path === pathname);
-    let currentPageLabel;
-    if (nftCollection) {
-      currentPageLabel = nftId
-        ? `${nftCollection as string} #${nftId as string}`
-        : (nftCollection as string);
-    } else {
-      currentPageLabel = currentPage?.label || null;
-    }
+    const currentPageLabel = currentPage?.label || null;
     setPageLabel(currentPageLabel);
   }, [nftCollection, nftId, pathname]);
 

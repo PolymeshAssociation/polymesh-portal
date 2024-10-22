@@ -32,8 +32,8 @@ export const parseCollectionsFromSinglePortfolio = async (
   const parsedList = await Promise.all(
     collectionList.map(async ({ collection, free }) => {
       const parsedNfts = await parseNftsFromCollection(free);
-      nfts[collection.ticker] = parsedNfts;
-      return collection.ticker;
+      nfts[collection.id] = parsedNfts;
+      return collection.id;
     }),
   );
 

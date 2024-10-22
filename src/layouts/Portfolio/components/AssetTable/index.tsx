@@ -3,12 +3,11 @@ import { useSearchParams } from 'react-router-dom';
 import { Table } from '~/components';
 import { useAssetTable } from './hooks';
 import { EAssetsTableTabs, AssetTableItem, ITokenItem } from './constants';
+import { hexToUuid } from '~/helpers/formatters';
 // import { EAssetsTableTabs } from './constants';
 
 export const AssetTable = () => {
-  const [tab, setTab] = useState<`${EAssetsTableTabs}`>(
-    EAssetsTableTabs.TOKENS,
-  );
+  const [tab, setTab] = useState<EAssetsTableTabs>(EAssetsTableTabs.TOKENS);
   const { table, tableDataLoading, totalItems } = useAssetTable(tab);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,11 +16,11 @@ export const AssetTable = () => {
   const handleRowClick = (original: AssetTableItem) => {
     if (tab !== EAssetsTableTabs.TOKENS) return;
 
-    const { ticker } = original as ITokenItem;
+    const { assetId } = original as ITokenItem;
 
     const params = id
-      ? { id, asset: ticker }
-      : ({ asset: ticker } as Record<string, string>);
+      ? { id, asset: hexToUuid(assetId) }
+      : ({ asset: hexToUuid(assetId) } as Record<string, string>);
     setSearchParams(params);
   };
 

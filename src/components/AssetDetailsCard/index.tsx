@@ -13,11 +13,17 @@ import {
   StyledDocumentWrap,
 } from '../DetailsCard/styles';
 import { StyledAssetDetailsCard } from './styles';
-import { useSearchParamAssetDetails } from '~/hooks/polymesh/useSearchParamAssetDetails';
+import { IAssetDetails } from '~/hooks/polymesh/useAssetDetails';
 
-export const AssetDetailsCard = () => {
-  const { assetDetails, assetDetailsLoading } = useSearchParamAssetDetails();
+interface IAssetDetailsCardProps {
+  assetDetails?: IAssetDetails;
+  assetDetailsLoading: boolean;
+}
 
+export const AssetDetailsCard: React.FC<IAssetDetailsCardProps> = ({
+  assetDetails,
+  assetDetailsLoading,
+}) => {
   return (
     <StyledAssetDetailsCard>
       {assetDetailsLoading || !assetDetails?.details ? (
@@ -25,7 +31,7 @@ export const AssetDetailsCard = () => {
       ) : (
         <CardContainer
           label={assetDetails?.details.isNftCollection ? 'Collection' : 'Asset'}
-          value={assetDetails.ticker}
+          value={assetDetails.assetId}
         >
           <>
             <Details details={assetDetails?.details} />

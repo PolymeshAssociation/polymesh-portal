@@ -12,7 +12,7 @@ import { AccountContext } from '~/context/AccountContext';
 import {
   EActivityTableTabs,
   IHistoricalItem,
-  ITokenItem,
+  ITransactionItem,
   INftTransactionItem,
 } from './constants';
 import { columns } from './config';
@@ -23,7 +23,7 @@ import { ITransactionsQueryResponse } from '~/constants/queries/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { parseNftTransactions } from '~/layouts/Portfolio/components/NftAssetTable/helpers';
 
-export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
+export const useActivityTable = (currentTab: EActivityTableTabs) => {
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -31,7 +31,7 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
   const [totalPages, setTotalPages] = useState(-1);
   const [totalItems, setTotalItems] = useState(0);
   const [tableData, setTableData] = useState<
-    (IHistoricalItem | ITokenItem | INftTransactionItem)[]
+    (IHistoricalItem | ITransactionItem | INftTransactionItem)[]
   >([]);
   const {
     api: { gqlClient },
@@ -40,7 +40,9 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
     useContext(AccountContext);
 
   const [tableLoading, setTableLoading] = useState(false);
-  const tabRef = useRef<string>('');
+  const tabRef = useRef<EActivityTableTabs>(
+    EActivityTableTabs.HISTORICAL_ACTIVITY,
+  );
   const identityRef = useRef<string | undefined>('');
   const accountRef = useRef<string | undefined>('');
 
@@ -173,10 +175,12 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
   );
 
   return {
-    table: useReactTable<IHistoricalItem | ITokenItem | INftTransactionItem>({
+    table: useReactTable<
+      IHistoricalItem | ITransactionItem | INftTransactionItem
+    >({
       data: tableData,
       columns: columns[currentTab] as ColumnDef<
-        IHistoricalItem | ITokenItem | INftTransactionItem
+        IHistoricalItem | ITransactionItem | INftTransactionItem
       >[],
       state: { pagination },
       manualPagination: true,
@@ -187,7 +191,7 @@ export const useActivityTable = (currentTab: `${EActivityTableTabs}`) => {
       enableSorting: false,
     }),
     paginationState: pagination,
-    tableLoading,
+    tableLoading: tableLoading || currentTab !== tabRef.current,
     totalItems,
   };
 };

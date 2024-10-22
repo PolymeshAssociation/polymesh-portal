@@ -4,9 +4,7 @@ import {
   HISTORICAL_COLUMNS,
   EActivityTableTabs,
   IHistoricalItem,
-  ITokenItem,
   IIdData,
-  TOKEN_COLUMNS,
   INftTransactionItem,
 } from './constants';
 import { StatusLabel, IdCellWrapper, IconWrapper, StyledTime } from './styles';
@@ -15,6 +13,8 @@ import { IdCell } from '~/layouts/Portfolio/components/NftAssetTable/components/
 import { DateCell } from '~/layouts/Portfolio/components/NftAssetTable/components/DateCell';
 import { NftIdsCell } from '~/layouts/Portfolio/components/NftAssetTable/components/NftIdsCell';
 import { AddressCell } from '~/layouts/Portfolio/components/NftAssetTable/components/AddressCell';
+import { AssetIdCell } from '~/layouts/Portfolio/components/NftAssetTable/components/AssetIdCell';
+import { ITransactionItem } from '~/layouts/Portfolio/components/AssetTable/constants';
 
 const createTokenActivityLink = (data: IIdData | undefined) => {
   if (!data) return '';
@@ -30,7 +30,8 @@ const createTokenActivityLink = (data: IIdData | undefined) => {
   }?event=${data.eventId}`;
 };
 
-const transactionColumnHelper = createColumnHelper<INftTransactionItem>();
+const transactionColumnHelper = createColumnHelper<ITransactionItem>();
+const nftTransactionColumnHelper = createColumnHelper<INftTransactionItem>();
 
 export const columns = {
   [EActivityTableTabs.HISTORICAL_ACTIVITY]: HISTORICAL_COLUMNS.map(
@@ -82,41 +83,57 @@ export const columns = {
       });
     },
   ),
-  [EActivityTableTabs.TOKEN_ACTIVITY]: TOKEN_COLUMNS.map(
-    ({ header, accessor }) => {
-      const key = accessor as keyof ITokenItem;
-      const columnHelper = createColumnHelper<ITokenItem>();
-      return columnHelper.accessor(key, {
-        header: () => header,
-        cell: (info) => {
-          const data = info.getValue();
-
-          if (key === 'id') {
-            const link = createTokenActivityLink(data as IIdData);
-            return (
-              <IdCell
-                link={link}
-                label={(data as IIdData)?.instructionId || '-'}
-              />
-            );
-          }
-
-          if (key === 'dateTime') {
-            if (!data) return '';
-            return <DateCell data={data as string} />;
-          }
-
-          if (key === 'to' || key === 'from') {
-            return <AddressCell address={data as string} />;
-          }
-
-          return data;
-        },
-      });
-    },
-  ),
+  [EActivityTableTabs.TOKEN_ACTIVITY]: [
+    transactionColumnHelper.accessor('id', {
+      header: 'Instruction Id',
+      enableSorting: false,
+      cell: (info) => {
+        const data = info.getValue();
+        const link = createTokenActivityLink(data);
+        return <IdCell link={link} label={data?.instructionId || '-'} />;
+      },
+    }),
+    transactionColumnHelper.accessor('dateTime', {
+      header: 'Date / Time',
+      cell: (info) => {
+        const data = info.getValue();
+        if (!data) return '';
+        return <DateCell data={data} />;
+      },
+    }),
+    transactionColumnHelper.accessor('from', {
+      header: 'From',
+      cell: (info) => {
+        const data = info.getValue();
+        return <AddressCell address={data as string} />;
+      },
+    }),
+    transactionColumnHelper.accessor('to', {
+      header: 'To',
+      cell: (info) => {
+        const data = info.getValue();
+        return <AddressCell address={data as string} />;
+      },
+    }),
+    transactionColumnHelper.accessor('tokenDetails', {
+      header: 'Name',
+      enableSorting: false,
+      cell: (info) => {
+        const tokenDetails = info.getValue();
+        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : ''}`;
+      },
+    }),
+    transactionColumnHelper.accessor('asset', {
+      header: 'Asset ID',
+      cell: (info) => <AssetIdCell assetId={info.getValue()} />,
+    }),
+    transactionColumnHelper.accessor('amount', {
+      header: 'Amount',
+      cell: (info) => info.getValue(),
+    }),
+  ],
   [EActivityTableTabs.NFT_ACTIVITY]: [
-    transactionColumnHelper.accessor('txId', {
+    nftTransactionColumnHelper.accessor('txId', {
       header: 'Instruction Id',
       enableSorting: false,
       cell: (info) => {
@@ -125,23 +142,31 @@ export const columns = {
         return <IdCell link={link} label={data?.instructionId || '-'} />;
       },
     }),
-    transactionColumnHelper.accessor('dateTime', {
+    nftTransactionColumnHelper.accessor('dateTime', {
       header: 'Date / Time',
       cell: (info) => <DateCell data={info.getValue()} />,
     }),
-    transactionColumnHelper.accessor('from', {
+    nftTransactionColumnHelper.accessor('from', {
       header: 'From',
       cell: (info) => <AddressCell address={info.getValue()} />,
     }),
-    transactionColumnHelper.accessor('to', {
+    nftTransactionColumnHelper.accessor('to', {
       header: 'To',
       cell: (info) => <AddressCell address={info.getValue()} />,
     }),
-    transactionColumnHelper.accessor('assetId', {
-      header: 'Collection',
-      cell: (info) => info.getValue(),
+    nftTransactionColumnHelper.accessor('nameAndTicker', {
+      header: 'Name',
+      enableSorting: false,
+      cell: (info) => {
+        const tokenDetails = info.getValue();
+        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : ''}`;
+      },
     }),
-    transactionColumnHelper.accessor('nftIds', {
+    nftTransactionColumnHelper.accessor('assetId', {
+      header: 'Collection',
+      cell: (info) => <AssetIdCell assetId={info.getValue()} />,
+    }),
+    nftTransactionColumnHelper.accessor('nftIds', {
       header: 'Token IDs',
       cell: (info) => <NftIdsCell info={info} />,
     }),

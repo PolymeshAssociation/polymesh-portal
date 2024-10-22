@@ -2,7 +2,7 @@ import { ExtrinsicData } from '@polymeshassociation/polymesh-sdk/types';
 import { IAssetTransaction } from '~/constants/queries/types';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import { splitCamelCase } from '~/helpers/formatters';
-import { IHistoricalItem, ITokenItem } from './constants';
+import { IHistoricalItem, ITransactionItem } from './constants';
 
 export const parseExtrinsicHistory = async (
   extrinsicHistory: ExtrinsicData[],
@@ -33,11 +33,12 @@ export const parseTokenActivity = (tokenActivity: IAssetTransaction[]) => {
       assetId,
       instructionId,
       extrinsicIdx,
-    }: IAssetTransaction) => {
+      asset,
+    }: IAssetTransaction): ITransactionItem => {
       return {
         id: {
           eventId: id.replace('/', '-'),
-          blockId: createdBlockId.toString(),
+          blockId: createdBlockId,
           extrinsicIdx,
           instructionId,
         },
@@ -46,7 +47,8 @@ export const parseTokenActivity = (tokenActivity: IAssetTransaction[]) => {
         to: toPortfolioId ? toPortfolioId.split('/')[0] : '',
         amount: amount ? (amount / 1_000_000).toString() : '0',
         asset: assetId,
+        tokenDetails: asset,
       };
     },
-  ) as ITokenItem[];
+  );
 };

@@ -9,7 +9,7 @@ import {
   StyledLegendList,
   StyledPlaceholder,
 } from './styles';
-import { stringToColor } from '~/helpers/formatters';
+import { hexToUuid, stringToColor } from '~/helpers/formatters';
 import { IAssetOption, IReducedOption } from './constants';
 import { LegendItems } from './components/LedgendItems';
 
@@ -42,8 +42,8 @@ export const AssetAllocation = () => {
     });
 
     const normalOptions: IReducedOption[] = normalAmountAssets.map(
-      ({ ticker, percentage, color }) => ({
-        ticker,
+      ({ assetId, percentage, color }) => ({
+        assetId,
         percentage,
         color,
       }),
@@ -53,7 +53,7 @@ export const AssetAllocation = () => {
       const reducedOption = smallAmountAssets.reduce((acc, { percentage }) => {
         return {
           ...acc,
-          ticker: 'Other',
+          assetId: 'Other',
           percentage: (acc.percentage || 0) + percentage,
           color: '#EC4673',
         };
@@ -77,10 +77,10 @@ export const AssetAllocation = () => {
       const reducedPortfolios = allPortfolios
         .flatMap(({ assets }) =>
           assets.map(({ asset, total }) => ({
-            ticker: asset.toHuman(),
+            assetId: hexToUuid(asset.id),
             amount: total.toNumber(),
             asset,
-            color: stringToColor(asset.toHuman()),
+            color: stringToColor(asset.id),
             percentage:
               total.toNumber() > 0
                 ? (total.toNumber() / totalAssetsAmount) * 100
@@ -88,9 +88,9 @@ export const AssetAllocation = () => {
           })),
         )
         .reduce((acc, asset) => {
-          if (acc.find(({ ticker }) => ticker === asset.ticker)) {
+          if (acc.find(({ assetId }) => assetId === asset.assetId)) {
             return acc.map((accAsset) => {
-              if (accAsset.ticker === asset.ticker) {
+              if (accAsset.assetId === asset.assetId) {
                 return {
                   ...accAsset,
                   amount: accAsset.amount + asset.amount,
@@ -120,10 +120,10 @@ export const AssetAllocation = () => {
 
       const selectedPortfolioAssetOptions = selectedPortfolio.assets.map(
         ({ asset, total }) => ({
-          ticker: asset.toHuman(),
+          assetId: hexToUuid(asset.id),
           amount: total.toNumber(),
           asset,
-          color: stringToColor(asset.toHuman()),
+          color: stringToColor(asset.id),
           percentage:
             total.toNumber() > 0 ? (total.toNumber() / totalAmount) * 100 : 0,
         }),
@@ -149,10 +149,10 @@ export const AssetAllocation = () => {
           )}
           {!!assetOptions.length && (
             <StyledPercentageBar>
-              {reducedOptions.map(({ ticker, color, percentage }) => {
+              {reducedOptions.map(({ assetId, color, percentage }) => {
                 return (
                   <StyledFraction
-                    key={ticker}
+                    key={assetId}
                     $percentage={percentage}
                     $color={color}
                   />

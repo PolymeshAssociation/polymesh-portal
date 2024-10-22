@@ -44,6 +44,10 @@ interface IMovement {
   amount?: string;
   nftIds?: string[];
   assetId: string;
+  asset: {
+    name: string;
+    ticker: string;
+  };
   createdBlock: {
     blockId: number;
     datetime: string;
@@ -87,6 +91,10 @@ export interface IAssetTransaction {
   eventIdx: number;
   instructionId: string | null;
   instructionMemo: string;
+  asset: {
+    name: string;
+    ticker: string;
+  };
 }
 
 export interface IAssetTransactions {

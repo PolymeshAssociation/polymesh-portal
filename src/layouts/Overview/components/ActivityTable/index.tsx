@@ -4,7 +4,7 @@ import { useActivityTable } from './hooks';
 import { EActivityTableTabs } from './constants';
 
 export const ActivityTable = () => {
-  const [tab, setTab] = useState<`${EActivityTableTabs}`>(
+  const [tab, setTab] = useState<EActivityTableTabs>(
     EActivityTableTabs.HISTORICAL_ACTIVITY,
   );
   const { table, tableLoading, totalItems } = useActivityTable(tab);

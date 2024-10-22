@@ -10,7 +10,7 @@ export const useNftAsset = () => {
   const [nft, setNft] = useState<INftAsset>();
   const [nftLoading, setNftLoading] = useState(true);
   const {
-    api: { sdk, polkadotApi },
+    api: { sdk },
   } = useContext(PolymeshContext);
   const { identityLoading, identity } = useContext(AccountContext);
 
@@ -22,7 +22,7 @@ export const useNftAsset = () => {
   const identityRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!sdk || !polkadotApi || identityLoading) {
+    if (!sdk || identityLoading) {
       return;
     }
 
@@ -46,7 +46,6 @@ export const useNftAsset = () => {
           portfolioId,
           identity?.did,
           sdk,
-          polkadotApi,
         );
 
         const details = await getNftDetails(
@@ -72,7 +71,6 @@ export const useNftAsset = () => {
     identityLoading,
     setSearchParams,
     sdk,
-    polkadotApi,
     identity,
   ]);
 

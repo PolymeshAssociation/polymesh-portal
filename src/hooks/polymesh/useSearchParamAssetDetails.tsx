@@ -4,19 +4,21 @@ import { useAssetDetails } from './useAssetDetails';
 
 export const useSearchParamAssetDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const asset = searchParams.get('asset') || searchParams.get('nftCollection');
-  const { assetDetailsLoading, assetDetails } = useAssetDetails(asset);
+  const assetIdentifier =
+    searchParams.get('asset') || searchParams.get('nftCollection');
+  const { assetDetailsLoading, assetDetails } =
+    useAssetDetails(assetIdentifier);
 
   // Effect to ensure the searchParam is for the correct asset type.
   useEffect(() => {
-    if (!asset || assetDetailsLoading || !assetDetails) {
+    if (!assetIdentifier || assetDetailsLoading || !assetDetails) {
       return;
     }
 
     if (searchParams.has('asset') && assetDetails.details?.isNftCollection) {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('asset');
-      newSearchParams.set('nftCollection', asset);
+      newSearchParams.set('nftCollection', assetIdentifier);
       setSearchParams(newSearchParams.toString());
       return;
     }
@@ -26,10 +28,16 @@ export const useSearchParamAssetDetails = () => {
     ) {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('nftCollection');
-      newSearchParams.set('asset', asset);
+      newSearchParams.set('asset', assetIdentifier);
       setSearchParams(newSearchParams.toString());
     }
-  }, [asset, assetDetails, assetDetailsLoading, searchParams, setSearchParams]);
+  }, [
+    assetIdentifier,
+    assetDetails,
+    assetDetailsLoading,
+    searchParams,
+    setSearchParams,
+  ]);
 
   return {
     assetDetailsLoading,

@@ -1,19 +1,20 @@
-import { CollectionKey } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  CollectionKey,
+  NftCollection,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { Nft } from '@polymeshassociation/polymesh-sdk/internal';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { PolymeshPrimitivesIdentityIdPortfolioId } from '@polymeshassociation/polymesh-sdk/polkadot/types-lookup';
 import { getNftImageUrl, getNftTokenUri } from '../../helpers';
 import { INftAsset } from './constants';
-import { padTicker } from '~/helpers/formatters';
+import { uuidToHex } from '~/helpers/formatters';
 import { notifyWarning } from '~/helpers/notifications';
 
 export const getNftCollectionAndStatus = async (
-  nftCollection: string,
+  nftCollectionIdentifier: NftCollection | string,
   nftId: string,
   portfolioId: string | null,
   did: string | undefined,
   sdk: Polymesh,
-  polkadotApi: Polymesh['_polkadotApi'],
 ): Promise<{
   nft: Nft;
   collectionKeys: CollectionKey[];
@@ -21,64 +22,61 @@ export const getNftCollectionAndStatus = async (
   ownerDid: string;
   ownerPortfolioId: string;
 }> => {
-  const collection = await sdk.assets.getNftCollection({
-    ticker: nftCollection,
-  });
-  // The polkadot api requires tickers to be exactly 12 characters long.
-  // Pad ticker with null characters to the required length.
-  const paddedTicker = padTicker(nftCollection);
+  let collection: NftCollection;
+  if (typeof nftCollectionIdentifier === 'string') {
+    if (nftCollectionIdentifier.length <= 12) {
+      collection = await sdk.assets.getNftCollection({
+        ticker: nftCollectionIdentifier,
+      });
+    } else {
+      let assetId: string;
+      if (!nftCollectionIdentifier.startsWith('0x')) {
+        assetId = uuidToHex(nftCollectionIdentifier);
+      } else {
+        assetId = nftCollectionIdentifier;
+      }
+      collection = await sdk.assets.getNftCollection({
+        assetId,
+      });
+    }
+  } else {
+    collection = nftCollectionIdentifier;
+  }
 
   const collectionKeys = (await collection.collectionKeys()) || [];
   const nft = await collection.getNft({ id: new BigNumber(nftId) });
-  const optionOwner = await polkadotApi.query.nft.nftOwner(paddedTicker, nftId);
+  const ownerPortfolio = await nft.getOwner();
 
-  if (optionOwner.isNone) {
+  if (!ownerPortfolio) {
     throw new Error(
-      `Owner not found for ${nftCollection} token ID ${nftId}. The token may have been redeemed`,
+      `Owner not found for ${collection.id} token ID ${nftId}. The token may have been redeemed`,
     );
   }
 
-  const owner =
-    // TODO remove type casting once SDK is updated with latest generated types
-    optionOwner.unwrap() as unknown as PolymeshPrimitivesIdentityIdPortfolioId;
-
-  const ownerDid = owner.did.toString();
-  const ownerPortfolioId = owner.kind.isDefault
-    ? 'default'
-    : owner.kind.asUser.toString();
+  const ownerDid = ownerPortfolio.owner.did.toString();
+  const ownerPortfolioId =
+    'id' in ownerPortfolio ? ownerPortfolio.id.toString() : 'default';
 
   if (ownerDid !== did) {
     notifyWarning(
-      `NFT ID ${nftId} of collection ${nftCollection} is not owned by the selected identity`,
+      `NFT ID ${nftId} of collection ${collection.id} is not owned by the selected identity`,
     );
   }
 
   if (portfolioId) {
-    const inPortfolio = await polkadotApi.query.portfolio.portfolioNFT(
-      {
-        did,
-        kind:
-          portfolioId === 'default' ? { default: null } : { user: portfolioId },
-      },
-      [paddedTicker, nftId],
-    );
-
-    if (inPortfolio.isFalse) {
+    if (ownerPortfolioId !== portfolioId) {
       notifyWarning(
-        `NFT ID ${nftId} of collection ${nftCollection} not found in Portfolio ID ${portfolioId}`,
+        `NFT ID ${nftId} of collection ${collection.id} not found in Portfolio ID ${portfolioId}`,
       );
     }
   }
 
-  const isLocked = await polkadotApi.query.portfolio.portfolioLockedNFT(owner, [
-    paddedTicker,
-    nftId,
-  ]);
+  const isLocked = await nft.isLocked();
 
   return {
     nft,
     collectionKeys,
-    isLocked: isLocked.isTrue,
+    isLocked,
     ownerDid,
     ownerPortfolioId,
   };

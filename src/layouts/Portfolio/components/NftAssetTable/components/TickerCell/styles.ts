@@ -10,6 +10,7 @@ export const StyledImageWrap = styled.div`
   width: 36px;
   height: 36px;
   display: flex;
+  flex-shrink: 0;
   justify-content: center;
   align-items: center;
   border-radius: 100%;
@@ -20,4 +21,15 @@ export const StyledImageWrap = styled.div`
     max-width: 100%;
     max-height: 100%;
   }
+`;
+
+export const StyledIconWrapper = styled.div<{ $background: string }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: ${({ $background }) => $background};
+  color: #ffffff;
 `;

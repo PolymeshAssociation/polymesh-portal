@@ -51,6 +51,10 @@ export const transferEventsQuery = ({
         }
         nodes {
           amount
+          asset {
+            name
+            ticker
+          }
           assetId
           nftIds
           datetime
@@ -82,7 +86,7 @@ export const portfolioMovementsQuery = ({
   portfolioNumber: string;
   type: string;
 }) => {
-  const assteDetail = type === 'Fungible' ? 'amount' : 'nftIds';
+  const assetDetail = type === 'Fungible' ? 'amount' : 'nftIds';
 
   const query = gql`
     query {
@@ -120,7 +124,11 @@ export const portfolioMovementsQuery = ({
             name
           }
           assetId
-          ${assteDetail}
+          asset {
+            name
+            ticker
+          }
+          ${assetDetail}
           address
           memo
           createdBlock {
