@@ -26,7 +26,10 @@ export const StyledNftItem = styled.div`
   border-radius: 100px;
   font-size: 14px;
   font-weight: 500;
-  color: #1e1e1e;
+  cursor: pointer;
+  &:hover {
+    background: ${({ theme }) => theme.colors.pinkBackground};
+  }
 `;
 
 export const StyledNftImage = styled.div`
@@ -145,4 +148,11 @@ export const StyledExpandedErrors = styled.ul`
     list-style: circle;
     margin-left: 8px;
   }
+`;
+
+export const StyledClickableWrapper = styled.div`
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;

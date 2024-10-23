@@ -1,7 +1,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import {
+  GenericPolymeshTransaction,
+  Instruction,
   UnsubCallback,
   Venue,
   VenueDetails,
@@ -20,11 +22,11 @@ import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import { createBasicInstructionParams } from '../helpers';
 import { useWindowWidth } from '~/hooks/utility';
-
 import AssetForm from '~/components/AssetForm';
 import { useAssetForm } from '~/components/AssetForm/hooks';
 import { MAX_NFTS_PER_LEG } from '~/components/AssetForm/constants';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
+import { PolymeshContext } from '~/context/PolymeshContext';
 
 interface IBasicFormProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -39,7 +41,18 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   const { createdVenues, instructionsLoading, refreshInstructions } =
     useContext(InstructionsContext);
   const { allPortfolios } = useContext(PortfolioContext);
+  const {
+    api: { sdk },
+  } = useContext(PolymeshContext);
 
+  const [removeSelection, setRemoveSelection] = useState<boolean>(false);
+  const [venues, setVenues] = useState<IVenueWithDetails[]>([]);
+  const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
+  const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolioData>(
+    allPortfolios[0],
+  );
+
+  const { isMobile } = useWindowWidth();
   const {
     register,
     handleSubmit,
@@ -48,14 +61,6 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     reset,
   } = useForm<IBasicFieldValues>(BASIC_FORM_CONFIG);
   const { handleStatusChange } = useTransactionStatus();
-  const [venues, setVenues] = useState<IVenueWithDetails[]>([]);
-  const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
-  const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolioData>(
-    allPortfolios[0],
-  );
-
-  const { isMobile } = useWindowWidth();
-
   const {
     assets,
     collections,
@@ -81,46 +86,86 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     })();
   }, [createdVenues, instructionsLoading]);
 
-  const handleVenueSelect = (idWithType: string) => {
-    setValue('venue', idWithType, { shouldValidate: true });
+  const venueSelectOptions = useMemo(() => {
+    return selectedVenue
+      ? [
+          'Clear selection (No Venue)',
+          ...venues.map(
+            ({ venue, details }) =>
+              `${venue.toHuman()} / ${details.description}`,
+          ),
+        ]
+      : venues.map(
+          ({ venue, details }) => `${venue.toHuman()} / ${details.description}`,
+        );
+  }, [venues, selectedVenue]);
 
-    if (!idWithType) return;
+  const handleVenueSelect = useCallback(
+    (idWithDescription: string) => {
+      if (
+        !idWithDescription ||
+        idWithDescription === 'Clear selection (No Venue)'
+      ) {
+        setRemoveSelection(true);
+        setValue('venue', '', { shouldValidate: true });
+        setSelectedVenue(null);
+        return;
+      }
+      setRemoveSelection(false);
+      setValue('venue', idWithDescription, { shouldValidate: true });
 
-    const id = idWithType.split('/')[0].trim();
-    const venueToSelect = createdVenues.find((venue) => id === venue.toHuman());
-    if (venueToSelect) {
-      setSelectedVenue(venueToSelect);
-    }
-  };
+      const id = idWithDescription.split('/')[0].trim();
+      const venueToSelect = createdVenues.find(
+        (venue) => id === venue.toHuman(),
+      );
+      if (venueToSelect) {
+        setSelectedVenue(venueToSelect);
+      }
+    },
+    [createdVenues, setValue],
+  );
 
-  const handleSenderSelect = (combinedId: string) => {
-    if (!combinedId) return;
+  const handleSenderSelect = useCallback(
+    (combinedId: string) => {
+      if (!combinedId) return;
 
-    const id = combinedId.split('/')[0].trim();
-
-    const selectedSendingPortfolio = allPortfolios.find((item) => {
-      return Number.isNaN(Number(id)) ? item.id === 'default' : item.id === id;
-    });
-    if (selectedSendingPortfolio) {
-      setSelectedPortfolio(selectedSendingPortfolio);
-    }
-  };
+      const id = combinedId.split('/')[0].trim();
+      const selectedSendingPortfolio = allPortfolios.find((item) =>
+        Number.isNaN(Number(id)) ? item.id === 'default' : item.id === id,
+      );
+      if (selectedSendingPortfolio) {
+        setSelectedPortfolio(selectedSendingPortfolio);
+      }
+    },
+    [allPortfolios],
+  );
 
   const onSubmit = async (formData: IBasicFieldValues) => {
-    if (!selectedVenue || !selectedPortfolio) return;
+    if (!selectedPortfolio || !sdk) return;
 
     let unsubCb: UnsubCallback | undefined;
 
     reset();
     toggleModal();
     try {
-      const tx = await selectedVenue.addInstruction(
-        createBasicInstructionParams({
-          selectedAssets: Object.values(selectedAssets),
-          selectedPortfolio,
-          formData,
-        }),
-      );
+      let tx: GenericPolymeshTransaction<Instruction[], Instruction>;
+      if (!selectedVenue) {
+        tx = await sdk.settlements.addInstruction(
+          createBasicInstructionParams({
+            selectedAssets: Object.values(selectedAssets),
+            selectedPortfolio,
+            formData,
+          }),
+        );
+      } else {
+        tx = await selectedVenue.addInstruction(
+          createBasicInstructionParams({
+            selectedAssets: Object.values(selectedAssets),
+            selectedPortfolio,
+            formData,
+          }),
+        );
+      }
 
       unsubCb = tx.onStatusChange((transaction) =>
         handleStatusChange(transaction),
@@ -130,37 +175,37 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     } catch (error) {
       notifyError((error as Error).message);
     } finally {
-      if (unsubCb) {
-        unsubCb();
-      }
+      if (unsubCb) unsubCb();
     }
   };
 
-  const venueSelectOptions = venues.map(
-    ({ venue, details }) => `${venue.toHuman()} / ${details.type}`,
-  );
-
-  const isDataValid =
-    isValid &&
-    !!selectedPortfolio &&
-    !!Object.keys(selectedAssets).length &&
-    !Object.values(selectedAssets).some((asset) => {
-      if ('amount' in asset) {
-        return asset.amount.toNumber() <= 0;
-      }
-      return !asset.nfts?.length;
-    });
+  const isDataValid = useMemo(() => {
+    return (
+      isValid &&
+      !!selectedPortfolio &&
+      !!Object.keys(selectedAssets).length &&
+      !Object.values(selectedAssets).some((asset) => {
+        if ('amount' in asset) {
+          return asset.amount.toNumber() <= 0;
+        }
+        return !asset.nfts?.length;
+      })
+    );
+  }, [isValid, selectedPortfolio, selectedAssets]);
 
   return (
     <>
       <InputWrapper $marginBottom={24}>
-        <DropdownSelect
-          label="Venue"
-          placeholder="Select venue"
-          onChange={handleVenueSelect}
-          options={venueSelectOptions}
-          error={errors?.venue?.message}
-        />
+        {venueSelectOptions.length > 0 && (
+          <DropdownSelect
+            label="Venue (Optional)"
+            placeholder="Select venue"
+            onChange={handleVenueSelect}
+            options={venueSelectOptions}
+            error={errors?.venue?.message}
+            removeSelection={removeSelection}
+          />
+        )}
       </InputWrapper>
       {allPortfolios.length > 1 && (
         <InputWrapper $marginBottom={24}>

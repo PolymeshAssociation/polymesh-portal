@@ -1,7 +1,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
+  GenericPolymeshTransaction,
+  Instruction,
   UnsubCallback,
   Venue,
   VenueDetails,
@@ -27,6 +29,7 @@ import { useTransactionStatus } from '~/hooks/polymesh';
 import { MAX_NFTS_PER_LEG } from '~/components/AssetForm/constants';
 import { createAdvancedInstructionParams } from '../helpers';
 import { useWindowWidth } from '~/hooks/utility';
+import { PolymeshContext } from '~/context/PolymeshContext';
 
 interface IAdvancedFormProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -41,6 +44,9 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
   const { createdVenues, instructionsLoading, refreshInstructions } =
     useContext(InstructionsContext);
   const {
+    api: { sdk },
+  } = useContext(PolymeshContext);
+  const {
     register,
     handleSubmit,
     formState: { errors, isValid },
@@ -48,6 +54,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
     reset,
   } = useForm<IAdvancedFieldValues>(ADVANCED_FORM_CONFIG);
   const { handleStatusChange } = useTransactionStatus();
+  const [removeSelection, setRemoveSelection] = useState<boolean>(false);
   const [venues, setVenues] = useState<IVenueWithDetails[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const [legIndexes, setLegIndexes] = useState<number[]>([0]);
@@ -69,84 +76,130 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
     })();
   }, [createdVenues, instructionsLoading]);
 
-  const handleVenueSelect = (idWithType: string) => {
-    setValue('venue', idWithType, { shouldValidate: true });
+  const venueSelectOptions = useMemo(() => {
+    return selectedVenue
+      ? [
+          'Clear selection (No Venue)',
+          ...venues.map(
+            ({ venue, details }) =>
+              `${venue.toHuman()} / ${details.description}`,
+          ),
+        ]
+      : venues.map(
+          ({ venue, details }) => `${venue.toHuman()} / ${details.description}`,
+        );
+  }, [venues, selectedVenue]);
 
-    if (!idWithType) return;
+  const handleVenueSelect = useCallback(
+    (idWithDescription: string) => {
+      if (
+        !idWithDescription ||
+        idWithDescription === 'Clear selection (No Venue)'
+      ) {
+        setRemoveSelection(true);
+        setValue('venue', '', { shouldValidate: true });
+        setSelectedVenue(null);
+        return;
+      }
+      setRemoveSelection(false);
+      setValue('venue', idWithDescription, { shouldValidate: true });
 
-    const id = idWithType.split('/')[0].trim();
-    const venueToSelect = createdVenues.find((venue) => id === venue.toHuman());
-    if (venueToSelect) {
-      setSelectedVenue(venueToSelect);
-    }
-  };
+      const id = idWithDescription.split('/')[0].trim();
+      const venueToSelect = createdVenues.find(
+        (venue) => id === venue.toHuman(),
+      );
+      if (venueToSelect) {
+        setSelectedVenue(venueToSelect);
+      }
+    },
+    [createdVenues, setValue],
+  );
 
-  const handleAssetSelect = (index: number, item: TSelectedLeg) => {
+  const handleAssetSelect = useCallback((index: number, item: TSelectedLeg) => {
     setSelectedLegs((prev) => {
       const newLegs = [...prev];
       newLegs[index] = item;
       return newLegs;
     });
-  };
+  }, []);
 
-  const handleAddLegField = () => {
+  const handleAddLegField = useCallback(() => {
     setLegIndexes((prev) => [...prev, prev[prev.length - 1] + 1]);
-  };
+  }, [setLegIndexes]);
 
-  const handleDeleteLegField = (index: number) => {
+  const handleDeleteLegField = useCallback((index: number) => {
     setLegIndexes((prev) => prev.filter((prevIndex) => prevIndex !== index));
 
-    const updatedAssets = selectedLegs.filter(
-      (_selectedAsset, itemIndex) => itemIndex !== index,
+    setSelectedLegs((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const isDataValid = useMemo(() => {
+    return (
+      isValid &&
+      !!selectedLegs.length &&
+      !selectedLegs.some((asset) => {
+        if ('amount' in asset) {
+          return asset.amount.toNumber() <= 0;
+        }
+        return !asset.nfts?.length || asset.nfts?.length > MAX_NFTS_PER_LEG;
+      })
     );
-    setSelectedLegs(updatedAssets);
-  };
+  }, [isValid, selectedLegs]);
 
-  const onSubmit = async (formData: IAdvancedFieldValues) => {
-    if (!selectedVenue) return;
-    let unsubCb: UnsubCallback | undefined;
-    reset();
-    toggleModal();
-    try {
-      const tx = await selectedVenue.addInstruction(
-        createAdvancedInstructionParams({ selectedLegs, formData }),
-      );
-      unsubCb = tx.onStatusChange((transaction) =>
-        handleStatusChange(transaction),
-      );
-      await tx.run();
-      refreshInstructions();
-    } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      if (unsubCb) {
-        unsubCb();
+  const onSubmit = useCallback(
+    async (formData: IAdvancedFieldValues) => {
+      if (!isDataValid || !sdk) return;
+      let unsubCb: UnsubCallback | undefined;
+      reset();
+      toggleModal();
+      try {
+        let tx: GenericPolymeshTransaction<Instruction[], Instruction>;
+        if (!selectedVenue) {
+          tx = await sdk.settlements.addInstruction(
+            createAdvancedInstructionParams({ selectedLegs, formData }),
+          );
+        } else {
+          tx = await selectedVenue.addInstruction(
+            createAdvancedInstructionParams({ selectedLegs, formData }),
+          );
+        }
+        unsubCb = tx.onStatusChange((transaction) =>
+          handleStatusChange(transaction),
+        );
+        await tx.run();
+        refreshInstructions();
+      } catch (error) {
+        notifyError((error as Error).message);
+      } finally {
+        if (unsubCb) unsubCb();
       }
-    }
-  };
-
-  const venueSelectOptions = venues.map(
-    ({ venue, details }) => `${venue.toHuman()} / ${details.type}`,
+    },
+    [
+      isDataValid,
+      sdk,
+      reset,
+      toggleModal,
+      selectedVenue,
+      refreshInstructions,
+      selectedLegs,
+      handleStatusChange,
+    ],
   );
-  const isDataValid =
-    isValid &&
-    !!selectedLegs.length &&
-    !selectedLegs.some((asset) => {
-      if ('amount' in asset) {
-        return asset.amount.toNumber() <= 0;
-      }
-      return !asset.nfts?.length || asset.nfts?.length > MAX_NFTS_PER_LEG;
-    });
 
   return (
     <>
       <InputWrapper $marginBottom={24}>
         <DropdownSelect
-          label="Venue"
-          placeholder="Select venue"
+          label="Venue (Optional)"
+          placeholder={
+            venueSelectOptions.length > 0
+              ? 'Select venue'
+              : 'No venue available. Create one to select.'
+          }
           onChange={handleVenueSelect}
           options={venueSelectOptions}
           error={errors?.venue?.message}
+          removeSelection={removeSelection}
         />
       </InputWrapper>
       <FlexInputWrapper $marginBottom={24}>

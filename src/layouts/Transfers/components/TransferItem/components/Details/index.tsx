@@ -19,7 +19,7 @@ interface IDetailsProps {
 
 interface IVenueDetails {
   description: string;
-  type: `${VenueType}`;
+  type: `${VenueType}` | 'Default';
 }
 
 export const Details: React.FC<IDetailsProps> = ({
@@ -36,7 +36,10 @@ export const Details: React.FC<IDetailsProps> = ({
     if (!data) return;
 
     (async () => {
-      const { description, type } = await data.venue.details();
+      const { description, type } = (await data.venue?.details()) || {
+        description: 'Global default venue',
+        type: 'Default',
+      };
       setVenueDetails({ description, type });
     })();
 
@@ -69,7 +72,7 @@ export const Details: React.FC<IDetailsProps> = ({
         >
           Venue ID
           <Text size="large" bold>
-            {data?.venue.toHuman()}
+            {data?.venue ? data.venue.toHuman() : 'None'}
           </Text>
           {!!venueDetails && detailsExpanded && (
             <StyledVenueDetails>

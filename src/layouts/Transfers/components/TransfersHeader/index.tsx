@@ -29,12 +29,8 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
   sortBy,
   setSortBy,
 }) => {
-  const {
-    createdVenues,
-    refreshInstructions,
-    instructionsLoading,
-    allInstructions,
-  } = useContext(InstructionsContext);
+  const { refreshInstructions, instructionsLoading, allInstructions } =
+    useContext(InstructionsContext);
   const { identityLoading, identity, isExternalConnection } =
     useContext(AccountContext);
   const [createVenueOpen, setCreateVenueOpen] = useState(false);
@@ -120,9 +116,7 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
           </Button>
           <Button
             variant="modalPrimary"
-            disabled={
-              identityLoading || !createdVenues.length || isExternalConnection
-            }
+            disabled={identityLoading || isExternalConnection}
             onClick={toggleSendAsset}
             round={!isWidescreen}
           >

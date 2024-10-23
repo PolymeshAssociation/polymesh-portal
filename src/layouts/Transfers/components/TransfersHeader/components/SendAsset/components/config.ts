@@ -25,7 +25,6 @@ export const BASIC_FORM_CONFIG = {
   },
   resolver: yupResolver(
     yup.object().shape({
-      venue: yup.string().required('Venue is required'),
       recipient: yup
         .string()
         .required('Recipient is required')
@@ -45,7 +44,6 @@ export const ADVANCED_FORM_CONFIG = {
   },
   resolver: yupResolver(
     yup.object().shape({
-      venue: yup.string().required('Venue is required'),
       tradeDate: yup.date().nullable(),
       valueDate: yup.date().nullable(),
       memo: yup.string().max(32, 'Memo must be 32 characters or less'),

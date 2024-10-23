@@ -17,8 +17,14 @@ import {
   StyledNftsWrapper,
   StyledNftItem,
   StyledNftImage,
+  StyledClickableWrapper,
 } from './styles';
-import { formatBalance, formatDid } from '~/helpers/formatters';
+import {
+  formatBalance,
+  formatDid,
+  formatUuid,
+  hexToUuid,
+} from '~/helpers/formatters';
 import {
   EInstructionDirection,
   getAffirmationStatus,
@@ -106,7 +112,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
         sendingName: fromName || 'Default',
         receivingDid: to.owner.did,
         receivingName: toName || 'Default',
-        asset: asset.ticker,
+        asset: hexToUuid(asset.id),
         direction: getLegDirection({ from, to, identity }),
         amount,
         nfts,
@@ -126,12 +132,22 @@ export const InstructionLeg: React.FC<ILegProps> = ({
           </Text>
         </StyledInfoItem>
         <StyledInfoItem>
-          Asset
+          Asset ID
           <StyledInfoValue>
-            <Icon name="Coins" size="16px" />
-            <Text size="large" bold>
-              {legDetails.asset}
-            </Text>
+            <StyledClickableWrapper
+              onClick={() =>
+                window.open(
+                  `${window.location.origin}/portfolio?asset=${legDetails.asset}`,
+                  '_blank',
+                )
+              }
+            >
+              <Icon name="Coins" size="16px" />
+              <Text size="large" bold>
+                {formatUuid(legDetails.asset)}
+              </Text>
+            </StyledClickableWrapper>
+            <CopyToClipboard value={legDetails.asset} />
           </StyledInfoValue>
         </StyledInfoItem>
         <StyledInfoItem>
@@ -208,11 +224,19 @@ export const InstructionLeg: React.FC<ILegProps> = ({
       </StyledLeg>
       {!!legDetails.nfts?.length && (
         <StyledNftsWrapper>
-          <span>Asset ID ({legDetails?.nfts?.length}):</span>
+          <span>NFT ID ({legDetails?.nfts?.length}):</span>
           {legDetails.nfts
             .sort((a, b) => a.id - b.id)
             .map((nft) => (
-              <StyledNftItem key={nft.id}>
+              <StyledNftItem
+                key={nft.id}
+                onClick={() =>
+                  window.open(
+                    `${window.location.origin}/portfolio?nftCollection=${legDetails.asset}&nftId=${nft.id}`,
+                    '_blank',
+                  )
+                }
+              >
                 <StyledNftImage>
                   {nft.imgUrl ? (
                     <img src={nft.imgUrl} alt={nft.id.toString()} />

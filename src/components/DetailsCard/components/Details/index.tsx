@@ -98,9 +98,9 @@ export const Details: React.FC<IDetailsProps> = ({ details }) => {
           propValue={isFrozen ? 'Yes' : 'No'}
         />
         <PropertiesItem
-          propKey="Venue filtering status"
+          propKey="Transfer Venue Restrictions"
           propValue={venueFilteringEnabled ? 'Enabled' : 'Disabled'}
-          propDescription="When enabled only the permitted settlement venues can create instructions containing this asset"
+          propDescription="When enabled only the permitted venues can create instructions containing this asset"
         />
         {permittedVenuesIds.length > 0 && (
           <PropertiesItem
@@ -108,7 +108,7 @@ export const Details: React.FC<IDetailsProps> = ({ details }) => {
             propValue={permittedVenuesIds
               .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
               .join(', ')}
-            propDescription="ID's for venues allowed to create instructions for the selected asset"
+            propDescription="ID's for venues allowed to create transfer instructions for the selected asset"
           />
         )}
         {requiredMediators.length > 0 && (
