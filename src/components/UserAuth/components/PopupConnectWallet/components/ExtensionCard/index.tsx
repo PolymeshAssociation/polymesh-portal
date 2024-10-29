@@ -23,7 +23,12 @@ export const ExtensionCard = ({ wallet }: IExtensionCardProps) => {
   const { isMobileDevice } = useAuthContext();
 
   return (
-    <ActionCard hovered>
+    <ActionCard
+      hovered
+      data-event-category="onboarding"
+      data-event-action="wallet-select"
+      data-event-name={`${wallet.walletName.toLowerCase()}`}
+    >
       <StyledExtensionName $isMobile={isMobileDevice}>
         <Icon
           name={wallet.iconName}

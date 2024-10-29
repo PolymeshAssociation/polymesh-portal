@@ -120,6 +120,9 @@ export const ProviderSelect = () => {
       <SecondaryButton
         label="I need to onboard as a business"
         handleClick={() => setShowContactUs(true)}
+        data-event-category="onboarding"
+        data-event-action="cdd-select"
+        data-event-name="business"        
       />
       {showContactUs && (
         <StyledContactUsContainer>
@@ -127,6 +130,9 @@ export const ProviderSelect = () => {
           <SecondaryButton
             label="complete our contact form"
             handleClick={handleContactFormClick}
+            data-event-category="onboarding"
+            data-event-action="cdd-select"
+            data-event-name="business-form"        
           />{' '}
           to indicate your desire to onboard your business to Polymesh. To
           expedite the process, include &quot;Business onboarding&quot; in the

@@ -43,6 +43,9 @@ export const ManualConnect = () => {
       <PopupActionButtons
         onProceed={handleManualWalletConnect}
         onGoBack={() => setConnectPopup('extensions')}
+        data-event-category="onboarding"
+        data-event-name="connect-manual-view"
+        proceedTag="wallet-proceed"
         canProceed={!error && !!value}
       />
     </>

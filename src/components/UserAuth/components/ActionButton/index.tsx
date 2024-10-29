@@ -13,6 +13,7 @@ interface IActionButtonProps {
   icon: 'ConnectWalletIcon' | 'ConnectIdentityIcon';
   status: EActionButtonStatus;
   handleClick: () => void;
+  [key: string]: any; // Accept any additional props
 }
 
 export const ActionButton = ({
@@ -21,6 +22,7 @@ export const ActionButton = ({
   icon,
   status,
   handleClick,
+  ...props
 }: IActionButtonProps) => {
   const handleButtonClick = () => {
     if (status === EActionButtonStatus.ACTION_DISABLED) {
@@ -32,7 +34,11 @@ export const ActionButton = ({
   return (
     <StyledActionButtonWrapper>
       <StyledActionLabel>{title}</StyledActionLabel>
-      <StyledActionButton $status={status} onClick={handleButtonClick}>
+      <StyledActionButton
+        $status={status}
+        onClick={handleButtonClick}
+        {...props} // Set the tracking attributes
+      >
         <Icon name={icon} size="24px" className="icon" />
         <StyledActionLabelWrap>
           {status === EActionButtonStatus.ACTION_PENDING ? (

@@ -27,7 +27,12 @@ export const ProviderCard = ({ provider, isTestnet }: IProviderCardProps) => {
   }
 
   return (
-    <ActionCard hovered>
+    <ActionCard
+      hovered
+      data-event-category="onboarding"
+      data-event-action="cdd-select"
+      data-event-name={`${provider.name.toLowerCase()}`}
+    >
       <StyledProviderContainer>
         <Icon name={provider.icon} size={windowWidth > 420 ? '88px' : '60px'} />
         <StyledProviderInfo>
