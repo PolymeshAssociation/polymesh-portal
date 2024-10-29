@@ -69,6 +69,8 @@ export const BusinessAccountForm = ({
         onProceed={handleSubmit}
         onGoBack={handleGoBack}
         proceedLabel="Contact Us"
+        data-event-category="onboarding"
+        data-event-name="contact-us-view"        
         canProceed={!nameError && !!name && !emailError && !!email}
         aligned
       />

@@ -118,6 +118,9 @@ export const NewsModal = () => {
             className="subscribe-btn"
             disabled={!email || !!error || !termsAccepted || needToCheck}
             onClick={handleSubscribe}
+            data-event-category="newsletter"
+            data-event-action="subscribe"
+            data-event-name="newsletter-view"
           >
             Subscribe
           </Button>

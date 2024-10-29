@@ -10,6 +10,7 @@ const Button: React.FC<IButtonProps> = ({
   disabled,
   className,
   round,
+  ...props
 }) => {
   return (
     <StyledButton
@@ -21,6 +22,7 @@ const Button: React.FC<IButtonProps> = ({
       disabled={disabled}
       className={className}
       $round={round}
+      {...props}
     >
       {children}
     </StyledButton>

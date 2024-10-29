@@ -43,7 +43,13 @@ export const PopupWelcome = () => {
             To use Polymesh, create a new wallet or connect an existing one.
           </Text>
           <StyledButtonsContainer>
-            <Button onClick={handleProceed} variant="modalSecondary">
+            <Button
+              onClick={handleProceed}
+              variant="modalSecondary"
+              data-event-category="onboarding"
+              data-event-action="connect-wallet"
+              data-event-name="welcome-view"
+            >
               Connect Wallet Now
             </Button>
           </StyledButtonsContainer>

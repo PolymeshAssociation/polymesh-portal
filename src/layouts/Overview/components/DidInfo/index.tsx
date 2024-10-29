@@ -242,6 +242,9 @@ export const DidInfo = () => {
                       : 'providers',
                 })
               }
+              data-event-category="onboarding"
+              data-event-action="verify-identity"
+              data-event-name="did-view"
             >
               Complete onboarding
             </Button>
