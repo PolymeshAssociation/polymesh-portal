@@ -8,6 +8,9 @@ interface IPopupActionButtonsProps {
   canProceed?: boolean;
   onProceed?: () => void;
   onGoBack?: () => void;
+  proceedTag?: string;
+  goBackTag?: string;
+  [key: string]: any; // Accept any additional props
 }
 
 export const PopupActionButtons = ({
@@ -17,11 +20,19 @@ export const PopupActionButtons = ({
   canProceed = true,
   onProceed = undefined,
   onGoBack = undefined,
+  proceedTag = undefined,
+  goBackTag = undefined,
+  ...props
 }: IPopupActionButtonsProps) => {
   return (
     <StyledActionButtonsWrap $aligned={aligned}>
       {onGoBack && (
-        <Button onClick={onGoBack} variant="modalSecondary">
+        <Button
+          onClick={onGoBack}
+          variant="modalSecondary"
+          {...props}
+          data-event-action={goBackTag ?? goBackLabel.toLowerCase()}
+        >
           {goBackLabel}
         </Button>
       )}
@@ -31,6 +42,8 @@ export const PopupActionButtons = ({
           onClick={onProceed}
           variant="modalPrimary"
           disabled={!canProceed}
+          {...props}
+          data-event-action={proceedTag ?? proceedLabel.toLowerCase()}
         >
           {proceedLabel}
         </Button>

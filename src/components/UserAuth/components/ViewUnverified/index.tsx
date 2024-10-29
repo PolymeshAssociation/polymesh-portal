@@ -49,6 +49,9 @@ export const ViewUnverified = () => {
               ? EActionButtonStatus.ACTION_DONE
               : EActionButtonStatus.ACTION_ACTIVE
           }
+          data-event-category="onboarding"
+          data-event-action="connect-wallet"
+          data-event-name="unverified-view"
           handleClick={() => setConnectPopup('extensions')}
         />
         <ActionButton
@@ -60,6 +63,9 @@ export const ViewUnverified = () => {
           label="Verify Identity"
           icon="ConnectIdentityIcon"
           status={getIdentityButtonStatus()}
+          data-event-category="onboarding"
+          data-event-action="verify-identity"
+          data-event-name="unverified-view"
           handleClick={() =>
             setIdentityPopup({
               type:

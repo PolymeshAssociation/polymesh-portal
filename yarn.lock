@@ -5824,6 +5824,11 @@ valtio@1.11.2:
     proxy-compare "2.5.1"
     use-sync-external-store "1.2.0"
 
+vite-plugin-html-injection@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/vite-plugin-html-injection/-/vite-plugin-html-injection-1.4.2.tgz#88e48aa584b7995bc77af3ad0ccc32d05832eb4c"
+  integrity sha512-bFK9SauFsiOdcbWsF0JdNIPAgZ3t2vnojkh+SGd/AMrFKIYCB7rSw7+WhPnWcwor9aCgpdDvsjU9df3Ke6MlDQ==
+
 vite-plugin-svgr@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/vite-plugin-svgr/-/vite-plugin-svgr-3.3.0.tgz#024f083c0f0831497d8507b82e49a8ee2b29701a"
