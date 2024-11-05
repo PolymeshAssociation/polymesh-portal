@@ -16,8 +16,9 @@ import {
   StyledDetailItem,
   StyledDetailValue,
   StyledExpiryTime,
+  StyledClickableWrapper,
 } from './styles';
-import { formatDid, hexToUuid } from '~/helpers/formatters';
+import { formatDid } from '~/helpers/formatters';
 
 function getTickerPermissions(permissions: Permissions) {
   const tickerPermission =
@@ -29,7 +30,7 @@ function getTickerPermissions(permissions: Permissions) {
   if (permissions.assets) {
     if (permissions.assets.values.length) {
       tickerPermissionDetails = permissions.assets.values.map((asset) => {
-        return hexToUuid(asset.id);
+        return asset.id;
       });
     } else {
       tickerPermissionDetails = ['None'];
@@ -210,7 +211,7 @@ const parseDetails = async (
         {
           permission: 'Asset',
           type: null,
-          details: [hexToUuid(details.value.assetId)],
+          details: [details.value.assetId],
         },
         {
           permission: 'Agent Group',
@@ -237,7 +238,7 @@ const parseDetails = async (
         {
           permission: 'Asset',
           type: null,
-          details: [hexToUuid(details.value)],
+          details: [details.value],
         },
       ];
 
@@ -277,6 +278,7 @@ const parseDetails = async (
 export const renderDetails = async (
   staticData: HumanReadable,
   rawData: AuthorizationRequest,
+  onAssetClick: (assetId: string) => void,
 ) => {
   const parsedDetails = await parseDetails(staticData, rawData);
 
@@ -286,18 +288,32 @@ export const renderDetails = async (
         permission ? (
           <StyledDetailItem key={permission}>
             {permission}:
-            {details.map((detail) => (
-              <StyledDetailValue key={detail}>
-                {detail.length === 66 || detail.length === 48 ? (
-                  <>
-                    {formatDid(detail, 6, 7)}
+            {details.map((detail) => {
+              if (permission.includes('Asset')) {
+                return (
+                  <StyledDetailValue key={detail}>
+                    <StyledClickableWrapper
+                      onClick={() => onAssetClick(detail)}
+                    >
+                      {detail}
+                    </StyledClickableWrapper>
                     <CopyToClipboard value={detail} />
-                  </>
-                ) : (
-                  detail
-                )}
-              </StyledDetailValue>
-            ))}
+                  </StyledDetailValue>
+                );
+              }
+              return (
+                <StyledDetailValue key={detail}>
+                  {detail.length === 66 || detail.length === 48 ? (
+                    <>
+                      {formatDid(detail, 6, 7)}
+                      <CopyToClipboard value={detail} />
+                    </>
+                  ) : (
+                    detail
+                  )}
+                </StyledDetailValue>
+              );
+            })}
           </StyledDetailItem>
         ) : null,
       )}

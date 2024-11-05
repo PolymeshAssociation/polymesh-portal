@@ -1,4 +1,5 @@
 import { Nft } from '@polymeshassociation/polymesh-sdk/types';
+import { asUuid } from '@polymeshassociation/polymesh-sdk/utils/internal';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 import { getNftImageUrl } from '../../helpers';
 
@@ -19,7 +20,7 @@ export const parseCollectionFromPortfolio = async (
 ) => {
   const collectionsList = await portfolio.getCollections();
   const currectCollection = collectionsList.find(
-    ({ collection }) => collection.id === nftCollection,
+    ({ collection }) => collection.id === asUuid(nftCollection),
   );
 
   if (!currectCollection) {

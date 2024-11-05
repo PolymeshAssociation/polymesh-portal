@@ -1,4 +1,5 @@
 import { Nft } from '@polymeshassociation/polymesh-sdk/types';
+import { hexToUuid } from '@polymeshassociation/polymesh-sdk/utils';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 import {
   IMovementQueryResponse,
@@ -128,7 +129,7 @@ export const parseNftMovements = ({
   (portfolioMovements.nodes.map(
     ({ id, nftIds, asset, assetId, from, to, createdBlock }) => ({
       movementId: id.replace('/', '-'),
-      collection: assetId,
+      collection: hexToUuid(assetId),
       nameAndTicker: asset,
       dateTime: toParsedDateTime(createdBlock.datetime),
       from: from.name || 'Default',
@@ -164,7 +165,7 @@ export const parseNftTransactions = (
           dateTime: toParsedDateTime(datetime),
           from: fromPortfolioId ? fromPortfolioId.split('/')[0] : '',
           to: toPortfolioId ? toPortfolioId.split('/')[0] : '',
-          assetId,
+          assetId: hexToUuid(assetId),
           nftIds,
           nameAndTicker: asset,
         };

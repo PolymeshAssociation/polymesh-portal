@@ -143,3 +143,10 @@ export const StyledExpiryTime = styled.span`
   font-weight: 400;
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
+
+export const StyledClickableWrapper = styled.span`
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;

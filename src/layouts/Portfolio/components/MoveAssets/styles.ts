@@ -10,7 +10,7 @@ export const StyledAddButton = styled.button`
   height: 40px;
   padding: 0 16px;
   background-color: transparent;
-  color: #170087;
+  color: ${({ theme }) => theme.colors.textBlue};
 
   &:disabled {
     color: ${({ theme }) => theme.colors.textDisabled};

@@ -35,7 +35,7 @@ import {
   AuthTypesWithRequiredEntity,
 } from './constants';
 import { useWindowWidth } from '~/hooks/utility';
-import { hexToUuid, splitCamelCase } from '~/helpers/formatters';
+import { splitCamelCase } from '~/helpers/formatters';
 
 interface IAddNewAuthProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -301,11 +301,11 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
                                           <StyledTypeOption
                                             key={entity.id}
                                             onClick={() => {
-                                              onChange(hexToUuid(entity.id));
+                                              onChange(entity.id);
                                               trigger(id as keyof IFieldValues);
                                             }}
                                           >
-                                            {hexToUuid(entity.id)}
+                                            {entity.id}
                                           </StyledTypeOption>
                                         );
                                       }

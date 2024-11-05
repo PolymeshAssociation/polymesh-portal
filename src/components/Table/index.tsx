@@ -111,7 +111,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
   );
 
   const renderDesktopTable = () => (
-    <StyledTableBody $colsNumber={colsNumber} $withTitle={!!title}>
+    <StyledTableBody $withTitle={!!title}>
       <thead>
         <tr>
           {tableHeaders.map((header) => (

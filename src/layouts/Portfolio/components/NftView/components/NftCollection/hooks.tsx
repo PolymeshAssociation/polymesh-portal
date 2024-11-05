@@ -9,7 +9,6 @@ import {
   parseCollectionFromPortfolio,
   parseCollectionFromPortfolios,
 } from './helpers';
-import { uuidToHex } from '~/helpers/formatters';
 
 export const useNftCollection = (assetId?: string) => {
   const [nftList, setNftList] = useState<INftListItem[]>([]);
@@ -17,7 +16,7 @@ export const useNftCollection = (assetId?: string) => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
-  const nftCollection = assetId && uuidToHex(assetId); // searchParams.get('nftCollection');
+  const nftCollection = assetId || searchParams.get('nftCollection');
 
   const { identity, identityLoading } = useContext(AccountContext);
   const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);

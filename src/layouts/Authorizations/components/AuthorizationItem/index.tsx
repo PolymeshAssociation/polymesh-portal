@@ -24,6 +24,7 @@ import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatus } from '~/hooks/polymesh';
 import { AccountContext } from '~/context/AccountContext';
 import { useWindowWidth } from '~/hooks/utility';
+import { AssetDetailsModal } from '~/components/AssetDetailsModal';
 
 interface IAuthorizationItemProps {
   data: HumanReadable;
@@ -42,6 +43,8 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [acceptInProgress, setAcceptInProgress] = useState(false);
   const [rejectInProgress, setRejectInProgress] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
   const { handleStatusChange } = useTransactionStatus();
   const { refreshAccountIdentity, isExternalConnection } =
     useContext(AccountContext);
@@ -51,16 +54,30 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
 
   const isSmallScreen = isMobile || isTablet;
 
-  // Async render details for getting portfolio name
+  const handleAssetClick = (assetId: string) => {
+    setSelectedAsset(assetId);
+    setModalOpen(true);
+  };
+
   useEffect(() => {
     if (!data || !rawData) return;
     (async () => {
-      const detailsMarkup = await renderDetails(data, rawData);
+      const detailsMarkup = await renderDetails(
+        data,
+        rawData,
+        handleAssetClick,
+      );
       setDetails(detailsMarkup);
     })();
   }, [data, rawData]);
 
+  const toggleModal = () => {
+    setModalOpen(false);
+    setSelectedAsset(null);
+  };
+
   const toggleDetails = () => setDetailsExpanded((prev) => !prev);
+
   const handleAccept = async () => {
     if (!accept) return;
 
@@ -82,6 +99,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
       }
     }
   };
+
   const handleReject = async () => {
     let unsubCb: UnsubCallback | undefined;
     try {
@@ -183,6 +201,10 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
           Details
         </Button>
       </StyledButtonsWrapper>
+
+      {isModalOpen && selectedAsset && (
+        <AssetDetailsModal asset={selectedAsset} toggleModal={toggleModal} />
+      )}
     </StyledItemWrapper>
   );
 };

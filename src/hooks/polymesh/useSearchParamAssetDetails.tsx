@@ -19,7 +19,7 @@ export const useSearchParamAssetDetails = () => {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('asset');
       newSearchParams.set('nftCollection', assetIdentifier);
-      setSearchParams(newSearchParams.toString());
+      setSearchParams(newSearchParams.toString(), { replace: true });
       return;
     }
     if (
@@ -29,7 +29,7 @@ export const useSearchParamAssetDetails = () => {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('nftCollection');
       newSearchParams.set('asset', assetIdentifier);
-      setSearchParams(newSearchParams.toString());
+      setSearchParams(newSearchParams.toString(), { replace: true });
     }
   }, [
     assetIdentifier,

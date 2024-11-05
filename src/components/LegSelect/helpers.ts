@@ -23,8 +23,8 @@ export const getPortfolioDataFromIdentity = async (
   const numberedP = portfolios
     .filter((_, idx) => idx !== 0)
     .sort((a, b) => {
-      const first = (a as NumberedPortfolio).toHuman().id as string;
-      const second = (b as NumberedPortfolio).toHuman().id as string;
+      const first = (a as NumberedPortfolio).id.toString();
+      const second = (b as NumberedPortfolio).id.toString();
       return first.localeCompare(second);
     }) as NumberedPortfolio[];
 
@@ -44,7 +44,7 @@ export const getPortfolioDataFromIdentity = async (
 
       return {
         name: await (portfolio as NumberedPortfolio).getName(),
-        id: (portfolio as NumberedPortfolio).toHuman().id as string,
+        id: (portfolio as NumberedPortfolio).id.toString(),
         ...data,
       };
     }),
@@ -73,9 +73,8 @@ export const getTotalSelectedInSamePortfolio = ({
 }) => {
   const totalSameAssets = selectedLegs.filter((leg) => {
     return (
-      leg.asset === asset.toHuman() &&
-      (leg.from as DefaultPortfolio | NumberedPortfolio).toHuman().did ===
-        sender
+      leg.asset === asset.id &&
+      (leg.from as DefaultPortfolio | NumberedPortfolio).owner.did === sender
     );
   });
 
@@ -92,7 +91,7 @@ export const getTotalSelectedInSamePortfolio = ({
       }
       if (
         from instanceof NumberedPortfolioInstance &&
-        from.toHuman().id === portfolioId
+        from.id.toString() === portfolioId
       ) {
         return acc + amount.toNumber();
       }

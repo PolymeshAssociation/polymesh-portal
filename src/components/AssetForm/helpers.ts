@@ -2,6 +2,7 @@ import {
   DefaultPortfolio,
   NumberedPortfolio,
   Nft,
+  NftCollection,
 } from '@polymeshassociation/polymesh-sdk/types';
 import {
   ICombinedPortfolioData,
@@ -29,15 +30,13 @@ export const parseCollectionsFromSinglePortfolio = async (
 ): Promise<IParsedCollectionData> => {
   const nfts = {} as Record<string, INft[]>;
   const collectionList = await portfolio.getCollections();
-  const parsedList = await Promise.all(
+  const collections = await Promise.all(
     collectionList.map(async ({ collection, free }) => {
       const parsedNfts = await parseNftsFromCollection(free);
       nfts[collection.id] = parsedNfts;
-      return collection.id;
+      return collection;
     }),
   );
-
-  const collections = [...new Set(parsedList)];
 
   return { collections, nfts };
 };
@@ -46,37 +45,31 @@ export const parseCollectionsFromCombinedPortfolio = async (
   portfolios: (DefaultPortfolio | NumberedPortfolio)[],
 ) => {
   const data = await Promise.all(
-    portfolios.map(async (portfolio) => {
-      const parsedPortfolio =
-        await parseCollectionsFromSinglePortfolio(portfolio);
-      return parsedPortfolio;
-    }),
+    portfolios.map(parseCollectionsFromSinglePortfolio),
   );
 
-  const parsedData = data.reduce(
-    (acc, elem) => {
-      const nftCollection = Object.keys(elem.nfts).reduce((nftAcc, nft) => {
-        if (Object.keys(nftAcc).includes(nft)) {
-          return {
-            ...nftAcc,
-            [nft]: [...nftAcc[nft], ...elem.nfts[nft]],
-          };
-        }
-        return {
-          ...nftAcc,
-          [nft]: elem.nfts[nft],
-        };
-      }, acc.nfts);
+  const collectionMap = new Map<string, NftCollection>();
+  const nftRecord: Record<string, INft[]> = {};
 
-      return {
-        collections: [...new Set([...acc.collections, ...elem.collections])],
-        nfts: nftCollection,
-      };
-    },
-    { collections: [], nfts: {} } as IParsedCollectionData,
-  );
+  data.forEach((elem) => {
+    // Accumulate unique collections by ID
+    elem.collections.forEach((collection) => {
+      collectionMap.set(collection.id, collection);
+    });
 
-  return parsedData;
+    // Accumulate NFTs by collection ID
+    Object.entries(elem.nfts).forEach(([collectionId, nfts]) => {
+      if (!nftRecord[collectionId]) {
+        nftRecord[collectionId] = [];
+      }
+      nftRecord[collectionId].push(...nfts);
+    });
+  });
+
+  return {
+    collections: Array.from(collectionMap.values()),
+    nfts: nftRecord,
+  } as IParsedCollectionData;
 };
 
 export const parseCollections = async (

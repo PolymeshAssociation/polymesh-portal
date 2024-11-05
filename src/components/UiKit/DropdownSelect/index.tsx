@@ -14,7 +14,7 @@ import {
 interface IDropdownSelectProps {
   placeholder: string;
   error: string | undefined;
-  onChange: (option: string) => void;
+  onChange: (option: string | null) => void;
   options: string[];
   label?: string;
   selected?: string;
@@ -43,6 +43,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
   const [searchFilter, setSearchFilter] = useState<string>('');
   const ref = useRef<HTMLDivElement>(null);
   const selectedRef = useRef<HTMLButtonElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!selectExpanded) return undefined;
@@ -51,7 +52,8 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
       if (ref.current && !ref.current.contains(event.target as Node | null)) {
         setSelectExpanded(false);
         if (!selectedOption) {
-          onChange('');
+          setSearchFilter('');
+          onChange(null);
         }
       }
     };
@@ -63,7 +65,12 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
   }, [onChange, selectedOption, selectExpanded]);
 
   const handleDropdownToggle = (option?: string) => {
-    setSelectExpanded((prev) => !prev);
+    setSelectExpanded((prev) => {
+      if (prev) {
+        searchInputRef.current?.blur();
+      }
+      return !prev;
+    });
     if (option) {
       onChange(option);
     }
@@ -100,6 +107,24 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
         )
       : selectedOption;
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      if (searchFilter === '') {
+        // If no search filter, just close the dropdown and retain the previous value
+        setSelectExpanded(false);
+      } else if (dropdownOptions.length > 0) {
+        // If there is a search filter and options are available, select the first option
+        const firstOption = dropdownOptions[0];
+        setSelectedOption(firstOption);
+        handleDropdownToggle(firstOption);
+      } else {
+        setSelectExpanded(false);
+      }
+      setSearchFilter('');
+      searchInputRef.current?.blur();
+    }
+  };
+
   return (
     <div>
       {!!label && <StyledLabel>{label}</StyledLabel>}
@@ -112,6 +137,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
         >
           {enableSearch ? (
             <StyledSearch
+              ref={searchInputRef}
               placeholder={placeholder}
               onChange={({ target }) => {
                 if (!selectExpanded) {
@@ -120,7 +146,8 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
                 setSelectedOption('');
                 setSearchFilter(target.value);
               }}
-              value={displayedOption || searchFilter}
+              onKeyDown={handleKeyDown}
+              value={selectExpanded ? searchFilter : displayedOption}
             />
           ) : (
             displayedOption || placeholder

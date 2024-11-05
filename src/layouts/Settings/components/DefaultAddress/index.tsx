@@ -39,8 +39,8 @@ export const DefaultAddress = () => {
     toggleModal();
   };
 
-  const handleDropdownSelect = (option: string) => {
-    setNewDefaultAddress(option);
+  const handleDropdownSelect = (option: string | null) => {
+    setNewDefaultAddress(option || '');
     setShouldRemember(false);
   };
 

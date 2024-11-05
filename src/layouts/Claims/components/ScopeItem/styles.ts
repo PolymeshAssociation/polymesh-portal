@@ -130,3 +130,10 @@ export const StyledSortSelect = styled.div`
     background-color: ${({ theme }) => theme.colors.modalBackground};
   }
 `;
+
+export const StyledClickableWrapper = styled.span`
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;

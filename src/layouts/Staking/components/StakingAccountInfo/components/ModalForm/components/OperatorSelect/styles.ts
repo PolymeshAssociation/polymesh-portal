@@ -97,6 +97,7 @@ export const StyledIconWrapper = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
+  color: ${({ theme }) => theme.colors.textPink};
 `;
 
 export const StyledExpandIconWrapper = styled.div<{ $expanded: boolean }>`

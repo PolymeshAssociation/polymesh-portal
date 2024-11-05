@@ -9,7 +9,7 @@ import {
   StyledLegendList,
   StyledPlaceholder,
 } from './styles';
-import { hexToUuid, stringToColor } from '~/helpers/formatters';
+import { stringToColor } from '~/helpers/formatters';
 import { IAssetOption, IReducedOption } from './constants';
 import { LegendItems } from './components/LedgendItems';
 
@@ -77,7 +77,7 @@ export const AssetAllocation = () => {
       const reducedPortfolios = allPortfolios
         .flatMap(({ assets }) =>
           assets.map(({ asset, total }) => ({
-            assetId: hexToUuid(asset.id),
+            assetId: asset.id,
             amount: total.toNumber(),
             asset,
             color: stringToColor(asset.id),
@@ -120,7 +120,7 @@ export const AssetAllocation = () => {
 
       const selectedPortfolioAssetOptions = selectedPortfolio.assets.map(
         ({ asset, total }) => ({
-          assetId: hexToUuid(asset.id),
+          assetId: asset.id,
           amount: total.toNumber(),
           asset,
           color: stringToColor(asset.id),

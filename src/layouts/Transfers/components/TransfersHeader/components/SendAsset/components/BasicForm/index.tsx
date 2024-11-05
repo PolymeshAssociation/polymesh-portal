@@ -48,9 +48,8 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   const [removeSelection, setRemoveSelection] = useState<boolean>(false);
   const [venues, setVenues] = useState<IVenueWithDetails[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
-  const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolioData>(
-    allPortfolios[0],
-  );
+  const [selectedPortfolio, setSelectedPortfolio] =
+    useState<IPortfolioData | null>(allPortfolios[0]);
 
   const { isMobile } = useWindowWidth();
   const {
@@ -66,6 +65,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     collections,
     selectedAssets,
     getAssetBalance,
+    nfts,
     getNftsPerCollection,
     handleDeleteAsset,
     handleSelectAsset,
@@ -101,7 +101,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   }, [venues, selectedVenue]);
 
   const handleVenueSelect = useCallback(
-    (idWithDescription: string) => {
+    (idWithDescription: string | null) => {
       if (
         !idWithDescription ||
         idWithDescription === 'Clear selection (No Venue)'
@@ -126,18 +126,27 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   );
 
   const handleSenderSelect = useCallback(
-    (combinedId: string) => {
-      if (!combinedId) return;
-
+    (combinedId: string | null) => {
+      if (!combinedId) {
+        setSelectedPortfolio(null);
+        setValue('senderPortfolio', '', { shouldValidate: true });
+        return;
+      }
       const id = combinedId.split('/')[0].trim();
       const selectedSendingPortfolio = allPortfolios.find((item) =>
         Number.isNaN(Number(id)) ? item.id === 'default' : item.id === id,
       );
       if (selectedSendingPortfolio) {
         setSelectedPortfolio(selectedSendingPortfolio);
+        setValue('senderPortfolio', selectedSendingPortfolio.id, {
+          shouldValidate: true,
+        });
+      } else {
+        setSelectedPortfolio(null);
+        setValue('senderPortfolio', '', { shouldValidate: true });
       }
     },
-    [allPortfolios],
+    [allPortfolios, setValue],
   );
 
   const onSubmit = async (formData: IBasicFieldValues) => {
@@ -218,7 +227,13 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
               id === 'default' ? name : `${id} / ${name}`,
             )}
             error={undefined}
+            enableSearch
           />
+          {!!errors?.senderPortfolio?.message && (
+            <StyledErrorMessage>
+              {errors?.senderPortfolio?.message as string}
+            </StyledErrorMessage>
+          )}
         </InputWrapper>
       )}
       <InputWrapper $marginBottom={24}>
@@ -253,6 +268,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
           assets={assets}
           collections={collections}
           portfolioName={selectedPortfolio?.name || ''}
+          nfts={nfts}
           getNftsPerCollection={getNftsPerCollection}
           handleDeleteAsset={handleDeleteAsset}
           handleSelectAsset={handleSelectAsset}

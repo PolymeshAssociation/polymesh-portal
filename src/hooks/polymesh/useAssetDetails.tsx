@@ -9,7 +9,7 @@ import {
 import { NftCollection } from '@polymeshassociation/polymesh-sdk/internal';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
-import { hexToUuid, splitCamelCase, uuidToHex } from '~/helpers/formatters';
+import { splitCamelCase } from '~/helpers/formatters';
 import { toFormattedTimestamp } from '~/helpers/dateTime';
 
 export interface IAssetMeta {
@@ -70,14 +70,8 @@ export const useAssetDetails = (assetIdentifier: Asset | string | null) => {
               ticker: assetIdentifier,
             });
           } else {
-            let assetId: string;
-            if (!assetIdentifier.startsWith('0x')) {
-              assetId = uuidToHex(assetIdentifier);
-            } else {
-              assetId = assetIdentifier;
-            }
             asset = await sdk.assets.getAsset({
-              assetId,
+              assetId: assetIdentifier,
             });
           }
         } else {
@@ -150,7 +144,7 @@ export const useAssetDetails = (assetIdentifier: Asset | string | null) => {
           )
         ).filter((entry) => entry.value !== null);
         setAssetDetails({
-          assetId: hexToUuid(asset.id),
+          assetId: asset.id,
           details: {
             assetIdentifiers,
             assetType,

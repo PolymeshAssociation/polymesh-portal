@@ -5,7 +5,6 @@ export const StyledNftsCell = styled.div`
   display: flex;
   align-items: center;
   gap: 2px;
-  color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 export const StyledDivider = styled.div`

@@ -8,7 +8,6 @@ import {
   INftAssetItem,
   ICollectionItem,
 } from './constants';
-import { hexToUuid } from '~/helpers/formatters';
 
 export const NftAssetTable = () => {
   const [tab, setTab] = useState<ENftAssetsTableTabs>(
@@ -33,15 +32,13 @@ export const NftAssetTable = () => {
     if (tab === ENftAssetsTableTabs.COLLECTIONS) {
       params = {
         ...params,
-        nftCollection: hexToUuid(
-          (original as ICollectionItem).collectionAssetId,
-        ),
+        nftCollection: (original as ICollectionItem).collectionAssetId,
       };
     }
     if (tab === ENftAssetsTableTabs.ALL_NFTS) {
       params = {
         ...params,
-        nftCollection: hexToUuid((original as INftAssetItem).collectionAssetId),
+        nftCollection: (original as INftAssetItem).collectionAssetId,
         nftId: (original as INftAssetItem).nftId.toString(),
       };
     }

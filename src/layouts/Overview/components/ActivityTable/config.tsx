@@ -13,7 +13,7 @@ import { IdCell } from '~/layouts/Portfolio/components/NftAssetTable/components/
 import { DateCell } from '~/layouts/Portfolio/components/NftAssetTable/components/DateCell';
 import { NftIdsCell } from '~/layouts/Portfolio/components/NftAssetTable/components/NftIdsCell';
 import { AddressCell } from '~/layouts/Portfolio/components/NftAssetTable/components/AddressCell';
-import { AssetIdCell } from '~/layouts/Portfolio/components/NftAssetTable/components/AssetIdCell';
+import { AssetIdCell } from '~/components/AssetIdCell';
 import { ITransactionItem } from '~/layouts/Portfolio/components/AssetTable/constants';
 
 const createTokenActivityLink = (data: IIdData | undefined) => {
@@ -164,11 +164,14 @@ export const columns = {
     }),
     nftTransactionColumnHelper.accessor('assetId', {
       header: 'Collection',
-      cell: (info) => <AssetIdCell assetId={info.getValue()} />,
+      cell: (info) => <AssetIdCell assetId={info.getValue()} isNftCollection />,
     }),
     nftTransactionColumnHelper.accessor('nftIds', {
       header: 'Token IDs',
-      cell: (info) => <NftIdsCell info={info} />,
+      cell: (info) => {
+        const { assetId } = info.row.original;
+        return <NftIdsCell info={info} assetId={assetId} />;
+      },
     }),
   ],
 };

@@ -6,6 +6,7 @@ export interface IBasicFieldValues {
   venue: string;
   recipient: string;
   memo?: string;
+  senderPortfolio?: string;
 }
 
 export interface IAdvancedFieldValues {
@@ -22,14 +23,16 @@ export const BASIC_FORM_CONFIG = {
     venue: '',
     recipient: '',
     memo: '',
+    senderPortfolio: 'default',
   },
   resolver: yupResolver(
     yup.object().shape({
       recipient: yup
         .string()
         .required('Recipient is required')
-        .matches(/^0x[0-9a-fA-F]{64}$/, 'Recipient DID must be a valid'),
+        .matches(/^0x[0-9a-fA-F]{64}$/, 'Recipient DID must be valid'),
       memo: yup.string().max(32, 'Memo must be 32 characters or less'),
+      senderPortfolio: yup.string().required('Portfolio is required'),
     }),
   ),
 };

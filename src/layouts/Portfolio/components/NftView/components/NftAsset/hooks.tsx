@@ -58,6 +58,7 @@ export const useNftAsset = () => {
         setNft(details);
       } catch (error) {
         notifyError((error as Error).message);
+
         setSearchParams('');
       } finally {
         setNftLoading(false);

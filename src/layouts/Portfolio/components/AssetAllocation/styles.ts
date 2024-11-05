@@ -3,7 +3,6 @@ import styled from 'styled-components';
 export const StyledWrapper = styled.div`
   grid-area: assets;
   padding: 24px;
-  height: 196px;
   width: 100%;
   background-color: ${({ theme }) => theme.colors.landingBackground};
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};

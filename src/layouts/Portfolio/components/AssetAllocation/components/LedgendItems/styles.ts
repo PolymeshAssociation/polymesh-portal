@@ -25,6 +25,7 @@ export const StyledLegendItem = styled.li<{
     margin-right: 8px;
     border-radius: 50%;
     background-color: ${({ $color }) => $color};
+    flex-shrink: 0;
   }
 `;
 

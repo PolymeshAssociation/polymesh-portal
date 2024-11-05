@@ -19,12 +19,7 @@ import {
   StyledNftImage,
   StyledClickableWrapper,
 } from './styles';
-import {
-  formatBalance,
-  formatDid,
-  formatUuid,
-  hexToUuid,
-} from '~/helpers/formatters';
+import { formatBalance, formatDid, formatUuid } from '~/helpers/formatters';
 import {
   EInstructionDirection,
   getAffirmationStatus,
@@ -32,6 +27,7 @@ import {
   parseNfts,
 } from './helpers';
 import { useWindowWidth } from '~/hooks/utility';
+import { AssetDetailsModal } from '~/components/AssetDetailsModal';
 
 interface ILegProps {
   data: {
@@ -61,11 +57,17 @@ export const InstructionLeg: React.FC<ILegProps> = ({
   const { identity } = useContext(AccountContext);
   const [legDetails, setLegDetails] = useState<ILegDetails | null>(null);
   const [legErrorExpanded, setLegErrorExpanded] = useState(false);
+  const [isAssetDetailsModalOpen, setAssetDetailsModalOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
   const { isMobile, isTablet } = useWindowWidth();
 
   const isSmallScreen = isMobile || isTablet;
+
+  const toggleModal = () => {
+    setAssetDetailsModalOpen(false);
+  };
+
   useEffect(() => {
     if (!leg || !identity) return;
 
@@ -112,7 +114,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
         sendingName: fromName || 'Default',
         receivingDid: to.owner.did,
         receivingName: toName || 'Default',
-        asset: hexToUuid(asset.id),
+        asset: asset.id,
         direction: getLegDirection({ from, to, identity }),
         amount,
         nfts,
@@ -135,12 +137,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
           Asset ID
           <StyledInfoValue>
             <StyledClickableWrapper
-              onClick={() =>
-                window.open(
-                  `${window.location.origin}/portfolio?asset=${legDetails.asset}`,
-                  '_blank',
-                )
-              }
+              onClick={() => setAssetDetailsModalOpen(true)}
             >
               <Icon name="Coins" size="16px" />
               <Text size="large" bold>
@@ -149,6 +146,12 @@ export const InstructionLeg: React.FC<ILegProps> = ({
             </StyledClickableWrapper>
             <CopyToClipboard value={legDetails.asset} />
           </StyledInfoValue>
+          {isAssetDetailsModalOpen && (
+            <AssetDetailsModal
+              asset={legDetails.asset}
+              toggleModal={toggleModal}
+            />
+          )}
         </StyledInfoItem>
         <StyledInfoItem>
           {legDetails.nfts?.length ? 'NFT Count' : 'Amount'}

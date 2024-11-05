@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import { Table } from '~/components';
 import { useAssetTable } from './hooks';
 import { EAssetsTableTabs, AssetTableItem, ITokenItem } from './constants';
-import { hexToUuid } from '~/helpers/formatters';
 // import { EAssetsTableTabs } from './constants';
 
 export const AssetTable = () => {
@@ -19,8 +18,8 @@ export const AssetTable = () => {
     const { assetId } = original as ITokenItem;
 
     const params = id
-      ? { id, asset: hexToUuid(assetId) }
-      : ({ asset: hexToUuid(assetId) } as Record<string, string>);
+      ? { id, asset: assetId }
+      : ({ asset: assetId } as Record<string, string>);
     setSearchParams(params);
   };
 

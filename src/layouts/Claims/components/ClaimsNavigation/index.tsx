@@ -50,7 +50,7 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
             ) : (
               <DropdownSelect
                 options={Object.values(EClaimsType)}
-                onChange={(type) => setSearchParams({ type })}
+                onChange={(type) => type && setSearchParams({ type })}
                 selected={claimType || undefined}
                 placeholder={claimType || ''}
                 borderRadius={24}

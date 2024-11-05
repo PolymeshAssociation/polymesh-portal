@@ -19,7 +19,10 @@ export interface IDividend {
     };
   };
   amount: number;
-  currency: string;
+  currency: {
+    id: string;
+    ticker: string;
+  };
   perShare: number;
   expiresAt: number;
   paymentAt: number;
@@ -114,7 +117,10 @@ export interface IDistribution {
   tax: string;
   distribution: {
     amount: string;
-    currency: string;
+    currency: {
+      id: string;
+      ticker: string;
+    };
     portfolioId: string;
     portfolio: {
       name: string | null;

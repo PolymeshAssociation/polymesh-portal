@@ -104,6 +104,9 @@ export const StyledInfoValue = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
+  font-weight: 500;
+  font-size: 16px;
+  text-transform: none;
 `;
 
 export const StyledLabel = styled.div`

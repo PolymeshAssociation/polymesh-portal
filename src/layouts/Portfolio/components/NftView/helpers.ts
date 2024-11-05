@@ -25,22 +25,14 @@ export const getExternalNftImageUrl = async (
   if (!tokenUri) {
     return null;
   }
-  const { body, status } = await fetch(tokenUri);
-  if (!body || status !== 200) {
-    return null;
-  }
-  const reader = body.pipeThrough(new TextDecoderStream()).getReader();
-  const rawData = await reader?.read();
-  if (!rawData.value) {
-    return null;
-  }
-  const parsedData = JSON.parse(rawData.value);
-
-  if (!parsedData.image) {
+  const response = await fetch(tokenUri);
+  if (!response.ok) {
     return null;
   }
 
-  return convertIpfsLink(parsedData.image);
+  const rawData = await response.text();
+  const parsedData = JSON.parse(rawData);
+  return parsedData.image ? convertIpfsLink(parsedData.image) : null;
 };
 
 export const getNftImageUrl = async (
@@ -49,11 +41,7 @@ export const getNftImageUrl = async (
 ): Promise<string | null> => {
   let imageUri = await nft.getImageUri();
   if (!imageUri) {
-    if (!image) {
-      imageUri = await getExternalNftImageUrl(nft);
-    } else {
-      imageUri = image;
-    }
+    imageUri = image || (await getExternalNftImageUrl(nft));
   }
   return imageUri ? convertIpfsLink(imageUri) : null;
 };

@@ -58,7 +58,7 @@ export const NewClaimItem: React.FC<INewClaimItem> = ({
     }
   };
 
-  const handleCountryChange = (option: string) => {
+  const handleCountryChange = (option: string | null) => {
     const isoCode = countryCodes.find(({ name }) => name === option)?.code;
     if (!isoCode) {
       setCountryCodeError('Country is required');

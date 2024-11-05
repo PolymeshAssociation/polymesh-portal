@@ -23,6 +23,7 @@ import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { getDistributionErrors } from './helpers';
 import { useWindowWidth } from '~/hooks/utility';
+import { AssetIdCell } from '~/components/AssetIdCell';
 
 interface IDistributionItemProps {
   distribution: DividendDistribution;
@@ -65,7 +66,7 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
           setParticipantDetails(participant);
 
           const distributionAsset = await sdk.assets.getFungibleAsset({
-            ticker: distribution.currency,
+            assetId: distribution.currency,
           });
 
           const errors = await getDistributionErrors({
@@ -99,9 +100,15 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
         </StyledInfoItem>
         <StyledInfoItem>
           Asset
-          <Text size="large" bold>
-            {distribution.asset.toHuman()}
-          </Text>
+          <StyledInfoValue>
+            <AssetIdCell assetId={distribution.asset.id} />
+          </StyledInfoValue>
+        </StyledInfoItem>
+        <StyledInfoItem>
+          Claimable Asset
+          <StyledInfoValue>
+            <AssetIdCell assetId={distribution.currency} />
+          </StyledInfoValue>
         </StyledInfoItem>
         <StyledInfoItem>
           Claimable Amount
@@ -109,21 +116,16 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
             {detailsLoading ? (
               <SkeletonLoader width={120} />
             ) : (
-              <>
-                {participantDetails?.amountAfterTax.toString() || null}{' '}
-                {participantDetails ? distribution.currency : null}
-              </>
+              participantDetails?.amountAfterTax.toString() || null
             )}
           </Text>
         </StyledInfoItem>
-
         <StyledInfoItem>
           Payment Date
           <Text size="large" bold>
             {toParsedDate(distribution.paymentDate.toISOString())}
           </Text>
         </StyledInfoItem>
-
         {!!distribution.expiryDate && (
           <StyledInfoItem>
             Expiry Date

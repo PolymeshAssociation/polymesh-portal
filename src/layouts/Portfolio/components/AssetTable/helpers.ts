@@ -3,6 +3,7 @@ import {
   AssetDetails,
   FungibleAsset,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { hexToUuid } from '@polymeshassociation/polymesh-sdk/utils';
 import {
   IIdData,
   ITransactionItem,
@@ -111,7 +112,7 @@ export const parseMovements = (
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         amount: amount && balanceToBigNumber(amount).toString(),
-        assetId,
+        assetId: hexToUuid(assetId),
         tokenDetails: asset,
         dateTime: toParsedDateTime(createdBlock.datetime),
         from: from.name || 'Default',
@@ -149,7 +150,7 @@ export const parseTransfers = (
           from: fromPortfolioId ? fromPortfolioId.split('/')[0] : '',
           to: toPortfolioId ? toPortfolioId.split('/')[0] : '',
           amount: amount ? (amount / 1_000_000).toString() : '0',
-          asset: assetId,
+          asset: hexToUuid(assetId),
           tokenDetails: asset,
         };
       },

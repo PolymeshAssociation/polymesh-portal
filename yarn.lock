@@ -1234,10 +1234,10 @@
     "@polkadot/util-crypto" "^12.6.2"
     "@polymeshassociation/signing-manager-types" "^3.2.0"
 
-"@polymeshassociation/polymesh-sdk@26.0.0-beta.2":
-  version "26.0.0-beta.2"
-  resolved "https://registry.yarnpkg.com/@polymeshassociation/polymesh-sdk/-/polymesh-sdk-26.0.0-beta.2.tgz#2c2a17a70027aecbe89d556e6c092607c9cd0e98"
-  integrity sha512-4ho8WqYCn3aSQ4YlJ9KLWdfztS4qKplyYAXIsKjCIfXYDhHVonYdtdhTjen/Z63lMqxFJobT3WO49KRfygUC6w==
+"@polymeshassociation/polymesh-sdk@26.1.0":
+  version "26.1.0"
+  resolved "https://registry.yarnpkg.com/@polymeshassociation/polymesh-sdk/-/polymesh-sdk-26.1.0.tgz#88584cf89af98fd7eb722ec8d6ce3c2b5d557240"
+  integrity sha512-0I6/CwAFxE67Rb8JenEiHnzZObTou4dKpnR4esQZpiRh+DLnzrplk1OMihfccsTFISVYGGf2OdYiNGasGuaMSw==
   dependencies:
     "@apollo/client" "^3.8.1"
     "@polkadot/api" "11.2.1"
@@ -1256,10 +1256,10 @@
     semver "^7.5.4"
     websocket "^1.0.34"
 
-"@polymeshassociation/polymesh-types@^5.12.3":
-  version "5.12.3"
-  resolved "https://registry.yarnpkg.com/@polymeshassociation/polymesh-types/-/polymesh-types-5.12.3.tgz#cfb63728e3f5550bb1e113207dbaa59ff9d20107"
-  integrity sha512-DCMduGzhNwjgHVuCVZah5RFvjtYSrE4B0vsLO6Cf2iNQOKRxEOIyNbjEHO5c9RuLuObahCrYC1U49TpIIYbYbg==
+"@polymeshassociation/polymesh-types@^5.14.0":
+  version "5.14.0"
+  resolved "https://registry.yarnpkg.com/@polymeshassociation/polymesh-types/-/polymesh-types-5.14.0.tgz#f503ba81a0b9623b358b6aeb0c387737dd49bb22"
+  integrity sha512-7J3XamLzNLtMlZ21o6o7HdD7ts3fCz6J8hwh3L4b7fqTi1QyJeqep6HnguDwW3NksSrJ4clrKrSnMtxv9OnwHQ==
 
 "@polymeshassociation/signing-manager-types@^3.2.0", "@polymeshassociation/signing-manager-types@^3.3.0":
   version "3.3.0"

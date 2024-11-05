@@ -31,7 +31,6 @@ import {
   AllowedAuthTypes,
 } from './constants';
 import { removeTimezoneOffset } from '~/helpers/dateTime';
-import { uuidToHex } from '~/helpers/formatters';
 
 export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
   const {
@@ -346,9 +345,8 @@ export const useSubmitHandler = () => {
     [AuthorizationType.TransferAssetOwnership]: async (data: FieldValues) => {
       if (!sdk) return;
       const target = data.target as string;
-      const assetId = uuidToHex(data.asset as string);
+      const assetId = data.asset as string;
       const utcExpiry = data.expiry as string | undefined;
-
       const assetEntity = heldAssets.find(({ id }) => id === assetId);
       if (!assetEntity) {
         notifyWarning('Selected asset is not owned by the selected identity');
@@ -481,7 +479,7 @@ export const useSubmitHandler = () => {
     [AuthorizationType.BecomeAgent]: async (data: FieldValues) => {
       if (!sdk) return;
       const target = data.target as string;
-      const assetId = uuidToHex(data.asset as string);
+      const assetId = data.asset as string;
       const permissions = data.permissions as
         | `${PermissionGroupType}`
         | 'Custom';

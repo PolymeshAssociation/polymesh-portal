@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
-import { PortfolioBalance } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  NftCollection,
+  PortfolioBalance,
+} from '@polymeshassociation/polymesh-sdk/types';
 import {
   ICombinedPortfolioData,
   IPortfolioData,
@@ -17,11 +20,11 @@ const getInitialState = (index: string) => ({
 interface IAssetForm {
   assets: PortfolioBalance[];
   selectedAssets: TSelectedAssets;
-  collections: string[];
+  collections: NftCollection[];
   nfts: Record<string, INft[]>;
   portfolioName: string;
   getAssetBalance: (asset: string) => number;
-  getNftsPerCollection: (ticker: string | null) => INft[];
+  getNftsPerCollection: (collectionId?: string) => INft[];
   handleAddAsset: () => void;
   handleDeleteAsset: (index: string) => void;
   handleSelectAsset: (index: string, item?: Partial<TSelectedAsset>) => void;
@@ -33,14 +36,17 @@ export const useAssetForm = (
 ): IAssetForm => {
   const [selectedAssets, setSelectedAssets] = useState<
     Record<string, TSelectedAsset>
-  >(getInitialState(index?.toString()));
+  >(getInitialState(index.toString()));
+  const [currentIndex, setCurrentIndex] = useState(index);
 
-  const [collections, setCollections] = useState<string[]>([]);
+  const [collections, setCollections] = useState<NftCollection[]>([]);
   const [nfts, setNfts] = useState<Record<string, INft[]>>({});
 
-  const getNftsPerCollection = (ticker: string | null) => {
-    if (!ticker) return [];
-    return nfts[ticker]?.sort((a, b) => a.id.toNumber() - b.id.toNumber());
+  const getNftsPerCollection = (collectionId?: string) => {
+    if (!collectionId) return [];
+    return nfts[collectionId]?.sort(
+      (a, b) => a.id.toNumber() - b.id.toNumber(),
+    );
   };
 
   const getAssetBalance = (asset: string) => {
@@ -51,11 +57,13 @@ export const useAssetForm = (
     return balance || 0;
   };
 
-  const handleAddAsset = () =>
-    setSelectedAssets((prev) => {
-      const assetIndex = Object.keys(prev).length;
-      return { ...prev, [assetIndex.toString()]: {} as TSelectedAsset };
+  const handleAddAsset = () => {
+    setSelectedAssets((prevSelectedAssets) => {
+      const nextAssetIndex = currentIndex + 1;
+      return { ...prevSelectedAssets, [nextAssetIndex]: {} as TSelectedAsset };
     });
+    setCurrentIndex((prevIndex) => prevIndex + 1);
+  };
 
   const handleDeleteAsset = (deleteIndex: string) =>
     setSelectedAssets((prev) => {
@@ -93,7 +101,7 @@ export const useAssetForm = (
   }, [portfolio]);
 
   return {
-    assets: portfolio?.assets as PortfolioBalance[],
+    assets: portfolio?.assets || [],
     collections,
     nfts,
     selectedAssets,

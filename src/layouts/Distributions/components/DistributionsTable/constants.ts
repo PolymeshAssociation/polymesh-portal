@@ -19,7 +19,10 @@ export interface IHistoricalDistribution {
   id: IIdData;
   dateTime: string;
   asset: string;
-  currency: string;
+  currency: {
+    id: string;
+    ticker: string;
+  };
   amountAfterTax: number;
   details: IDetails;
 }

@@ -150,7 +150,7 @@ export const StyledExpandedErrors = styled.ul`
   }
 `;
 
-export const StyledClickableWrapper = styled.div`
+export const StyledClickableWrapper = styled.span`
   cursor: pointer;
   display: flex;
   align-items: center;

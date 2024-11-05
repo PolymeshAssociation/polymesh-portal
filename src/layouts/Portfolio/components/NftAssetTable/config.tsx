@@ -13,7 +13,7 @@ import {
   INftAssetItem,
   INftMovementItem,
 } from './constants';
-import { AssetIdCell } from './components/AssetIdCell';
+import { AssetIdCell } from '../../../../components/AssetIdCell';
 import { INftTransactionItem } from '~/layouts/Overview/components/ActivityTable/constants';
 
 const collectionColumnHelper = createColumnHelper<ICollectionItem>();
@@ -35,9 +35,7 @@ export const columns = {
     }),
     collectionColumnHelper.accessor('collectionAssetId', {
       header: 'Collection Asset ID',
-      cell: (info) => (
-        <AssetIdCell assetId={info.getValue()} abbreviate={false} />
-      ),
+      cell: (info) => <AssetIdCell assetId={info.getValue()} isNftCollection />,
     }),
     collectionColumnHelper.accessor('collectionId', {
       header: 'Collection ID',
@@ -65,9 +63,7 @@ export const columns = {
     }),
     allNftsColumnHelper.accessor('collectionAssetId', {
       header: 'Collection Asset ID',
-      cell: (info) => (
-        <AssetIdCell assetId={info.getValue()} abbreviate={false} />
-      ),
+      cell: (info) => <AssetIdCell assetId={info.getValue()} isNftCollection />,
     }),
     allNftsColumnHelper.accessor('collectionId', {
       header: 'Collection ID',
@@ -122,11 +118,14 @@ export const columns = {
 
     transactionColumnHelper.accessor('assetId', {
       header: 'Asset ID',
-      cell: (info) => <AssetIdCell assetId={info.getValue()} />,
+      cell: (info) => <AssetIdCell assetId={info.getValue()} isNftCollection />,
     }),
     transactionColumnHelper.accessor('nftIds', {
       header: 'Token IDs',
-      cell: (info) => <NftIdsCell info={info} />,
+      cell: (info) => {
+        const { assetId } = info.row.original;
+        return <NftIdsCell info={info} assetId={assetId} />;
+      },
     }),
   ],
   [ENftAssetsTableTabs.MOVEMENTS]: [
@@ -161,11 +160,14 @@ export const columns = {
     }),
     movementColumnHelper.accessor('collection', {
       header: 'Asset ID',
-      cell: (info) => <AssetIdCell assetId={info.getValue()} />,
+      cell: (info) => <AssetIdCell assetId={info.getValue()} isNftCollection />,
     }),
     movementColumnHelper.accessor('nftIds', {
       header: 'Token IDs',
-      cell: (info) => <NftIdsCell info={info} />,
+      cell: (info) => {
+        const assetId = info.row.original.collection;
+        return <NftIdsCell info={info} assetId={assetId} />;
+      },
     }),
   ],
 };

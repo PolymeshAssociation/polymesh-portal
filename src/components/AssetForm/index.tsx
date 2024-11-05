@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { PortfolioBalance } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  NftCollection,
+  PortfolioBalance,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { useWindowWidth } from '~/hooks/utility';
 import { DropdownSelect } from '~/components/UiKit';
 import { Icon } from '~/components';
@@ -18,11 +21,13 @@ interface IAssetFormProps {
   index: string;
   assets: PortfolioBalance[];
   assetBalance: number;
-  collections: string[];
-  getNftsPerCollection: (ticker: string | null) => INft[];
+  collections: NftCollection[];
+  nfts: Record<string, INft[]>;
+  getNftsPerCollection: (collectionId?: string) => INft[];
   handleSelectAsset: (index: string, item?: Partial<TSelectedAsset>) => void;
   handleDeleteAsset: (index: string) => void;
   portfolioName: string;
+  indexArray?: (number | string)[];
   children?: React.ReactNode;
   disabled?: boolean;
   memo?: React.ReactNode;
@@ -35,9 +40,11 @@ const AssetForm: React.FC<IAssetFormProps> = ({
   assetBalance,
   collections,
   portfolioName,
+  nfts,
   getNftsPerCollection,
   handleSelectAsset,
   handleDeleteAsset,
+  indexArray,
   children,
   disabled,
   memo,
@@ -54,7 +61,7 @@ const AssetForm: React.FC<IAssetFormProps> = ({
 
   return (
     <StyledAssetForm>
-      {Number(index) > 0 && (
+      {indexArray && indexArray.length > 1 && (
         <CloseButton onClick={() => handleDeleteAsset?.(index)}>
           <Icon name="CloseIcon" size="20px" />
         </CloseButton>
@@ -96,6 +103,7 @@ const AssetForm: React.FC<IAssetFormProps> = ({
         <NftSelect
           index={index}
           collections={collections}
+          nfts={nfts}
           getNftsPerCollection={getNftsPerCollection}
           handleSelectAsset={handleSelectAsset}
           disabled={disabled}

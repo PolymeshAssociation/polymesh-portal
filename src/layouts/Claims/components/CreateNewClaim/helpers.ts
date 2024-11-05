@@ -5,7 +5,6 @@ import {
   ScopeType,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { IFieldValues, ISelectedClaimItem } from './constants';
-import { uuidToHex } from '~/helpers/formatters';
 
 export const createPlaceholderByScopeType = (type: ScopeType) => {
   switch (type) {
@@ -26,10 +25,6 @@ export const createPlaceholderByScopeType = (type: ScopeType) => {
   }
 };
 
-const getFormattedScopeValue = (scopeType: ScopeType, scopeValue: string) => {
-  return scopeType === ScopeType.Asset ? uuidToHex(scopeValue) : scopeValue;
-};
-
 export const createClaimsData = ({
   data: { target, scopeType, scopeValue },
   selectedClaims,
@@ -47,14 +42,14 @@ export const createClaimsData = ({
             code: code as CountryCode,
             scope: {
               type: scopeType,
-              value: getFormattedScopeValue(scopeType, scopeValue),
+              value: scopeValue,
             },
           }
         : {
             type: claimType,
             scope: {
               type: scopeType,
-              value: getFormattedScopeValue(scopeType, scopeValue),
+              value: scopeValue,
             },
           },
   })) as ClaimTarget[];

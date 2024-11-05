@@ -4,12 +4,13 @@ import { useSearchParams } from 'react-router-dom';
 import { CopyToClipboard, Icon } from '~/components';
 import { Button } from '~/components/UiKit';
 import { ClaimsContext } from '~/context/ClaimsContext';
-import { formatDid, hexToUuid, stringToColor } from '~/helpers/formatters';
+import { formatDid, stringToColor } from '~/helpers/formatters';
 import { ClaimItem } from '../ClaimItem';
 import { EClaimsType, EClaimSortOptions } from '../../constants';
 import { filterClaimsByScope } from './helpers';
 import {
   StyledActionsWrapper,
+  StyledClickableWrapper,
   StyledIconWrapper,
   StyledScopeInfo,
   StyledScopeItem,
@@ -19,6 +20,7 @@ import {
   StyledSortSelect,
 } from './styles';
 import { useWindowWidth } from '~/hooks/utility';
+import { AssetDetailsModal } from '~/components/AssetDetailsModal';
 
 interface IScopeItemProps {
   scope: Scope | null;
@@ -27,6 +29,7 @@ interface IScopeItemProps {
 export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
   const { receivedClaims, issuedClaims } = useContext(ClaimsContext);
   const [scopeExpanded, setScopeExpanded] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState<EClaimSortOptions>(
     EClaimSortOptions.ISSUE_DATE,
   );
@@ -39,6 +42,10 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
     [EClaimsType.ISSUED]: issuedClaims,
   };
 
+  const toggleModal = () => {
+    setModalOpen(false);
+  };
+
   return (
     <StyledScopeItem>
       <StyledScopeWrapper>
@@ -48,16 +55,18 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
             <StyledScopeLabel>
               {scope.type === ScopeType.Asset && (
                 <>
-                  <StyledIconWrapper $color={stringToColor(scope.value)}>
-                    <Icon name="Coins" size="12px" />
-                  </StyledIconWrapper>
-                  {scope.value.startsWith('0x') ? (
-                    <>
-                      {hexToUuid(scope.value)}
-                      <CopyToClipboard value={hexToUuid(scope.value)} />
-                    </>
-                  ) : (
-                    scope.value
+                  <StyledClickableWrapper onClick={() => setModalOpen(true)}>
+                    <StyledIconWrapper $color={stringToColor(scope.value)}>
+                      <Icon name="Coins" size="12px" />
+                    </StyledIconWrapper>
+                    {scope.value}
+                  </StyledClickableWrapper>
+                  <CopyToClipboard value={scope.value} />
+                  {isModalOpen && (
+                    <AssetDetailsModal
+                      asset={scope.value}
+                      toggleModal={toggleModal}
+                    />
                   )}
                 </>
               )}

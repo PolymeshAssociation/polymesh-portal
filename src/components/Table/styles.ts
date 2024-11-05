@@ -40,13 +40,13 @@ export const StyledTableHeader = styled.div`
 `;
 
 export const StyledTableBody = styled.table<{
-  $colsNumber: number;
   $withTitle: boolean;
 }>`
   flex-grow: 1;
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  table-layout: auto;
 
   & thead {
     border-top: ${({ $withTitle, theme }) =>
@@ -67,10 +67,9 @@ export const StyledTableBody = styled.table<{
 
   & th,
   & td {
-    width: ${({ $colsNumber }) => `calc(100% / ${$colsNumber})`};
     height: 54px;
     padding-left: 24px;
-    vertical-align: center;
+    vertical-align: middle;
   }
 
   & thead {
@@ -84,6 +83,7 @@ export const StyledTableBody = styled.table<{
       }
     }
   }
+
   & td {
     font-size: 12px;
     font-weight: 500;

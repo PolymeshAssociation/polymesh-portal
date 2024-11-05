@@ -1,5 +1,6 @@
 // import { Balance } from '@polymeshassociation/polymesh-sdk/types';
 import { balanceToBigNumber } from '@polymeshassociation/polymesh-sdk/utils/conversion';
+import { hexToUuid } from '@polymeshassociation/polymesh-sdk/utils';
 import {
   // ITransferEvent,
   // ITicker,
@@ -35,8 +36,8 @@ export const parseHistoricalDistributions = (
           blockId: createdBlockId,
         },
         dateTime: toParsedDate(createdAt),
-        asset: assetId,
-        currency,
+        asset: hexToUuid(assetId),
+        currency: { id: hexToUuid(currency.id), ticker: currency.ticker },
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         amountAfterTax: balanceToBigNumber(Number(amountAfterTax)).toNumber(),

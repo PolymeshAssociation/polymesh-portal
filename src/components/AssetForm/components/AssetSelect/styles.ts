@@ -5,20 +5,11 @@ export const AssetWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 8px;
-
-  @media screen and (min-width: 768px) {
-    flex-direction: row;
-    align-items: center;
-    gap: 24px;
-    & > div {
-      flex: 1;
-    }
-  }
 `;
 
 export const IconWrapper = styled.div<{ $background: string }>`
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 24px;

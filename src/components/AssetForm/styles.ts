@@ -91,6 +91,7 @@ export const StyledExpandedSelect = styled.div`
   border-radius: 8px;
   z-index: 1;
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
+  scroll-behavior: auto;
 `;
 
 export const SelectedOption = styled.div`

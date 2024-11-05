@@ -19,7 +19,7 @@ import { createTokenActivityLink } from './helpers';
 import { IdCell } from '../NftAssetTable/components/IdCell';
 import { DateCell } from '../NftAssetTable/components/DateCell';
 import { AddressCell } from '../NftAssetTable/components/AddressCell';
-import { AssetIdCell } from '../NftAssetTable/components/AssetIdCell';
+import { AssetIdCell } from '../../../../components/AssetIdCell';
 
 const tokenColumnHelper = createColumnHelper<ITokenItem>();
 const transactionColumnHelper = createColumnHelper<ITransactionItem>();
@@ -35,9 +35,7 @@ export const columns = {
     tokenColumnHelper.accessor('assetId', {
       header: 'Asset ID',
       enableSorting: false,
-      cell: (info) => (
-        <AssetIdCell assetId={info.getValue()} abbreviate={false} />
-      ),
+      cell: (info) => <AssetIdCell assetId={info.getValue()} />,
     }),
     tokenColumnHelper.accessor('percentage', {
       header: (info) => <PercentageFilter info={info} />,

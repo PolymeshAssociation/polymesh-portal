@@ -6,7 +6,6 @@ import { Nft } from '@polymeshassociation/polymesh-sdk/internal';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { getNftImageUrl, getNftTokenUri } from '../../helpers';
 import { INftAsset } from './constants';
-import { uuidToHex } from '~/helpers/formatters';
 import { notifyWarning } from '~/helpers/notifications';
 
 export const getNftCollectionAndStatus = async (
@@ -29,14 +28,8 @@ export const getNftCollectionAndStatus = async (
         ticker: nftCollectionIdentifier,
       });
     } else {
-      let assetId: string;
-      if (!nftCollectionIdentifier.startsWith('0x')) {
-        assetId = uuidToHex(nftCollectionIdentifier);
-      } else {
-        assetId = nftCollectionIdentifier;
-      }
       collection = await sdk.assets.getNftCollection({
-        assetId,
+        assetId: nftCollectionIdentifier,
       });
     }
   } else {

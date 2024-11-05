@@ -177,7 +177,10 @@ export const historicalDistributionsQuery = ({
           tax
           distribution {
             amount
-            currency
+            currency {
+             id
+             ticker
+            }
             expiresAt
             portfolioId
             portfolio {

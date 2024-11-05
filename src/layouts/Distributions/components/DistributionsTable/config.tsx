@@ -3,6 +3,7 @@ import { IIdData, IHistoricalDistribution } from './constants';
 import { IdCellWrapper, IconWrapper } from './styles';
 import { Icon } from '~/components';
 import { Details } from './components/Details';
+import { AssetIdCell } from '~/components/AssetIdCell';
 
 const createIdLink = (data: IIdData | undefined) => {
   if (!data) return '';
@@ -37,11 +38,11 @@ export const columns = [
   }),
   columnHelper.accessor('asset', {
     header: 'Asset',
-    cell: (info) => info.getValue(),
+    cell: (info) => <AssetIdCell assetId={info.getValue()} />,
   }),
   columnHelper.accessor('currency', {
     header: 'Distribution Asset',
-    cell: (info) => info.getValue(),
+    cell: (info) => <AssetIdCell assetId={info.getValue().id} />,
   }),
   columnHelper.accessor('amountAfterTax', {
     header: 'Amount After Tax',

@@ -58,7 +58,9 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
   const [venues, setVenues] = useState<IVenueWithDetails[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const [legIndexes, setLegIndexes] = useState<number[]>([0]);
-  const [selectedLegs, setSelectedLegs] = useState<TSelectedLeg[]>([]);
+  const [selectedLegs, setSelectedLegs] = useState<TSelectedLeg[]>([
+    { index: 0 } as TSelectedLeg,
+  ]);
   const { isMobile } = useWindowWidth();
 
   useEffect(() => {
@@ -91,7 +93,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
   }, [venues, selectedVenue]);
 
   const handleVenueSelect = useCallback(
-    (idWithDescription: string) => {
+    (idWithDescription: string | null) => {
       if (
         !idWithDescription ||
         idWithDescription === 'Clear selection (No Venue)'
@@ -115,33 +117,46 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
     [createdVenues, setValue],
   );
 
-  const handleAssetSelect = useCallback((index: number, item: TSelectedLeg) => {
+  const handleLegUpdate = useCallback((index: number, item: TSelectedLeg) => {
     setSelectedLegs((prev) => {
-      const newLegs = [...prev];
-      newLegs[index] = item;
-      return newLegs;
+      const legIndex = prev.findIndex((leg) => leg.index === index);
+      if (legIndex !== -1) {
+        const updatedLegs = [...prev];
+        updatedLegs[legIndex] = item;
+        return updatedLegs;
+      }
+      return [...prev, item];
     });
   }, []);
 
   const handleAddLegField = useCallback(() => {
-    setLegIndexes((prev) => [...prev, prev[prev.length - 1] + 1]);
-  }, [setLegIndexes]);
+    setLegIndexes((prev) => {
+      const newLegIndex = prev[prev.length - 1] + 1;
+      handleLegUpdate(newLegIndex, { index: newLegIndex } as TSelectedLeg);
+      return [...prev, newLegIndex];
+    });
+  }, [handleLegUpdate]);
 
   const handleDeleteLegField = useCallback((index: number) => {
     setLegIndexes((prev) => prev.filter((prevIndex) => prevIndex !== index));
-
-    setSelectedLegs((prev) => prev.filter((_, i) => i !== index));
+    setSelectedLegs((prev) => prev.filter((leg) => leg.index !== index));
   }, []);
 
   const isDataValid = useMemo(() => {
     return (
       isValid &&
       !!selectedLegs.length &&
-      !selectedLegs.some((asset) => {
-        if ('amount' in asset) {
-          return asset.amount.toNumber() <= 0;
+      !selectedLegs.some((leg) => {
+        const hasRequiredFields = leg.from && leg.to && leg.asset;
+        if (!hasRequiredFields) return true;
+
+        if (leg.from.owner.did === leg.to.owner.did) return true;
+
+        if ('amount' in leg) {
+          return leg.amount.lte(0);
         }
-        return !asset.nfts?.length || asset.nfts?.length > MAX_NFTS_PER_LEG;
+
+        return !leg.nfts?.length || leg.nfts.length > MAX_NFTS_PER_LEG;
       })
     );
   }, [isValid, selectedLegs]);
@@ -241,9 +256,10 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
         <LegSelect
           key={index}
           index={index}
-          handleAdd={handleAssetSelect}
+          handleUpdateLeg={handleLegUpdate}
           handleDelete={handleDeleteLegField}
           selectedLegs={selectedLegs}
+          legIndexes={legIndexes}
         />
       ))}
 

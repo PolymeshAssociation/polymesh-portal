@@ -27,6 +27,7 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
     collections,
     selectedAssets,
     portfolioName,
+    nfts,
     getNftsPerCollection,
     getAssetBalance,
     handleAddAsset,
@@ -59,9 +60,9 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
   );
 
   const filteredCollections = collections.filter(
-    (ticker) =>
+    (collection) =>
       !Object.values(selectedAssets).some(
-        (selected) => selected.asset === ticker,
+        (selected) => selected.asset === collection.id,
       ),
   );
 
@@ -82,6 +83,7 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
           collections={filteredCollections}
           assets={filteredAssets}
           portfolioName={portfolioName}
+          nfts={nfts}
           getNftsPerCollection={getNftsPerCollection}
           handleSelectAsset={handleSelectAsset}
           handleDeleteAsset={handleDeleteAsset}
@@ -89,6 +91,7 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
           memo={
             <MemoField handleSelectAsset={handleSelectAsset} index={asset} />
           }
+          indexArray={Object.keys(selectedAssets)}
         />
       ))}
 

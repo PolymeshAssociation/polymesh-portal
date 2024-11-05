@@ -53,7 +53,7 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
   const { handleStatusChange } = useTransactionStatus();
   const { isMobile } = useWindowWidth();
 
-  const handleScopeChange = (option: string) => {
+  const handleScopeChange = (option: string | null) => {
     setSelectedScope(option as ScopeType);
     setValue('scopeType', option as ScopeType, {
       shouldValidate: true,

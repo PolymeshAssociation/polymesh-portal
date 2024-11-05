@@ -1,4 +1,5 @@
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import { NftCollection } from '@polymeshassociation/polymesh-sdk/types';
 
 export enum EAssetType {
   FUNGIBLE = 'Fungible Assets',
@@ -26,7 +27,7 @@ export interface INft {
 }
 
 export interface IParsedCollectionData {
-  collections: string[];
+  collections: NftCollection[];
   nfts: Record<string, INft[]>;
 }
 
