@@ -180,6 +180,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
     const lowerSearchQuery = searchQuery.toLowerCase();
     setFilteredAssets(
       collections.filter((asset) => {
+        if (selectedCollection?.id === asset.id) return false;
         const assetDetails = assetDetailsCache.current[asset.id];
         return (
           formatUuid(asset.id).toLowerCase().includes(lowerSearchQuery) ||
@@ -188,7 +189,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
         );
       }),
     );
-  }, [searchQuery, collections]);
+  }, [searchQuery, collections, selectedCollection]);
 
   const selectedAssetDetails = useMemo(() => {
     if (!selectedCollection || assetDetailsLoading) return undefined;
@@ -209,7 +210,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
 
   const selectedCollectionImage = useMemo(
     () =>
-      selectedCollection ? nfts[selectedCollection?.id][0].imgUrl : undefined,
+      selectedCollection ? nfts[selectedCollection?.id][0]?.imgUrl : undefined,
     [nfts, selectedCollection],
   );
 
@@ -311,7 +312,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                         >
                           <Icon name="Coins" size="16px" />
                         </IconWrapper>
-                        {nfts[asset.id][0].imgUrl && (
+                        {nfts[asset.id][0]?.imgUrl && (
                           <img
                             src={nfts[asset.id][0].imgUrl}
                             alt={nfts[asset.id][0].imgUrl}
@@ -399,7 +400,8 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                     return (
                       <StyledNftOption
                         key={nft.id.toNumber()}
-                        onClick={() => handleSelectNft(nft)}
+                        onClick={() => !nft.locked && handleSelectNft(nft)}
+                        className={nft.locked ? 'locked' : ''}
                       >
                         <StyledOptionImg>
                           <img
@@ -409,6 +411,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                           />
                         </StyledOptionImg>
                         {nft.id.toNumber()}
+                        {nft.locked && <Icon name="LockIcon" size="20px" />}
                       </StyledNftOption>
                     );
                   })}

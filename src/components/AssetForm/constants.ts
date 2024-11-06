@@ -24,6 +24,7 @@ export type TSelectedAsset = IFungibleAsset | INonFungibleAsset;
 export interface INft {
   id: BigNumber;
   imgUrl: string;
+  locked: boolean;
 }
 
 export interface IParsedCollectionData {

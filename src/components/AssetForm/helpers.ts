@@ -11,17 +11,28 @@ import {
 import { getNftImageUrl } from '~/layouts/Portfolio/components/NftView/helpers';
 import { INft, IParsedCollectionData } from './constants';
 
-export const parseNftsFromCollection = async (nfts: Nft[]) => {
-  if (!nfts.length) return [];
+export const parseNftsFromCollection = async (
+  freeNfts: Nft[],
+  lockedNfts: Nft[],
+) => {
+  const allNfts = [
+    ...freeNfts.map((nft) => ({ nft, locked: false })),
+    ...lockedNfts.map((nft) => ({ nft, locked: true })),
+  ];
+
+  if (!allNfts.length) return [];
+
   const parsedNfts = await Promise.all(
-    nfts.map(async (nft) => {
+    allNfts.map(async ({ nft, locked }) => {
       const imgUrl = (await getNftImageUrl(nft)) || '';
       return {
         id: nft.id,
         imgUrl,
+        locked,
       };
     }),
   );
+
   return parsedNfts;
 };
 
@@ -31,8 +42,8 @@ export const parseCollectionsFromSinglePortfolio = async (
   const nfts = {} as Record<string, INft[]>;
   const collectionList = await portfolio.getCollections();
   const collections = await Promise.all(
-    collectionList.map(async ({ collection, free }) => {
-      const parsedNfts = await parseNftsFromCollection(free);
+    collectionList.map(async ({ collection, free, locked }) => {
+      const parsedNfts = await parseNftsFromCollection(free, locked);
       nfts[collection.id] = parsedNfts;
       return collection;
     }),

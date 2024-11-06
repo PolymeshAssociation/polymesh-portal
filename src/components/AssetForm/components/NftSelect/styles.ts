@@ -27,8 +27,17 @@ export const StyledNftOption = styled.div`
   font-weight: 500;
   cursor: pointer;
   border-radius: 8px;
+
   &:hover {
     background-color: ${({ theme }) => theme.colors.dashboardBackground};
+  }
+
+  &.locked {
+    cursor: not-allowed;
+    opacity: 0.5;
+    &:hover {
+      background-color: transparent;
+    }
   }
 `;
 
