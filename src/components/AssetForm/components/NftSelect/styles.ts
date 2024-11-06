@@ -52,20 +52,17 @@ export const StyledOptionImg = styled.div`
   .image {
     width: 24px;
     height: 24px;
-    z-index: 4;
     left: 0;
   }
+
   .icon-1 {
-    z-index: 3;
-    left: 0;
+    left: 8px;
   }
   .icon-2 {
-    z-index: 2;
     left: 4px;
   }
   .icon-3 {
-    z-index: 1;
-    left: 8px;
+    left: 0;
   }
 
   & > img {
@@ -93,7 +90,7 @@ export const StyledLabel = styled.div`
   background: ${({ theme }) => theme.colors.dashboardBackground};
   padding: 2px 2.5px;
   border-radius: 12px;
-  font-size: 16px;
+  font-size: 14px;
   color: ${({ theme }) => theme.colors.textPrimary};
 `;
 

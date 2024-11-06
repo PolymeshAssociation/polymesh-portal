@@ -62,7 +62,10 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
 
   const assetDetailsCache = useRef<Record<string, AssetDetails>>({});
 
-  const ref = useOutsideClick(() => setAssetSelectExpanded(false));
+  const ref = useOutsideClick(() => {
+    setAssetSelectExpanded(false);
+    setSearchQuery('');
+  });
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -97,8 +100,10 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
 
   const toggleAssetSelectDropdown = () => {
     if (disabled) return;
-    setAssetSelectExpanded((prev) => !prev);
-    if (!assetSelectExpanded) setSearchQuery('');
+    setAssetSelectExpanded((prev) => {
+      if (prev) setSearchQuery('');
+      return !prev;
+    });
   };
 
   const handleAssetSelect = (asset: FungibleAsset) => {
@@ -111,6 +116,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
       amount: new BigNumber(0),
     });
     setAssetSelectExpanded(false);
+    setSearchQuery('');
   };
 
   const handleAmountChange: React.ChangeEventHandler<HTMLInputElement> = ({
@@ -169,7 +175,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
 
   useEffect(() => {
     if (assetSelectExpanded && searchInputRef.current) {
-      searchInputRef.current.focus(); // Focus the input when expanded
+      searchInputRef.current.focus();
     }
   }, [assetSelectExpanded]);
 
@@ -221,7 +227,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
                     >
                       <IconWrapper $background={stringToColor(asset.id)}>
                         <Icon name="Coins" size="16px" />
-                      </IconWrapper>{' '}
+                      </IconWrapper>
                       {assetDetails
                         ? `${formatUuid(asset.id)} - ${assetDetails.name} ${
                             assetDetails.ticker && `(${assetDetails.ticker})`

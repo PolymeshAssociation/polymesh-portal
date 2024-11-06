@@ -15,6 +15,7 @@ import {
   StyledPlaceholder,
   StyledError,
   SelectedOption,
+  StyledInput,
 } from '../../styles';
 import {
   StyledSelectGroup,
@@ -59,13 +60,17 @@ export const NftSelect: React.FC<INftSelectProps> = ({
   const [selectedNfts, setSelectedNfts] = useState<INft[]>([]);
   const [nftSelectExpanded, setNftSelectExpanded] = useState(false);
   const [assetDetailsLoading, setAssetDetailsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredAssets, setFilteredAssets] =
+    useState<NftCollection[]>(collections);
   const portfolioRef = useRef<string | undefined>(undefined);
-
-  const collectionRef = useOutsideClick(() =>
-    setCollectionSelectExpanded(false),
-  );
+  const collectionRef = useOutsideClick(() => {
+    setCollectionSelectExpanded(false);
+    setSearchQuery('');
+  });
   const nftRef = useOutsideClick(() => setNftSelectExpanded(false));
   const assetDetailsCache = useRef<Record<string, AssetDetails>>({});
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const fetchAssetDetails = async () => {
@@ -104,12 +109,21 @@ export const NftSelect: React.FC<INftSelectProps> = ({
 
   const toggleCollectionSelectDropdown = () => {
     if (disabled) return;
-    setCollectionSelectExpanded((prev) => !prev);
+    setCollectionSelectExpanded((prev) => {
+      if (prev) setSearchQuery('');
+      return !prev;
+    });
   };
 
   const toggleNftSelectDropdown = () => {
     if (!selectedCollection || disabled) return;
     setNftSelectExpanded((prev) => !prev);
+  };
+
+  const handleSearchChange: React.ChangeEventHandler<HTMLInputElement> = ({
+    target,
+  }) => {
+    setSearchQuery(target.value);
   };
 
   const handleSelectCollection = (collection: NftCollection) => {
@@ -162,6 +176,20 @@ export const NftSelect: React.FC<INftSelectProps> = ({
     });
   };
 
+  useEffect(() => {
+    const lowerSearchQuery = searchQuery.toLowerCase();
+    setFilteredAssets(
+      collections.filter((asset) => {
+        const assetDetails = assetDetailsCache.current[asset.id];
+        return (
+          formatUuid(asset.id).toLowerCase().includes(lowerSearchQuery) ||
+          assetDetails?.name.toLowerCase().includes(lowerSearchQuery) ||
+          assetDetails?.ticker?.toLowerCase().includes(lowerSearchQuery)
+        );
+      }),
+    );
+  }, [searchQuery, collections]);
+
   const selectedAssetDetails = useMemo(() => {
     if (!selectedCollection || assetDetailsLoading) return undefined;
     return assetDetailsCache.current[selectedCollection.id];
@@ -185,6 +213,12 @@ export const NftSelect: React.FC<INftSelectProps> = ({
     [nfts, selectedCollection],
   );
 
+  useEffect(() => {
+    if (collectionSelectExpanded && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [collectionSelectExpanded]);
+
   return (
     <StyledSelectGroup>
       <div>
@@ -201,13 +235,6 @@ export const NftSelect: React.FC<INftSelectProps> = ({
               <SelectedOption>
                 <StyledOptionImg>
                   <>
-                    {selectedCollectionImage && (
-                      <img
-                        src={selectedCollectionImage}
-                        alt={selectedCollectionImage}
-                        className="stacked-icon image"
-                      />
-                    )}
                     <IconWrapper
                       $background={stringToColor(selectedCollection.id)}
                       className="stacked-icon icon-1"
@@ -226,6 +253,13 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                     >
                       <Icon name="Coins" size="16px" />
                     </IconWrapper>
+                    {selectedCollectionImage && (
+                      <img
+                        src={selectedCollectionImage}
+                        alt={selectedCollectionImage}
+                        className="stacked-icon image"
+                      />
+                    )}
                   </>
                 </StyledOptionImg>
                 {selectedAssetDetails
@@ -242,8 +276,16 @@ export const NftSelect: React.FC<INftSelectProps> = ({
           </StyledSelect>
           {collectionSelectExpanded && (
             <StyledExpandedSelect>
-              {collections?.length > 0 ? (
-                collections.map((asset) => {
+              <StyledInput
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search collections..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+
+              {filteredAssets?.length > 0 ? (
+                filteredAssets.map((asset) => {
                   const assetDetails = assetDetailsCache.current[asset.id];
                   return (
                     <StyledSelectOption
@@ -251,13 +293,6 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                       onClick={() => handleSelectCollection(asset)}
                     >
                       <StyledOptionImg>
-                        {nfts[asset.id][0].imgUrl && (
-                          <img
-                            src={nfts[asset.id][0].imgUrl}
-                            alt={nfts[asset.id][0].imgUrl}
-                            className="stacked-icon image"
-                          />
-                        )}
                         <IconWrapper
                           $background={stringToColor(asset.id)}
                           className="stacked-icon icon-1"
@@ -276,6 +311,13 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                         >
                           <Icon name="Coins" size="16px" />
                         </IconWrapper>
+                        {nfts[asset.id][0].imgUrl && (
+                          <img
+                            src={nfts[asset.id][0].imgUrl}
+                            alt={nfts[asset.id][0].imgUrl}
+                            className="stacked-icon image"
+                          />
+                        )}
                       </StyledOptionImg>
                       {assetDetails
                         ? `${formatUuid(asset.id)} - ${assetDetails.name} ${
@@ -286,7 +328,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                   );
                 })
               ) : (
-                <StyledPlaceholder>No collections available</StyledPlaceholder>
+                <StyledPlaceholder>No collections found</StyledPlaceholder>
               )}
             </StyledExpandedSelect>
           )}
