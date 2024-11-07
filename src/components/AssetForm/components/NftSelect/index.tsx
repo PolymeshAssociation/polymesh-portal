@@ -209,8 +209,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
   }, [handleSelectAsset, index, portfolioName, selectedNfts?.length]);
 
   const selectedCollectionImage = useMemo(
-    () =>
-      selectedCollection ? nfts[selectedCollection?.id][0]?.imgUrl : undefined,
+    () => selectedCollection && nfts[selectedCollection.id]?.[0]?.imgUrl,
     [nfts, selectedCollection],
   );
 
