@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import {
   StyledWrapper,
   StyledWalletIconBox,
@@ -28,7 +29,7 @@ export const WalletOption: React.FC<IWalletOptionProps> = ({
       <StyledWalletIconBox $installed={isInstalled}>
         <Icon name={iconName} size="56px" />
       </StyledWalletIconBox>
-      <StyledSelectedIconBox className="selected-icon">
+      <StyledSelectedIconBox className={clsx('selected-icon')}>
         <Icon name="SelectedIcon" />
       </StyledSelectedIconBox>
       {!isInstalled && (

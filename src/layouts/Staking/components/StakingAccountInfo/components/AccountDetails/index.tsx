@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import clsx from 'clsx';
 import { StakingContext } from '~/context/StakingContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
@@ -57,14 +58,18 @@ export const AccountDetails: React.FC<IAccountDetailsProps> = ({
     <>
       <StyledTopInfo>
         <IconWrapper $size="48px">
-          <Icon name="StakingIcon" size="32px" className="staking-icon" />
+          <Icon
+            name="StakingIcon"
+            size="32px"
+            className={clsx('staking-icon')}
+          />
         </IconWrapper>
-        <div className="heading-wrapper">
+        <div className={clsx('heading-wrapper')}>
           <Heading type="h4">Staking Account Details</Heading>
         </div>
       </StyledTopInfo>
       <StyledAccountItemWrapper $cardWidth={cardWidth}>
-        <div className="staking-account-item">
+        <div className={clsx('staking-account-item')}>
           {stashAddress && (
             <Value>
               <StyledNameOrKey>
@@ -82,7 +87,7 @@ export const AccountDetails: React.FC<IAccountDetailsProps> = ({
             />
           </Label>
         </div>
-        <div className="staking-account-item">
+        <div className={clsx('staking-account-item')}>
           {controllerAddress && (
             <Value>
               <StyledNameOrKey>
@@ -100,7 +105,7 @@ export const AccountDetails: React.FC<IAccountDetailsProps> = ({
             />
           </Label>
         </div>
-        <div className="staking-account-item">
+        <div className={clsx('staking-account-item')}>
           <Value>
             {rewardDestination &&
             sdk?.accountManagement.isValidAddress({
@@ -125,10 +130,10 @@ export const AccountDetails: React.FC<IAccountDetailsProps> = ({
           </Label>
         </div>
         {totalBonded && (
-          <div className="staking-account-item">
+          <div className={clsx('staking-account-item')}>
             <Value>
               {formatBalance(totalBonded?.toString())}{' '}
-              <span className="grayed">POLYX</span>
+              <span className={clsx('grayed')}>POLYX</span>
             </Value>
             <Label>
               Bonded
@@ -141,10 +146,10 @@ export const AccountDetails: React.FC<IAccountDetailsProps> = ({
           </div>
         )}
         {amountActive && (
-          <div className="staking-account-item">
+          <div className={clsx('staking-account-item')}>
             <Value>
               {formatBalance(amountActive?.toString())}{' '}
-              <span className="grayed">POLYX</span>{' '}
+              <span className={clsx('grayed')}>POLYX</span>{' '}
             </Value>
             <Label>
               Stakeable
@@ -156,10 +161,10 @@ export const AccountDetails: React.FC<IAccountDetailsProps> = ({
             </Label>
           </div>
         )}
-        <div className="staking-account-item">
+        <div className={clsx('staking-account-item')}>
           <Value>
             {formatBalance(staked?.toString())}{' '}
-            <span className="grayed">POLYX</span>
+            <span className={clsx('grayed')}>POLYX</span>
           </Value>
           <Label>
             <ExpandableOperators
@@ -173,7 +178,7 @@ export const AccountDetails: React.FC<IAccountDetailsProps> = ({
             />
           </Label>
         </div>
-        <div className="staking-account-item">
+        <div className={clsx('staking-account-item')}>
           <Value>&mdash;</Value>
           <Label>
             <ExpandableOperators
@@ -188,7 +193,7 @@ export const AccountDetails: React.FC<IAccountDetailsProps> = ({
           </Label>
         </div>
         {amountUnbonding && (
-          <div className="staking-account-item">
+          <div className={clsx('staking-account-item')}>
             <Value> {formatBalance(amountUnbonding.toString())} POLYX</Value>
             <Label>
               <Unbonding unbondingLots={unbondingLots} />{' '}
@@ -201,7 +206,7 @@ export const AccountDetails: React.FC<IAccountDetailsProps> = ({
           </div>
         )}
         {amountAvailableToWithdraw && (
-          <div className="staking-account-item">
+          <div className={clsx('staking-account-item')}>
             <Value>
               {formatBalance(amountAvailableToWithdraw?.toString())} POLYX
             </Value>

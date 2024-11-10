@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { IMultiSigListItem } from '../../../../../types';
 import { CallCell } from './CallCell';
 import { CreatorCell } from './CreatorCell';
@@ -86,7 +87,7 @@ export const DetailsData: React.FC<IDetailsProps> = ({
         Created at
         <DateTimeCell date={item.datetime} />
       </StyledInfoBlock>
-      <StyledInfoBlock className="right">
+      <StyledInfoBlock className={clsx('right')}>
         {showStatus ? (
           <>
             Status

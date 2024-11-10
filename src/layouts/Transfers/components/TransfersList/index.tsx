@@ -6,6 +6,7 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useSearchParams } from 'react-router-dom';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import { clsx } from 'clsx';
 import { InstructionsContext } from '~/context/InstructionsContext';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
@@ -379,7 +380,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                       >
                         {perPageOptions.map((option) => (
                           <option
-                            className="options"
+                            className={clsx('options')}
                             key={option}
                             value={option}
                           >
@@ -387,7 +388,10 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                           </option>
                         ))}
                       </select>
-                      <Icon name="DropdownIcon" className="dropdown-icon" />
+                      <Icon
+                        name="DropdownIcon"
+                        className={clsx('dropdown-icon')}
+                      />
                     </StyledPerPageSelect>
                   </StyledPerPageWrapper>
                 )}

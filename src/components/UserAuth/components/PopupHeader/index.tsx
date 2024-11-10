@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { Text } from '~/components/UiKit';
 import {
@@ -25,7 +26,7 @@ export const PopupHeader = ({
     <StyledPopupHeaderWrap $isWide={isWide}>
       <StyledPopupHeader>
         <StyledPopupTitle>
-          <Icon name={icon} size="24px" className="title-icon" />
+          <Icon name={icon} size="24px" className={clsx('title-icon')} />
           <Text size="large" bold>
             {title}
           </Text>

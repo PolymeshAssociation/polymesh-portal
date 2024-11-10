@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import {
   StyledInfoItem,
@@ -38,7 +39,7 @@ export const PropertiesDropdown: React.FC<IPropertiesDropdownProps> = ({
           {label}
           {subLabel && <StyledInfoItemLabel>{subLabel}</StyledInfoItemLabel>}
         </StyledInfoItemLabelWrap>
-        <Icon name="ExpandIcon" size="24px" className="expand-icon" />
+        <Icon name="ExpandIcon" size="24px" className={clsx('expand-icon')} />
       </StyledInfoItemHeader>
       {expandedArgs && (
         <StyledInfoBlockWrap>

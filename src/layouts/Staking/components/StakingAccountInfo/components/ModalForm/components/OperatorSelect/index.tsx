@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect, useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import Identicon from '@polkadot/react-identicon';
+import clsx from 'clsx';
 import { StakingContext } from '~/context/StakingContext';
 import { operatorsNames } from '~/layouts/Staking/constants';
 import { formatKey } from '~/helpers/formatters';
@@ -124,11 +125,11 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
                           onChange(newValue);
                         }}
                       >
-                        <div className="left-content">
+                        <div className={clsx('left-content')}>
                           <Identicon value={account} size={18} />
                           {operatorsNames[account] || formatKey(account)}
                         </div>
-                        <div className="right-content">
+                        <div className={clsx('right-content')}>
                           {operatorAprRecord[account]
                             ? operatorAprRecord[account]
                             : '--'}
@@ -144,7 +145,7 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
                     <Icon
                       name="ExpandIcon"
                       size="24px"
-                      className="expand-icon"
+                      className={clsx('expand-icon')}
                     />
                   </StyledExpandIconWrapper>
                 </StyledOperatorSelectContainer>

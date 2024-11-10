@@ -1,4 +1,5 @@
 import { FC, useState } from 'react';
+import clsx from 'clsx';
 import { Icon, Table } from '~/components';
 import { IRawMultiSigVote } from '~/constants/queries/types';
 import { useSignersTable } from './hooks';
@@ -26,7 +27,7 @@ export const SignersDropdown: FC<ISignersDropdownProps> = ({
     <StyledSignersContainer>
       <StyledHeader onClick={toggleExpanded} $expanded={expanded}>
         <span>Signers</span>
-        <Icon name="ExpandIcon" size="18px" className="expand-icon" />
+        <Icon name="ExpandIcon" size="18px" className={clsx('expand-icon')} />
       </StyledHeader>
       {expanded && (
         <Table

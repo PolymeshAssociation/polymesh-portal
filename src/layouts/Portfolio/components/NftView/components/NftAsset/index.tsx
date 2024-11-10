@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import { useContext, useEffect, useState } from 'react';
 import { bytesToString } from '@polymeshassociation/polymesh-sdk/utils/conversion';
+import clsx from 'clsx';
 import { SkeletonLoader } from '~/components/UiKit';
 import { Icon } from '~/components';
 import {
@@ -76,7 +77,7 @@ export const NftAsset = () => {
           {nft?.imgUrl ? (
             <img src={nft?.imgUrl || ''} alt={nftId as string} />
           ) : (
-            <Icon name="Coins" size="100px" className="coins-icon" />
+            <Icon name="Coins" size="100px" className={clsx('coins-icon')} />
           )}
         </StyledImage>
         {nft?.isLocked && <NftStatusLabel />}

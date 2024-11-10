@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import {
   RefreshButton,
@@ -83,12 +84,16 @@ export const DistributionsHeader: React.FC<IDistributionsHeaderProps> = ({
                 value={sortBy}
               >
                 {Object.values(ESortOptions).map((option) => (
-                  <option className="options" key={option} value={option}>
+                  <option
+                    className={clsx('options')}
+                    key={option}
+                    value={option}
+                  >
                     {option}
                   </option>
                 ))}
               </select>
-              <Icon name="DropdownIcon" className="dropdown-icon" />
+              <Icon name="DropdownIcon" className={clsx('dropdown-icon')} />
             </StyledSort>
           </StyledSortWrapper>
           <RefreshButton

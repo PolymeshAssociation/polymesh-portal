@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { formatKey } from '~/helpers/formatters';
 import {
@@ -152,7 +153,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
           ) : (
             displayedOption || placeholder
           )}
-          <Icon name="ExpandIcon" size="18px" className="icon" />
+          <Icon name="ExpandIcon" size="18px" className={clsx('icon')} />
         </StyledSelect>
         {!!dropdownOptions.length && selectExpanded && (
           <StyledExpandedSelect $borderRadius={borderRadius}>

@@ -1,5 +1,6 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
+import clsx from 'clsx';
 import {
   Footer,
   Header,
@@ -56,7 +57,7 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
           mobileMenuOpen={mobileMenuOpen}
           toggleMobileMenu={toggleMobileMenu}
         />
-        <div className="main-wrapper">
+        <div className={clsx('main-wrapper')}>
           <Header toggleMobileMenu={toggleMobileMenu} />
           <StyledMain $isLandingPage={isLandingPage}>
             {pathname !== '/settings' && <UserAuth />}

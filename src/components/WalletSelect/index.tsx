@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useContext } from 'react';
+import clsx from 'clsx';
 import { AccountContext } from '~/context/AccountContext';
 import { Icon } from '~/components';
 import {
@@ -160,8 +161,10 @@ const WalletSelect: React.FC<ISelectProps> = ({
                 $placement={placement}
               >
                 <span>
-                  <span className="meta">{meta.name || ''}</span>
-                  <span className="key">{formatKey(address, 8, 7)}</span>
+                  <span className={clsx('meta')}>{meta.name || ''}</span>
+                  <span className={clsx('key')}>
+                    {formatKey(address, 8, 7)}
+                  </span>
                 </span>
                 <StyledKeyLabel
                   $primary={keyIdentityRelationships[address] === 'Primary'}
@@ -193,8 +196,8 @@ const WalletSelect: React.FC<ISelectProps> = ({
                 $placement={placement}
               >
                 <span>
-                  <span className="meta">Recent External Key</span>
-                  <span className="key">
+                  <span className={clsx('meta')}>Recent External Key</span>
+                  <span className={clsx('key')}>
                     {formatKey(lastExternalKey, 8, 7)}
                   </span>
                 </span>

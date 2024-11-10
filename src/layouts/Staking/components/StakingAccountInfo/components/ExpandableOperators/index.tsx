@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import Identicon from '@polkadot/react-identicon';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import {
   IconWrapper,
@@ -55,7 +56,11 @@ const ExpandableOperators: React.FC<ExpandableOperatorProps> = ({
 
     return (
       <OperatorEntry key={operatorAccount}>
-        <Identicon className="identicon" value={operatorAccount} size={18} />
+        <Identicon
+          className={clsx('identicon')}
+          value={operatorAccount}
+          size={18}
+        />
         {operatorsNames[operatorAccount] || formatKey(operatorAccount)}
         {value && (
           <>

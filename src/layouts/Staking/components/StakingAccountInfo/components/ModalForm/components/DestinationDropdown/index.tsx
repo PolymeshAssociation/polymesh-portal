@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
+import clsx from 'clsx';
 import { useOutsideClick } from '~/hooks/utility';
 import { Text } from '~/components/UiKit';
 import { Icon } from '~/components';
@@ -74,7 +75,11 @@ export const DestinationDropdown: React.FC<IDestinationDropdownProps> = ({
                   Select Payment Destination
                 </StyledPlaceholder>
               )}
-              <Icon name="ExpandIcon" className="expand-icon" size="18px" />
+              <Icon
+                name="ExpandIcon"
+                className={clsx('expand-icon')}
+                size="18px"
+              />
             </StyledSelect>
             {expanded && (
               <StyledExpandedSelect>

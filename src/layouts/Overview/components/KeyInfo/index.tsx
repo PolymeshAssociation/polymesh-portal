@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext, useRef } from 'react';
+import clsx from 'clsx';
 import { AccountContext } from '~/context/AccountContext';
 import { EKeyIdentityStatus } from '~/context/AccountContext/constants';
 import { Icon, CopyToClipboard, WalletSelect } from '~/components';
@@ -67,13 +68,13 @@ export const KeyInfo = () => {
     <StyledWrapper>
       {!isMobile && !isSmallDesktop && (
         <IconWrapper $size="64px">
-          <Icon name="KeyIcon" className="key-icon" size="26px" />
+          <Icon name="KeyIcon" className={clsx('key-icon')} size="26px" />
         </IconWrapper>
       )}
-      <div className="info-wrapper" ref={ref}>
+      <div className={clsx('info-wrapper')} ref={ref}>
         <Text marginBottom={4}>
           Selected key:{' '}
-          <span className="key-name">{truncatedSelectedKeyName}</span>
+          <span className={clsx('key-name')}>{truncatedSelectedKeyName}</span>
         </Text>
         <KeyInfoWrapper>
           {selectedAccount && keyIdentityRelationships[selectedAccount] ? (

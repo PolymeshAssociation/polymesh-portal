@@ -4,6 +4,7 @@ import {
   NumberedPortfolio,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { DefaultPortfolio as DefaultPortfolioInstance } from '@polymeshassociation/polymesh-sdk/internal';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { Text } from '~/components/UiKit';
 import { PortfolioContext } from '~/context/PortfolioContext';
@@ -80,7 +81,7 @@ export const PortfolioSelect: React.FC<IPortfolioSelectProps> = ({
           ) : (
             <StyledPlaceholder>Select portfolio</StyledPlaceholder>
           )}
-          <Icon name="ExpandIcon" size="18px" className="expand-icon" />
+          <Icon name="ExpandIcon" size="18px" className={clsx('expand-icon')} />
         </StyledPortfolioSelect>
         {portfolioSelectExpanded && (
           <StyledExpandedSelect>

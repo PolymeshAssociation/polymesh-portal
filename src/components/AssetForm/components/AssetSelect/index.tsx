@@ -5,6 +5,7 @@ import {
   FungibleAsset,
   PortfolioBalance,
 } from '@polymeshassociation/polymesh-sdk/types';
+import clsx from 'clsx';
 import { formatBalance, formatUuid, stringToColor } from '~/helpers/formatters';
 import { Icon } from '~/components';
 import { Text } from '~/components/UiKit';
@@ -206,7 +207,11 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
             ) : (
               <StyledPlaceholder>Select Asset</StyledPlaceholder>
             )}
-            <Icon name="ExpandIcon" className="expand-icon" size="18px" />
+            <Icon
+              name="ExpandIcon"
+              className={clsx('expand-icon')}
+              size="18px"
+            />
           </StyledSelect>
           {assetSelectExpanded && (
             <StyledExpandedSelect>

@@ -10,6 +10,7 @@ import {
   RotatePrimaryKeyToSecondaryData,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { NumberedPortfolio } from '@polymeshassociation/polymesh-sdk/internal';
+import clsx from 'clsx';
 import { CopyToClipboard } from '~/components';
 import {
   StyledDetailsWrapper,
@@ -326,7 +327,9 @@ export const formatExpiry = (expiry: string) => {
   return (
     <>
       {date} /{' '}
-      <StyledExpiryTime className="expiry-time">{time}</StyledExpiryTime>
+      <StyledExpiryTime className={clsx('expiry-time')}>
+        {time}
+      </StyledExpiryTime>
     </>
   );
 };

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { Button, Text, Heading } from '~/components/UiKit';
 import { notifyError } from '~/helpers/notifications';
@@ -115,7 +116,7 @@ export const NewsModal = () => {
           </StyledInputsContainer>
           <Button
             variant="modalPrimary"
-            className="subscribe-btn"
+            className={clsx('subscribe-btn')}
             disabled={!email || !!error || !termsAccepted || needToCheck}
             onClick={handleSubscribe}
           >

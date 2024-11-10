@@ -6,6 +6,7 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 import { ReactElement, useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import clsx from 'clsx';
 import { CopyToClipboard, Icon } from '~/components';
 import { Button, Text } from '~/components/UiKit';
 import { EAuthorizationDirections } from '../../constants';
@@ -197,7 +198,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
           </Button>
         )}
         <Button variant="secondary" onClick={toggleDetails} disabled={!details}>
-          <Icon name="ExpandIcon" size="24px" className="expand-icon" />
+          <Icon name="ExpandIcon" size="24px" className={clsx('expand-icon')} />
           Details
         </Button>
       </StyledButtonsWrapper>

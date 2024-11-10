@@ -1,5 +1,6 @@
 import { useEffect, useState, useContext } from 'react';
 import { Identity } from '@polymeshassociation/polymesh-sdk/types';
+import clsx from 'clsx';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { useAuthContext } from '~/context/AuthContext';
@@ -180,10 +181,10 @@ export const DidInfo = () => {
         <StyledTopInfo>
           {!isMobile && !isSmallDesktop && (
             <IconWrapper $size="64px">
-              <Icon name="IdCard" size="32px" className="id-icon" />
+              <Icon name="IdCard" size="32px" className={clsx('id-icon')} />
             </IconWrapper>
           )}
-          <div className="did-wrapper">
+          <div className={clsx('did-wrapper')}>
             {!identityLoading && !identity ? (
               <Text bold size="large" marginTop={isSmallScreen ? 0 : 22}>
                 This key is not linked to an identity

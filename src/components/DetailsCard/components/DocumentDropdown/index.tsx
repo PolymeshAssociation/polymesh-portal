@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AssetDocument } from '@polymeshassociation/polymesh-sdk/types';
+import clsx from 'clsx';
 import { formatKey } from '~/helpers/formatters';
 import { getDateTime } from '../../helpers';
 import { Icon } from '~/components';
@@ -28,7 +29,11 @@ export const DocumentDropdown: React.FC<IDocumentDropdownProps> = ({
         <StyledInfoHeaderWrap $expanded={expanded}>
           <StyledInfoBlockHead>Name</StyledInfoBlockHead>
           <div onClick={toggleExpanded} role="presentation">
-            <Icon name="ExpandIcon" size="24px" className="expand-icon" />
+            <Icon
+              name="ExpandIcon"
+              size="24px"
+              className={clsx('expand-icon')}
+            />
           </div>
         </StyledInfoHeaderWrap>
         {document.name}

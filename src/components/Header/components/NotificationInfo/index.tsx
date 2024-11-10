@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useContext } from 'react';
 import { ToastContainer } from 'react-toastify';
+import { clsx } from 'clsx';
 import { ThemeContext } from '~/context/ThemeContext';
 import { useNotifications } from '~/hooks/polymesh';
 import { StyledWrapper, StyledNotificationCenter } from './styles';
@@ -34,7 +35,10 @@ export const NotificationInfo = () => {
       <StyledWrapper onClick={toggleDropdown} $expanded={expanded}>
         <Icon name="NotificationIcon" />
         {!notificationsLoading && totalPending ? (
-          <NotificationCounter count={totalPending} className="notification" />
+          <NotificationCounter
+            count={totalPending}
+            className={clsx('notification')}
+          />
         ) : null}
       </StyledWrapper>
       <StyledNotificationCenter>

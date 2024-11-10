@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { EActionButtonStatus } from '../../constants';
 import {
@@ -33,7 +34,7 @@ export const ActionButton = ({
     <StyledActionButtonWrapper>
       <StyledActionLabel>{title}</StyledActionLabel>
       <StyledActionButton $status={status} onClick={handleButtonClick}>
-        <Icon name={icon} size="24px" className="icon" />
+        <Icon name={icon} size="24px" className={clsx('icon')} />
         <StyledActionLabelWrap>
           {status === EActionButtonStatus.ACTION_PENDING ? (
             <>

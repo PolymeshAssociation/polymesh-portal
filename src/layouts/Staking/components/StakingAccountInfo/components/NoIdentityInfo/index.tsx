@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import clsx from 'clsx';
 import { AccountContext } from '~/context/AccountContext';
 import { useAuthContext } from '~/context/AuthContext';
 import { EKeyIdentityStatus } from '~/context/AccountContext/constants';
@@ -33,10 +34,10 @@ export const NoIdentityInfo: React.FC<INoIdentityInfoProps> = ({
       <StyledTopInfo>
         {!isMobile && (
           <IconWrapper $size="48px">
-            <Icon name="IdCard" size="32px" className="id-icon" />
+            <Icon name="IdCard" size="32px" className={clsx('id-icon')} />
           </IconWrapper>
         )}
-        <div className="heading-wrapper">
+        <div className={clsx('heading-wrapper')}>
           <Heading type="h4">This key is not linked to an identity</Heading>
         </div>
       </StyledTopInfo>
