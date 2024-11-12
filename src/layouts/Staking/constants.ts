@@ -23,6 +23,8 @@ export const operatorsNames: Record<string, string> = {
   '2HU3VEvs33dkRAYPanXdtket6sjfwppQWArZWRxD3GpCm9vx': 'EchoChain 2',
   '2DgXZxZY7h5TbZ8EbuXfJ29M3p7ZMjWcidKKFx5LYZBZH9fe': 'EchoChain 3',
   '2DB3AF8H4EfxCqDss3oAaugLTpZ4HR9LRCfrrYThQAyAR1J5': 'Elseware 1',
+  '2E3aDJj3tzPYSfg8FaxoHBsEgcqTHWupSCoi2YmXnEbNTQgm': 'Elseware 2',
+  '2DMkPNKkDus52C8YEDswjHeEWj8r1qMawMNtev6v91RMyLmg': 'Elseware 3',
   '2DK6iDQ3fcP9BDtLzPE9DcmTpkMq8JpwE3sLZvPWQnP7SaFf': 'Entoro 1',
   '2G7mLeEVbzRqwvahgYQvR6fNyoT91XMy1oGCHiSCkRM1UcE9': 'Entoro 2',
   '2FarNp4Q3p2vSdCJzF1oHvQmDd7gHrZivzJHj7cecXobixW8': 'Entoro 3',
