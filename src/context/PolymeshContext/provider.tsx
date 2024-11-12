@@ -101,8 +101,10 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
                 'https://assets-global.website-files.com/61c0a31b90958801836efe1b/62d08014db27c031ec24b6f6_polymesh-symbol.svg',
               ],
             },
-            chainIds: ['polkadot:6fbd74e5e1d0a61d52ccfe9d4adaed16'], // Polymesh Mainnet
-            optionalChainIds: ['polkadot:2ace05e703aa50b48c0ccccfc8b424f7'], // Polymesh Testnet
+            chainIds: [
+              `polkadot:${polkadotApi.genesisHash.toString().slice(0, 32)}`,
+            ],
+            optionalChainIds: [],
             modalOptions: {
               themeMode,
               themeVariables: {
