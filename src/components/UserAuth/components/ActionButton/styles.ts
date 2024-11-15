@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { EActionButtonStatus } from '../../constants';
 import { getActionLabelColor } from './helpers';
+import { MatomoData } from '~/helpers/matomoTags';
 
 export const StyledActionButtonWrapper = styled.div`
   display: flex;
@@ -11,6 +12,7 @@ export const StyledActionButtonWrapper = styled.div`
 
 export const StyledActionButton = styled.button<{
   $status: EActionButtonStatus;
+  matomoData?: MatomoData;
 }>`
   display: flex;
   gap: 8px;

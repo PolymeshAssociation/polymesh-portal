@@ -41,8 +41,10 @@ export const WalletSelect = () => {
           onProceed={() => window.location.reload()}
           onGoBack={() => setConnectPopup('extensions')}
           aligned
-          data-event-category="onboarding"
-          data-event-name="wallet-refresh-view"
+          matomoData={{
+            eventCategory: "onboarding",
+            eventName: "wallet-refresh-view",
+          }}    
         />
       </>
     );
@@ -59,10 +61,12 @@ export const WalletSelect = () => {
       <PopupActionButtons
         onProceed={() => setConnectPopup(null)}
         onGoBack={() => setConnectPopup('extensions')}
-        data-event-category="onboarding"
-        data-event-name="connect-wallet-view"
         proceedTag="wallet-proceed"
-      aligned
+        matomoData={{
+          eventCategory: "onboarding",
+          eventName: "connect-wallet-view",
+        }}    
+        aligned
       />
     </>
   );

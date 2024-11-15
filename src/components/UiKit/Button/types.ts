@@ -1,3 +1,5 @@
+import { MatomoData } from '~/helpers/matomoTags';
+
 export enum EButtonVariants {
   ACCENT = 'accent',
   TRANSPARENT = 'transparent',
@@ -17,4 +19,5 @@ export interface IButtonProps {
   disabled?: boolean;
   className?: string;
   round?: boolean;
+  matomoData?: MatomoData;
 }

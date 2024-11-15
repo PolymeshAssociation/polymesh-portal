@@ -4,23 +4,15 @@
 
   // Send data to Matomo function
   function sendEventData(elem) {
-      let action = "";
-      if(elem.getAttribute('data-event-action') != null)
-          action = elem.getAttribute('data-event-action');
-      let name = "";
-      if(elem.getAttribute('data-event-name') != null)
-          name = elem.getAttribute('data-event-name');     
-      let value = 0;
-      if(elem.getAttribute('data-event-value') != null)
-          value = elem.getAttribute('data-event-value');  
-
+      const matomoDataAttr = elem.getAttribute('matomoData');
+      let action = elem.getAttribute('matomoData').eventAction || "";
+      let name = elem.getAttribute('matomoData').eventName || "";     
       _mtm.push({
           'event': 'customEvent',
-              'eventCategory': elem.getAttribute('data-event-category'),
-              'eventAction': action,
+              'eventCategory': elem.getAttribute('matomoData').eventCategory,
+              'eventAction1': action,
               'eventName': name,
-              'eventValue': value
-        });             
+      });             
   }
   // Javascript polyfill for the function .closest for IE9+
   if (!Element.prototype.matches) {
@@ -42,17 +34,17 @@
   }    
   // END - Javascript polyfill for the function .closest for IE9+
 
-  // Detect clicks on elements with data attribute data-event-category or data-event-include
+  // Detect clicks on elements with data attribute matomoData
   document.documentElement.addEventListener('click', function(event) {
       // Check if the left mouse button was clicked
       if (event.button !== 0) return;
 
       const target = event.target;
       
-      if (target.getAttribute('data-event-category') !== null) {
+      if (target.getAttribute('matomoData') !== null) {
           sendEventData(target);
       } else {
-          const closestElement = target.closest('[data-event-category]');
+          const closestElement = target.closest('[matomoData]');
           if (closestElement !== null) {
               sendEventData(closestElement);
           }

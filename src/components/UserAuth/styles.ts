@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import connectBackground from '~/assets/connect-bg.svg';
+import { MatomoData } from '~/helpers/matomoTags';
 
 export const StyledAuthContainer = styled.section`
   display: flex;
@@ -27,13 +28,14 @@ export const StyledAuthHeader = styled.h1`
   color: #ffffff;
 `;
 
-export const StyledCloseButton = styled.button`
+export const StyledCloseButton = styled.button<{matomoData?: MatomoData}>`
   margin-left: auto;
   width: fit-content;
   height: 20px;
   cursor: pointer;
   background: transparent;
   transition: opacity 250ms ease-out;
+
   &:hover {
     opacity: 0.8;
   }

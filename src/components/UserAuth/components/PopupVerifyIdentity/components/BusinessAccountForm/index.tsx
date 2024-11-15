@@ -68,11 +68,13 @@ export const BusinessAccountForm = ({
       <PopupActionButtons
         onProceed={handleSubmit}
         onGoBack={handleGoBack}
-        proceedLabel="Contact Us"
-        data-event-category="onboarding"
-        data-event-name="contact-us-view"        
+        proceedLabel="Contact Us"  
         canProceed={!nameError && !!name && !emailError && !!email}
         aligned
+        matomoData={{
+          eventCategory: "onboarding",
+          eventName: "contact-us-view",
+        }}    
       />
     </>
   );

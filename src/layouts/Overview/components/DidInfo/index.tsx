@@ -242,9 +242,11 @@ export const DidInfo = () => {
                       : 'providers',
                 })
               }
-              data-event-category="onboarding"
-              data-event-action="verify-identity"
-              data-event-name="did-view"
+              matomoData={{
+                eventCategory: "onboarding",
+                eventAction: "verify-identity",
+                eventName: "did-view"
+              }}
             >
               Complete onboarding
             </Button>

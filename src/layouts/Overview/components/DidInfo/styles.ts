@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { MatomoData } from '~/helpers/matomoTags';
 
 export const StyledWrapper = styled.div`
   grid-area: did;
@@ -134,7 +135,7 @@ export const Separator = styled.div`
   background-color: rgba(255, 255, 255, 0.12);
 `;
 
-export const StyledButtonWrapper = styled.div`
+export const StyledButtonWrapper = styled.div<{matomoData?: MatomoData}>`
   display: flex;
   align-items: center;
   justify-content: center;

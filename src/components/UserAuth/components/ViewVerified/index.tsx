@@ -61,9 +61,11 @@ export const ViewVerified = ({ handleDismiss }: IViewVerifiedProps) => {
         <StyledAuthHeader>Onboarding Complete!</StyledAuthHeader>
         <StyledCloseButton
           onClick={handleDismiss}
-          data-event-category="newsletter"
-          data-event-action="close"
-          data-event-name="newsletter-view"
+          matomoData={{
+            eventCategory: "newsletter",
+            eventAction: "close",
+            eventName: "newsletter-view",
+          }}   
         >
           <Icon name="CloseCircledIcon" size="24px" />
         </StyledCloseButton>

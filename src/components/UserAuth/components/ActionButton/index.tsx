@@ -6,6 +6,7 @@ import {
   StyledActionLabelWrap,
   StyledActionLabel,
 } from './styles';
+import { MatomoData } from '~/helpers/matomoTags';
 
 interface IActionButtonProps {
   title: string;
@@ -13,7 +14,7 @@ interface IActionButtonProps {
   icon: 'ConnectWalletIcon' | 'ConnectIdentityIcon';
   status: EActionButtonStatus;
   handleClick: () => void;
-  [key: string]: any; // Accept any additional props
+  matomoData?: MatomoData;
 }
 
 export const ActionButton = ({
@@ -22,7 +23,7 @@ export const ActionButton = ({
   icon,
   status,
   handleClick,
-  ...props
+  matomoData = undefined,
 }: IActionButtonProps) => {
   const handleButtonClick = () => {
     if (status === EActionButtonStatus.ACTION_DISABLED) {
@@ -37,8 +38,8 @@ export const ActionButton = ({
       <StyledActionButton
         $status={status}
         onClick={handleButtonClick}
-        {...props} // Set the tracking attributes
-      >
+        matomoData={matomoData}
+        >
         <Icon name={icon} size="24px" className="icon" />
         <StyledActionLabelWrap>
           {status === EActionButtonStatus.ACTION_PENDING ? (

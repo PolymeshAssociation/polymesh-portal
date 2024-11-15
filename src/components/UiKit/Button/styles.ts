@@ -1,11 +1,13 @@
 import styled, { css } from 'styled-components';
 import { EButtonVariants } from './types';
+import { MatomoData } from '~/helpers/matomoTags';
 
 export const StyledButton = styled.button<{
   $variant: `${EButtonVariants}`;
   $marginTop?: number;
   $marginBottom?: number;
   $round?: boolean;
+  matomoData?: MatomoData;
 }>`
   ${({ $variant, $marginTop, $marginBottom, theme }) => css`
     display: inline-flex;

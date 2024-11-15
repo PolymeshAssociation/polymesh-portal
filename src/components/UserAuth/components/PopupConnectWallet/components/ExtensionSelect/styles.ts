@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { MatomoData } from '~/helpers/matomoTags';
 
 export const StyledExtensionList = styled.ul<{ $isMobile: boolean }>`
   margin-top: 8px;
@@ -20,7 +21,10 @@ export const StyledExtensionList = styled.ul<{ $isMobile: boolean }>`
   }
 `;
 
-export const StyledExtensionBox = styled.li<{ $isMobile: boolean }>`
+export const StyledExtensionBox = styled.li<{
+  $isMobile: boolean
+  matomoData?: MatomoData
+ }>`
   position: relative;
   height: ${({ $isMobile }) => ($isMobile ? 'fit-content' : '235px')};
   cursor: pointer;

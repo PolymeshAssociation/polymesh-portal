@@ -1,11 +1,12 @@
 import { StyledActionCard } from './styles';
+import { MatomoData } from '~/helpers/matomoTags';
 
 interface IActionCardProps {
   children: React.ReactNode | React.ReactNode[];
   hovered?: boolean;
-  [key: string]: any; // Accept any additional props
+  matomoData?: MatomoData;
 }
 
-export const ActionCard = ({ children, hovered = false, ...props }: IActionCardProps) => {
-  return <StyledActionCard $hovered={hovered} {...props}>{children}</StyledActionCard>;
+export const ActionCard = ({ children, hovered = false, matomoData = undefined }: IActionCardProps) => {
+  return <StyledActionCard $hovered={hovered} matomoData={matomoData}>{children}</StyledActionCard>;
 };

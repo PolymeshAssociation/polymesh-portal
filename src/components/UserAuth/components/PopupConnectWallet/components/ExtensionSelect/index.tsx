@@ -85,9 +85,11 @@ export const ExtensionSelect = () => {
             $isMobile={isMobileDevice}
             key="walletConnect"
             onClick={handleWalletConnect}
-            data-event-category="onboarding"
-            data-event-action="wallet-select"
-            data-event-name="walletconnect"
+            matomoData={{
+              eventCategory: "onboarding",
+              eventAction: "wallet-select",
+              eventName: "walletconnect"
+            }}            
           >
             <ActionCard hovered>
               <StyledExtensionName $isMobile={isMobileDevice}>
@@ -124,11 +126,13 @@ export const ExtensionSelect = () => {
       <div>
         <Text bold>Advanced:</Text>
         <SecondaryButton
-          data-event-category="onboarding"
-          data-event-action="wallet-select"
-          data-event-name="manual"
           label="Manually enter a wallet key"
           handleClick={() => setConnectPopup('manual')}
+          matomoData={{
+            eventCategory: "onboarding",
+            eventAction: "wallet-select",
+            eventName: "manual"
+          }}    
         />
       </div>
     </>

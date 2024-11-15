@@ -25,9 +25,11 @@ export const ExtensionCard = ({ wallet }: IExtensionCardProps) => {
   return (
     <ActionCard
       hovered
-      data-event-category="onboarding"
-      data-event-action="wallet-select"
-      data-event-name={`${wallet.walletName.toLowerCase()}`}
+      matomoData={{
+        eventCategory: "onboarding",
+        eventAction: "wallet-select",
+        eventName: `${wallet.walletName.toLowerCase()}`
+      }}
     >
       <StyledExtensionName $isMobile={isMobileDevice}>
         <Icon

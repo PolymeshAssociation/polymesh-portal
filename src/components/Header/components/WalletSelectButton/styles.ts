@@ -1,6 +1,7 @@
 import styled from 'styled-components';
+import { MatomoData } from '~/helpers/matomoTags';
 
-export const StyledWrapper = styled.div`
+export const StyledWrapper = styled.div<{matomoData?: MatomoData}>`
   position: relative;
   display: flex;
   align-items: center;

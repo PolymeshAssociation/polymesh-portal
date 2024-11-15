@@ -46,9 +46,11 @@ export const PopupWelcome = () => {
             <Button
               onClick={handleProceed}
               variant="modalSecondary"
-              data-event-category="onboarding"
-              data-event-action="connect-wallet"
-              data-event-name="welcome-view"
+              matomoData={{
+                eventCategory: "onboarding",
+                eventAction: "connect-wallet",
+                eventName: "welcome-view"
+              }}
             >
               Connect Wallet Now
             </Button>
