@@ -11,6 +11,8 @@ export const createPlaceholderByScopeType = (type: ScopeType) => {
     case ScopeType.Asset:
       return 'Enter Asset ID or Ticker';
 
+    // TODO remove when no longer supported
+    // eslint-disable-next-line deprecation/deprecation
     case ScopeType.Ticker:
       return 'Enter Ticker';
 
