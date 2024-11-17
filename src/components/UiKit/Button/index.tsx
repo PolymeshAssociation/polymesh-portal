@@ -10,7 +10,7 @@ const Button: React.FC<IButtonProps> = ({
   disabled,
   className,
   round,
-  ...props
+  matomoData
 }) => {
   return (
     <StyledButton
@@ -22,7 +22,9 @@ const Button: React.FC<IButtonProps> = ({
       disabled={disabled}
       className={className}
       $round={round}
-      {...props}
+      data-event-category={matomoData?.eventCategory}
+      data-event-action={matomoData?.eventAction}
+      data-event-name={matomoData?.eventName}
     >
       {children}
     </StyledButton>

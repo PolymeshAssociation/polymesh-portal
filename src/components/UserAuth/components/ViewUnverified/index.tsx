@@ -49,9 +49,11 @@ export const ViewUnverified = () => {
               ? EActionButtonStatus.ACTION_DONE
               : EActionButtonStatus.ACTION_ACTIVE
           }
-          data-event-category="onboarding"
-          data-event-action="connect-wallet"
-          data-event-name="unverified-view"
+          matomoData={{
+            eventCategory: 'onboarding',
+            eventAction: 'connect-wallet',
+            eventName: 'unverified-view'
+          }}
           handleClick={() => setConnectPopup('extensions')}
         />
         <ActionButton
@@ -64,8 +66,11 @@ export const ViewUnverified = () => {
           icon="ConnectIdentityIcon"
           status={getIdentityButtonStatus()}
           data-event-category="onboarding"
-          data-event-action="verify-identity"
-          data-event-name="unverified-view"
+          matomoData={{
+            eventCategory: 'onboarding',
+            eventAction: 'verify-identity',
+            eventName: 'unverified-view'
+          }}
           handleClick={() =>
             setIdentityPopup({
               type:

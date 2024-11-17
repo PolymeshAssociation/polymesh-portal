@@ -1,12 +1,12 @@
 import { Text } from '~/components/UiKit';
 import { StyledSecondaryButton } from './styles';
-
+import { MatomoData } from '~/helpers/matomo';
 interface ISecondaryButtonProps {
   label: string;
   labelSize?: 'large' | 'medium' | 'small';
   underlined?: boolean;
   handleClick: () => void;
-  [key: string]: any; // Accept any additional props
+  matomoData?: MatomoData;
 }
 
 export const SecondaryButton = ({
@@ -14,14 +14,16 @@ export const SecondaryButton = ({
   labelSize = 'medium',
   underlined = false,
   handleClick,
-  ...props
+  matomoData,
 }: ISecondaryButtonProps) => {
   return (
     <StyledSecondaryButton
       $underlined={underlined}
       onClick={handleClick}
-      {...props}
->
+      data-event-category={matomoData?.eventCategory}
+      data-event-action={matomoData?.eventAction}
+      data-event-name={matomoData?.eventName}
+    >
       <Text size={labelSize} bold>
         {label}
       </Text>
