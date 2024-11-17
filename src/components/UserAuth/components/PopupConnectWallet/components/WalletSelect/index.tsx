@@ -59,8 +59,10 @@ export const WalletSelect = () => {
       <PopupActionButtons
         onProceed={() => setConnectPopup(null)}
         onGoBack={() => setConnectPopup('extensions')}
-        data-event-category="onboarding"
-        data-event-name="connect-wallet-view"
+        matomoData={{
+          eventCategory: 'onboarding',
+          eventName: "connect-wallet-view"
+        }}        
         proceedTag="wallet-proceed"
       aligned
       />

@@ -1,5 +1,6 @@
 import { Button } from '~/components/UiKit';
 import { StyledActionButtonsWrap } from './styles';
+import { MatomoData } from '~/helpers/matomo';
 
 interface IPopupActionButtonsProps {
   proceedLabel?: string;
@@ -10,7 +11,7 @@ interface IPopupActionButtonsProps {
   onGoBack?: () => void;
   proceedTag?: string;
   goBackTag?: string;
-  [key: string]: any; // Accept any additional props
+  matomoData?: MatomoData;
 }
 
 export const PopupActionButtons = ({
@@ -22,7 +23,7 @@ export const PopupActionButtons = ({
   onGoBack = undefined,
   proceedTag = undefined,
   goBackTag = undefined,
-  ...props
+  matomoData = undefined,
 }: IPopupActionButtonsProps) => {
   return (
     <StyledActionButtonsWrap $aligned={aligned}>
@@ -30,7 +31,8 @@ export const PopupActionButtons = ({
         <Button
           onClick={onGoBack}
           variant="modalSecondary"
-          {...props}
+          data-event-category={matomoData?.eventCategory}
+          data-event-name={matomoData?.eventName}
           data-event-action={goBackTag ?? goBackLabel.toLowerCase()}
         >
           {goBackLabel}
@@ -42,7 +44,8 @@ export const PopupActionButtons = ({
           onClick={onProceed}
           variant="modalPrimary"
           disabled={!canProceed}
-          {...props}
+          data-event-category={matomoData?.eventCategory}
+          data-event-name={matomoData?.eventName}
           data-event-action={proceedTag ?? proceedLabel.toLowerCase()}
         >
           {proceedLabel}
