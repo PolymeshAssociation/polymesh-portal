@@ -13,13 +13,13 @@ export const ActionCard = ({
   matomoData = undefined,
 }: IActionCardProps) => {
   return (
-    <StyledActionCard 
-      $hovered={hovered} 
-      data-event-category={matomoData?.eventCategory} 
-      data-event-action={matomoData?.eventAction} 
+    <StyledActionCard
+      $hovered={hovered}
+      data-event-category={matomoData?.eventCategory}
+      data-event-action={matomoData?.eventAction}
       data-event-name={matomoData?.eventName}
     >
       {children}
     </StyledActionCard>
-  )
+  );
 };

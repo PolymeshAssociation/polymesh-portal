@@ -48,7 +48,7 @@ export const ManualConnect = () => {
         proceedTag="wallet-proceed"
         matomoData={{
           eventCategory: 'onboarding',
-          eventName: "connect-manual-view"
+          eventName: 'connect-manual-view',
         }}
         canProceed={!error && !!value}
       />

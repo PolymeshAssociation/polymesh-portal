@@ -28,7 +28,7 @@ export const ExtensionCard = ({ wallet }: IExtensionCardProps) => {
       matomoData={{
         eventCategory: 'onboarding',
         eventAction: 'wallet-select',
-        eventName: `${wallet.walletName.toLowerCase()}`
+        eventName: `${wallet.walletName.toLowerCase()}`,
       }}
     >
       <StyledExtensionName $isMobile={isMobileDevice}>

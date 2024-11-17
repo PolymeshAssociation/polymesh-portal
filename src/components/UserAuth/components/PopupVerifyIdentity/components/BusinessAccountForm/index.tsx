@@ -71,8 +71,8 @@ export const BusinessAccountForm = ({
         proceedLabel="Contact Us"
         matomoData={{
           eventCategory: 'onboarding',
-          eventName: "contact-us-view"
-        }}        
+          eventName: 'contact-us-view',
+        }}
         canProceed={!nameError && !!name && !emailError && !!email}
         aligned
       />

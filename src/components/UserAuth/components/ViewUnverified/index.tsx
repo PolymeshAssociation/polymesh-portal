@@ -52,7 +52,7 @@ export const ViewUnverified = () => {
           matomoData={{
             eventCategory: 'onboarding',
             eventAction: 'connect-wallet',
-            eventName: 'unverified-view'
+            eventName: 'unverified-view',
           }}
           handleClick={() => setConnectPopup('extensions')}
         />
@@ -69,7 +69,7 @@ export const ViewUnverified = () => {
           matomoData={{
             eventCategory: 'onboarding',
             eventAction: 'verify-identity',
-            eventName: 'unverified-view'
+            eventName: 'unverified-view',
           }}
           handleClick={() =>
             setIdentityPopup({
