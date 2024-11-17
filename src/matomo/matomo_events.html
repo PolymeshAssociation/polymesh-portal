@@ -3,16 +3,10 @@
   var _mtm = window._mtm = window._mtm || [];
 
   // Send data to Matomo function
-  function sendEventData(elem) {
-      let action = "";
-      if(elem.getAttribute('data-event-action') != null)
-          action = elem.getAttribute('data-event-action');
-      let name = "";
-      if(elem.getAttribute('data-event-name') != null)
-          name = elem.getAttribute('data-event-name');     
-      let value = 0;
-      if(elem.getAttribute('data-event-value') != null)
-          value = elem.getAttribute('data-event-value');  
+  function sendEventData(elem) {      
+    const action = elem.getAttribute('data-event-action') || '';
+    const name = elem.getAttribute('data-event-name') || '';
+    const value = elem.getAttribute('data-event-value') || 0;
 
       _mtm.push({
           'event': 'customEvent',
