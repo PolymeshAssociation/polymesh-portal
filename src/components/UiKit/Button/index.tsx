@@ -10,7 +10,7 @@ const Button: React.FC<IButtonProps> = ({
   disabled,
   className,
   round,
-  matomoData
+  matomoData,
 }) => {
   return (
     <StyledButton

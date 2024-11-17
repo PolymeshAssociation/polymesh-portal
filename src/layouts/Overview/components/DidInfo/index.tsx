@@ -245,7 +245,7 @@ export const DidInfo = () => {
               matomoData={{
                 eventCategory: 'onboarding',
                 eventAction: 'verify-identity',
-                eventName: 'did-view'
+                eventName: 'did-view',
               }}
             >
               Complete onboarding

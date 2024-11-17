@@ -123,8 +123,8 @@ export const ProviderSelect = () => {
         matomoData={{
           eventCategory: 'onboarding',
           eventAction: 'cdd-select',
-          eventName: "business"
-        }}        
+          eventName: 'business',
+        }}
       />
       {showContactUs && (
         <StyledContactUsContainer>
@@ -135,8 +135,8 @@ export const ProviderSelect = () => {
             matomoData={{
               eventCategory: 'onboarding',
               eventAction: 'cdd-select',
-              eventName: "business-form"
-            }}        
+              eventName: 'business-form',
+            }}
           />{' '}
           to indicate your desire to onboard your business to Polymesh. To
           expedite the process, include &quot;Business onboarding&quot; in the

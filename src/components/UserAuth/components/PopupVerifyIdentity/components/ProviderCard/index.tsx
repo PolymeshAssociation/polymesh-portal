@@ -32,8 +32,8 @@ export const ProviderCard = ({ provider, isTestnet }: IProviderCardProps) => {
       matomoData={{
         eventCategory: 'onboarding',
         eventAction: 'cdd-select',
-        eventName: `${provider.name.toLowerCase()}`
-      }}  
+        eventName: `${provider.name.toLowerCase()}`,
+      }}
     >
       <StyledProviderContainer>
         <Icon name={provider.icon} size={windowWidth > 420 ? '88px' : '60px'} />

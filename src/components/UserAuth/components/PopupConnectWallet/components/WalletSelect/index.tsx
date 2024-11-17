@@ -61,10 +61,10 @@ export const WalletSelect = () => {
         onGoBack={() => setConnectPopup('extensions')}
         matomoData={{
           eventCategory: 'onboarding',
-          eventName: "connect-wallet-view"
-        }}        
+          eventName: 'connect-wallet-view',
+        }}
         proceedTag="wallet-proceed"
-      aligned
+        aligned
       />
     </>
   );

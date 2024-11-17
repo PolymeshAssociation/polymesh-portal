@@ -1,6 +1,7 @@
 import { Text } from '~/components/UiKit';
 import { StyledSecondaryButton } from './styles';
 import { MatomoData } from '~/helpers/matomo';
+
 interface ISecondaryButtonProps {
   label: string;
   labelSize?: 'large' | 'medium' | 'small';
