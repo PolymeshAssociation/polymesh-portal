@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CopyToClipboard as BaseCopyToClipboard } from 'react-copy-to-clipboard';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { StyledCopyWrapper } from './styles';
 
@@ -42,11 +43,14 @@ const CopyToClipboard: React.FC<ICopyProps> = ({ value }) => {
           {showNotification ? (
             <Icon
               name={value ? 'Check' : 'CloseIcon'}
-              className={`check-icon ${value ? 'success' : 'failure'}`}
+              className={clsx('check-icon', {
+                success: value,
+                failure: !value,
+              })}
               size="16px"
             />
           ) : (
-            <Icon name="CopyIcon" className="copy-icon" />
+            <Icon name="CopyIcon" className={clsx('copy-icon')} />
           )}
         </StyledCopyWrapper>
       </BaseCopyToClipboard>

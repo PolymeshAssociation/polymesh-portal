@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import clsx from 'clsx';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
 import { StyledWrapper, StyledLabel } from './styles';
@@ -15,8 +16,8 @@ export const DidInfo = () => {
 
   return (
     <StyledWrapper>
-      <div className="icon-wrapper">
-        <Icon name="IdCard" className="id-icon" size="16px" />
+      <div className={clsx('icon-wrapper')}>
+        <Icon name="IdCard" className={clsx('id-icon')} size="16px" />
       </div>
       {connecting || identityLoading ? (
         <>

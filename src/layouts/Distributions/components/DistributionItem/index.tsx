@@ -4,6 +4,7 @@ import {
   DividendDistribution,
   NoArgsProcedureMethod,
 } from '@polymeshassociation/polymesh-sdk/types';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { Button, SkeletonLoader, Text } from '~/components/UiKit';
 import {
@@ -211,7 +212,7 @@ export const DistributionItem: React.FC<IDistributionItemProps> = ({
           Claim
         </Button>
         <Button variant="secondary" onClick={toggleDetails}>
-          <Icon name="ExpandIcon" size="24px" className="expand-icon" />
+          <Icon name="ExpandIcon" size="24px" className={clsx('expand-icon')} />
           Details
         </Button>
       </StyledButtonsWrapper>

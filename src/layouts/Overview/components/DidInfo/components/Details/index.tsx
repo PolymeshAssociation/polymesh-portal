@@ -5,6 +5,7 @@ import {
   AccountIdentityRelation,
   AccountKeyType,
 } from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
+import clsx from 'clsx';
 import { AccountContext } from '~/context/AccountContext';
 import { Modal, Icon, CopyToClipboard } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
@@ -136,15 +137,15 @@ export const Details: React.FC<IDetailsProps> = ({
       <StyledAccountWrapper>
         <StyledTopInfo>
           <IconWrapper $size="64px">
-            <Icon name="AuthorizationsIcon" className="id-icon" />
+            <Icon name="AuthorizationsIcon" className={clsx('id-icon')} />
           </IconWrapper>
-          <div className="did-wrapper">
+          <div className={clsx('did-wrapper')}>
             <Text color="secondary" marginBottom={8}>
               Your DID
             </Text>
             <StyledDidWrapper>
               <StyledDidThumb>{formatDid(did, 7, 8)}</StyledDidThumb>
-              <IconWrapper className="copy-icon">
+              <IconWrapper className={clsx('copy-icon')}>
                 <CopyToClipboard value={did} />
               </IconWrapper>
             </StyledDidWrapper>
@@ -189,7 +190,7 @@ export const Details: React.FC<IDetailsProps> = ({
               return (
                 <StyledKeyData key={key}>
                   <KeyInfo>
-                    <div className="name-container">
+                    <div className={clsx('name-container')}>
                       {keyName ? (
                         <Text bold truncateOverflow>
                           {keyName}
@@ -198,7 +199,7 @@ export const Details: React.FC<IDetailsProps> = ({
                         ''
                       )}
                     </div>
-                    <div className="status-container">
+                    <div className={clsx('status-container')}>
                       {available && (
                         <StyledLabel $available>
                           {key === selectedAccount ? (
@@ -236,7 +237,7 @@ export const Details: React.FC<IDetailsProps> = ({
                     </div>
                   </KeyInfo>
                   <KeyDetails>
-                    <StyledDidThumb className="key-wrapper">
+                    <StyledDidThumb className={clsx('key-wrapper')}>
                       {formatKey(key)}
                     </StyledDidThumb>
                     <IconWrapper>
@@ -267,11 +268,13 @@ export const Details: React.FC<IDetailsProps> = ({
                               <Text>{!isMobile && 'Key:'}</Text>
                               <KeyDetails>
                                 {accountName && (
-                                  <StyledDidThumb className="key-wrapper">
+                                  <StyledDidThumb
+                                    className={clsx('key-wrapper')}
+                                  >
                                     <Text bold>{accountName}</Text>
                                   </StyledDidThumb>
                                 )}
-                                <StyledDidThumb className="key-wrapper">
+                                <StyledDidThumb className={clsx('key-wrapper')}>
                                   {formatKey(signer.address)}
                                 </StyledDidThumb>
                                 <IconWrapper>
@@ -285,7 +288,7 @@ export const Details: React.FC<IDetailsProps> = ({
                           <SignerDetails key={signer.did}>
                             <Text>Identity:</Text>
                             <KeyDetails>
-                              <StyledDidThumb className="key-wrapper">
+                              <StyledDidThumb className={clsx('key-wrapper')}>
                                 {formatDid(signer.did, 8, 9)}
                               </StyledDidThumb>
                               <IconWrapper>

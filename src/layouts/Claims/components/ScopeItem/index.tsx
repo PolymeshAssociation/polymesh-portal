@@ -1,6 +1,7 @@
 import { Scope, ScopeType } from '@polymeshassociation/polymesh-sdk/types';
 import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import clsx from 'clsx';
 import { CopyToClipboard, Icon } from '~/components';
 import { Button } from '~/components/UiKit';
 import { ClaimsContext } from '~/context/ClaimsContext';
@@ -100,12 +101,16 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
                   value={sortBy}
                 >
                   {Object.values(EClaimSortOptions).map((option) => (
-                    <option className="options" key={option} value={option}>
+                    <option
+                      className={clsx('options')}
+                      key={option}
+                      value={option}
+                    >
                       {option}
                     </option>
                   ))}
                 </select>
-                <Icon name="DropdownIcon" className="dropdown-icon" />
+                <Icon name="DropdownIcon" className={clsx('dropdown-icon')} />
               </StyledSortSelect>
             </StyledSort>
           )}
@@ -113,7 +118,11 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
             variant="secondary"
             onClick={() => setScopeExpanded((prev) => !prev)}
           >
-            <Icon name="ExpandIcon" size="24px" className="expand-icon" />
+            <Icon
+              name="ExpandIcon"
+              size="24px"
+              className={clsx('expand-icon')}
+            />
             Details
           </Button>
         </StyledActionsWrapper>
@@ -131,12 +140,16 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
                   value={sortBy}
                 >
                   {Object.values(EClaimSortOptions).map((option) => (
-                    <option className="options" key={option} value={option}>
+                    <option
+                      className={clsx('options')}
+                      key={option}
+                      value={option}
+                    >
                       {option}
                     </option>
                   ))}
                 </select>
-                <Icon name="DropdownIcon" className="dropdown-icon" />
+                <Icon name="DropdownIcon" className={clsx('dropdown-icon')} />
               </StyledSortSelect>
             </StyledSort>
           )}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import clsx from 'clsx';
 import { Modal } from '~/components';
 import { Heading } from '~/components/UiKit';
 import { StyledNavLink } from '../../styles';
@@ -20,13 +21,13 @@ export const SendAsset: React.FC<ISendAssetProps> = ({ toggleModal }) => {
       </Heading>
       <StyledNavigation>
         <StyledNavLink
-          className={variant === 'basic' ? 'active' : ''}
+          className={clsx({ active: variant === 'basic' })}
           onClick={() => setVariant('basic')}
         >
           Basic
         </StyledNavLink>
         <StyledNavLink
-          className={variant === 'advanced' ? 'active' : ''}
+          className={clsx({ active: variant === 'advanced' })}
           onClick={() => setVariant('advanced')}
         >
           Advanced

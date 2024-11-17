@@ -1,5 +1,6 @@
 import { Table as ReactTable, flexRender } from '@tanstack/react-table';
 import { Dispatch, SetStateAction } from 'react';
+import clsx from 'clsx';
 import { Icon, Pagination } from '~/components';
 import { useWindowWidth } from '~/hooks/utility';
 import { Button, Heading, DropdownSelect, SkeletonLoader } from '../UiKit';
@@ -83,7 +84,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
         >
           {row.getVisibleCells().map((cell, idx) => (
             <StyledMobileCell key={`${cell.id}/desktop`}>
-              <div className="header">
+              <div className={clsx('header')}>
                 {(() => {
                   const currentHeader = tableHeaders.find(
                     (header) => header.index === idx,
@@ -96,7 +97,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
                       );
                 })()}
               </div>
-              <div className="data">
+              <div className={clsx('data')}>
                 {flexRender(
                   cell.column.columnDef.cell &&
                     (cell.column.columnDef.cell as CallableFunction)(cell),
@@ -233,7 +234,10 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
                     variant="primary"
                     disabled={downloadButton.disabled}
                   >
-                    <Icon name="DownloadIcon" className="download-icon" />
+                    <Icon
+                      name="DownloadIcon"
+                      className={clsx('download-icon')}
+                    />
                     {downloadButton.buttonText}
                   </Button>
                 )}
@@ -247,12 +251,19 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
                       value={pageSize}
                     >
                       {perPageOptions.map((option) => (
-                        <option className="options" key={option} value={option}>
+                        <option
+                          className={clsx('options')}
+                          key={option}
+                          value={option}
+                        >
                           {option}
                         </option>
                       ))}
                     </select>
-                    <Icon name="DropdownIcon" className="dropdown-icon" />
+                    <Icon
+                      name="DropdownIcon"
+                      className={clsx('dropdown-icon')}
+                    />
                   </StyledPerPageSelect>
                 </StyledPerPageWrapper>
               </>

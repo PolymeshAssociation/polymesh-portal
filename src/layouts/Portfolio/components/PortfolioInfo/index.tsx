@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import clsx from 'clsx';
 import { AccountContext } from '~/context/AccountContext';
 import { PortfolioContext } from '~/context/PortfolioContext';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
@@ -80,7 +81,7 @@ export const PortfolioInfo = () => {
         {portfolioLoading ? (
           <SkeletonLoader height={isMobile ? 48 : 64} />
         ) : (
-          <div className="info">
+          <div className={clsx('info')}>
             <StyledPortfolioInfo>
               <Heading type="h3" transform="capitalize">
                 {selectedPortfolio.name}
@@ -130,7 +131,7 @@ export const PortfolioInfo = () => {
         )}
       </StyledTopInfo>
       {isMobile && (
-        <div className="details-bottom">
+        <div className={clsx('details-bottom')}>
           {selectedPortfolio.id === 'default' ? null : (
             <StyledDetails>
               Portfolio ID:

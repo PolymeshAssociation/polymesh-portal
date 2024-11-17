@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import clsx from 'clsx';
 import { useAuthContext } from '~/context/AuthContext';
 import { Text, Heading, Button } from '~/components/UiKit';
 import { BusinessAccountForm } from '../BusinessAccountForm';
@@ -19,7 +20,7 @@ export const BusinessAccount = () => {
         <Button
           onClick={() => setIdentityPopup({ type: null })}
           variant="modalPrimary"
-          className="back-btn"
+          className={clsx('back-btn')}
         >
           Back to Portal
         </Button>

@@ -1,5 +1,6 @@
 import { useState, useContext, useEffect } from 'react';
 import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
+import clsx from 'clsx';
 import {
   StyledWrapper,
   StyledModalContent,
@@ -45,7 +46,7 @@ export const WalletConnectInfo = () => {
     <>
       <StyledWrapper onClick={() => setExpanded(true)} $expanded={expanded}>
         <Icon size="24px" name="WalletConnectSymbolNoColor" />
-        <Icon size="18px" name="Link" className="sub-icon" />
+        <Icon size="18px" name="Link" className={clsx('sub-icon')} />
       </StyledWrapper>
       {expanded && (
         <Modal handleClose={() => setExpanded(false)} customWidth="fit-content">

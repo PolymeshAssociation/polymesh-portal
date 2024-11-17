@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react';
+import clsx from 'clsx';
 import { Text, SkeletonLoader } from '~/components/UiKit';
 import { StyledWrapper, StyledInfoItem, StyledContainer } from './styles';
 import { formatBalance } from '~/helpers/formatters';
@@ -58,7 +59,7 @@ export const StakingInfo = () => {
                 <Text bold>
                   <>{formatBalance(apr.toNumber(), 2)} % </>
                 </Text>
-                <span className="item-label">
+                <span className={clsx('item-label')}>
                   Average APR
                   <Tooltip
                     position="top"
@@ -77,7 +78,7 @@ export const StakingInfo = () => {
                 <Text bold>
                   <>{formatBalance(apy.toNumber(), 2)} %</>
                 </Text>
-                <span className="item-label">
+                <span className={clsx('item-label')}>
                   Average APY
                   <Tooltip
                     position={cardWidth && cardWidth < 400 ? 'top' : 'top-left'}
@@ -99,7 +100,7 @@ export const StakingInfo = () => {
                     {formatBalance(percentStaked?.toString(), 2)} %)
                   </>
                 </Text>
-                <div className="item-label">
+                <div className={clsx('item-label')}>
                   Total Staked
                   <Tooltip
                     position="top"
@@ -116,7 +117,7 @@ export const StakingInfo = () => {
             ) : (
               <>
                 <Text bold>{formatBalance(inflation.toString(), 2)} %</Text>
-                <span className="item-label">
+                <span className={clsx('item-label')}>
                   Inflation
                   <Tooltip
                     position={cardWidth < 400 ? 'top-right' : 'top'}
@@ -135,7 +136,7 @@ export const StakingInfo = () => {
                 <Text bold>
                   {`${operatorCount} / ${waitingOperators.length}`}
                 </Text>
-                <span className="item-label">
+                <span className={clsx('item-label')}>
                   Operators / Waiting
                   <Tooltip
                     position={windowWidth > 1024 ? 'top-left' : 'top'}
@@ -156,7 +157,7 @@ export const StakingInfo = () => {
                     activeSessionOperators.length
                   } of ${maxOperatorCount.toString()}`}
                 </Text>
-                <span className="item-label">
+                <span className={clsx('item-label')}>
                   Filled Operator Slots
                   <Tooltip
                     position={cardWidth < 400 ? 'top' : 'top-left'}

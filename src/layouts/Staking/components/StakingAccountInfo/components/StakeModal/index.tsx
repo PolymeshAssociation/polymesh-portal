@@ -1,6 +1,7 @@
 import { FormProvider } from 'react-hook-form';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { useContext, useEffect, useRef, useState } from 'react';
+import clsx from 'clsx';
 import { Button, Text } from '~/components/UiKit';
 import {
   PAYMENT_DESTINATION,
@@ -133,7 +134,7 @@ export const StakeModal: React.FC<IStakeModalProps> = ({
         onClick={toggleAdvancedExpanded}
       >
         <Text>{expanded ? 'Hide' : 'Show'} advanced options</Text>
-        <Icon name="ExpandIcon" className="expand-icon" size="18px" />
+        <Icon name="ExpandIcon" className={clsx('expand-icon')} size="18px" />
       </StyledExpansionToggle>
       {expanded && (
         <>

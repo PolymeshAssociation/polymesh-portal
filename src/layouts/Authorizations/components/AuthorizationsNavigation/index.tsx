@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import clsx from 'clsx';
 import { AccountContext } from '~/context/AccountContext';
 import { AddNewAuth } from '../AddNewAuth';
 import {
@@ -74,7 +75,7 @@ export const AuthorizationsNavigation: React.FC<
               />
               {!!notificationsCount[direction as EAuthorizationDirections] && (
                 <NotificationCounter
-                  className="notification-counter"
+                  className={clsx('notification-counter')}
                   count={
                     notificationsCount[direction as EAuthorizationDirections]
                   }
@@ -88,9 +89,9 @@ export const AuthorizationsNavigation: React.FC<
           {TABS.map(({ label, searchParam }) => (
             <li key={label}>
               <StyledNavLink
-                className={
-                  !authorizationsLoading && direction === label ? 'active' : ''
-                }
+                className={clsx({
+                  active: !authorizationsLoading && direction === label,
+                })}
                 onClick={() => setSearchParams(searchParam)}
                 disabled={label === 'outgoing' && !identity}
               >

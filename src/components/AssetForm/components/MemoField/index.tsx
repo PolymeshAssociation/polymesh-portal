@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { Text } from '~/components/UiKit';
 import { StyledMemoLabel, StyledInput } from '../../styles';
@@ -32,7 +33,7 @@ export const MemoField: React.FC<IMemoFieldProps> = ({
         <Text size="medium" bold>
           Memo (Optional - this will be public)
         </Text>
-        <Icon name="ExpandIcon" className="icon" size="18px" />
+        <Icon name="ExpandIcon" className={clsx('icon')} size="18px" />
       </StyledMemoLabel>
       {memoExpanded && (
         <StyledInput

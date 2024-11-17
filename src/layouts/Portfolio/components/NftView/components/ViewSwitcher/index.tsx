@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { ECollectionView } from '../../constants';
 import { StyledSwitcherWrapper, StyledIconWrapper } from './styles';
@@ -22,7 +23,7 @@ export const ViewSwitcher: React.FC<IViewSwitcherProps> = ({
       $isActive={view === ECollectionView.PALLETE}
       onClick={() => setView(ECollectionView.PALLETE)}
     >
-      <Icon name="PalleteView" size="24px" className="icon" />
+      <Icon name="PalleteView" size="24px" className={clsx('icon')} />
     </StyledIconWrapper>
   </StyledSwitcherWrapper>
 );

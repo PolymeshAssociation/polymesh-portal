@@ -11,6 +11,7 @@ import {
   OffChainLeg,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useSearchParams } from 'react-router-dom';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { Button, SkeletonLoader } from '~/components/UiKit';
 import {
@@ -326,12 +327,12 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           onClick={toggleDetails}
           disabled={detailsLoading}
         >
-          <Icon name="ExpandIcon" size="24px" className="expand-icon" />
+          <Icon name="ExpandIcon" size="24px" className={clsx('expand-icon')} />
           Details
           {!!legsCount && (
             <>
               :{' '}
-              <span className="leg-count">
+              <span className={clsx('leg-count')}>
                 {legsCount} Leg{legsCount > 1 ? 's' : ''}
               </span>
             </>

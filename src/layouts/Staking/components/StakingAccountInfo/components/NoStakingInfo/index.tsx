@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { Text, Heading } from '~/components/UiKit';
 import { StyledTopInfo, StyledTextWrapper, IconWrapper } from '../../styles';
@@ -6,9 +7,9 @@ export const NoStakingInfo = () => (
   <>
     <StyledTopInfo>
       <IconWrapper $size="48px">
-        <Icon name="StakingIcon" size="32px" className="staking-icon" />
+        <Icon name="StakingIcon" size="32px" className={clsx('staking-icon')} />
       </IconWrapper>
-      <div className="heading-wrapper">
+      <div className={clsx('heading-wrapper')}>
         <Heading type="h4">No staking information</Heading>
       </div>
     </StyledTopInfo>

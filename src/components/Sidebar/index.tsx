@@ -4,6 +4,7 @@ import {
   UnsubCallback,
 } from '@polymeshassociation/browser-extension-signing-manager/types';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
+import clsx from 'clsx';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useNotifications } from '~/hooks/polymesh';
 import { CopyToClipboard, Icon, Modal } from '~/components';
@@ -117,9 +118,9 @@ const Sidebar: React.FC<ISidebarProps> = ({
   return (
     <StyledSidebar $fullWidth={sidebarExpanded} ref={sidebarRef}>
       {sidebarExpanded || isMobile ? (
-        <Icon name="PolymeshLogo" className="text-logo-icon" />
+        <Icon name="PolymeshLogo" className={clsx('text-logo-icon')} />
       ) : (
-        <Icon name="PolymeshSymbol" className="logo-icon" />
+        <Icon name="PolymeshSymbol" className={clsx('logo-icon')} />
       )}
       {isMobile ? (
         <StyledCloseMenuButton onClick={toggleMobileMenu}>
@@ -130,7 +131,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
           <Icon name="MenuIcon" />
         </MenuButton>
       )}
-      <div className="container">
+      <div className={clsx('container')}>
         {isMobile && (
           <>
             <StyledAccountInfo>
@@ -238,12 +239,16 @@ const Sidebar: React.FC<ISidebarProps> = ({
                         : undefined
                     }
                   >
-                    <Icon name={icon} className="link-icon" size="24px" />
+                    <Icon
+                      name={icon}
+                      className={clsx('link-icon')}
+                      size="24px"
+                    />
                     <span>{label}</span>
                     {notifications && count[notifications] ? (
                       <NotificationCounter
                         count={count[notifications]}
-                        className="notification"
+                        className={clsx('notification')}
                       />
                     ) : null}
                     {disabled && sidebarExpanded && <SoonLabel>Soon</SoonLabel>}
@@ -262,7 +267,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
                               >
                                 <Icon
                                   name={nestedIcon}
-                                  className="link-icon"
+                                  className={clsx('link-icon')}
                                   size="24px"
                                 />
                                 {nestedLabel}
@@ -276,7 +281,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
                           >
                             <Icon
                               name="PolymeshSymbol"
-                              className="link-icon"
+                              className={clsx('link-icon')}
                               size="24px"
                             />
                             Newsletter

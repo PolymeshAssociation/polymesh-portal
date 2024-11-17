@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import clsx from 'clsx';
 import {
   Table,
   TableCell,
@@ -81,20 +82,20 @@ const ApplicationTable: React.FC<{ applications: IApplication[] }> = ({
           }
         >
           <StyledMobileCell>
-            <div className="header capitalized ">Provider</div>
-            <div className="data">
+            <div className={clsx('header', 'capitalized')}>Provider</div>
+            <div className={clsx('data')}>
               {capitalizeFirstLetter(application.provider)}
             </div>
           </StyledMobileCell>
           <StyledMobileCell>
-            <div className="header">Link Creation Date</div>
-            <div className="data">
+            <div className={clsx('header')}>Link Creation Date</div>
+            <div className={clsx('data')}>
               {new Date(application.timestamp).toLocaleString()}
             </div>
           </StyledMobileCell>
           <StyledMobileCell>
-            <div className="header">Application ID</div>
-            <div className="data clickable">{application.id}</div>
+            <div className={clsx('header')}>Application ID</div>
+            <div className={clsx('data', 'clickable')}>{application.id}</div>
           </StyledMobileCell>
         </StyledMobileRow>
       ))}

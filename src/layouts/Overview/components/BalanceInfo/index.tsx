@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { Text, Heading, Button, SkeletonLoader } from '~/components/UiKit';
 import { TransferPolyx } from './components/TransferPolyx';
@@ -29,7 +30,7 @@ export const BalanceInfo = () => {
   return (
     <>
       <StyledWrapper>
-        <div className="balance">
+        <div className={clsx('balance')}>
           <div>
             <StyledTotalBalance>
               {!balanceIsLoading && <Icon name="PolymeshSymbol" size="36px" />}

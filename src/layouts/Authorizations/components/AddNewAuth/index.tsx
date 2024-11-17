@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { AuthorizationType } from '@polymeshassociation/polymesh-sdk/types';
 import { FieldValues, SubmitHandler, Controller } from 'react-hook-form';
+import clsx from 'clsx';
 import { Icon, Modal } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
 import {
@@ -322,7 +323,11 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
                           values,
                         )}
                       </span>
-                      <Icon name="ExpandIcon" size="18px" className="icon" />
+                      <Icon
+                        name="ExpandIcon"
+                        size="18px"
+                        className={clsx('icon')}
+                      />
                     </StyledSelect>
                   </StyledSelectWrapper>
                 ) : (

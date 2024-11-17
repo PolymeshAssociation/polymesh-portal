@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { Button } from '~/components/UiKit';
 import { formatDid } from '~/helpers/formatters';
@@ -39,7 +40,7 @@ export const Details: React.FC<IDetailsProps> = ({ data }) => {
       <Button variant="secondary" onClick={() => setExpanded((prev) => !prev)}>
         Expand
         {!isSmallDesktop && (
-          <Icon name="ExpandIcon" size="18px" className="expand-icon" />
+          <Icon name="ExpandIcon" size="18px" className={clsx('expand-icon')} />
         )}
       </Button>
       {expanded && (

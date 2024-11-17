@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import clsx from 'clsx';
 import { AccountContext } from '~/context/AccountContext';
 import { Icon, CopyToClipboard, WalletSelect } from '~/components';
 import { StyledWrapper } from './styles';
@@ -9,8 +10,8 @@ export const KeysInfo = () => {
 
   return (
     <StyledWrapper>
-      <div className="icon-wrapper">
-        <Icon name="KeyIcon" className="key-icon" size="14px" />
+      <div className={clsx('icon-wrapper')}>
+        <Icon name="KeyIcon" className={clsx('key-icon')} size="14px" />
       </div>
       <WalletSelect />
       {selectedAccount ? (

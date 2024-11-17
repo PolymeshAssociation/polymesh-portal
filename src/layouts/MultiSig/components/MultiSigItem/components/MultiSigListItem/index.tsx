@@ -1,4 +1,5 @@
 import { FC, useState, useContext } from 'react';
+import clsx from 'clsx';
 import { AccountContext } from '~/context/AccountContext';
 import { Icon } from '~/components';
 import { Button } from '~/components/UiKit';
@@ -56,7 +57,7 @@ export const MultiSigListItem: FC<IMultiSigListItemProps> = ({
           Approve
         </Button>
         <Button variant="secondary" onClick={toggleDetails}>
-          <Icon name="ExpandIcon" size="24px" className="expand-icon" />
+          <Icon name="ExpandIcon" size="24px" className={clsx('expand-icon')} />
           Details
         </Button>
       </StyledButtonsWrapper>

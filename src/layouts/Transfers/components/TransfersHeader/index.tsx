@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import clsx from 'clsx';
 import { Icon } from '~/components';
 import { Button, DropdownSelect, RefreshButton } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
@@ -67,7 +68,7 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
           {TABS.map(({ label, searchParam }) => (
             <li key={label}>
               <StyledNavLink
-                className={type === label ? 'active' : ''}
+                className={clsx({ active: type === label })}
                 onClick={() => setSearchParams(searchParam)}
               >
                 <>
@@ -96,12 +97,12 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
               value={sortBy}
             >
               {Object.values(ESortOptions).map((option) => (
-                <option className="options" key={option} value={option}>
+                <option className={clsx('options')} key={option} value={option}>
                   {option}
                 </option>
               ))}
             </select>
-            <Icon name="DropdownIcon" className="dropdown-icon" />
+            <Icon name="DropdownIcon" className={clsx('dropdown-icon')} />
           </StyledSort>
         </StyledSortWrapper>
         <StyledButtonWrapper>

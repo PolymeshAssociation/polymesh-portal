@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import clsx from 'clsx';
 import { EClaimsType, EScopeSortOptions } from '../../constants';
 import {
   Button,
@@ -63,7 +64,7 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
             {Object.values(EClaimsType).map((type) => (
               <StyledNavLink
                 key={type}
-                className={type === claimType ? 'active' : ''}
+                className={clsx({ active: type === claimType })}
                 onClick={() => setSearchParams({ type })}
               >
                 {claimsLoading ? <SkeletonLoader width={64} /> : type}
@@ -89,12 +90,19 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
                       value={sortBy}
                     >
                       {Object.values(EScopeSortOptions).map((option) => (
-                        <option className="options" key={option} value={option}>
+                        <option
+                          className={clsx('options')}
+                          key={option}
+                          value={option}
+                        >
                           {option}
                         </option>
                       ))}
                     </select>
-                    <Icon name="DropdownIcon" className="dropdown-icon" />
+                    <Icon
+                      name="DropdownIcon"
+                      className={clsx('dropdown-icon')}
+                    />
                   </StyledSortSelect>
                 </>
               )}
@@ -128,12 +136,16 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
                   value={sortBy}
                 >
                   {Object.values(EScopeSortOptions).map((option) => (
-                    <option className="options" key={option} value={option}>
+                    <option
+                      className={clsx('options')}
+                      key={option}
+                      value={option}
+                    >
                       {option}
                     </option>
                   ))}
                 </select>
-                <Icon name="DropdownIcon" className="dropdown-icon" />
+                <Icon name="DropdownIcon" className={clsx('dropdown-icon')} />
               </StyledSortSelect>
             </>
           )}

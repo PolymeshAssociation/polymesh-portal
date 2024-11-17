@@ -1,4 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
+import clsx from 'clsx';
 import { useMultiSigContext } from '~/context/MultiSigContext';
 import { useWindowWidth } from '~/hooks/utility';
 import {
@@ -124,12 +125,16 @@ export const MultiSigHeader: React.FC<IMultiSigHeaderProps> = ({
                     value={sortBy}
                   >
                     {Object.values(ESortOptions).map((option) => (
-                      <option className="options" key={option} value={option}>
+                      <option
+                        className={clsx('options')}
+                        key={option}
+                        value={option}
+                      >
                         {option}
                       </option>
                     ))}
                   </select>
-                  <Icon name="DropdownIcon" className="dropdown-icon" />
+                  <Icon name="DropdownIcon" className={clsx('dropdown-icon')} />
                 </StyledSort>
               </>
             )}

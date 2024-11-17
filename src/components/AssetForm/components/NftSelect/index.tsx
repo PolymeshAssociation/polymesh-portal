@@ -3,6 +3,7 @@ import {
   AssetDetails,
   NftCollection,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { clsx } from 'clsx';
 import { Text } from '~/components/UiKit';
 import { Icon } from '~/components';
 import { useOutsideClick } from '../../hooks';
@@ -237,19 +238,19 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                   <>
                     <IconWrapper
                       $background={stringToColor(selectedCollection.id)}
-                      className="stacked-icon icon-1"
+                      className={clsx('stacked-icon', 'icon-1')}
                     >
                       <Icon name="Coins" size="16px" />
                     </IconWrapper>
                     <IconWrapper
                       $background={stringToColor(selectedCollection.id)}
-                      className="stacked-icon icon-2"
+                      className={clsx('stacked-icon', 'icon-2')}
                     >
                       <Icon name="Coins" size="16px" />
                     </IconWrapper>
                     <IconWrapper
                       $background={stringToColor(selectedCollection.id)}
-                      className="stacked-icon icon-3"
+                      className={clsx('stacked-icon', 'icon-3')}
                     >
                       <Icon name="Coins" size="16px" />
                     </IconWrapper>
@@ -257,7 +258,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                       <img
                         src={selectedCollectionImage}
                         alt={selectedCollectionImage}
-                        className="stacked-icon image"
+                        className={clsx('stacked-icon', 'image')}
                       />
                     )}
                   </>
@@ -272,7 +273,11 @@ export const NftSelect: React.FC<INftSelectProps> = ({
             ) : (
               <StyledPlaceholder>Select Collection</StyledPlaceholder>
             )}
-            <Icon name="ExpandIcon" className="expand-icon" size="18px" />
+            <Icon
+              name="ExpandIcon"
+              className={clsx('expand-icon')}
+              size="18px"
+            />
           </StyledSelect>
           {collectionSelectExpanded && (
             <StyledExpandedSelect>
@@ -295,19 +300,19 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                       <StyledOptionImg>
                         <IconWrapper
                           $background={stringToColor(asset.id)}
-                          className="stacked-icon icon-1"
+                          className={clsx('stacked-icon', 'icon-1')}
                         >
                           <Icon name="Coins" size="16px" />
                         </IconWrapper>
                         <IconWrapper
                           $background={stringToColor(asset.id)}
-                          className="stacked-icon icon-2"
+                          className={clsx('stacked-icon', 'icon-2')}
                         >
                           <Icon name="Coins" size="16px" />
                         </IconWrapper>
                         <IconWrapper
                           $background={stringToColor(asset.id)}
-                          className="stacked-icon icon-3"
+                          className={clsx('stacked-icon', 'icon-3')}
                         >
                           <Icon name="Coins" size="16px" />
                         </IconWrapper>
@@ -315,7 +320,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                           <img
                             src={nfts[asset.id][0].imgUrl}
                             alt={nfts[asset.id][0].imgUrl}
-                            className="stacked-icon image"
+                            className={clsx('stacked-icon', 'image')}
                           />
                         )}
                       </StyledOptionImg>
@@ -358,7 +363,7 @@ export const NftSelect: React.FC<INftSelectProps> = ({
               <StyledLabelWrap>
                 {selectedNfts?.map((nft) => (
                   <StyledLabel key={nft?.id.toNumber()}>
-                    <StyledOptionImg className="small">
+                    <StyledOptionImg className={clsx('small')}>
                       <img src={nft.imgUrl} alt={nft.imgUrl} />
                     </StyledOptionImg>
                     {nft.id.toNumber()}
@@ -373,7 +378,11 @@ export const NftSelect: React.FC<INftSelectProps> = ({
             ) : (
               <StyledPlaceholder>Select IDs</StyledPlaceholder>
             )}
-            <Icon name="ExpandIcon" className="expand-icon" size="18px" />
+            <Icon
+              name="ExpandIcon"
+              className={clsx('expand-icon')}
+              size="18px"
+            />
           </StyledSelect>
           {maxNfts && selectedNfts.length > maxNfts && (
             <StyledError>You can send up to {maxNfts} NFTs per leg</StyledError>
@@ -400,13 +409,13 @@ export const NftSelect: React.FC<INftSelectProps> = ({
                       <StyledNftOption
                         key={nft.id.toNumber()}
                         onClick={() => !nft.locked && handleSelectNft(nft)}
-                        className={nft.locked ? 'locked' : ''}
+                        className={clsx({ locked: nft.locked })}
                       >
                         <StyledOptionImg>
                           <img
                             src={nft.imgUrl}
                             alt={nft.imgUrl}
-                            className="image"
+                            className={clsx('image')}
                           />
                         </StyledOptionImg>
                         {nft.id.toNumber()}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { TransactionStatus } from '@polymeshassociation/polymesh-sdk/types';
+import clsx from 'clsx';
 import { Icon, CopyToClipboard } from '~/components';
 import { Text } from '~/components/UiKit';
 import {
@@ -50,7 +51,7 @@ const TransactionToast: React.FC<ITxToastProps> = ({
   }, [timestamp, formattedTime]);
 
   return (
-    <div className="custom-toast">
+    <div className={clsx('custom-toast')}>
       <StyledInfoWrapper>
         <div>
           <Text bold transform="capitalize" color="secondary">
