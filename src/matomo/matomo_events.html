@@ -1,55 +1,61 @@
 <script>
   //Get Matomo Tag Manager
-  var _mtm = window._mtm = window._mtm || [];
+  var _mtm = (window._mtm = window._mtm || []);
 
   // Send data to Matomo function
-  function sendEventData(elem) {      
+  function sendEventData(elem) {
     const action = elem.getAttribute('data-event-action') || '';
     const name = elem.getAttribute('data-event-name') || '';
     const value = elem.getAttribute('data-event-value') || 0;
 
-      _mtm.push({
-          'event': 'customEvent',
-              'eventCategory': elem.getAttribute('data-event-category'),
-              'eventAction': action,
-              'eventName': name,
-              'eventValue': value
-        });             
+    _mtm.push({
+      event: 'customEvent',
+      eventCategory: elem.getAttribute('data-event-category'),
+      eventAction: action,
+      eventName: name,
+      eventValue: value,
+    });
   }
   // Javascript polyfill for the function .closest for IE9+
   if (!Element.prototype.matches) {
-      Element.prototype.matches = Element.prototype['msMatchesSelector'] || Element.prototype.webkitMatchesSelector;
+    Element.prototype.matches =
+      Element.prototype['msMatchesSelector'] ||
+      Element.prototype.webkitMatchesSelector;
   }
 
   if (!Element.prototype.closest) {
-      Element.prototype.closest = function(s) {
-          var el = this;
+    Element.prototype.closest = function (s) {
+      var el = this;
 
-          do {
-              if (el.matches(s)) {
-                  return el;
-              }
-              el = el.parentElement || el.parentNode;
-          } while (el !== null && el.nodeType === 1);
-          return null;
-      };
-  }    
+      do {
+        if (el.matches(s)) {
+          return el;
+        }
+        el = el.parentElement || el.parentNode;
+      } while (el !== null && el.nodeType === 1);
+      return null;
+    };
+  }
   // END - Javascript polyfill for the function .closest for IE9+
 
   // Detect clicks on elements with data attribute data-event-category or data-event-include
-  document.documentElement.addEventListener('click', function(event) {
+  document.documentElement.addEventListener(
+    'click',
+    function (event) {
       // Check if the left mouse button was clicked
       if (event.button !== 0) return;
 
       const target = event.target;
-      
+
       if (target.getAttribute('data-event-category') !== null) {
-          sendEventData(target);
+        sendEventData(target);
       } else {
-          const closestElement = target.closest('[data-event-category]');
-          if (closestElement !== null) {
-              sendEventData(closestElement);
-          }
+        const closestElement = target.closest('[data-event-category]');
+        if (closestElement !== null) {
+          sendEventData(closestElement);
+        }
       }
-  }, true);
+    },
+    true,
+  );
 </script>

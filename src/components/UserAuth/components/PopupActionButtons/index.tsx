@@ -19,11 +19,11 @@ export const PopupActionButtons = ({
   goBackLabel = 'Back',
   aligned = false,
   canProceed = true,
-  onProceed = undefined,
-  onGoBack = undefined,
-  proceedTag = undefined,
-  goBackTag = undefined,
-  matomoData = undefined,
+  onProceed,
+  onGoBack,
+  proceedTag,
+  goBackTag,
+  matomoData,
 }: IPopupActionButtonsProps) => {
   return (
     <StyledActionButtonsWrap $aligned={aligned}>
