@@ -1,6 +1,6 @@
 import { useContext, useMemo, useState, useEffect } from 'react';
 import { PolymeshContext } from '../PolymeshContext';
-import PortfolioContext from './context';
+import StakingContext from './context';
 import {
   IEraStatus,
   IOperatorInfo,
@@ -31,8 +31,28 @@ const StakingProvider = ({ children }: IProviderProps) => {
   const [latestStakingEventBlockHash, setLatestStakingEventBlockHash] =
     useState<string>('');
   const [shouldRefetch, setShouldRefetch] = useState(false);
+  const [operators, setOperators] = useState<Record<string, { name: string }>>(
+    {},
+  );
 
   const refetchAccountInfo = () => setShouldRefetch(true);
+
+  useEffect(() => {
+    const fetchOperators = async () => {
+      const response = await fetch(
+        'https://raw.githubusercontent.com/PolymeshAssociation/polymesh-operators/refs/heads/main/operatorNames.json',
+      );
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch operator data: ${response.statusText}`,
+        );
+      }
+      const data = await response.json();
+      setOperators(data);
+    };
+
+    fetchOperators();
+  }, []);
 
   // Clear account specific info when selectedAccount changes if it is not the
   // stash or controller of previous data to prevent stale data being rendered
@@ -82,6 +102,7 @@ const StakingProvider = ({ children }: IProviderProps) => {
       setStakingAccountInfo,
       stakingInfo,
       setStakingInfo,
+      operators,
       operatorInfo,
       setOperatorInfo,
       latestStakingEventBlockHash,
@@ -93,6 +114,7 @@ const StakingProvider = ({ children }: IProviderProps) => {
       eraStatus,
       stakingAccountInfo,
       stakingInfo,
+      operators,
       operatorInfo,
       latestStakingEventBlockHash,
       shouldRefetch,
@@ -100,9 +122,9 @@ const StakingProvider = ({ children }: IProviderProps) => {
   );
 
   return (
-    <PortfolioContext.Provider value={contextValue}>
+    <StakingContext.Provider value={contextValue}>
       {children}
-    </PortfolioContext.Provider>
+    </StakingContext.Provider>
   );
 };
 

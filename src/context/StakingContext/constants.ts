@@ -82,6 +82,7 @@ export interface IOperatorInfo {
     currentEra: IEraStakers[];
   };
   operatorLastSlashRecord: OperatorLastSlashObject;
+  operatorNames: Record<string, string>;
 }
 
 export interface IStakingContext {
@@ -91,6 +92,7 @@ export interface IStakingContext {
   setStakingAccountInfo: (stakingAccountInfo: IStakingAccountInfo) => void;
   stakingInfo: IStakingInfo;
   setStakingInfo: (stakingInfo: IStakingInfo) => void;
+  operators: Record<string, { name: string }>;
   operatorInfo: IOperatorInfo;
   setOperatorInfo: (operatorInfo: IOperatorInfo) => void;
   latestStakingEventBlockHash: string;
@@ -157,6 +159,7 @@ export const initialOperatorInfo: IOperatorInfo = {
     currentEra: [],
   },
   operatorLastSlashRecord: {},
+  operatorNames: {},
 };
 
 export const initialState: IStakingContext = {
@@ -166,6 +169,7 @@ export const initialState: IStakingContext = {
   setStakingAccountInfo: () => {},
   stakingInfo: initialStakingInfo,
   setStakingInfo: () => {},
+  operators: {},
   operatorInfo: initialOperatorInfo,
   setOperatorInfo: () => {},
   latestStakingEventBlockHash: '',

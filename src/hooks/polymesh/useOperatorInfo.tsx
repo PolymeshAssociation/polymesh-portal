@@ -22,11 +22,12 @@ interface ValidatorPrefs {
 
 const useOperatorInfo = () => {
   const {
-    api: { polkadotApi },
+    api: { polkadotApi, sdk },
   } = useContext(PolymeshContext);
   const {
     eraStatus: { currentEraIndex, activeEra },
     setOperatorInfo,
+    operators,
     operatorInfo,
     latestStakingEventBlockHash,
   } = useContext(StakingContext);
@@ -53,8 +54,14 @@ const useOperatorInfo = () => {
   );
   const [operatorLastSlashRecord, setOperatorLastSlashRecord] =
     useState<OperatorLastSlashObject>(operatorInfo.operatorLastSlashRecord);
-  const activeEraRef = useRef<BigNumber | null>(null);
+  const [operatorNames, setOperatorNames] = useState<Record<string, string>>(
+    operatorInfo.operatorNames,
+  );
 
+  const activeEraRef = useRef<BigNumber | null>(null);
+  const operatorNamesRef = useRef<Record<string, string>>(
+    operatorInfo.operatorNames,
+  );
   // Get maximum number of operators per era
   useEffect(() => {
     if (!polkadotApi) return;
@@ -96,6 +103,50 @@ const useOperatorInfo = () => {
       }
     })();
   }, [polkadotApi, latestStakingEventBlockHash]);
+
+  useEffect(() => {
+    const fetchDIDAndOperatorName = async () => {
+      if (!sdk) return;
+
+      try {
+        // Fetch operator names for keys that are not already in the ref
+        const keysToFetch = Object.keys(operatorsWithCommission).filter(
+          (key) => !operatorNamesRef.current[key],
+        );
+
+        // Fetch data in parallel using Promise.all
+        const fetchedEntries = await Promise.all(
+          keysToFetch.map(async (key) => {
+            const account = await sdk.accountManagement.getAccount({
+              address: key,
+            });
+            const accountIdentity = await account.getIdentity();
+            const did = accountIdentity?.did;
+            return {
+              key,
+              name: did && operators[did]?.name ? operators[did]?.name : '',
+            };
+          }),
+        );
+
+        // Update state and ref with new entries
+        const updatedNames = fetchedEntries.reduce(
+          (acc, { key, name }) => {
+            if (name) acc[key] = name;
+            return acc;
+          },
+          {} as Record<string, string>,
+        );
+
+        setOperatorNames((prev) => ({ ...prev, ...updatedNames }));
+        Object.assign(operatorNamesRef.current, updatedNames);
+      } catch (error) {
+        notifyError((error as Error).message);
+      }
+    };
+
+    fetchDIDAndOperatorName();
+  }, [operators, operatorsWithCommission, sdk]);
 
   // Subscribe to operators in the active session
   useEffect(() => {
@@ -236,21 +287,21 @@ const useOperatorInfo = () => {
 
   // Get slash records for operators
   useEffect(() => {
-    const operators = Object.keys(operatorsWithCommission);
+    const availableOperators = Object.keys(operatorsWithCommission);
 
-    if (!polkadotApi || operators.length === 0) {
+    if (!polkadotApi || availableOperators.length === 0) {
       return () => {};
     }
     let unsubSlashes: () => void;
     const getLastSlashedEras = async () => {
       try {
         unsubSlashes = await polkadotApi.query.staking.slashingSpans.multi(
-          operators,
+          availableOperators,
           (slashingSpans) => {
             const slashRecord: OperatorLastSlashObject = {};
             slashingSpans.forEach((optionSlashingSpan, index) => {
               if (optionSlashingSpan.isSome) {
-                slashRecord[operators[index]] = u32ToBigNumber(
+                slashRecord[availableOperators[index]] = u32ToBigNumber(
                   optionSlashingSpan.unwrap().lastNonzeroSlash,
                 );
               }
@@ -282,6 +333,7 @@ const useOperatorInfo = () => {
         currentEra: currentEraStakers,
       },
       operatorLastSlashRecord,
+      operatorNames,
     });
   }, [
     activeSessionOperators,
@@ -293,6 +345,7 @@ const useOperatorInfo = () => {
     currentEraStakers,
     activeEraStakers,
     operatorLastSlashRecord,
+    operatorNames,
   ]);
 };
 

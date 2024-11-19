@@ -79,7 +79,8 @@
     "@polkadot/types-create": "11.2.1",
     "@polkadot/types-known": "11.2.1",
     "@polkadot/networks": "12.6.2",
-    "@polkadot/x-bigint": "12.6.2"
+    "@polkadot/x-bigint": "12.6.2",
+    "styled-components": "^6.1.13"
   },
   "overrides": {
     "@polkadot/keyring": "12.6.2",
@@ -96,7 +97,8 @@
     "@polkadot/types-create": "11.2.1",
     "@polkadot/types-known": "11.2.1",
     "@polkadot/networks": "12.6.2",
-    "@polkadot/x-bigint": "12.6.2"
+    "@polkadot/x-bigint": "12.6.2",
+    "styled-components": "^6.1.13"
   },
   "pnpm": {
     "overrides": {
@@ -114,7 +116,8 @@
       "@polkadot/types-create": "11.2.1",
       "@polkadot/types-known": "11.2.1",
       "@polkadot/networks": "12.6.2",
-      "@polkadot/x-bigint": "12.6.2"
+      "@polkadot/x-bigint": "12.6.2",
+      "styled-components": "^6.1.13"
     }
   }
 }

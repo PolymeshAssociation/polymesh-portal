@@ -2,7 +2,6 @@ import { useState, useContext, useEffect, useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import Identicon from '@polkadot/react-identicon';
 import { StakingContext } from '~/context/StakingContext';
-import { operatorsNames } from '~/layouts/Staking/constants';
 import { formatKey } from '~/helpers/formatters';
 import { Text } from '~/components/UiKit';
 import { IFieldValues, NOMINATIONS_MAX_LENGTH } from '../../constants';
@@ -31,7 +30,7 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
   currentNominations = [],
 }) => {
   const {
-    operatorInfo: { operatorsWithCommission },
+    operatorInfo: { operatorsWithCommission, operatorNames },
   } = useContext(StakingContext);
   const operatorAprRecord = useOperatorRewards();
   const { watch, setValue } = useFormContext<IFieldValues>();
@@ -67,7 +66,7 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
         (operator) =>
           !nominators?.includes(operator) &&
           (operator.toLocaleLowerCase().includes(filter.toLocaleLowerCase()) ||
-            operatorsNames?.[operator]
+            operatorNames?.[operator]
               ?.toLocaleLowerCase()
               .includes(filter.toLocaleLowerCase())),
       )
@@ -78,11 +77,18 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
           return aprB - aprA;
         }
 
-        const nameA = operatorsNames[a] || a;
-        const nameB = operatorsNames[b] || b;
+        const nameA = operatorNames[a] || a;
+        const nameB = operatorNames[b] || b;
         return nameA.localeCompare(nameB);
       });
-  }, [operatorsWithCommission, nominators, filter, sortBy, operatorAprRecord]);
+  }, [
+    operatorsWithCommission,
+    nominators,
+    filter,
+    operatorNames,
+    sortBy,
+    operatorAprRecord,
+  ]);
 
   return (
     <div>
@@ -126,7 +132,8 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
                       >
                         <div className="left-content">
                           <Identicon value={account} size={18} />
-                          {operatorsNames[account] || formatKey(account)}
+                          {`${operatorNames[account]} - ${formatKey(account)}` ||
+                            formatKey(account)}
                         </div>
                         <div className="right-content">
                           {operatorAprRecord[account]
@@ -167,7 +174,8 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
                   {value?.map((account: string) => (
                     <StyledSelectedOption key={account}>
                       <Identicon value={account} size={18} />
-                      {operatorsNames[account] || formatKey(account)}
+                      {`${operatorNames[account]} - ${account.slice(0, 5)}` ||
+                        formatKey(account)}
                       <StyledIconWrapper
                         onClick={(e) => {
                           e.stopPropagation();

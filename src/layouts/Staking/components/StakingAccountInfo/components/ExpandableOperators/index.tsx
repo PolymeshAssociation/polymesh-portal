@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import Identicon from '@polkadot/react-identicon';
 import { Icon } from '~/components';
@@ -10,9 +10,9 @@ import {
   StyledExpandableOperatorList,
   StyledOperatorList,
 } from './styles';
-import { operatorsNames } from '~/layouts/Staking/constants';
 import { formatBalance, formatKey } from '~/helpers/formatters';
 import { useWindowWidth } from '~/hooks/utility';
+import { StakingContext } from '~/context/StakingContext';
 
 interface ExpandableOperatorProps {
   nominations:
@@ -28,6 +28,9 @@ const ExpandableOperators: React.FC<ExpandableOperatorProps> = ({
   nominations,
   label,
 }) => {
+  const {
+    operatorInfo: { operatorNames },
+  } = useContext(StakingContext);
   const { isMobile } = useWindowWidth();
   const [showExpanded, setShowExpanded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -56,7 +59,8 @@ const ExpandableOperators: React.FC<ExpandableOperatorProps> = ({
     return (
       <OperatorEntry key={operatorAccount}>
         <Identicon className="identicon" value={operatorAccount} size={18} />
-        {operatorsNames[operatorAccount] || formatKey(operatorAccount)}
+        {`${operatorNames[operatorAccount]} - ${formatKey(operatorAccount)}` ||
+          formatKey(operatorAccount)}
         {value && (
           <>
             {' \u2014 '}
