@@ -235,7 +235,7 @@ export const StakingRewardsQuery = ({
         offset: ${offset}
         orderBy: CREATED_AT_DESC
         filter: {
-          eventId: { equalTo: Reward }
+          eventId: { in: [Reward, Rewarded] }
           ${accountFilter}
           ${identityFilter}
         }
