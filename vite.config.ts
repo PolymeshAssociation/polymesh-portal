@@ -4,42 +4,6 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgr from 'vite-plugin-svgr';
 import { htmlInjectionPlugin } from 'vite-plugin-html-injection';
-import type { IHtmlInjectionConfigInjection } from 'vite-plugin-html-injection';
-
-const matomoSrcEvents = './src/matomo/matomo_events.html';
-const matomoSrcLive = './src/matomo/matomo_inject_live.html';
-const matomoSrcDev = './src/matomo/matomo_inject_dev.html';
-
-// Get Matomo injections based on environment
-const getMatomoInjections = (
-  matomoInstance: string | undefined,
-): IHtmlInjectionConfigInjection[] => {
-  if (!matomoInstance) return [];
-
-  const matomoSrc =
-    matomoInstance === 'live'
-      ? matomoSrcLive
-      : matomoInstance === 'dev'
-        ? matomoSrcDev
-        : null;
-
-  if (!matomoSrc) return [];
-
-  return [
-    {
-      name: 'Matomo Tag Manager',
-      path: matomoSrc,
-      type: 'raw',
-      injectTo: 'head',
-    },
-    {
-      name: 'Matomo Event Tracking',
-      path: matomoSrcEvents,
-      type: 'raw',
-      injectTo: 'head',
-    },
-  ];
-};
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -55,7 +19,20 @@ export default defineConfig(({ mode }) => {
       react(),
       svgr(),
       htmlInjectionPlugin({
-        injections: getMatomoInjections(env.VITE_MATOMO_INSTANCE),
+        injections: [
+          {
+            name: 'Matomo Tag Manager',
+            path: './src/matomo/matomo_inject.html',
+            type: 'raw',
+            injectTo: 'head',
+          },
+          {
+            name: 'Matomo Event Tracking',
+            path: './src/matomo/matomo_events.html',
+            type: 'raw',
+            injectTo: 'head',
+          },
+        ],
       }),
     ],
     resolve: {
