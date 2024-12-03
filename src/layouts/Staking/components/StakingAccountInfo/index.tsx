@@ -16,7 +16,7 @@ import { StakingContext } from '~/context/StakingContext';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useWindowWidth } from '~/hooks/utility';
-import { Modal } from '~/components';
+import { Icon, Modal } from '~/components';
 import { SkeletonLoader, Heading } from '~/components/UiKit';
 import { StakingButtonOptions } from './components/StakingButtonOptions';
 import { AccountDetails } from './components/AccountDetails';
@@ -65,7 +65,8 @@ export const StakingAccountInfo = () => {
       currentEraIndex,
       activeEra,
     },
-    operatorInfo: { operatorsWithCommission, operatorLastSlashRecord },
+    operatorInfo: { operatorLastSlashRecord },
+    stakingAccountInfo: { inactiveNominations },
   } = useContext(StakingContext);
   const {
     controllerAddress,
@@ -305,15 +306,13 @@ export const StakingAccountInfo = () => {
 
   const checkNominations = useMemo(() => {
     // check we have at least 1 operator nominated from the eligible operators
-    const hasNominationInOperators = nominations.some((nomination) =>
-      Object.keys(operatorsWithCommission).includes(nomination),
-    );
+    const hasNominationInOperators =
+      nominations.length > 0 && nominations.length > inactiveNominations.length;
+
     // check all nominations are for available operators
-    const allNominationsInOperators = nominations.every((nomination) =>
-      Object.keys(operatorsWithCommission).includes(nomination),
-    );
+    const allNominationsInOperators = inactiveNominations.length === 0;
     return { hasNominationInOperators, allNominationsInOperators };
-  }, [nominations, operatorsWithCommission]);
+  }, [inactiveNominations.length, nominations]);
 
   const alertMessage = useMemo(() => {
     if (
@@ -438,8 +437,10 @@ export const StakingAccountInfo = () => {
     ) {
       return (
         <StyledStakingMessage>
-          One or more of your nominations are not eligible for election.
-          Consider updating your nominations.
+          One or more of your nominations are ineligible for election. Update
+          your nominations to ensure they are eligible. Ineligible nominations
+          are marked with a <Icon name="AlertIcon" className="alert-icon" />{' '}
+          symbol.
         </StyledStakingMessage>
       );
     }

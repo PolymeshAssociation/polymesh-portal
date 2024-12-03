@@ -31,6 +31,7 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
 }) => {
   const {
     operatorInfo: { operatorsWithCommission, operatorNames },
+    stakingAccountInfo: { nominatedNames, inactiveNominations },
   } = useContext(StakingContext);
   const operatorAprRecord = useOperatorRewards();
   const { watch, setValue } = useFormContext<IFieldValues>();
@@ -60,7 +61,7 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
     }
   }, [currentNominations, nominators, setValue]);
 
-  const candidatAccounts = useMemo(() => {
+  const candidateAccounts = useMemo(() => {
     return Object.keys(operatorsWithCommission)
       .filter(
         (operator) =>
@@ -90,6 +91,10 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
     operatorAprRecord,
   ]);
 
+  const combinedOperators = useMemo(() => {
+    return { ...operatorNames, ...nominatedNames };
+  }, [nominatedNames, operatorNames]);
+
   return (
     <div>
       <Text size="medium" bold marginBottom={3}>
@@ -117,7 +122,7 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
                 </StyledActionButton>
                 <StyledOperatorSelectContainer>
                   <StyledOperatorSelect $expanded={expandOperators}>
-                    {candidatAccounts.map((account) => (
+                    {candidateAccounts.map((account) => (
                       <StyledNominatorOption
                         key={account}
                         onClick={() => {
@@ -132,8 +137,9 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
                       >
                         <div className="left-content">
                           <Identicon value={account} size={18} />
-                          {`${operatorNames[account]} - ${formatKey(account)}` ||
-                            formatKey(account)}
+                          {operatorNames[account]
+                            ? `${operatorNames[account]} - ${formatKey(account)}`
+                            : formatKey(account)}
                         </div>
                         <div className="right-content">
                           {operatorAprRecord[account]
@@ -174,8 +180,12 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
                   {value?.map((account: string) => (
                     <StyledSelectedOption key={account}>
                       <Identicon value={account} size={18} />
-                      {`${operatorNames[account]} - ${account.slice(0, 5)}` ||
-                        formatKey(account)}
+                      {inactiveNominations.includes(account) && (
+                        <Icon name="AlertIcon" size="18px" />
+                      )}
+                      {combinedOperators[account]
+                        ? `${combinedOperators[account]} - ${account.slice(0, 5)}`
+                        : formatKey(account)}
                       <StyledIconWrapper
                         onClick={(e) => {
                           e.stopPropagation();

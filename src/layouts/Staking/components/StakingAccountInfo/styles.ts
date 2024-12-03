@@ -101,10 +101,15 @@ export const StyledMessageGroup = styled.div`
   gap: 16px;
 `;
 
-export const StyledStakingMessage = styled.p`
+export const StyledStakingMessage = styled.div`
   font-size: 14px;
   font-weight: 500;
   color: rgb(255, 196, 12);
+
+  .alert-icon {
+    width: 24px;
+    vertical-align: middle;
+  }
 `;
 
 export const StyledLink = styled.a`

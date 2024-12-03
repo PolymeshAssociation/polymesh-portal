@@ -29,7 +29,7 @@ const ExpandableOperators: React.FC<ExpandableOperatorProps> = ({
   label,
 }) => {
   const {
-    operatorInfo: { operatorNames },
+    stakingAccountInfo: { nominatedNames, inactiveNominations },
   } = useContext(StakingContext);
   const { isMobile } = useWindowWidth();
   const [showExpanded, setShowExpanded] = useState(false);
@@ -59,8 +59,13 @@ const ExpandableOperators: React.FC<ExpandableOperatorProps> = ({
     return (
       <OperatorEntry key={operatorAccount}>
         <Identicon className="identicon" value={operatorAccount} size={18} />
-        {`${operatorNames[operatorAccount]} - ${formatKey(operatorAccount)}` ||
-          formatKey(operatorAccount)}
+        {inactiveNominations.includes(operatorAccount) && (
+          <Icon name="AlertIcon" size="18px" />
+        )}
+
+        {nominatedNames[operatorAccount]
+          ? `${nominatedNames[operatorAccount]} - ${formatKey(operatorAccount)}`
+          : formatKey(operatorAccount)}
         {value && (
           <>
             {' \u2014 '}

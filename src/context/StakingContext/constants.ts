@@ -35,6 +35,7 @@ export interface IStakingAccountInfo {
   amountAvailableToWithdraw: BigNumber | null;
   rewardDestination: string | null;
   nominations: string[];
+  nominatedNames: Record<string, string>;
   activelyStakedOperators: {
     operatorAccount: string;
     value: BigNumber;
@@ -44,6 +45,7 @@ export interface IStakingAccountInfo {
     value: BigNumber;
   }[];
   nominatedEra: BigNumber | null;
+  inactiveNominations: string[];
 }
 
 export interface IStakingInfo {
@@ -134,9 +136,11 @@ export const initialStakingAccountInfo: IStakingAccountInfo = {
   amountAvailableToWithdraw: null,
   rewardDestination: null,
   nominations: [],
+  nominatedNames: {},
   activelyStakedOperators: [],
   currentEraStakedOperators: [],
   nominatedEra: null,
+  inactiveNominations: [],
 };
 
 export const initialStakingInfo: IStakingInfo = {

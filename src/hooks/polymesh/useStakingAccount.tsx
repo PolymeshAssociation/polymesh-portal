@@ -27,7 +27,7 @@ interface StakingDetails {
 
 const useStakingAccount = () => {
   const {
-    api: { polkadotApi },
+    api: { polkadotApi, sdk },
   } = useContext(PolymeshContext);
   const {
     eraStatus: {
@@ -39,7 +39,8 @@ const useStakingAccount = () => {
     latestStakingEventBlockHash,
     shouldRefetch,
     setShouldRefetch,
-    operatorInfo: { operatorStakers },
+    operatorInfo: { operatorStakers, operatorNames },
+    operators,
   } = useContext(StakingContext);
 
   const { activeEra: activeEraStakers, currentEra: currentEraStakers } =
@@ -77,6 +78,9 @@ const useStakingAccount = () => {
   const [nominations, setNominations] = useState<string[]>(
     stakingAccountInfo.nominations,
   );
+  const [nominatedNames, setNominatedNames] = useState<Record<string, string>>(
+    stakingAccountInfo.nominatedNames,
+  );
   const [nominatedEra, setNominatedEra] = useState<BigNumber | null>(
     stakingAccountInfo.nominatedEra,
   );
@@ -86,11 +90,15 @@ const useStakingAccount = () => {
   const [currentEraStakedOperators, setCurrentEraStakedOperators] = useState<
     { operatorAccount: string; value: BigNumber }[]
   >(stakingAccountInfo.currentEraStakedOperators);
+  const [inactiveNominations, setInactiveNominations] = useState<string[]>([]);
 
   const stakingKeys = useRef<(string | null)[]>([
     stakingAccountInfo.stashAddress,
     stakingAccountInfo.controllerAddress,
   ]);
+  const nominatedNamesRef = useRef<Record<string, string>>(
+    stakingAccountInfo.nominatedNames,
+  );
 
   useEffect(() => {
     // Clear initial values and set IsLoading if the previously stored data is not for the selected account
@@ -302,6 +310,70 @@ const useStakingAccount = () => {
   }, [polkadotApi, stashAddress]);
 
   useEffect(() => {
+    if (!sdk || Object.keys(operatorNames).length === 0) return;
+    const fetchNominatedNames = async () => {
+      try {
+        const inactiveOperators: string[] = [];
+        // we need to fetch the names of all operators that are nominated by the user
+        // including those for the current era and next era in case of differences
+        const allOperators = new Set([
+          ...stakingAccountInfo.nominations,
+          ...activelyStakedOperators.map((op) => op.operatorAccount),
+        ]);
+
+        // Fetch data in parallel using Promise.all
+        const fetchedEntries = await Promise.all(
+          Array.from(allOperators).map(async (key) => {
+            if (key in operatorNames) {
+              return { key, name: operatorNames[key] };
+            }
+            // Add currently nominated keys that do not have a corresponding entry in operatorNames to inactiveOperators
+            if (stakingAccountInfo.nominations.includes(key)) {
+              inactiveOperators.push(key);
+            }
+
+            if (key in nominatedNamesRef.current) {
+              return { key, name: nominatedNamesRef.current[key] };
+            }
+
+            const account = await sdk.accountManagement.getAccount({
+              address: key,
+            });
+            const accountIdentity = await account.getIdentity();
+            const did = accountIdentity?.did;
+            const name =
+              did && operators[did]?.name ? operators[did]?.name : '';
+            return { key, name };
+          }),
+        );
+
+        // Update state and ref with new entries
+        const updatedNames = fetchedEntries.reduce(
+          (acc, { key, name }) => {
+            if (name) acc[key] = name;
+            return acc;
+          },
+          {} as Record<string, string>,
+        );
+
+        setNominatedNames(updatedNames);
+        Object.assign(nominatedNamesRef.current, updatedNames);
+        setInactiveNominations(inactiveOperators);
+      } catch (error) {
+        notifyError((error as Error).message);
+      }
+    };
+
+    fetchNominatedNames();
+  }, [
+    operators,
+    stakingAccountInfo.nominations,
+    sdk,
+    operatorNames,
+    activelyStakedOperators,
+  ]);
+
+  useEffect(() => {
     if (!polkadotApi || !currentEraIndex) {
       return;
     }
@@ -358,9 +430,11 @@ const useStakingAccount = () => {
       unbondingLots,
       rewardDestination,
       nominations,
+      nominatedNames,
       activelyStakedOperators,
       currentEraStakedOperators,
       nominatedEra,
+      inactiveNominations,
     });
   }, [
     stakingAccountIsLoading,
@@ -379,6 +453,8 @@ const useStakingAccount = () => {
     activelyStakedOperators,
     nominatedEra,
     currentEraStakedOperators,
+    nominatedNames,
+    inactiveNominations,
   ]);
 };
 
