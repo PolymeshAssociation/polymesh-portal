@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   Footer,
@@ -13,6 +13,8 @@ import { StyledMain, StyledPageWrapper } from './styles';
 import { useWindowWidth } from '~/hooks/utility';
 import { Heading } from '~/components/UiKit';
 import { ROUTES } from '~/constants/routes';
+import { AccountContext } from '~/context/AccountContext';
+import { useExternalKeyWarningToast } from '~/hooks/polymesh/UseExternalKeyWarningToast';
 
 interface ILayoutProps {
   children: React.ReactNode;
@@ -48,6 +50,25 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
       return !prev;
     });
   };
+
+  const { isExternalConnection, identityLoading } = useContext(AccountContext);
+  const { showExternalKeyWarningToast, hideExternalKeyWarningToast } =
+    useExternalKeyWarningToast();
+
+  useEffect(() => {
+    if (identityLoading) return;
+
+    if (isExternalConnection) {
+      showExternalKeyWarningToast();
+    } else {
+      hideExternalKeyWarningToast();
+    }
+  }, [
+    hideExternalKeyWarningToast,
+    identityLoading,
+    isExternalConnection,
+    showExternalKeyWarningToast,
+  ]);
 
   return (
     <>

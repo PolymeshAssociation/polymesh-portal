@@ -1,4 +1,4 @@
-import { toast } from 'react-toastify';
+import { toast, ToastContent, ToastOptions } from 'react-toastify';
 
 const toastConfig = {
   autoClose: 6000,
@@ -8,16 +8,34 @@ const toastConfig = {
   closeOnClick: false,
 };
 
-export const notifyError = (message: string) =>
-  toast.error(message, { ...toastConfig, toastId: message });
+export const notifyError = (
+  message: ToastContent<unknown>,
+  toastConfigOverrides?: ToastOptions<unknown>,
+) =>
+  toast.error(message, {
+    ...toastConfig,
+    toastId: typeof message === 'string' ? message : undefined,
+    ...toastConfigOverrides,
+  });
 
-export const notifyWarning = (message: string) =>
-  toast.warning(message, { ...toastConfig, toastId: message });
+export const notifyWarning = (
+  message: ToastContent<unknown>,
+  toastConfigOverrides?: ToastOptions<unknown>,
+) =>
+  toast.warning(message, {
+    ...toastConfig,
+    toastId: typeof message === 'string' ? message : undefined,
+    ...toastConfigOverrides,
+  });
 
-export const notifyGlobalError = (message: string) =>
+export const notifyGlobalError = (
+  message: ToastContent<unknown>,
+  toastConfigOverrides?: ToastOptions<unknown>,
+) =>
   toast.error(message, {
     ...toastConfig,
     containerId: 'globalToast',
-    toastId: message,
+    toastId: typeof message === 'string' ? message : undefined,
     autoClose: 8000,
+    ...toastConfigOverrides,
   });

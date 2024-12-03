@@ -14,6 +14,10 @@ export const StyledWrapper = styled.div`
     color: #ff2e72;
   }
 
+  & .eye-icon {
+    color: #ff2e72;
+  }
+
   & .icon-wrapper {
     display: flex;
     align-items: center;
@@ -31,4 +35,14 @@ export const StyledPrimaryLabel = styled.div`
   border-radius: 100px;
   font-size: 12px;
   color: #ec4673;
+`;
+
+export const StyledIconButton = styled.button`
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: unset;
 `;

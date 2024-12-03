@@ -83,3 +83,11 @@ export const StyledCloseMenuButton = styled.button`
   background: transparent;
   color: ${({ theme }) => theme.colors.textPrimary};
 `;
+
+export const StyledConnectWalletSpan = styled.span`
+  color: ${({ theme }) => theme.colors.textPink};
+  cursor: pointer;
+  &:hover {
+    color: ${({ theme }) => theme.colors.textPurple};
+  }
+`;

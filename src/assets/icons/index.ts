@@ -75,3 +75,4 @@ export { ReactComponent as MockIdProviderIcon } from './mockid-logo.svg';
 export { ReactComponent as WalletConnectSymbol } from './walletconnect.svg';
 export { ReactComponent as WalletConnectSymbolNoColor } from './walletconnect-black.svg';
 export { ReactComponent as Search } from './search.svg';
+export { ReactComponent as EyeIcon } from './eye-outline.svg';
