@@ -11,11 +11,9 @@ export const StyledItemWrapper = styled.li`
 export const StyledInfoWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
   margin-bottom: 24px;
   min-height: 40px;
-  gap: 8px;
+  gap: 12px;
 
   @media screen and (max-width: 1023px) {
     flex-direction: column;

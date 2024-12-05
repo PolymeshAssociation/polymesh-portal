@@ -1,14 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import {
-  AffirmationStatus,
-  FungibleLeg,
   Instruction,
-  InstructionAffirmation,
-  InstructionDetails,
   InstructionType,
-  Leg,
-  NftLeg,
-  OffChainLeg,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
@@ -23,38 +16,13 @@ import {
 } from './styles';
 import { Details } from './components/Details';
 import { InstructionLeg } from './components/InstructionLeg';
-import { EInstructionTypes, InstructionAction } from '../../types';
 import {
-  getAffirmationStatus,
-  getLegErrors,
-  isLastManualAffirmation,
-} from './helpers';
+  EInstructionTypes,
+  InstructionAction,
+  InstructionData,
+} from '../../types';
+import { getAffirmationStatus, isLastManualAffirmation } from './helpers';
 import { AccountContext } from '~/context/AccountContext';
-import { PolymeshContext } from '~/context/PolymeshContext';
-import { notifyError } from '~/helpers/notifications';
-
-const calculateCounterparties = (legs: { leg: Leg; errors: string[] }[]) => {
-  const involvedIdentities = legs
-    .map(({ leg }) => {
-      // Handling FungibleLeg or NftLeg
-      if ('owner' in leg.from && 'owner' in leg.to) {
-        return [
-          (leg as FungibleLeg | NftLeg).from.owner.did,
-          (leg as FungibleLeg | NftLeg).to.owner.did,
-        ];
-      }
-      // Handling OffChainLeg
-      if ('did' in leg.from && 'did' in leg.to) {
-        return [(leg as OffChainLeg).from.did, (leg as OffChainLeg).to.did];
-      }
-      return [];
-    })
-    .flat();
-
-  return involvedIdentities.filter(
-    (value, idx, array) => array.indexOf(value) === idx,
-  ).length;
-};
 
 interface IAuthorizationItemProps {
   instruction: Instruction;
@@ -62,6 +30,7 @@ interface IAuthorizationItemProps {
   isSelected: boolean;
   executeAction: (action: InstructionAction | InstructionAction[]) => void;
   actionInProgress: boolean;
+  details?: InstructionData;
 }
 
 export const TransferItem: React.FC<IAuthorizationItemProps> = ({
@@ -70,85 +39,26 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
   isSelected,
   executeAction,
   actionInProgress,
+  details,
 }) => {
-  const {
-    api: { sdk },
-  } = useContext(PolymeshContext);
   const { identity, isExternalConnection } = useContext(AccountContext);
-  const [instructionDetails, setInstructionDetails] =
-    useState<InstructionDetails | null>(null);
-  const [instructionLegs, setInstructionLegs] = useState<
-    { leg: Leg; errors: string[] }[]
-  >([]);
-  const [legsCount, setLegsCount] = useState<number>(0);
-  const [instructionAffirmations, setInstructionAffirmations] = useState<
-    InstructionAffirmation[]
-  >([]);
-  const [latestBlock, setLatestBlock] = useState<number>(0);
-  const [affirmationsCount, setAffirmationsCount] = useState<number>(0);
-  const [detailsLoading, setDetailsLoading] = useState(true);
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
-  useEffect(() => {
-    if (!instruction || !sdk) return;
-
-    (async () => {
-      setDetailsLoading(true);
-      try {
-        const { data, count } = await instruction.getLegs();
-        const details = await instruction.details();
-        const { data: affirmations } = await instruction.getAffirmations();
-        const uniqueAffirmations = affirmations.filter(
-          (a, index, self) =>
-            index === self.findIndex((t) => t.identity.did === a.identity.did),
-        );
-        const block = await sdk.network.getLatestBlock();
-        setLatestBlock(block.toNumber());
-
-        const legsWithErrors = await Promise.all(
-          data.map(async (leg) => ({
-            leg,
-            errors: await getLegErrors({
-              leg,
-              affirmationsData: uniqueAffirmations,
-              instructionDetails: details,
-              latestBlock: block.toNumber(),
-            }),
-          })),
-        );
-        setInstructionLegs(legsWithErrors);
-        setInstructionAffirmations(uniqueAffirmations);
-        setInstructionDetails(details);
-        setAffirmationsCount(
-          uniqueAffirmations.filter(
-            (affirmation) => affirmation.status === AffirmationStatus.Affirmed,
-          ).length,
-        );
-
-        if (count) {
-          setLegsCount(count.toNumber());
-        } else {
-          setLegsCount(data.length);
-        }
-      } catch (error) {
-        notifyError(
-          `Error querying details of instruction ID ${instruction.id.toString()}. Error details: ${(error as Error).message}`,
-        );
-      } finally {
-        setDetailsLoading(false);
-      }
-    })();
-  }, [instruction, sdk]);
-
   const toggleDetails = () => setDetailsExpanded((prev) => !prev);
+
+  const instructionLegs = details ? details.legs : [];
+  const instructionDetails = details ? details.details : null;
+  const instructionAffirmations = details ? details.affirmations : [];
+  const affirmationsCount = details ? details.affirmationsCount : 0;
+  const counterparties = details ? details.counterparties : 0;
+  const latestBlock = details ? details.latestBlock : 0;
+  const legsCount = instructionLegs.length;
 
   const isSettleManual =
     instructionDetails?.type === InstructionType.SettleManual;
-
-  const isFullyAffirmed =
-    affirmationsCount === calculateCounterparties(instructionLegs);
+  const isFullyAffirmed = affirmationsCount === counterparties;
 
   const isAllowedToSettleManually =
     isSettleManual &&
@@ -168,7 +78,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
     isSettleManual &&
     isLastManualAffirmation({
       instructionAffirmations,
-      counterparties: calculateCounterparties(instructionLegs),
+      counterparties,
       identity,
     });
   const legsHaveErrors = instructionLegs.some(({ errors }) => !!errors.length);
@@ -192,7 +102,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
   return (
     <StyledItemWrapper>
       <StyledInfoWrapper>
-        {detailsLoading ? (
+        {!details ? (
           <SkeletonLoader
             circle
             width={20}
@@ -204,19 +114,19 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
             <Icon name="Check" size="16px" />
           </StyledSelect>
         )}
+
         <Details
           data={instructionDetails}
           affirmationsCount={affirmationsCount}
           instructionId={instruction.id.toString()}
-          counterparties={calculateCounterparties(instructionLegs)}
-          loading={detailsLoading}
+          counterparties={counterparties}
         />
       </StyledInfoWrapper>
       {detailsExpanded && (
         <StyledLegsWrapper>
           {instructionLegs.map((data, idx) => (
             <InstructionLeg
-              key={`${instruction.toHuman() + idx}`}
+              key={`${instruction.id.toString() + idx}`}
               data={data}
               affirmationsData={instructionAffirmations}
             />
@@ -230,7 +140,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
       )}
       <StyledButtonsWrapper $expanded={detailsExpanded}>
         <Button
-          disabled={detailsLoading || actionInProgress || isExternalConnection}
+          disabled={!details || actionInProgress || isExternalConnection}
           onClick={() => executeAction({ method: instruction.reject })}
         >
           <Icon name="CloseIcon" size="24px" />
@@ -240,9 +150,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           isFailedCanWithdrawAffirmation) && (
           <>
             <Button
-              disabled={
-                detailsLoading || actionInProgress || isExternalConnection
-              }
+              disabled={!details || actionInProgress || isExternalConnection}
               onClick={() => executeAction({ method: instruction.withdraw })}
             >
               <Icon name="Check" size="24px" />
@@ -270,7 +178,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
               variant="success"
               disabled={
                 isExternalConnection ||
-                detailsLoading ||
+                !details ||
                 actionInProgress ||
                 (!isSettleManual && legsHaveErrors) ||
                 isManualCannotAffirm
@@ -284,7 +192,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
               <Button
                 variant="success"
                 disabled={
-                  detailsLoading ||
+                  !details ||
                   actionInProgress ||
                   legsHaveErrors ||
                   isExternalConnection
@@ -310,7 +218,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
             variant="success"
             disabled={
               isExternalConnection ||
-              detailsLoading ||
+              !details ||
               actionInProgress ||
               legsHaveErrors ||
               !isFullyAffirmed
@@ -323,18 +231,15 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
             Retry Settling
           </Button>
         )}
-        <Button
-          variant="secondary"
-          onClick={toggleDetails}
-          disabled={detailsLoading}
-        >
+        <Button variant="secondary" onClick={toggleDetails} disabled={!details}>
           <Icon name="ExpandIcon" size="24px" className="expand-icon" />
           Details
-          {!!legsCount && (
+          {legsCount > 0 && (
             <>
               :{' '}
               <span className="leg-count">
-                {legsCount} Leg{legsCount > 1 ? 's' : ''}
+                {legsCount} Leg
+                {legsCount > 1 ? 's' : ''}
               </span>
             </>
           )}

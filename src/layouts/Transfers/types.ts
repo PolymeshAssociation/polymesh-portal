@@ -4,6 +4,9 @@ import {
   Instruction,
   RejectInstructionParams,
   WithdrawInstructionParams,
+  Leg,
+  InstructionDetails,
+  InstructionAffirmation,
 } from '@polymeshassociation/polymesh-sdk/types';
 
 export enum EInstructionTypes {
@@ -41,3 +44,12 @@ export type InstructionAction =
       method: Instruction['withdraw'];
       params?: WithdrawInstructionParams;
     };
+
+export interface InstructionData {
+  legs: { leg: Leg; errors: string[] }[];
+  details: InstructionDetails;
+  affirmations: InstructionAffirmation[];
+  affirmationsCount: number;
+  counterparties: number;
+  latestBlock: number;
+}

@@ -1,8 +1,9 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Instruction,
   UnsubCallback,
   GroupedInstructions,
+  AffirmationStatus,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useSearchParams } from 'react-router-dom';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
@@ -32,20 +33,38 @@ import {
   EActionTypes,
   ESortOptions,
   InstructionAction,
+  InstructionData,
 } from '../../types';
 import { createTransactionChunks, createTransactions } from './helpers';
 import { useWindowWidth } from '~/hooks/utility';
 import { SkeletonLoader, Button } from '~/components/UiKit';
 import { useTransfersPagination } from './hooks';
+import { calculateCounterparties } from '../../helpers';
 
 interface ITransfersListProps {
   sortBy: ESortOptions;
 }
 
+interface CachedDetails {
+  [key: string]: Record<string, InstructionData>;
+}
+
 const perPageOptions = [3, 5, 10, 20, 50];
 
 export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
+  const [searchParams] = useSearchParams();
+  const type = searchParams.get('type');
+
+  const typeRef = useRef<string | null>(null);
+  const cachedDetailsRef = useRef<CachedDetails>({});
+
   const [selectedItems, setSelectedItems] = useState<Instruction[]>([]);
+  const [actionInProgress, setActionInProgress] = useState(false);
+  const [invalidInstructions, setInvalidInstructions] = useState<number[]>([]);
+  const [instructionDetails, setInstructionDetails] = useState<
+    Record<string, InstructionData>
+  >({});
+
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
@@ -53,17 +72,15 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const { allInstructions, instructionsLoading, refreshInstructions } =
     useContext(InstructionsContext);
   const { handleStatusChange } = useTransactionStatus();
-  const [searchParams] = useSearchParams();
-  const type = searchParams.get('type');
-  const typeRef = useRef<string | null>(null);
-  const [actionInProgress, setActionInProgress] = useState(false);
-  const [invalidInstructions, setInvalidInstructions] = useState<number[]>([]);
   const { isWidescreen, isMobile, isTablet } = useWindowWidth();
 
-  const currentTabInstructions =
-    !allInstructions || !type
-      ? null
-      : allInstructions[type as keyof GroupedInstructions];
+  const currentTabInstructions = useMemo(
+    () =>
+      !allInstructions || !type
+        ? null
+        : allInstructions[type as keyof GroupedInstructions],
+    [allInstructions, type],
+  );
 
   const {
     currentItems,
@@ -78,40 +95,39 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
     onLastPageClick,
   } = useTransfersPagination(currentTabInstructions?.length || 0, type);
 
+  useEffect(() => {
+    setSelectedItems([]);
+    typeRef.current = type;
+  }, [type, currentItems]);
+
   const isSmallScreen = isMobile || isTablet;
 
   useEffect(() => {
-    if (!selectedItems.length || typeRef.current === type) return;
-
-    setSelectedItems([]);
-  }, [type, selectedItems]);
-
-  useEffect(() => {
-    if (
-      (type !== 'pending' && typeRef.current !== 'pending') ||
-      !currentTabInstructions ||
-      !sdk
-    ) {
+    if (!currentTabInstructions || !sdk) {
       return;
     }
+    // Set initial details from cache if available
+    setInstructionDetails(cachedDetailsRef.current[type as string] || {});
+
     (async () => {
+      const detailsMap: Record<string, InstructionData> = {};
+      const block = await sdk.network.getLatestBlock();
       const instructionsWithErrors = await Promise.all(
         currentTabInstructions
           .slice(currentItems.first - 1, currentItems.last)
           .map(async (instruction) => {
             try {
-              const { data } = await instruction.getLegs();
+              const { data: legs } = await instruction.getLegs();
               const { data: affirmations } =
                 await instruction.getAffirmations();
               const details = await instruction.details();
-              const block = await sdk.network.getLatestBlock();
               const uniqueAffirmations = affirmations.filter(
                 (a, index, self) =>
                   index ===
                   self.findIndex((t) => t.identity.did === a.identity.did),
               );
               const legErrors = await Promise.all(
-                data.map(async (leg) => ({
+                legs.map(async (leg) => ({
                   leg,
                   errors: await getLegErrors({
                     leg,
@@ -121,6 +137,18 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                   }),
                 })),
               );
+
+              detailsMap[instruction.id.toString()] = {
+                legs: legErrors,
+                details,
+                affirmations: uniqueAffirmations,
+                affirmationsCount: uniqueAffirmations.filter(
+                  (a) => a.status === AffirmationStatus.Affirmed,
+                ).length,
+                counterparties: calculateCounterparties(legErrors),
+                latestBlock: block.toNumber(),
+              };
+
               if (legErrors.some((leg) => leg.errors.length)) {
                 return instruction.id.toNumber();
               }
@@ -134,10 +162,25 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
           }),
       );
       const filteredInstructions = instructionsWithErrors.filter(
-        (instruction) => instruction,
+        (instruction) => !!instruction,
       );
 
       setInvalidInstructions(filteredInstructions as number[]);
+      if (type === typeRef.current) {
+        setInstructionDetails((prevDetails) => ({
+          ...prevDetails,
+          ...detailsMap,
+        }));
+      }
+
+      // Update cache using ref
+      cachedDetailsRef.current = {
+        ...cachedDetailsRef.current,
+        [type as string]: {
+          ...(cachedDetailsRef.current[type as string] || {}),
+          ...detailsMap,
+        },
+      };
     })();
   }, [
     type,
@@ -145,10 +188,9 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
     currentTabInstructions,
     currentItems.first,
     currentItems.last,
-  ]);
+  ]); // removed cachedDetails from dependencies
 
   const handleItemSelect = (selectedInstruction: Instruction) => {
-    typeRef.current = type;
     setSelectedItems((prev) => {
       if (!prev.length) {
         return [selectedInstruction];
@@ -170,13 +212,12 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
 
   const handleSelectAll = () => {
     if (!allInstructions) return;
-    typeRef.current = type;
-    setSelectedItems(
-      allInstructions[type as keyof GroupedInstructions].slice(
-        currentItems.first - 1,
-        currentItems.last,
-      ),
-    );
+    const groupedInstructions = allInstructions[
+      type as keyof GroupedInstructions
+    ]
+      .slice(currentItems.first - 1, currentItems.last)
+      .filter((instruction) => instructionDetails[instruction.id.toString()]);
+    setSelectedItems(groupedInstructions);
   };
 
   const clearSelection = () => {
@@ -372,6 +413,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                     )}
                     executeAction={executeAction}
                     actionInProgress={actionInProgress}
+                    details={instructionDetails[instruction.id.toString()]}
                   />
                 ))}
               <StyledPaginationContainer>

@@ -1,11 +1,28 @@
 import styled from 'styled-components';
 
-export const StyledInfoItem = styled.div`
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.textSecondary};
+export const StyledDetailsWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 
   @media screen and (max-width: 1023px) {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+`;
+
+export const StyledInfoItem = styled.div<{
+  $isId?: boolean;
+}>`
+  font-size: 12px;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  flex-shrink: ${({ $isId }) => ($isId ? 0 : 1)};
+  @media screen and (max-width: 1023px) {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     width: 100%;
