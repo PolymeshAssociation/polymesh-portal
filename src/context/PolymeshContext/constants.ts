@@ -2,12 +2,17 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { EventRecord } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  EventRecord,
+  MiddlewareMetadata,
+} from '@polymeshassociation/polymesh-sdk/types';
 
 export interface IPolymeshContext {
   state: {
     connecting: boolean | null;
     initialized: boolean;
+    middlewareMetadata: MiddlewareMetadata | null;
+    middlewareLoading: boolean;
   };
   api: {
     sdk: Polymesh | null;
@@ -38,12 +43,15 @@ export interface IPolymeshContext {
     events: EventRecord[];
     blockHash: string;
   };
+  refreshMiddlewareMetadata: () => Promise<void>;
 }
 
 export const initialState = {
   state: {
     connecting: null,
     initialized: false,
+    middlewareMetadata: null,
+    middlewareLoading: true,
   },
   api: {
     sdk: null,
@@ -68,6 +76,7 @@ export const initialState = {
   disconnectWalletConnect: async () => {},
   ss58Prefix: undefined,
   subscribedEventRecords: { events: [], blockHash: '' },
+  refreshMiddlewareMetadata: async () => {},
 };
 
 export const IPFS_PROVIDER_URL =

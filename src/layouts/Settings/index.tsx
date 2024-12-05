@@ -26,14 +26,16 @@ interface IChainInfo {
 
 const Settings = () => {
   const {
-    api: { polkadotApi },
+    api: { polkadotApi, sdk },
+    state: { middlewareMetadata },
+    refreshMiddlewareMetadata,
   } = useContext(PolymeshContext);
   const [chainInfo, setChainInfo] = useState<IChainInfo | null>(null);
   const [infoLoading, setInfoLoading] = useState(true);
   const { isMobile } = useWindowWidth();
-  useEffect(() => {
-    if (!polkadotApi) return;
 
+  useEffect(() => {
+    if (!sdk || !polkadotApi) return;
     (async () => {
       setInfoLoading(true);
       const runtimeVersion = polkadotApi.runtimeVersion.toHuman();
@@ -53,7 +55,12 @@ const Settings = () => {
       setChainInfo(info);
       setInfoLoading(false);
     })();
-  }, [polkadotApi]);
+  }, [polkadotApi, sdk]);
+
+  useEffect(() => {
+    refreshMiddlewareMetadata();
+  }, [refreshMiddlewareMetadata]);
+
   return (
     <StyledSettings>
       <Text size="large" bold color="secondary" marginBottom={28}>
@@ -109,33 +116,60 @@ const Settings = () => {
           value={<ThemeToggle />}
         />
       </StyledMenuList>
-      {!!chainInfo && (
-        <>
-          <Text
-            size="large"
-            bold
-            color="secondary"
-            marginTop={40}
-            marginBottom={28}
-          >
-            Connected Chain Information
-          </Text>
-          {infoLoading ? (
-            'loading'
-          ) : (
-            <StyledMenuList>
-              <MenuItem
-                description="Runtime version"
-                value={`${chainInfo.runtime.name}/${chainInfo.runtime.version}`}
-              />
-              <MenuItem description="Chain" value={chainInfo.chain} />
-              <MenuItem
-                description="System version"
-                value={`${chainInfo.system.name} - ${chainInfo.system.version}`}
-              />
-            </StyledMenuList>
-          )}
-        </>
+      <Text
+        size="large"
+        bold
+        color="secondary"
+        marginTop={40}
+        marginBottom={28}
+      >
+        Connected Chain Information
+      </Text>
+      {infoLoading || !chainInfo ? (
+        'Loading...'
+      ) : (
+        <StyledMenuList>
+          <MenuItem
+            description="Runtime version"
+            value={`${chainInfo.runtime.name}/${chainInfo.runtime.version}`}
+          />
+          <MenuItem description="Chain" value={chainInfo.chain} />
+          <MenuItem
+            description="System version"
+            value={`${chainInfo.system.name} - ${chainInfo.system.version}`}
+          />
+        </StyledMenuList>
+      )}
+      <Text
+        size="large"
+        bold
+        color="secondary"
+        marginTop={40}
+        marginBottom={28}
+      >
+        Connected Middleware Information
+      </Text>
+      {!middlewareMetadata ? (
+        'Loading...'
+      ) : (
+        <StyledMenuList>
+          <MenuItem
+            description="Polymesh SubQuery Version"
+            value={middlewareMetadata.sqVersion}
+          />
+          <MenuItem
+            description="Middleware Indexer Healthy"
+            value={middlewareMetadata.indexerHealthy ? 'Yes' : 'No'}
+          />
+          <MenuItem
+            description="Middleware Last Processed Block"
+            value={middlewareMetadata.lastProcessedHeight.toString()}
+          />
+          <MenuItem
+            description="Middleware Last Processed Timestamp"
+            value={middlewareMetadata.lastProcessedTimestamp.toLocaleString()}
+          />
+        </StyledMenuList>
       )}
     </StyledSettings>
   );

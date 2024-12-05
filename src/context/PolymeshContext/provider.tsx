@@ -2,7 +2,10 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { EventRecord } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  EventRecord,
+  MiddlewareMetadata,
+} from '@polymeshassociation/polymesh-sdk/types';
 import PolymeshContext from './context';
 import { IPFS_PROVIDER_URL } from './constants';
 import { useLocalStorage } from '~/hooks/utility';
@@ -69,6 +72,9 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   const nodeUrlRef = useRef<string | null>(null);
   const middlewareUrlRef = useRef<string | null>(null);
   const middlewareKeyRef = useRef<string | null>(null);
+  const [middlewareMetadata, setMiddlewareMetadata] =
+    useState<MiddlewareMetadata | null>(null);
+  const [middlewareLoading, setMiddlewareLoading] = useState(true);
 
   // Parse chain metadata from local storage
   const metadata = useMemo(() => {
@@ -255,6 +261,20 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     })();
   }, [metadata, middlewareKey, middlewareUrl, migrationCompleted, nodeUrl]);
 
+  // Callback to refresh middleware metadata
+  const refreshMiddlewareMetadata = useCallback(async () => {
+    if (!sdk) return;
+    setMiddlewareLoading(true);
+    const middlewareMetadataResult = await sdk.network.getMiddlewareMetadata();
+    setMiddlewareMetadata(middlewareMetadataResult);
+    setMiddlewareLoading(false);
+  }, [sdk]);
+
+  // Effect to refresh middleware metadata on component mount
+  useEffect(() => {
+    refreshMiddlewareMetadata();
+  }, [refreshMiddlewareMetadata]);
+
   // Create an initial signing manager instance for the default extension
   useEffect(() => {
     if (signingManager) return;
@@ -365,6 +385,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       state: {
         connecting,
         initialized,
+        middlewareMetadata,
+        middlewareLoading,
       },
       api: {
         sdk,
@@ -390,19 +412,25 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       disconnectWalletConnect,
       ss58Prefix,
       subscribedEventRecords,
+      refreshMiddlewareMetadata,
     }),
     [
-      connectWallet,
       connecting,
+      connectWallet,
       defaultExtension,
       disconnectWalletConnect,
       initialized,
+      ipfsProviderUrl,
       middlewareKey,
+      middlewareLoading,
+      middlewareMetadata,
       middlewareUrl,
       nodeUrl,
       polkadotApi,
+      refreshMiddlewareMetadata,
       sdk,
       setDefaultExtension,
+      setIpfsProviderUrl,
       setMiddlewareKey,
       setMiddlewareUrl,
       setNodeUrl,
@@ -410,8 +438,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       ss58Prefix,
       subscribedEventRecords,
       walletConnectConnected,
-      ipfsProviderUrl,
-      setIpfsProviderUrl,
     ],
   );
 
