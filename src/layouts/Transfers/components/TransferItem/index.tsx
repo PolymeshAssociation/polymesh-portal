@@ -133,7 +133,9 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           setLegsCount(data.length);
         }
       } catch (error) {
-        notifyError((error as Error).message);
+        notifyError(
+          `Error querying details of instruction ID ${instruction.id.toString()}. Error details: ${(error as Error).message}`,
+        );
       } finally {
         setDetailsLoading(false);
       }

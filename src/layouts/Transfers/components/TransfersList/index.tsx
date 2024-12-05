@@ -99,30 +99,38 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
         currentTabInstructions
           .slice(currentItems.first - 1, currentItems.last)
           .map(async (instruction) => {
-            const { data } = await instruction.getLegs();
-            const { data: affirmations } = await instruction.getAffirmations();
-            const details = await instruction.details();
-            const block = await sdk.network.getLatestBlock();
-            const uniqueAffirmations = affirmations.filter(
-              (a, index, self) =>
-                index ===
-                self.findIndex((t) => t.identity.did === a.identity.did),
-            );
-            const legErrors = await Promise.all(
-              data.map(async (leg) => ({
-                leg,
-                errors: await getLegErrors({
+            try {
+              const { data } = await instruction.getLegs();
+              const { data: affirmations } =
+                await instruction.getAffirmations();
+              const details = await instruction.details();
+              const block = await sdk.network.getLatestBlock();
+              const uniqueAffirmations = affirmations.filter(
+                (a, index, self) =>
+                  index ===
+                  self.findIndex((t) => t.identity.did === a.identity.did),
+              );
+              const legErrors = await Promise.all(
+                data.map(async (leg) => ({
                   leg,
-                  affirmationsData: uniqueAffirmations,
-                  instructionDetails: details,
-                  latestBlock: block.toNumber(),
-                }),
-              })),
-            );
-            if (legErrors.some((leg) => leg.errors.length)) {
-              return instruction.id.toNumber();
+                  errors: await getLegErrors({
+                    leg,
+                    affirmationsData: uniqueAffirmations,
+                    instructionDetails: details,
+                    latestBlock: block.toNumber(),
+                  }),
+                })),
+              );
+              if (legErrors.some((leg) => leg.errors.length)) {
+                return instruction.id.toNumber();
+              }
+              return null;
+            } catch (error) {
+              notifyError(
+                `Error querying details of instruction ID ${instruction.id.toString()}. Error details: ${(error as Error).message}`,
+              );
+              return null;
             }
-            return null;
           }),
       );
       const filteredInstructions = instructionsWithErrors.filter(

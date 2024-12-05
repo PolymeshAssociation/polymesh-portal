@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react';
 import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
-import { Account } from '@polymeshassociation/polymesh-sdk/internal';
 import {
   AccountIdentityRelation,
   AccountKeyType,
@@ -258,38 +257,23 @@ export const Details: React.FC<IDetailsProps> = ({
                         MultiSig Signers
                       </Text>
                       {multisigDetails.signers.map((signer) => {
-                        if (signer instanceof Account) {
-                          const accountName = allAccountsWithMeta.find(
-                            ({ address }) => address === signer.address,
-                          )?.meta.name;
-                          return (
-                            <SignerDetails key={signer.address}>
-                              <Text>{!isMobile && 'Key:'}</Text>
-                              <KeyDetails>
-                                {accountName && (
-                                  <StyledDidThumb className="key-wrapper">
-                                    <Text bold>{accountName}</Text>
-                                  </StyledDidThumb>
-                                )}
-                                <StyledDidThumb className="key-wrapper">
-                                  {formatKey(signer.address)}
-                                </StyledDidThumb>
-                                <IconWrapper>
-                                  <CopyToClipboard value={signer.address} />
-                                </IconWrapper>
-                              </KeyDetails>
-                            </SignerDetails>
-                          );
-                        }
+                        const accountName = allAccountsWithMeta.find(
+                          ({ address }) => address === signer.address,
+                        )?.meta.name;
                         return (
-                          <SignerDetails key={signer.did}>
-                            <Text>Identity:</Text>
+                          <SignerDetails key={signer.address}>
+                            <Text>{!isMobile && 'Key:'}</Text>
                             <KeyDetails>
+                              {accountName && (
+                                <StyledDidThumb className="key-wrapper">
+                                  <Text bold>{accountName}</Text>
+                                </StyledDidThumb>
+                              )}
                               <StyledDidThumb className="key-wrapper">
-                                {formatDid(signer.did, 8, 9)}
+                                {formatKey(signer.address)}
                               </StyledDidThumb>
                               <IconWrapper>
-                                <CopyToClipboard value={signer.did} />
+                                <CopyToClipboard value={signer.address} />
                               </IconWrapper>
                             </KeyDetails>
                           </SignerDetails>
