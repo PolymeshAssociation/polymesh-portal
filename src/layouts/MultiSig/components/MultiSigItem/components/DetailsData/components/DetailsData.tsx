@@ -32,11 +32,11 @@ export const DetailsData: React.FC<IDetailsProps> = ({
   isHistorical,
 }) => {
   const subscanUrlCreatedBlock = createSubscanExtrinsicUrl(
-    item.createdBlockId,
+    item.createdBlock.blockId.toString(),
     item.extrinsicIdx,
   );
   const subscanUrlUpdatedBlock = createSubscanBlockEventsUrl(
-    item.updatedBlockId,
+    item.updatedBlock.blockId.toString(),
   );
   return (
     <StyledInfo>
@@ -58,7 +58,7 @@ export const DetailsData: React.FC<IDetailsProps> = ({
             target="_blank"
             rel="noopener noreferrer"
           >
-            {item.updatedBlockId}
+            {item.updatedBlock.blockId.toString()}
           </StyledInfoLink>
         </StyledInfoBlock>
       )}

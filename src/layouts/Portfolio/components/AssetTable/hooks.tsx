@@ -44,6 +44,7 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
   const portfolioId = searchParams.get('id');
   const {
     api: { gqlClient },
+    state: { middlewareMetadata },
   } = useContext(PolymeshContext);
   const { allPortfolios, totalAssetsAmount, portfolioLoading } =
     useContext(PortfolioContext);
@@ -67,7 +68,8 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
       currentTab === EAssetsTableTabs.TOKENS ||
       portfolioLoading ||
       !identity ||
-      !gqlClient
+      !gqlClient ||
+      !middlewareMetadata
     ) {
       return;
     }
@@ -91,6 +93,7 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
                     identity.did,
                     portfolioId,
                   ),
+                  paddedIds: middlewareMetadata.paddedIds,
                 }),
               });
             if (movements) {
@@ -112,6 +115,7 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
                   offset,
                   pageSize,
                   nonFungible: false,
+                  paddedIds: middlewareMetadata.paddedIds,
                 }),
               });
             if (transfers) {
@@ -143,6 +147,7 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
     pageSize,
     pageIndex,
     gqlClient,
+    middlewareMetadata,
   ]);
 
   // Get token table data

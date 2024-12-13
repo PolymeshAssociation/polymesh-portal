@@ -17,6 +17,7 @@ export const useMultiSigList = () => {
   const { multiSigAccount } = useContext(AccountContext);
   const {
     api: { polkadotApi },
+    state: { middlewareMetadata },
   } = useContext(PolymeshContext);
   const {
     activeProposalsIds,
@@ -32,7 +33,12 @@ export const useMultiSigList = () => {
   }, [pendingProposalsLoading]);
 
   useEffect(() => {
-    if (pendingProposalsLoading || !polkadotApi || !gqlClient) {
+    if (
+      pendingProposalsLoading ||
+      !polkadotApi ||
+      !gqlClient ||
+      !middlewareMetadata
+    ) {
       return;
     }
     if (
@@ -57,6 +63,7 @@ export const useMultiSigList = () => {
           query: getMultisigProposalsQuery({
             multisigId: multiSigAccount.address,
             ids: activeProposalsIds,
+            paddedIds: middlewareMetadata.paddedIds,
           }),
         });
 
@@ -79,10 +86,10 @@ export const useMultiSigList = () => {
             expiry,
           } = proposal;
           const {
-            createdBlockId,
+            createdBlock: { blockId: createdBlockId },
             creatorAccount,
             extrinsicIdx,
-            updatedBlockId,
+            updatedBlock: { blockId: updatedBlockId },
             votes,
             datetime,
           } = currentProposal;
@@ -97,9 +104,9 @@ export const useMultiSigList = () => {
             call: splitCamelCase(call),
             proposalId: proposal.id.toNumber(),
             module: splitCamelCase(module),
-            createdBlockId,
+            createdBlock: { blockId: createdBlockId },
             creatorAccount,
-            updatedBlockId,
+            updatedBlock: { blockId: updatedBlockId },
             extrinsicIdx,
             datetime,
             votes,
@@ -115,6 +122,7 @@ export const useMultiSigList = () => {
   }, [
     activeProposalsIds,
     gqlClient,
+    middlewareMetadata,
     multiSigAccount,
     multiSigAccountKey,
     pendingProposals,

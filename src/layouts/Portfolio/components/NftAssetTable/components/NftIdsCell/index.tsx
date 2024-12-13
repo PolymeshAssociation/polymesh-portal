@@ -8,7 +8,7 @@ interface INftIdsCellProps {
   info:
     | CellContext<INftTransactionItem, string[]>
     | CellContext<INftMovementItem, string[]>;
-  assetId?: string;
+  assetId: string;
 }
 
 export const NftIdsCell: React.FC<INftIdsCellProps> = ({ info, assetId }) => {
@@ -16,19 +16,15 @@ export const NftIdsCell: React.FC<INftIdsCellProps> = ({ info, assetId }) => {
   if (!data) return null;
   return (
     <StyledNftsCell>
-      {assetId
-        ? data.map((nftId, index) => (
-            <>
-              <NavLink
-                to={`/portfolio?nftCollection=${assetId}&nftId=${nftId}`}
-                key={nftId}
-              >
-                {nftId}
-              </NavLink>
-              {index < data.length - 1 && ', '}
-            </>
-          ))
-        : data.join(', ')}
+      {data.flatMap((nftId, index) => [
+        index > 0 && ', ',
+        <NavLink
+          key={nftId}
+          to={`/portfolio?nftCollection=${assetId}&nftId=${nftId}`}
+        >
+          {nftId}
+        </NavLink>,
+      ])}
     </StyledNftsCell>
   );
 };

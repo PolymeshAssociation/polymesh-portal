@@ -18,6 +18,8 @@ import {
   ERawMultiSigStatus,
   IMultisigExtrinsicQueryResponse,
   IProposalQueryResponse,
+  IMultiSigProposalParams,
+  IRawMultiSigProposal,
 } from '~/constants/queries/types';
 import { splitCamelCase, splitByUnderscore } from '~/helpers/formatters';
 import { IMultiSigListItem } from '../../types';
@@ -40,6 +42,7 @@ export const useMultiSigTable = () => {
 
   const {
     api: { gqlClient },
+    state: { middlewareMetadata },
   } = useContext(PolymeshContext);
   const { multiSigAccount } = useContext(AccountContext);
 
@@ -65,7 +68,12 @@ export const useMultiSigTable = () => {
     if (multiSigLoading) {
       return;
     }
-    if (!gqlClient || !multiSigAccountKey || !multiSigAccount) {
+    if (
+      !gqlClient ||
+      !multiSigAccountKey ||
+      !multiSigAccount ||
+      !middlewareMetadata
+    ) {
       setTotalItems(0);
       setTotalPages(0);
       setTableData([]);
@@ -74,6 +82,24 @@ export const useMultiSigTable = () => {
       setTableLoading(false);
       return;
     }
+
+    const mapProposal = (
+      rawProposal: IRawMultiSigProposal,
+      params: IMultiSigProposalParams,
+    ) => {
+      const module = params.proposal.section;
+      const call = params.proposal.method;
+      const expiry = params.expiry ? new Date(params.expiry) : null;
+      const { args } = params.proposal;
+
+      return {
+        ...rawProposal,
+        args,
+        call: splitByUnderscore(call),
+        expiry,
+        module: splitCamelCase(module),
+      };
+    };
 
     (async () => {
       try {
@@ -87,55 +113,65 @@ export const useMultiSigTable = () => {
             offset: pageIndex * pageSize,
             pageSize,
             isHistorical: true,
+            paddedIds: middlewareMetadata.paddedIds,
           }),
         });
-        const createdExtrinsic = nodes.map((proposal) => ({
-          blockId: proposal.createdBlockId,
-          extrinsicIdx: proposal.extrinsicIdx,
-        }));
 
-        const {
-          data: {
-            extrinsics: { nodes: extrinsicQueryNodes },
-          },
-        } = await gqlClient.query<IMultisigExtrinsicQueryResponse>({
-          query: getMultisigCreationExtrinsics(createdExtrinsic),
-        });
+        let list: IMultiSigListItem[];
+        if (!middlewareMetadata.paddedIds) {
+          const createdExtrinsics = nodes.map((proposal) => ({
+            blockId: proposal.createdBlock.blockId,
+            extrinsicIdx: proposal.extrinsicIdx,
+          }));
 
-        const list = nodes.map((rawProposal) => {
-          const { createdBlockId, extrinsicIdx } = rawProposal;
+          const {
+            data: {
+              extrinsics: { nodes: extrinsicQueryNodes },
+            },
+          } = await gqlClient.query<IMultisigExtrinsicQueryResponse>({
+            query: getMultisigCreationExtrinsics({
+              extrinsicArray: createdExtrinsics,
+            }),
+          });
 
-          const proposal = extrinsicQueryNodes.find(
-            (e) =>
-              e.blockId === createdBlockId && e.extrinsicIdx === extrinsicIdx,
-          );
+          list = nodes.map((rawProposal) => {
+            const {
+              createdBlock: { blockId: createdBlockId },
+              extrinsicIdx,
+            } = rawProposal;
 
-          if (!proposal) {
-            throw new Error(
-              `Block ID ${rawProposal.createdBlockId}, extrinsic indx ${rawProposal.extrinsicIdx} not found`,
+            const proposal = extrinsicQueryNodes.find(
+              (e) =>
+                e.block.blockId === createdBlockId &&
+                e.extrinsicIdx === extrinsicIdx,
             );
-          }
 
-          const { params } = proposal;
-          const module = params.proposal.section;
-          const call = params.proposal.method;
-          const expiry = params.expiry ? new Date(params.expiry) : null;
-          const { args } = params.proposal;
+            if (!proposal) {
+              throw new Error(
+                `Block ID ${rawProposal.createdBlock.blockId}, extrinsic index ${rawProposal.extrinsicIdx} not found`,
+              );
+            }
 
-          return {
-            ...rawProposal,
-            args,
-            call: splitByUnderscore(call),
-            expiry,
-            module: splitCamelCase(module),
-          };
-        });
+            return mapProposal(rawProposal, proposal.params);
+          });
+        } else {
+          list = nodes.map((rawProposal) => {
+            const { createdEvent } = rawProposal;
 
+            if (!createdEvent) {
+              throw new Error(
+                `Created event not found for proposal ID ${rawProposal.proposalId}`,
+              );
+            }
+
+            return mapProposal(rawProposal, createdEvent.extrinsic.params);
+          });
+        }
         const table = list.map(
           ({
             proposalId,
             extrinsicIdx,
-            createdBlockId,
+            createdBlock: { blockId },
             creatorAccount,
             module,
             call,
@@ -144,7 +180,11 @@ export const useMultiSigTable = () => {
             datetime,
             status,
           }: IMultiSigListItem) => ({
-            id: { extrinsicIdx, createdBlockId, proposalId },
+            id: {
+              extrinsicIdx,
+              createdBlockId: blockId.toString(),
+              proposalId,
+            },
             creatorAccount,
             module,
             call,
@@ -153,6 +193,7 @@ export const useMultiSigTable = () => {
             status: status as ERawMultiSigStatus,
           }),
         );
+
         setTotalItems(totalCount);
         setTotalPages(Math.ceil(totalCount / pageSize));
         setTableData(table);
@@ -176,6 +217,7 @@ export const useMultiSigTable = () => {
     pageIndex,
     multiSigAccount,
     multiSigLoading,
+    middlewareMetadata,
   ]);
 
   const pagination = useMemo(

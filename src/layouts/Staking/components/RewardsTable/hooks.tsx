@@ -47,6 +47,7 @@ export const useRewardTable = (
   >([]);
   const {
     api: { gqlClient },
+    state: { middlewareMetadata },
   } = useContext(PolymeshContext);
   const { account, accountLoading, identity, identityLoading } =
     useContext(AccountContext);
@@ -87,7 +88,8 @@ export const useRewardTable = (
     if (
       currentTab !== ERewardTableTabs.IDENTITY_REWARDS ||
       (tabRef.current && currentTab !== tabRef.current && pageIndex !== 0) ||
-      !gqlClient
+      !gqlClient ||
+      !middlewareMetadata
     ) {
       return undefined;
     }
@@ -115,6 +117,7 @@ export const useRewardTable = (
               offset: pageIndex * pageSize,
               pageSize,
               identityId: identity?.did,
+              paddedIds: middlewareMetadata.paddedIds,
             }),
             fetchPolicy: 'cache-and-network',
           })
@@ -146,14 +149,23 @@ export const useRewardTable = (
         querySubscription.unsubscribe();
       }
     };
-  }, [currentTab, gqlClient, identity, identityLoading, pageIndex, pageSize]);
+  }, [
+    currentTab,
+    gqlClient,
+    identity,
+    identityLoading,
+    middlewareMetadata,
+    pageIndex,
+    pageSize,
+  ]);
 
   // Update table data for Account Rewards tab
   useEffect(() => {
     if (
       currentTab !== ERewardTableTabs.ACCOUNT_REWARDS ||
       (tabRef.current && currentTab !== tabRef.current && pageIndex !== 0) ||
-      !gqlClient
+      !gqlClient ||
+      !middlewareMetadata
     ) {
       return undefined;
     }
@@ -182,6 +194,7 @@ export const useRewardTable = (
               offset: pageIndex * pageSize,
               pageSize,
               accountRawKey: account.address,
+              paddedIds: middlewareMetadata.paddedIds,
             }),
             fetchPolicy: 'cache-and-network',
           })
@@ -213,7 +226,15 @@ export const useRewardTable = (
         querySubscription.unsubscribe();
       }
     };
-  }, [account, accountLoading, currentTab, gqlClient, pageIndex, pageSize]);
+  }, [
+    account,
+    accountLoading,
+    currentTab,
+    gqlClient,
+    middlewareMetadata,
+    pageIndex,
+    pageSize,
+  ]);
 
   const pagination = useMemo(
     () => ({
@@ -226,6 +247,10 @@ export const useRewardTable = (
   const downloadAllPages = useCallback(async () => {
     if (!gqlClient) {
       throw new Error('gqlClient is not provided');
+    }
+
+    if (!middlewareMetadata) {
+      throw new Error('middlewareMetadata is not provided');
     }
 
     setDownloadDisabled(true);
@@ -265,6 +290,7 @@ export const useRewardTable = (
           ...queryOptions,
           offset: page * batchSize,
           pageSize: batchSize,
+          paddedIds: middlewareMetadata.paddedIds,
         };
 
         promises.push(
@@ -300,7 +326,14 @@ export const useRewardTable = (
     } finally {
       setDownloadDisabled(false);
     }
-  }, [account?.address, currentTab, gqlClient, identity?.did, totalItems]);
+  }, [
+    account?.address,
+    currentTab,
+    gqlClient,
+    identity?.did,
+    middlewareMetadata,
+    totalItems,
+  ]);
 
   return {
     table: useReactTable<IAccountRewardItem | IIdentityRewardItem>({

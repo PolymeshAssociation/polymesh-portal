@@ -18,6 +18,7 @@ import { PolymeshContext } from '~/context/PolymeshContext';
 export const useDistributionsTable = () => {
   const {
     api: { gqlClient },
+    state: { middlewareMetadata },
   } = useContext(PolymeshContext);
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -39,7 +40,7 @@ export const useDistributionsTable = () => {
   }, [identity]);
 
   useEffect(() => {
-    if (!identity || !gqlClient) {
+    if (!identity || !gqlClient || !middlewareMetadata) {
       setTableData([]);
       identityRef.current = undefined;
       return;
@@ -54,6 +55,7 @@ export const useDistributionsTable = () => {
             did: identity.did,
             offset: pageIndex * pageSize,
             pageSize,
+            paddedIds: middlewareMetadata.paddedIds,
           }),
         });
         const parsedData = parseHistoricalDistributions(
@@ -72,7 +74,7 @@ export const useDistributionsTable = () => {
         setTableLoading(false);
       }
     })();
-  }, [identity, pageIndex, pageSize, gqlClient]);
+  }, [identity, pageIndex, pageSize, gqlClient, middlewareMetadata]);
 
   const pagination = useMemo(
     () => ({

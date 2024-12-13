@@ -9,6 +9,7 @@ import { toParsedDateTime } from '~/helpers/dateTime';
 import { getNftImageUrl } from '../NftView/helpers';
 import { INftMovementItem, ICollectionItem } from './constants';
 import { INftTransactionItem } from '~/layouts/Overview/components/ActivityTable/constants';
+import { removeLeadingZeros } from '~/helpers/formatters';
 
 export const parseCollectionFromPortfolio = async ({
   portfolio,
@@ -127,15 +128,19 @@ export const parseNftMovements = ({
   portfolioMovements,
 }: IMovementQueryResponse) =>
   (portfolioMovements.nodes.map(
-    ({ id, nftIds, asset, assetId, from, to, createdBlock }) => ({
-      movementId: id.replace('/', '-'),
-      collection: hexToUuid(assetId),
-      nameAndTicker: asset,
-      dateTime: toParsedDateTime(createdBlock.datetime),
-      from: from.name || 'Default',
-      to: to.name || 'Default',
-      nftIds,
-    }),
+    ({ id, nftIds, asset, assetId, from, to, createdBlock }) => {
+      const [paddedBlockId, paddedEventIdx] = id.split('/');
+
+      return {
+        movementId: `${removeLeadingZeros(paddedBlockId)}-${removeLeadingZeros(paddedEventIdx)}`,
+        collection: hexToUuid(assetId),
+        nameAndTicker: asset,
+        dateTime: toParsedDateTime(createdBlock.datetime),
+        from: from.name || 'Default',
+        to: to.name || 'Default',
+        nftIds,
+      };
+    },
   ) as INftMovementItem[]) || [];
 
 export const parseNftTransactions = (
@@ -144,21 +149,21 @@ export const parseNftTransactions = (
   return (
     (dataFromQuery.assetTransactions.nodes.map(
       ({
-        id,
         nftIds,
         assetId,
         datetime,
         fromPortfolioId,
         toPortfolioId,
-        createdBlockId,
+        createdBlock,
         extrinsicIdx,
         instructionId,
         asset,
+        eventIdx,
       }) => {
         return {
           txId: {
-            eventId: id.replace('/', '-'),
-            blockId: createdBlockId,
+            eventId: `${createdBlock.blockId}-${eventIdx}`,
+            blockId: createdBlock.blockId.toString(),
             extrinsicIdx,
             instructionId,
           },

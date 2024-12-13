@@ -7,15 +7,18 @@ export const parseIdentityRewards = (rewardEvents: IStakingRewardEvent[]) => {
   return rewardEvents.map(
     ({
       id,
-      createdBlockId,
+      createdEvent,
+      createdBlock: { blockId },
       datetime,
       stashAccount,
       amount,
     }: IStakingRewardEvent) => {
       return {
         id: {
-          eventId: id.replace('/', '-'),
-          blockId: createdBlockId.toString(),
+          eventId: createdEvent
+            ? `${blockId}-${createdEvent.eventIdx}`
+            : id.replace('/', '-'),
+          blockId: blockId.toString(),
         },
         dateTime: toParsedDateTime(datetime),
         stash: stashAccount,
@@ -27,11 +30,19 @@ export const parseIdentityRewards = (rewardEvents: IStakingRewardEvent[]) => {
 
 export const parseAccountRewards = (rewardEvents: IStakingRewardEvent[]) => {
   return rewardEvents.map(
-    ({ id, createdBlockId, datetime, amount }: IStakingRewardEvent) => {
+    ({
+      id,
+      createdEvent,
+      createdBlock: { blockId },
+      datetime,
+      amount,
+    }: IStakingRewardEvent) => {
       return {
         id: {
-          eventId: id.replace('/', '-'),
-          blockId: createdBlockId.toString(),
+          eventId: createdEvent
+            ? `${blockId}-${createdEvent.eventIdx}`
+            : id.replace('/', '-'),
+          blockId: blockId.toString(),
         },
         dateTime: toParsedDateTime(datetime),
         amount: new BigNumber(amount).dividedBy(1000000).toString(),

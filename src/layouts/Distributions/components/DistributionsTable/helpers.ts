@@ -9,6 +9,7 @@ import {
 } from '~/constants/queries/types';
 import { toParsedDate } from '~/helpers/dateTime';
 import { IHistoricalDistribution } from './constants';
+import { removeLeadingZeros } from '~/helpers/formatters';
 
 export const parseHistoricalDistributions = (
   distributions: IDistribution[],
@@ -16,7 +17,7 @@ export const parseHistoricalDistributions = (
   return distributions.map(
     ({
       id,
-      createdBlockId,
+      createdBlock: { blockId, datetime },
       distributionId,
       amount,
       amountAfterTax,
@@ -28,14 +29,14 @@ export const parseHistoricalDistributions = (
         portfolioId,
         portfolio: { name: portfolioName },
       },
-      createdAt,
     }) => {
+      const [paddedBlockId, paddedEventIdx] = id.split('/');
       return {
         id: {
-          eventId: id.replace('/', '-'),
-          blockId: createdBlockId,
+          eventId: `${removeLeadingZeros(paddedBlockId)}-${removeLeadingZeros(paddedEventIdx)}`,
+          blockId: blockId.toString(),
         },
-        dateTime: toParsedDate(createdAt),
+        dateTime: toParsedDate(datetime),
         asset: hexToUuid(assetId),
         currency: { id: hexToUuid(currency.id), ticker: currency.ticker },
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -64,41 +65,3 @@ export const parseHistoricalDistributions = (
     },
   );
 };
-
-// export const parseHistoricalDistributions = (
-//   distributions: ITransferEvent[],
-// ) => {
-//   return distributions.map(
-//     ({ id, blockId, extrinsicIdx, block, attributes }: ITransferEvent) => {
-//       const [
-//         { value: caller },
-//         { value: did },
-//         { value: asset },
-//         { value: dividend },
-//         { value: amount },
-//         { value: tax },
-//       ] = attributes;
-//       return {
-//         id: {
-//           eventId: id.replace('/', '-'),
-//           blockId: blockId.toString(),
-//           extrinsicIdx,
-//         },
-//         dateTime: toParsedDate(block.datetime),
-//         asset: (asset as ITicker).ticker,
-//         currency: (dividend as IDividend).currency,
-//         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//         // @ts-ignore
-//         amount: balanceToBigNumber((dividend as IDividend).amount).toNumber(),
-//         perShare: balanceToBigNumber(
-//           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//           // @ts-ignore
-//           (dividend as IDividend).perShare,
-//         ).toNumber(),
-//         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//         // @ts-ignore
-//         tax: balanceToBigNumber(tax as number).toNumber(),
-//       };
-//     },
-//   ) as IHistoricalDistribution[];
-// };

@@ -56,6 +56,7 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
   const portfolioId = searchParams.get('id');
   const {
     api: { gqlClient },
+    state: { middlewareMetadata },
   } = useContext(PolymeshContext);
   const { identity } = useContext(AccountContext);
   const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
@@ -132,7 +133,8 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
         currentTab !== ENftAssetsTableTabs.MOVEMENTS) ||
       portfolioLoading ||
       !identity ||
-      !gqlClient
+      !gqlClient ||
+      !middlewareMetadata
     ) {
       return;
     }
@@ -152,6 +154,7 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
               pageSize,
               type: 'NonFungible',
               portfolioNumber: getPortfolioNumber(identity.did, portfolioId),
+              paddedIds: middlewareMetadata.paddedIds,
             }),
           });
           const parsedMovements = parseNftMovements(data);
@@ -169,6 +172,7 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
                 offset,
                 pageSize,
                 nonFungible: true,
+                paddedIds: middlewareMetadata.paddedIds,
               }),
             });
           const data = parseNftTransactions(transfers);
@@ -190,6 +194,7 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
     currentTab,
     gqlClient,
     identity,
+    middlewareMetadata,
     pageIndex,
     pageSize,
     portfolioId,

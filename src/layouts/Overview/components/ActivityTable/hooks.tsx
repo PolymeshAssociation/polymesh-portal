@@ -35,6 +35,7 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
   >([]);
   const {
     api: { gqlClient },
+    state: { middlewareMetadata },
   } = useContext(PolymeshContext);
   const { account, accountLoading, identity, identityLoading } =
     useContext(AccountContext);
@@ -90,7 +91,7 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
     (async () => {
       try {
         const { data, count } = await account.getTransactionHistory({
-          orderBy: ExtrinsicsOrderBy.CreatedAtDesc,
+          orderBy: ExtrinsicsOrderBy.BlockIdDesc,
           size: new BigNumber(pageSize),
           start: new BigNumber(pageIndex * pageSize),
         });
@@ -120,7 +121,8 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
       currentTab === EActivityTableTabs.HISTORICAL_ACTIVITY ||
       (currentTab !== tabRef.current && pageIndex !== 0) ||
       (identity?.did !== identityRef.current && pageIndex !== 0) ||
-      !gqlClient
+      !gqlClient ||
+      !middlewareMetadata
     ) {
       return;
     }
@@ -146,8 +148,10 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
             offset: pageIndex * pageSize,
             pageSize,
             nonFungible: currentTab === EActivityTableTabs.NFT_ACTIVITY,
+            paddedIds: middlewareMetadata.paddedIds,
           }),
         });
+
         const parsedData =
           currentTab === EActivityTableTabs.TOKEN_ACTIVITY
             ? parseTokenActivity(data.assetTransactions.nodes)
@@ -164,7 +168,15 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
         setTableLoading(false);
       }
     })();
-  }, [currentTab, gqlClient, identity, identityLoading, pageIndex, pageSize]);
+  }, [
+    currentTab,
+    gqlClient,
+    identity,
+    identityLoading,
+    middlewareMetadata,
+    pageIndex,
+    pageSize,
+  ]);
 
   const pagination = useMemo(
     () => ({

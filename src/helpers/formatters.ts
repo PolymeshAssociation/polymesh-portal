@@ -151,3 +151,11 @@ export const padTicker = (inputString: string): string => {
 export const removeHexPrefix = (text: string) => {
   return text.startsWith('0x') ? text.substring(2) : text;
 };
+
+export function padWithLeadingZeros(id: string): string {
+  return id.padStart(10, '0');
+}
+
+export function removeLeadingZeros(id: string): string {
+  return id.replace(/^0+/, '');
+}

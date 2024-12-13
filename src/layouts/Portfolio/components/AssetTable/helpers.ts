@@ -16,6 +16,7 @@ import {
   ITransactionsQueryResponse,
 } from '~/constants/queries/types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
+import { removeLeadingZeros } from '~/helpers/formatters';
 
 export const getPortfolioNumber = (
   identityId: string | undefined,
@@ -104,11 +105,12 @@ export const parseAssetsFromSelectedPortfolio = async (
 
 export const parseMovements = (
   dataFromQuery: IMovementQueryResponse,
-): IMovementItem[] => {
-  return (
-    (dataFromQuery.portfolioMovements.nodes.map(
-      ({ id, amount, asset, assetId, from, to, createdBlock }) => ({
-        movementId: id.replace('/', '-'),
+): IMovementItem[] =>
+  (dataFromQuery.portfolioMovements.nodes.map(
+    ({ id, amount, asset, assetId, from, to, createdBlock }) => {
+      const [paddedBlockId, paddedEventIdx] = id.split('/');
+      return {
+        movementId: `${removeLeadingZeros(paddedBlockId)}-${removeLeadingZeros(paddedEventIdx)}`,
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         amount: amount && balanceToBigNumber(amount).toString(),
@@ -117,10 +119,9 @@ export const parseMovements = (
         dateTime: toParsedDateTime(createdBlock.datetime),
         from: from.name || 'Default',
         to: to.name || 'Default',
-      }),
-    ) as IMovementItem[]) || []
-  );
-};
+      };
+    },
+  ) as IMovementItem[]) || [];
 
 export const parseTransfers = (
   dataFromQuery: ITransactionsQueryResponse,
@@ -128,21 +129,21 @@ export const parseTransfers = (
   return (
     (dataFromQuery.assetTransactions.nodes.map(
       ({
-        id,
         amount,
         assetId,
         datetime,
         fromPortfolioId,
         toPortfolioId,
-        createdBlockId,
+        createdBlock,
         instructionId,
         extrinsicIdx,
         asset,
+        eventIdx,
       }) => {
         return {
           id: {
-            eventId: id.replace('/', '-'),
-            blockId: createdBlockId,
+            eventId: `${createdBlock.blockId}-${eventIdx}`,
+            blockId: createdBlock.blockId.toString(),
             extrinsicIdx,
             instructionId,
           },

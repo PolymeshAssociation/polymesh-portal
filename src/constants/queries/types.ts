@@ -89,7 +89,9 @@ export interface IAssetTransaction {
   datetime: string;
   fromPortfolioId: string;
   toPortfolioId: string;
-  createdBlockId: string;
+  createdBlock: {
+    blockId: number;
+  };
   extrinsicIdx: number | null;
   eventIdx: number;
   instructionId: string | null;
@@ -110,6 +112,7 @@ export interface ITransactionsQueryResponse {
 }
 
 export interface IDistribution {
+  id: string;
   targetId: string;
   distributionId: string;
   amount: string;
@@ -121,21 +124,26 @@ export interface IDistribution {
       id: string;
       ticker: string;
     };
+    expiresAt: string;
     portfolioId: string;
     portfolio: {
       name: string | null;
     };
     assetId: string;
     localId: number;
+    paymentAt: string;
     perShare: string;
   };
-  createdAt: string;
-  createdBlockId: string;
-  datetime: string;
+  createdBlock: {
+    blockId: number;
+    datetime: string;
+  };
   eventId: string;
-  id: string;
   nodeId: string;
-  updatedBlockId: string;
+  updatedBlock: {
+    blockId: number;
+    datetime: string;
+  };
 }
 
 export interface IDistributionsQueryResponse {
@@ -147,7 +155,12 @@ export interface IDistributionsQueryResponse {
 
 export interface IStakingRewardEvent {
   id: string;
-  createdBlockId: number;
+  createdEvent?: {
+    eventIdx: number;
+  };
+  createdBlock: {
+    blockId: number;
+  };
   datetime: string;
   identityId: string;
   stashAccount: string;
@@ -176,10 +189,26 @@ export interface IRawMultiSigVote {
     signerValue: string;
   };
 }
+
+export interface IMultiSigProposalParams {
+  proposal: {
+    args: TMultiSigArgs;
+    method: string;
+    section: string;
+  };
+  expiry: number | null;
+  auto_close: boolean;
+  multisig: string;
+}
+
 export interface IRawMultiSigProposal {
-  updatedBlockId: string;
+  updatedBlock: {
+    blockId: number;
+  };
   approvalCount: number;
-  createdBlockId: string;
+  createdBlock: {
+    blockId: number;
+  };
   creatorAccount: string;
   datetime: string;
   extrinsicIdx: number;
@@ -188,6 +217,12 @@ export interface IRawMultiSigProposal {
   status: ProposalStatus | ERawMultiSigStatus;
   votes: {
     nodes: IRawMultiSigVote[];
+  };
+  createdEvent?: {
+    extrinsic: {
+      params: IMultiSigProposalParams;
+      extrinsicIdx: number;
+    };
   };
 }
 
@@ -199,18 +234,11 @@ export interface IProposalQueryResponse {
 }
 
 export interface IRawMultiSigExtrinsic {
-  blockId: string;
-  extrinsicIdx: number;
-  params: {
-    proposal: {
-      args: TMultiSigArgs;
-      method: string;
-      section: string;
-    };
-    expiry: number | null;
-    auto_close: boolean;
-    multisig: string;
+  block: {
+    blockId: number;
   };
+  extrinsicIdx: number;
+  params: IMultiSigProposalParams;
 }
 
 export interface IMultisigExtrinsicQueryResponse {

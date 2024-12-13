@@ -22,7 +22,7 @@ const createRewardEventLink = (data: IIdData | undefined) => {
 
   return `${import.meta.env.VITE_SUBSCAN_URL}block/${
     data.blockId
-  }?tab=event&&event=${data.eventId}`;
+  }?tab=event&event=${data.eventId}`;
 };
 
 export const columns = {
