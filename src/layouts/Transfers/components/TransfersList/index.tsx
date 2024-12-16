@@ -125,10 +125,29 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                   instruction.getMediators(),
                 ]);
 
-              const uniqueAffirmations = affirmations.data.filter(
-                (a, index, self) =>
-                  index ===
-                  self.findIndex((t) => t.identity.did === a.identity.did),
+              const affirmedMediator = mediators.filter(
+                (mediator) => mediator.status === AffirmationStatus.Affirmed,
+              );
+
+              const counterpartyAffirmations = affirmedMediator.reduce(
+                (acc, mediator) => {
+                  const mediatorAffirmationIndex = acc.findIndex(
+                    (affirmation) =>
+                      affirmation.identity.did === mediator.identity.did,
+                  );
+
+                  if (mediatorAffirmationIndex === -1) {
+                    throw new Error(
+                      `No matching affirmation found for mediator with DID: ${mediator.identity.did}`,
+                    );
+                  }
+
+                  return [
+                    ...acc.slice(0, mediatorAffirmationIndex),
+                    ...acc.slice(mediatorAffirmationIndex + 1),
+                  ];
+                },
+                affirmations.data,
               );
 
               const legErrors = await Promise.all(
@@ -136,7 +155,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                   leg,
                   errors: await getLegErrors({
                     leg,
-                    affirmationsData: uniqueAffirmations,
+                    affirmationsData: counterpartyAffirmations,
                     instructionDetails: details,
                     latestBlock: block.toNumber(),
                   }),
@@ -146,8 +165,8 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
               detailsMap[instruction.id.toString()] = {
                 legs: legErrors,
                 details,
-                affirmations: uniqueAffirmations,
-                affirmationsCount: uniqueAffirmations.filter(
+                affirmations: counterpartyAffirmations,
+                affirmationsCount: counterpartyAffirmations.filter(
                   (a) => a.status === AffirmationStatus.Affirmed,
                 ).length,
                 counterparties: calculateCounterparties(legErrors),

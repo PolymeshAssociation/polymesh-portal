@@ -1,6 +1,7 @@
 import {
   InstructionDetails,
   InstructionType,
+  MediatorAffirmation,
   VenueType,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useEffect, useState } from 'react';
@@ -19,6 +20,7 @@ interface IDetailsProps {
   affirmationsCount: number;
   instructionId: string;
   counterparties: number;
+  mediators?: MediatorAffirmation[];
 }
 
 interface IVenueDetails {
@@ -31,10 +33,21 @@ export const Details: React.FC<IDetailsProps> = ({
   affirmationsCount,
   instructionId,
   counterparties,
+  mediators,
 }) => {
   const [venueDetails, setVenueDetails] = useState<IVenueDetails | null>(null);
   const [blockNumber, setBlockNumber] = useState<string | null>(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
+
+  const mediatorAffirmationsCount =
+    mediators?.filter((mediator) => {
+      const isAffirmed = mediator.status === 'Affirmed';
+      const now = new Date();
+      const expiryDate = mediator.expiry;
+      const isNotExpired = !expiryDate || expiryDate > now;
+      return isAffirmed && isNotExpired;
+    }).length || 0;
+
   useEffect(() => {
     if (!data) return;
 
@@ -88,7 +101,7 @@ export const Details: React.FC<IDetailsProps> = ({
             )}
           </StyledVenueId>
           <StyledInfoItem>
-            # counterparties
+            # Counterparties
             <Text size="large" bold>
               {counterparties} (
               {affirmationsCount
@@ -97,6 +110,18 @@ export const Details: React.FC<IDetailsProps> = ({
               )
             </Text>
           </StyledInfoItem>
+          {mediators && mediators.length > 0 && (
+            <StyledInfoItem>
+              # Mediators
+              <Text size="large" bold>
+                {mediators.length} (
+                {mediatorAffirmationsCount
+                  ? `affirmed by ${mediatorAffirmationsCount}`
+                  : 'no affirmations'}
+                )
+              </Text>
+            </StyledInfoItem>
+          )}
           <StyledInfoItem>
             Settlement type
             <Text size="large" bold>

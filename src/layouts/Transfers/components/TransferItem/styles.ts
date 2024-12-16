@@ -60,11 +60,12 @@ export const StyledMemo = styled.div`
   padding: 24px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   border-radius: 24px;
-  color: ${({ theme }) => theme.colors.textPrimary};
+  color: ${({ theme }) => theme.colors.textSecondary};
   font-size: 16px;
 
   & span {
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 500;
     color: ${({ theme }) => theme.colors.textSecondary};
   }
 `;

@@ -124,6 +124,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           affirmationsCount={affirmationsCount}
           instructionId={instruction.id.toString()}
           counterparties={counterparties}
+          mediators={details?.mediators}
         />
       </StyledInfoWrapper>
       {detailsExpanded && (

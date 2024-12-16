@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { MediatorAffirmation } from '@polymeshassociation/polymesh-sdk/types';
 import { Text } from '~/components/UiKit';
 import { CopyToClipboard } from '~/components';
@@ -15,6 +15,7 @@ import {
 } from './styles';
 import { toFormattedDateTime } from '~/helpers/dateTime';
 import { useWindowWidth } from '~/hooks/utility';
+import { AccountContext } from '~/context/AccountContext';
 
 interface MediatorsProps {
   mediators: MediatorAffirmation[];
@@ -31,6 +32,7 @@ const getExpiryText = (
 };
 
 export const Mediators: React.FC<MediatorsProps> = ({ mediators }) => {
+  const { identity } = useContext(AccountContext);
   const { isMobile, isTablet } = useWindowWidth();
   const isSmallScreen = isMobile || isTablet;
 
@@ -54,7 +56,9 @@ export const Mediators: React.FC<MediatorsProps> = ({ mediators }) => {
                 $isExpired={isExpired}
               >
                 <Text size="large" bold>
-                  {formatDid(mediator.identity.did, 8, 8)}
+                  {mediator.identity.did === identity?.did
+                    ? 'Selected DID'
+                    : formatDid(mediator.identity.did, 8, 8)}
                 </Text>
                 <CopyToClipboard value={mediator.identity.did} />
               </StyledInfoValue>
