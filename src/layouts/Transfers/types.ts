@@ -7,6 +7,7 @@ import {
   Leg,
   InstructionDetails,
   InstructionAffirmation,
+  MediatorAffirmation,
 } from '@polymeshassociation/polymesh-sdk/types';
 
 export enum EInstructionTypes {
@@ -52,4 +53,5 @@ export interface InstructionData {
   affirmationsCount: number;
   counterparties: number;
   latestBlock: number;
+  mediators: MediatorAffirmation[];
 }

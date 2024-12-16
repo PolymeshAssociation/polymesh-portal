@@ -16,7 +16,7 @@
     "@polkadot/util": "12.6.2",
     "@polkadot/util-crypto": "12.6.2",
     "@polymeshassociation/browser-extension-signing-manager": "^2.3.0",
-    "@polymeshassociation/polymesh-sdk": "27.1.0-alpha.1",
+    "@polymeshassociation/polymesh-sdk": "27.1.0-alpha.2",
     "@polymeshassociation/walletconnect-signing-manager": "^1.0.0",
     "@tanstack/react-table": "^8.20.5",
     "events": "^3.3.0",
@@ -119,5 +119,6 @@
       "@polkadot/x-bigint": "12.6.2",
       "styled-components": "^6.1.13"
     }
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }

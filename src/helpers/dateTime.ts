@@ -18,6 +18,10 @@ export const toParsedDate = (timestamp: string | number) => {
   return moment(timestamp).format('MMM D, YYYY');
 };
 
+export const toFormattedDateTime = (timestamp: string | number) => {
+  return moment(timestamp).format('MMM D, YYYY h:mm A');
+};
+
 export const toFormattedTimestamp = (
   timestamp: moment.MomentInput,
   format: string,

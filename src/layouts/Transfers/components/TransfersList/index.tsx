@@ -117,17 +117,22 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
           .slice(currentItems.first - 1, currentItems.last)
           .map(async (instruction) => {
             try {
-              const { data: legs } = await instruction.getLegs();
-              const { data: affirmations } =
-                await instruction.getAffirmations();
-              const details = await instruction.details();
-              const uniqueAffirmations = affirmations.filter(
+              const [legsResultSet, affirmations, details, mediators] =
+                await Promise.all([
+                  instruction.getLegs(),
+                  instruction.getAffirmations(),
+                  instruction.details(),
+                  instruction.getMediators(),
+                ]);
+
+              const uniqueAffirmations = affirmations.data.filter(
                 (a, index, self) =>
                   index ===
                   self.findIndex((t) => t.identity.did === a.identity.did),
               );
+
               const legErrors = await Promise.all(
-                legs.map(async (leg) => ({
+                legsResultSet.data.map(async (leg) => ({
                   leg,
                   errors: await getLegErrors({
                     leg,
@@ -147,6 +152,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                 ).length,
                 counterparties: calculateCounterparties(legErrors),
                 latestBlock: block.toNumber(),
+                mediators,
               };
 
               if (legErrors.some((leg) => leg.errors.length)) {

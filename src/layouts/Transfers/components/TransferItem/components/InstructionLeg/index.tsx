@@ -221,7 +221,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
               )}
             </StyledLabel>
           ) : (
-            <StyledLabel>{type}</StyledLabel>
+            <StyledLabel $isAffirmed={type === 'affirmed'}>{type}</StyledLabel>
           )}
         </StyledInfoItem>
       </StyledLeg>

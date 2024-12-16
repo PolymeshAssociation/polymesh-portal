@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Icon } from '~/components';
 
 export const StyledItemWrapper = styled.li`
   width: 100%;
@@ -11,7 +12,7 @@ export const StyledItemWrapper = styled.li`
 export const StyledInfoWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   min-height: 40px;
   gap: 12px;
 
@@ -52,7 +53,7 @@ export const StyledLegsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 `;
 
 export const StyledMemo = styled.div`
@@ -75,24 +76,49 @@ export const StyledButtonsWrapper = styled.div<{ $expanded: boolean }>`
 
   & button {
     flex-grow: 1;
+    flex-basis: 20%;
   }
-  & button:last-child {
+
+  & .toggle-button {
     width: 100%;
     @media screen and (min-width: 1024px) {
       width: initial;
       flex-grow: 0;
     }
-    & .expand-icon {
-      transform: ${({ $expanded }) =>
-        $expanded ? `rotate(180deg)` : `rotate(0)`};
-    }
   }
 
   & .leg-count {
     color: #1e1e1e;
+    white-space: nowrap;
   }
 
   @media screen and (max-width: 1023px) {
     flex-wrap: wrap-reverse;
+  }
+`;
+
+export const StyledExpandIcon = styled(Icon)<{ $expanded: boolean }>`
+  transition: transform 0.3s ease;
+  transform: ${({ $expanded }) =>
+    $expanded ? 'rotate(180deg)' : 'rotate(0deg)'};
+`;
+
+export const StyledToggleButtonsContainer = styled.div`
+  display: flex;
+  gap: 24px;
+  flex-wrap: nowrap; // prevent buttons from wrapping
+  flex-basis: 20%;
+
+  @media screen and (max-width: 1023px) {
+    width: 100%;
+    flex-wrap: wrap;
+    flex-basis: 100%;
+  }
+
+  & .toggle-button {
+    flex-grow: 1;
+    flex-shrink: 1;
+    width: auto;
+    flex-basis: 25%;
   }
 `;

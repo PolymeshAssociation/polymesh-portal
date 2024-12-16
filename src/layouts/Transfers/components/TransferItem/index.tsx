@@ -13,9 +13,12 @@ import {
   StyledSelect,
   StyledLegsWrapper,
   StyledMemo,
+  StyledExpandIcon, // add this import
+  StyledToggleButtonsContainer, // add this import
 } from './styles';
 import { Details } from './components/Details';
 import { InstructionLeg } from './components/InstructionLeg';
+import { Mediators } from './components/Mediators';
 import {
   EInstructionTypes,
   InstructionAction,
@@ -45,6 +48,7 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
   const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const [mediatorsExpanded, setMediatorsExpanded] = useState(false);
 
   const toggleDetails = () => setDetailsExpanded((prev) => !prev);
 
@@ -137,6 +141,9 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
             </StyledMemo>
           ) : null}
         </StyledLegsWrapper>
+      )}
+      {mediatorsExpanded && details && (
+        <Mediators mediators={details.mediators} />
       )}
       <StyledButtonsWrapper $expanded={detailsExpanded}>
         <Button
@@ -231,19 +238,45 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
             Retry Settling
           </Button>
         )}
-        <Button variant="secondary" onClick={toggleDetails} disabled={!details}>
-          <Icon name="ExpandIcon" size="24px" className="expand-icon" />
-          Details
-          {legsCount > 0 && (
-            <>
-              :{' '}
-              <span className="leg-count">
-                {legsCount} Leg
-                {legsCount > 1 ? 's' : ''}
-              </span>
-            </>
+        <StyledToggleButtonsContainer>
+          <Button
+            variant="secondary"
+            className="toggle-button"
+            onClick={toggleDetails}
+            disabled={!details}
+          >
+            <StyledExpandIcon
+              name="ExpandIcon"
+              size="24px"
+              $expanded={detailsExpanded}
+            />
+            Details
+            {legsCount > 0 && (
+              <>
+                :{' '}
+                <span className="leg-count">
+                  {legsCount} Leg
+                  {legsCount > 1 ? 's' : ''}
+                </span>
+              </>
+            )}
+          </Button>
+          {details && details.mediators.length > 0 && (
+            <Button
+              variant="secondary"
+              className="toggle-button"
+              onClick={() => setMediatorsExpanded((prev) => !prev)}
+              disabled={!details}
+            >
+              <StyledExpandIcon
+                name="ExpandIcon"
+                size="24px"
+                $expanded={mediatorsExpanded}
+              />
+              Mediators
+            </Button>
           )}
-        </Button>
+        </StyledToggleButtonsContainer>
       </StyledButtonsWrapper>
     </StyledItemWrapper>
   );

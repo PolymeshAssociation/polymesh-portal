@@ -114,14 +114,21 @@ export const StyledInfoValue = styled.div<{
   }}
 `;
 
-export const StyledLabel = styled.div<{ $isError?: boolean }>`
+export const StyledLabel = styled.div<{
+  $isError?: boolean;
+  $isAffirmed?: boolean;
+}>`
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 24px;
   padding: 0 16px;
-  background-color: ${({ $isError }) => ($isError ? '#DB2C3E' : '#170087')};
+  background-color: ${({ $isError, $isAffirmed }) => {
+    if ($isError) return '#DB2C3E';
+    if ($isAffirmed) return '#00AA5E';
+    return '#170087';
+  }};
   border-radius: 100px;
   color: #ffffff;
   font-weight: 500;
