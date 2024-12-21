@@ -82,7 +82,8 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
       (account?.address !== accountRef.current && pageIndex !== 0) ||
       !gqlClient ||
       accountLoading ||
-      !account
+      !account ||
+      !middlewareMetadata
     ) {
       return;
     }
@@ -91,7 +92,10 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
     (async () => {
       try {
         const { data, count } = await account.getTransactionHistory({
-          orderBy: ExtrinsicsOrderBy.BlockIdDesc,
+          orderBy: middlewareMetadata.paddedIds
+            ? ExtrinsicsOrderBy.BlockIdDesc
+            : // eslint-disable-next-line deprecation/deprecation
+              ExtrinsicsOrderBy.CreatedAtDesc,
           size: new BigNumber(pageSize),
           start: new BigNumber(pageIndex * pageSize),
         });
@@ -113,7 +117,15 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
         accountRef.current = account.address;
       }
     })();
-  }, [account, accountLoading, currentTab, gqlClient, pageIndex, pageSize]);
+  }, [
+    account,
+    accountLoading,
+    currentTab,
+    gqlClient,
+    middlewareMetadata,
+    pageIndex,
+    pageSize,
+  ]);
 
   // Update table data for Token Activity tab
   useEffect(() => {
