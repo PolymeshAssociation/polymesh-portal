@@ -25,15 +25,27 @@ export const PopupActionButtons = ({
   goBackTag,
   matomoData,
 }: IPopupActionButtonsProps) => {
+  const goBackMatomoData = matomoData
+    ? {
+        ...matomoData,
+        eventAction: goBackTag ?? goBackLabel.toLowerCase(),
+      }
+    : undefined;
+
+  const proceedMatomoData = matomoData
+    ? {
+        ...matomoData,
+        eventAction: proceedTag ?? proceedLabel.toLowerCase(),
+      }
+    : undefined;
+
   return (
     <StyledActionButtonsWrap $aligned={aligned}>
       {onGoBack && (
         <Button
           onClick={onGoBack}
           variant="modalSecondary"
-          data-event-category={matomoData?.eventCategory}
-          data-event-name={matomoData?.eventName}
-          data-event-action={goBackTag ?? goBackLabel.toLowerCase()}
+          matomoData={goBackMatomoData}
         >
           {goBackLabel}
         </Button>
@@ -44,9 +56,7 @@ export const PopupActionButtons = ({
           onClick={onProceed}
           variant="modalPrimary"
           disabled={!canProceed}
-          data-event-category={matomoData?.eventCategory}
-          data-event-name={matomoData?.eventName}
-          data-event-action={proceedTag ?? proceedLabel.toLowerCase()}
+          matomoData={proceedMatomoData}
         >
           {proceedLabel}
         </Button>
