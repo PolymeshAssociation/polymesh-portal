@@ -108,7 +108,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
               ],
             },
             chainIds: [
-              `polkadot:${polkadotApi.genesisHash.toString().slice(0, 32)}`,
+              `polkadot:${polkadotApi.genesisHash.toString().slice(2, 34)}`,
             ],
             optionalChainIds: [],
             modalOptions: {
