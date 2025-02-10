@@ -1,16 +1,13 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Asset,
   AssetDocument,
   CollectionKey,
-  MetadataLockStatus,
   SecurityIdentifier,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { NftCollection } from '@polymeshassociation/polymesh-sdk/internal';
-import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
-import { splitCamelCase } from '~/helpers/formatters';
-import { toFormattedTimestamp } from '~/helpers/dateTime';
+import AssetContext from '~/context/AssetContext/context';
+import { PolymeshContext } from '~/context/PolymeshContext';
 
 export interface IAssetMeta {
   name: string;
@@ -47,137 +44,37 @@ export interface IAssetDetails {
   docs?: AssetDocument[];
 }
 
-export const useAssetDetails = (assetIdentifier: Asset | string | null) => {
+export const useAssetDetails = (assetIdentifier?: Asset | string | null) => {
   const [assetDetailsLoading, setAssetDetailsLoading] = useState(true);
   const [assetDetails, setAssetDetails] = useState<IAssetDetails>();
 
+  const { fetchAssetDetails } = useContext(AssetContext);
   const {
-    api: { sdk, gqlClient },
+    state: { initialized: sdkInitialized },
   } = useContext(PolymeshContext);
 
-  useEffect(() => {
-    if (!sdk || !gqlClient || !assetIdentifier) {
-      return;
-    }
-    setAssetDetailsLoading(true);
-
-    (async () => {
+  const fetch = useCallback(
+    async (forceRefresh = false) => {
+      if (!assetIdentifier || !sdkInitialized) return;
+      setAssetDetailsLoading(true);
       try {
-        let asset: Asset;
-        if (typeof assetIdentifier === 'string') {
-          if (assetIdentifier.length <= 12) {
-            asset = await sdk.assets.getAsset({
-              ticker: assetIdentifier,
-            });
-          } else {
-            asset = await sdk.assets.getAsset({
-              assetId: assetIdentifier,
-            });
-          }
-        } else {
-          asset = assetIdentifier;
-        }
-        const [
-          details,
-          collectionId,
-          collectionKeys,
-          fundingRound,
-          assetIdentifiers,
-          assetHolderCount,
-          docs,
-          createdAtInfo,
-          meta,
-          requiredMediators,
-          venueFilteringDetails,
-          assetIsFrozen,
-        ] = await Promise.all([
-          asset.details(),
-          asset instanceof NftCollection ? asset.getCollectionId() : undefined,
-          asset instanceof NftCollection ? asset.collectionKeys() : [],
-          asset.currentFundingRound(),
-          asset.getIdentifiers(),
-          asset.investorCount(),
-          asset.documents.get(),
-          asset.createdAt(),
-          asset.metadata.get(),
-          asset.getRequiredMediators(),
-          asset.getVenueFilteringDetails(),
-          asset.isFrozen(),
-        ]);
-
-        const {
-          isDivisible,
-          assetType,
-          name,
-          nonFungible: isNftCollection,
-          owner,
-          totalSupply,
-          ticker,
-        } = details;
-
-        const metaData = (
-          await Promise.all(
-            meta.map(async (entry) => {
-              const value = await entry.value();
-              const metaDetails = await entry.details();
-
-              let lockedUntil: string | undefined;
-              if (value?.lockStatus === MetadataLockStatus.LockedUntil) {
-                lockedUntil = toFormattedTimestamp(
-                  value?.lockedUntil,
-                  'YYYY-MM-DD / HH:mm:ss',
-                );
-              }
-              return {
-                name: splitCamelCase(metaDetails.name),
-                description: metaDetails.specs.description,
-                expiry: value?.expiry
-                  ? toFormattedTimestamp(value?.expiry, 'YYYY-MM-DD / HH:mm:ss')
-                  : null,
-                lockedUntil,
-                isLocked: value?.lockStatus
-                  ? splitCamelCase(value?.lockStatus)
-                  : null,
-                value: value?.value || null,
-              };
-            }),
-          )
-        ).filter((entry) => entry.value !== null);
-        setAssetDetails({
-          assetId: asset.id,
-          details: {
-            assetIdentifiers,
-            assetType,
-            collectionId: collectionId?.toNumber(),
-            collectionKeys,
-            createdAt: createdAtInfo?.blockDate || null,
-            fundingRound,
-            holderCount: assetHolderCount.toNumber(),
-            isDivisible,
-            isNftCollection,
-            metaData,
-            name,
-            owner: owner.did,
-            ticker: ticker || '',
-            totalSupply: totalSupply.toNumber(),
-            requiredMediators: requiredMediators.map(
-              (identity) => identity.did,
-            ),
-            venueFilteringEnabled: venueFilteringDetails.isEnabled,
-            permittedVenuesIds: venueFilteringDetails.allowedVenues.map(
-              (venue) => venue.id.toString(),
-            ),
-            isFrozen: assetIsFrozen,
-          },
-          docs: docs.data,
-        });
+        const details = await fetchAssetDetails(assetIdentifier, forceRefresh);
+        setAssetDetails(details);
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
         setAssetDetailsLoading(false);
       }
-    })();
-  }, [gqlClient, sdk, assetIdentifier]);
+    },
+    [assetIdentifier, fetchAssetDetails, sdkInitialized],
+  );
 
-  return { assetDetails, assetDetailsLoading };
+  const reloadAssetDetails = useCallback(() => fetch(true), [fetch]);
+
+  useEffect(() => {
+    if (!assetIdentifier || !sdkInitialized) return;
+    fetch();
+  }, [assetIdentifier, fetch, sdkInitialized]);
+
+  return { assetDetails, assetDetailsLoading, reloadAssetDetails };
 };

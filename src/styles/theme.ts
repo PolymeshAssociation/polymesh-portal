@@ -6,10 +6,24 @@ const common = {
     medium: '14px',
     small: '12px',
   },
+  borderRadius: {
+    small: '12px',
+    medium: '24px',
+  },
+  spacing: (multiplier: number) => `${multiplier * 8}px`,
+};
+
+const commonTheme = {
+  borderRadius: {
+    small: '12px',
+    medium: '24px',
+  },
 };
 
 const light = {
   ...common,
+  ...commonTheme,
+  mode: 'light',
   colors: {
     landingBackground: '#FFFFFF',
     dashboardBackground: '#F5F5F5',
@@ -29,11 +43,20 @@ const light = {
     backdrop: 'rgba(21, 41, 53, 0.3)',
     skeletonBase: '#ebebeb',
     skeletonHighlight: '#f5f5f5',
+    error: '#db2c3e',
+    focusBorder: '#FF2E72',
+    buttonBackground: '#FFEBF1',
+    buttonHoverBackground: '#FF2E72',
+    buttonText: '#FFFFFF',
+    hoverBackground: 'rgba(0, 0, 0, 0.05)',
+    border: '#E0E0E0',
   },
 } as DefaultTheme;
 
 const dark = {
   ...common,
+  ...commonTheme,
+  mode: 'dark',
   colors: {
     landingBackground: '#3A3A3A',
     dashboardBackground: '#1E1E1E',
@@ -53,6 +76,13 @@ const dark = {
     backdrop: 'rgba(0, 0, 0, 0.5)',
     skeletonBase: '#484848',
     skeletonHighlight: '#727272',
+    error: '#db2c3e',
+    focusBorder: '#97266D',
+    buttonBackground: '#97266D',
+    buttonHoverBackground: '#FAD1DC',
+    buttonText: '#FFFFFF',
+    hoverBackground: 'rgba(255, 255, 255, 0.05)',
+    border: '#333333',
   },
 } as DefaultTheme;
 

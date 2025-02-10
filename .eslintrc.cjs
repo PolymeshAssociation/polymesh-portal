@@ -30,5 +30,6 @@ module.exports = {
       { namedComponents: 'arrow-function' },
     ],
     'react/require-default-props': 0,
+    'react/no-unescaped-entities': 0,
   },
 };

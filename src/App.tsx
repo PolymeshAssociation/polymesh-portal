@@ -18,6 +18,7 @@ import { ROUTES } from '~/constants/routes';
 import { theme, GlobalStyle } from '~/styles/theme';
 import { LoadingFallback } from '~/components';
 import { StakingProvider } from './context/StakingContext';
+import { AssetProvider } from '~/context/AssetContext';
 
 const SharedLayout = lazy(() => import('~/layouts/SharedLayout'));
 
@@ -75,11 +76,13 @@ const WrappedApp = () => {
                   <ClaimsProvider>
                     <DistributionsProvider>
                       <StakingProvider>
-                        <AppThemeProvider>
-                          <BrowserRouter>
-                            <App />
-                          </BrowserRouter>
-                        </AppThemeProvider>
+                        <AssetProvider>
+                          <AppThemeProvider>
+                            <BrowserRouter>
+                              <App />
+                            </BrowserRouter>
+                          </AppThemeProvider>
+                        </AssetProvider>
                       </StakingProvider>
                     </DistributionsProvider>
                   </ClaimsProvider>
