@@ -12,6 +12,14 @@ const Claims = lazy(() => import('~/layouts/Claims'));
 const Distributions = lazy(() => import('~/layouts/Distributions'));
 const Settings = lazy(() => import('~/layouts/Settings'));
 const Staking = lazy(() => import('~/layouts/Staking'));
+const AssetManager = lazy(() => import('~/layouts/AssetManager'));
+const CreateAsset = lazy(
+  () => import('~/layouts/AssetManager/components/CreateAssetWizard/index'),
+);
+const AssetView = lazy(
+  () => import('~/layouts/AssetManager/components/AssetView'),
+);
+
 interface IRoute {
   path: string;
   label: string | null;
@@ -43,6 +51,8 @@ export const PATHS = {
   DISTRIBUTIONS: '/distributions',
   SETTINGS: '/settings',
   STAKING: '/staking',
+  ASSET_MANAGER: '/asset-manager',
+  CREATE_ASSET: '/asset-manager/create-asset',
   NOT_FOUND: '*',
 };
 
@@ -94,6 +104,21 @@ export const ROUTES = [
     component: Staking,
   },
   {
+    path: PATHS.ASSET_MANAGER,
+    label: 'Asset Manager',
+    component: AssetManager,
+  },
+  {
+    path: PATHS.CREATE_ASSET,
+    label: 'Create Asset',
+    component: CreateAsset,
+  },
+  {
+    path: `${PATHS.ASSET_MANAGER}/:assetId`,
+    label: null,
+    component: AssetView,
+  },
+  {
     path: PATHS.NOT_FOUND,
     label: null,
     component: NotFound,
@@ -137,6 +162,11 @@ export const NAV_LINKS = [
     label: 'Distributions',
     icon: 'Bank',
     notifications: 'distributions',
+  },
+  {
+    path: PATHS.ASSET_MANAGER,
+    label: 'Asset Manager',
+    icon: 'Coins',
   },
   {
     path: '',
