@@ -2,6 +2,7 @@ import 'styled-components';
 
 declare module 'styled-components' {
   export interface DefaultTheme {
+    mode: string;
     textSize: {
       large: string;
       medium: string;
@@ -26,6 +27,18 @@ declare module 'styled-components' {
       backdrop: string;
       skeletonBase: string;
       skeletonHighlight: string;
+      error: string;
+      focusBorder: string;
+      buttonBackground: string;
+      buttonHoverBackground: string;
+      buttonText: string;
+      hoverBackground: string;
+      border: string;
     };
+    borderRadius: {
+      small: string;
+      medium: string;
+    };
+    spacing: (multiplier: number) => string;
   }
 }
