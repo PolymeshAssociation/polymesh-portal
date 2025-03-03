@@ -76,7 +76,9 @@ export const ViewVerified = ({ handleDismiss }: IViewVerifiedProps) => {
 
       {!subscribed && (
         <div>
-          <h5>Subscribe to our newsletter for news and updates</h5>
+          <Text size="large">
+            Subscribe to our newsletter for news and updates
+          </Text>
           <StyledEmailField>
             <CustomInput
               placeholder="Enter E-mail"

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 export const StyledProviderContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  gap: 24px;
   width: 992px;
   @media screen and (max-width: 1080px) {
     width: fit-content;
@@ -18,6 +19,7 @@ export const StyledProviderInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
+  max-width: 618px;
 `;
 
 export const StyledProviderNameContainer = styled.div`
@@ -37,9 +39,22 @@ export const StyledProviderStepsList = styled.ul`
   flex-direction: column;
   gap: 16px;
   padding-left: 16px;
-  max-width: 320px;
   & > li {
     list-style-type: disc;
+  }
+`;
+
+export const StyledQRCodeContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: ${({ theme }) => `1px solid ${theme.colors.shadow}`};
+  padding: 16px;
+  border-radius: 16px;
+  align-items: center;
+  width: 100%;
+  @media screen and (min-width: 767px) {
+    max-width: 350px;
   }
 `;
 
@@ -52,16 +67,11 @@ export const StyledQRCode = styled.div`
   background-color: #ffffff;
   display: inline-flex;
   gap: 4px;
-  border: ${({ theme }) => `1px solid ${theme.colors.shadow}`};
 
   &:hover {
     cursor: pointer;
-    border: 3px solid black;
-    padding: 14px;
   }
   &:active {
     cursor: none;
-    border: unset;
-    padding: 16px;
   }
 `;

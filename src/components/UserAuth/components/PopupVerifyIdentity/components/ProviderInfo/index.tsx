@@ -1,19 +1,22 @@
-import { useState, useEffect, useContext, useMemo } from 'react';
-import QRCode from 'react-qr-code';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { CopyToClipboard as ReactCopyToClipboard } from 'react-copy-to-clipboard';
+import QRCode from 'react-qr-code';
+import { Icon } from '~/components';
+import { Heading, Text } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
 import { useAuthContext } from '~/context/AuthContext';
 import {
+  FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER,
   MOCKID_IDENTITY_PROVIDER,
   NETKI_IDENTITY_PROVIDER,
 } from '~/context/AuthContext/constants';
 import { formatDid } from '~/helpers/formatters';
-import { Text, Heading } from '~/components/UiKit';
-import { Icon } from '~/components';
+import { useWindowWidth } from '~/hooks/utility';
 import {
-  TIdentityProvider,
   IDENTITY_PROVIDERS,
+  IDENTITY_PROVIDER_FINCLUSIVE_KYB,
   IDENTITY_PROVIDER_MOCK,
+  TIdentityProvider,
 } from '../../../../constants';
 import { ActionCard } from '../../../ActionCard';
 import { PopupActionButtons } from '../../../PopupActionButtons';
@@ -22,12 +25,12 @@ import { fetchIdentityProviderLink, fetchMockCdd } from './helpers';
 import {
   StyledProviderContainer,
   StyledProviderInfo,
-  StyledProviderNameContainer,
   StyledProviderName,
+  StyledProviderNameContainer,
   StyledProviderStepsList,
   StyledQRCode,
+  StyledQRCodeContainer,
 } from './styles';
-import { useWindowWidth } from '~/hooks/utility';
 
 interface IProvideInfoProps {
   providerName: TIdentityProvider;
@@ -45,10 +48,14 @@ export const ProviderInfo = ({
   const { setIdentityPopup } = useAuthContext();
   const { isMobile } = useWindowWidth();
 
-  const provider =
-    providerName === MOCKID_IDENTITY_PROVIDER
-      ? IDENTITY_PROVIDER_MOCK
-      : IDENTITY_PROVIDERS[providerName];
+  let provider;
+  if (providerName === MOCKID_IDENTITY_PROVIDER) {
+    provider = IDENTITY_PROVIDER_MOCK;
+  } else if (providerName === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER) {
+    provider = IDENTITY_PROVIDER_FINCLUSIVE_KYB;
+  } else {
+    provider = IDENTITY_PROVIDERS[providerName];
+  }
 
   const handleOpenProviderDesktop = () => {
     if (!providerLink) return;
@@ -68,9 +75,11 @@ export const ProviderInfo = ({
         setProviderLink(applicationUrl);
         return;
       }
+      const isBusiness = providerName === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER;
       const data = await fetchIdentityProviderLink(
         selectedAccount,
         provider.link,
+        isBusiness,
       );
       refreshAccountIdentity();
       setProviderLink(data.link);
@@ -116,42 +125,44 @@ export const ProviderInfo = ({
               )}
             </StyledProviderName>
           </StyledProviderNameContainer>
-          {providerName !== MOCKID_IDENTITY_PROVIDER && providerLink && (
-            <>
-              <Text>
-                Scan QR code with your phone,{' '}
-                {(isMobile || providerName !== NETKI_IDENTITY_PROVIDER) && (
-                  <>
-                    click{' '}
-                    <SecondaryButton
-                      label="HERE"
-                      labelSize="medium"
-                      handleClick={handleOpenProviderDesktop}
-                    />{' '}
-                    to proceed on this device{' '}
-                  </>
-                )}
-                or click on it to copy the url to your clipboard.
-              </Text>
-              <ReactCopyToClipboard text={providerLink}>
-                <StyledQRCode>
-                  {providerLink && <QRCode value={providerLink} />}
-                </StyledQRCode>
-              </ReactCopyToClipboard>
-            </>
+          {!!provider.steps.length && (
+            <ActionCard>
+              <Heading type="h5">You will be asked to:</Heading>
+              <StyledProviderStepsList>
+                {provider.steps.map((step) => (
+                  <li key={step}>
+                    <Text>{step}</Text>
+                  </li>
+                ))}
+              </StyledProviderStepsList>
+            </ActionCard>
           )}
         </StyledProviderInfo>
-        {!!provider.steps.length && (
-          <ActionCard>
-            <Heading type="h4">You will be asked to:</Heading>
-            <StyledProviderStepsList>
-              {provider.steps.map((step) => (
-                <li key={step}>
-                  <Text>{step}</Text>
-                </li>
-              ))}
-            </StyledProviderStepsList>
-          </ActionCard>
+        {providerName !== MOCKID_IDENTITY_PROVIDER && providerLink && (
+          <StyledQRCodeContainer>
+            <ReactCopyToClipboard text={providerLink}>
+              <StyledQRCode>
+                {providerLink && (
+                  <QRCode size={128} value={providerLink} level="L" />
+                )}
+              </StyledQRCode>
+            </ReactCopyToClipboard>
+            <Text centered>
+              Scan this QR code with your phone
+              {(isMobile || providerName !== NETKI_IDENTITY_PROVIDER) && (
+                <>
+                  , or click{' '}
+                  <SecondaryButton
+                    label="HERE"
+                    labelSize="medium"
+                    handleClick={handleOpenProviderDesktop}
+                  />{' '}
+                  to continue on this device.
+                </>
+              )}
+              <br />({isMobile ? 'tap' : 'click'} QR code to copy the link)
+            </Text>
+          </StyledQRCodeContainer>
         )}
       </StyledProviderContainer>
       <PopupActionButtons
