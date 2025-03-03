@@ -1,11 +1,11 @@
-import { useState, useEffect, useContext } from 'react';
-import { PolymeshContext } from '~/context/PolymeshContext';
+import { useContext, useEffect, useState } from 'react';
 import { useAuthContext } from '~/context/AuthContext';
 import {
-  TIdentityModalType,
   FRACTAL_IDENTITY_PROVIDER,
   MOCKID_IDENTITY_PROVIDER,
+  TIdentityModalType,
 } from '~/context/AuthContext/constants';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import {
   IDENTITY_PROVIDERS,
   IDENTITY_PROVIDER_MOCK,
@@ -14,11 +14,11 @@ import { PopupActionButtons } from '../../../PopupActionButtons';
 import { SecondaryButton } from '../../../SecondaryButton';
 import { ProviderCard } from '../ProviderCard';
 import {
-  StyledProvidersContainer,
   StyleProviderBox,
+  StyledContactUsContainer,
+  StyledProvidersContainer,
   StyledTestnetContainer,
   StyledTestnetList,
-  StyledContactUsContainer,
 } from './styles';
 
 export const ProviderSelect = () => {
@@ -93,6 +93,7 @@ export const ProviderSelect = () => {
       <StyledProvidersContainer>
         {Object.entries(IDENTITY_PROVIDERS).map(
           ([provider, providerDetails]) => {
+            if (provider === FRACTAL_IDENTITY_PROVIDER) return null;
             return (
               <StyleProviderBox
                 key={providerDetails.name}

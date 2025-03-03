@@ -1,19 +1,20 @@
 import { TIcons } from '~/assets/icons/types';
 
 import {
-  POLYMESH_WALLET,
-  POLKADOT_WALLET,
-  TALISMAN_WALLET,
   NOVA_WALLET,
+  POLKADOT_WALLET,
+  POLYMESH_WALLET,
   SUBWALLET_WALLET,
+  TALISMAN_WALLET,
   TWalletName,
 } from '~/constants/wallets';
 
 import {
-  JUMIO_IDENTITY_PROVIDER,
-  NETKI_IDENTITY_PROVIDER,
+  FINCLUSIVE_IDENTITY_PROVIDER,
   FRACTAL_IDENTITY_PROVIDER,
+  JUMIO_IDENTITY_PROVIDER,
   MOCKID_IDENTITY_PROVIDER,
+  NETKI_IDENTITY_PROVIDER,
 } from '~/context/AuthContext/constants';
 
 export enum EActionButtonStatus {
@@ -75,6 +76,7 @@ export type TIdentityProvider =
   | typeof JUMIO_IDENTITY_PROVIDER
   | typeof NETKI_IDENTITY_PROVIDER
   | typeof FRACTAL_IDENTITY_PROVIDER
+  | typeof FINCLUSIVE_IDENTITY_PROVIDER
   | typeof MOCKID_IDENTITY_PROVIDER;
 
 export interface IIdentityProvider {
@@ -144,6 +146,21 @@ export const IDENTITY_PROVIDERS: {
       'Take a picture of a proof of residence (e.g Bank statement, utility bill, etc.)',
       'Take a picture of a government issued ID front and back',
       'Take a selfie',
+    ],
+  },
+  [FINCLUSIVE_IDENTITY_PROVIDER]: {
+    name: 'Finclusive',
+    link: 'finclusive',
+    icon: 'FinclusiveProviderIcon' as TIcons,
+    requirements: [
+      'Fill the application form',
+      'Government issued ID',
+      'Selfie',
+    ],
+    steps: [
+      'Fill in your wallet and personal information',
+      'Upload a proof of identity (e.g. passport, driver’s license, etc.)',
+      'Upload a selfie',
     ],
   },
 };

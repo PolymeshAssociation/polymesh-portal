@@ -1,10 +1,10 @@
-import { useAuthContext } from '~/context/AuthContext';
 import { Modal } from '~/components';
+import { useAuthContext } from '~/context/AuthContext';
 import { PopupHeader } from '../PopupHeader';
-import { ProviderSelect } from './components/ProviderSelect';
-import { ProviderInfo } from './components/ProviderInfo';
-import { PendingInfo } from './components/PendingInfo';
 import { BusinessAccount } from './components/BusinessAccount';
+import { PendingInfo } from './components/PendingInfo';
+import { ProviderInfo } from './components/ProviderInfo';
+import { ProviderSelect } from './components/ProviderSelect';
 import { StyledModalContent } from './styles';
 
 export const PopupVerifyIdentity = () => {
@@ -18,6 +18,7 @@ export const PopupVerifyIdentity = () => {
       case 'jumio':
       case 'netki':
       case 'fractal':
+      case 'finclusive':
       case 'mockid':
         return (
           <ProviderInfo
