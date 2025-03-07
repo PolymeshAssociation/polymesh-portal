@@ -16,13 +16,11 @@ export const StakingButtons: React.FC<IStakingButtonsProps> = ({
   toggleModal,
 }) => {
   const {
-    eraStatus: { electionInProgress },
     stakingAccountInfo: { stashAddress, isController, isStash },
   } = useContext(StakingContext);
-  const isElectionInProgress = electionInProgress === 'Open';
 
   const handleAction = () => {
-    if (disabled || isElectionInProgress) {
+    if (disabled) {
       return;
     }
     let modalOption;
@@ -40,11 +38,7 @@ export const StakingButtons: React.FC<IStakingButtonsProps> = ({
 
   return (
     <>
-      <Button
-        variant="primary"
-        onClick={handleAction}
-        disabled={disabled || isElectionInProgress}
-      >
+      <Button variant="primary" onClick={handleAction} disabled={disabled}>
         {!stashAddress && EModalOptions.STAKE}
         {isStash && EModalOptions.BOND_MORE}
         {!isStash && isController && EModalOptions.CHANGE_NOMINATIONS}
