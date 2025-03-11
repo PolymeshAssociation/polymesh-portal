@@ -52,6 +52,7 @@ const BasicInfoStep: React.FC<WizardStepProps> = ({
   defaultValues,
   isFinalStep,
   setAssetData,
+  isLoading,
 }) => {
   const {
     api: { sdk },
@@ -355,6 +356,7 @@ const BasicInfoStep: React.FC<WizardStepProps> = ({
           disabled={
             Object.keys(errors).length > 0 || isValidating || tickerValidating
           }
+          isLoading={isLoading}
         />
       </NavigationWrapper>
     </FormContainer>

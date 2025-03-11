@@ -1,9 +1,7 @@
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
-  AddAssetRequirementParams,
   AssetDocument,
   CollectionKeyInput,
-  Identity,
   KnownAssetType,
   MetadataType,
   RegisterMetadataParams,
@@ -16,8 +14,9 @@ import {
   CountryCode,
   StatType,
   InputStatClaim,
+  InputTrustedClaimIssuer,
+  SetAssetRequirementsParams,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { Control } from 'react-hook-form';
 
 export interface WizardStepProps {
   defaultValues: WizardData;
@@ -26,12 +25,7 @@ export interface WizardStepProps {
   nextAssetId: string;
   isFinalStep: boolean;
   setAssetData?: React.Dispatch<React.SetStateAction<WizardData>>;
-}
-
-export interface RuleProps {
-  control: Control<WizardData>;
-  baseName: `complianceRules.${number}.conditions`;
-  nextAssetId: string;
+  isLoading?: boolean;
 }
 
 export type TransferRestrictionInput =
@@ -60,14 +54,13 @@ export interface WizardData {
   securityIdentifiers: SecurityIdentifier[];
   documents: AssetDocument[];
   metadata: (RegisterMetadataParams & { id?: number; type: MetadataType })[];
-  // claimIssuers: InputTrustedClaimIssuer[];
   claimIssuers: {
     identity: string;
     trustedFor:
       | (ClaimType | { type: ClaimType.Custom; customClaimTypeId: BigNumber })[]
       | null;
   }[];
-  complianceRules: AddAssetRequirementParams[];
+  complianceRules: SetAssetRequirementsParams;
   initialSupply?: BigNumber;
   portfolioId?: BigNumber;
   collectionKeys: CollectionKeyInput[];
@@ -87,7 +80,9 @@ export const initialWizardData: WizardData = {
   documents: [],
   metadata: [],
   claimIssuers: [],
-  complianceRules: [],
+  complianceRules: {
+    requirements: [],
+  },
   initialSupply: undefined,
   portfolioId: undefined,
   collectionKeys: [],
@@ -99,148 +94,29 @@ export const initialWizardData: WizardData = {
   transferRestrictions: [],
 };
 
-/**
- * A flattened interface showing all possible properties of an InputCondition
- * Properties are marked as optional if they only exist in certain condition types
- */
-export interface InputConditionStructure {
-  // Common properties for all conditions
+export type FormClaim = {
+  type: ClaimType;
+  scope?: {
+    type: ScopeType;
+    value: string;
+  };
+  code?: CountryCode;
+  customClaimTypeId?: BigNumber;
+  customClaimName?: string;
+};
+
+export interface FormCondition {
   type: ConditionType;
   target: ConditionTarget;
-  trustedClaimIssuers?: Array<{
-    identity: string | Identity;
-    trustedFor: ClaimType[] | null;
-  }>;
-
-  // Properties for IsIdentity condition
-  identity?: string | Identity;
-
-  // Properties for IsPresent/IsAbsent conditions
-  claim?: {
-    type: ClaimType;
-    // For Jurisdiction claims
-    code?: CountryCode;
-    // For Custom claims
-    customClaimTypeId?: BigNumber;
-    // For scoped claims
-    scope?: {
-      type: ScopeType;
-      value: string;
-    };
-  };
-
-  // Properties for IsAnyOf/IsNoneOf conditions
-  claims?: Array<{
-    type: ClaimType;
-    // For Jurisdiction claims
-    code?: CountryCode;
-    // For Custom claims
-    customClaimTypeId?: BigNumber;
-    // For scoped claims
-    scope?: {
-      type: ScopeType;
-      value: string;
-    };
-  }>;
+  claims?: FormClaim[];
+  identity?: string;
+  trustedClaimIssuers?: InputTrustedClaimIssuer[];
 }
 
-/**
- * Individual typed interfaces for each condition type
- */
-export interface BaseCondition {
-  target: ConditionTarget;
-  trustedClaimIssuers?: Array<{
-    identity: string | Identity;
-    trustedFor: ClaimType[] | null;
-  }>;
+export interface FormComplianceRule {
+  conditions: FormCondition[];
 }
 
-export interface ExternalAgentCondition extends BaseCondition {
-  type: ConditionType.IsExternalAgent;
+export interface ComplianceRuleFormData {
+  complianceRules: FormComplianceRule[];
 }
-
-export interface IdentityCondition extends BaseCondition {
-  type: ConditionType.IsIdentity;
-  identity: string | Identity;
-}
-
-export interface ClaimScope {
-  type: ScopeType;
-  value: string;
-}
-
-export interface BaseClaim {
-  type: ClaimType;
-  scope?: ClaimScope;
-}
-
-export interface JurisdictionClaim extends BaseClaim {
-  type: ClaimType.Jurisdiction;
-  code: CountryCode;
-}
-
-export interface CustomClaim extends BaseClaim {
-  type: ClaimType.Custom;
-  customClaimTypeId: BigNumber;
-}
-
-export interface SingleClaimCondition extends BaseCondition {
-  type: ConditionType.IsPresent | ConditionType.IsAbsent;
-  claim: BaseClaim | JurisdictionClaim | CustomClaim;
-}
-
-export interface MultiClaimCondition extends BaseCondition {
-  type: ConditionType.IsAnyOf | ConditionType.IsNoneOf;
-  claims: Array<BaseClaim | JurisdictionClaim | CustomClaim>;
-}
-
-export type TypedInputCondition =
-  | ExternalAgentCondition
-  | IdentityCondition
-  | SingleClaimCondition
-  | MultiClaimCondition;
-
-/**
- * Usage example for each condition type:
- *
- * IsExternalAgent:
- * {
- *   type: ConditionType.IsExternalAgent,
- *   target: ConditionTarget.Both
- * }
- *
- * IsIdentity:
- * {
- *   type: ConditionType.IsIdentity,
- *   target: ConditionTarget.Both,
- *   identity: "0x123..." || identityInstance
- * }
- *
- * IsPresent/IsAbsent:
- * {
- *   type: ConditionType.IsPresent,
- *   target: ConditionTarget.Both,
- *   claim: {
- *     type: ClaimType.Jurisdiction,
- *     code: CountryCode.Ca,
- *     scope: {
- *       type: ScopeType.Identity,
- *       value: "0x123..."
- *     }
- *   }
- * }
- *
- * IsAnyOf/IsNoneOf:
- * {
- *   type: ConditionType.IsAnyOf,
- *   target: ConditionTarget.Both,
- *   claims: [{
- *     type: ClaimType.Jurisdiction,
- *     code: CountryCode.Ca,
- *     scope: {
- *       type: ScopeType.Identity,
- *       value: "0x123..."
- *     }
- *   }]
- * }
- */

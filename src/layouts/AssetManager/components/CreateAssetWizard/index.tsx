@@ -41,6 +41,7 @@ const CreateAssetWizard = () => {
   const [assetData, setAssetData] = useState<WizardData>(initialWizardData);
   const [nextAssetId, setNextAssetId] = useState<string>('');
   const [isFinalStep, setIsFinalStep] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -94,6 +95,7 @@ const CreateAssetWizard = () => {
     setCompletedSteps((prev) => [...new Set([...prev, currentStep])]);
 
     if (isFinalStep && sdk) {
+      setIsLoading(true);
       const {
         assetType,
         claimIssuers,
@@ -122,6 +124,7 @@ const CreateAssetWizard = () => {
 
       const nextAsset = await sdk.assets.getFungibleAsset({
         assetId: nextAssetId,
+        skipExistsCheck: true,
       });
 
       try {
@@ -158,16 +161,28 @@ const CreateAssetWizard = () => {
               async (restriction) => {
                 switch (restriction.type) {
                   case StatType.Count:
-                    return nextAsset.transferRestrictions.count.addRestriction({
-                      count: restriction.max,
-                      exemptedIdentities: restriction.exemptedIdentities,
-                    });
+                    return nextAsset.transferRestrictions.count.addRestriction(
+                      {
+                        count: restriction.max,
+                        exemptedIdentities: restriction.exemptedIdentities,
+                      },
+                      {
+                        skipChecks: {
+                          agentPermissions: true,
+                        },
+                      },
+                    );
 
                   case StatType.Balance:
                     return nextAsset.transferRestrictions.percentage.addRestriction(
                       {
                         percentage: restriction.max,
                         exemptedIdentities: restriction.exemptedIdentities,
+                      },
+                      {
+                        skipChecks: {
+                          agentPermissions: true,
+                        },
                       },
                     );
 
@@ -182,6 +197,11 @@ const CreateAssetWizard = () => {
                         min: restriction.min,
                         exemptedIdentities: restriction.exemptedIdentities,
                       },
+                      {
+                        skipChecks: {
+                          agentPermissions: true,
+                        },
+                      },
                     );
 
                   case StatType.ScopedBalance:
@@ -194,6 +214,11 @@ const CreateAssetWizard = () => {
                         max: restriction.max,
                         min: restriction.min,
                         exemptedIdentities: restriction.exemptedIdentities,
+                      },
+                      {
+                        skipChecks: {
+                          agentPermissions: true,
+                        },
                       },
                     );
 
@@ -239,11 +264,18 @@ const CreateAssetWizard = () => {
 
         if (claimIssuers.length) {
           const claimIssuerTx =
-            await nextAsset.compliance.trustedClaimIssuers.add({
-              // TODO: remove once support for custom claims if fixed
-              // @ts-expect-error customClaim objects not yet supported
-              claimIssuers,
-            });
+            await nextAsset.compliance.trustedClaimIssuers.add(
+              {
+                // TODO: remove once support for custom claims is fixed
+                // @ts-expect-error customClaim objects not yet supported
+                claimIssuers,
+              },
+              {
+                skipChecks: {
+                  agentPermissions: true,
+                },
+              },
+            );
           batchCalls.push(claimIssuerTx);
         }
 
@@ -255,12 +287,23 @@ const CreateAssetWizard = () => {
                   id: new BigNumber(metadataParams.id),
                   type: MetadataType.Global,
                 });
-                return globalMetadataEntry.set({
-                  value: metadataParams.value,
-                  details: metadataParams.details,
-                });
+                return globalMetadataEntry.set(
+                  {
+                    value: metadataParams.value,
+                    details: metadataParams.details,
+                  },
+                  {
+                    skipChecks: {
+                      agentPermissions: true,
+                    },
+                  },
+                );
               }
-              return nextAsset.metadata.register(metadataParams);
+              return nextAsset.metadata.register(metadataParams, {
+                skipChecks: {
+                  agentPermissions: true,
+                },
+              });
             },
           );
           const registerMetadataTxs = await Promise.all(
@@ -271,26 +314,37 @@ const CreateAssetWizard = () => {
           });
         }
 
-        if (complianceRules.length) {
-          const addRulePromises = complianceRules.map((rule) => {
-            return nextAsset.compliance.requirements.add(rule);
-          });
-          const addComplianceRuleTxs = await Promise.all(addRulePromises);
-          addComplianceRuleTxs.forEach((tx) => {
-            batchCalls.push(tx);
-          });
+        if (complianceRules.requirements.length) {
+          const setComplianceRulesTx =
+            await nextAsset.compliance.requirements.set(complianceRules, {
+              skipChecks: { agentPermissions: true },
+            });
+          batchCalls.push(setComplianceRulesTx);
         }
 
         if (requiredMediators.length) {
-          const addMediatorTx = await nextAsset.addRequiredMediators({
-            mediators: requiredMediators,
-          });
+          const addMediatorTx = await nextAsset.addRequiredMediators(
+            {
+              mediators: requiredMediators,
+            },
+            {
+              skipChecks: {
+                agentPermissions: true,
+              },
+            },
+          );
           batchCalls.push(addMediatorTx);
         }
 
         if (venueRestrictions) {
-          const setVenueRestrictionsTx =
-            await nextAsset.setVenueFiltering(venueRestrictions);
+          const setVenueRestrictionsTx = await nextAsset.setVenueFiltering(
+            venueRestrictions,
+            {
+              skipChecks: {
+                agentPermissions: true,
+              },
+            },
+          );
           batchCalls.push(setVenueRestrictionsTx);
         }
 
@@ -309,6 +363,7 @@ const CreateAssetWizard = () => {
         notifyError((error as Error).message);
       } finally {
         if (unsubCb) unsubCb();
+        setIsLoading(false);
       }
     } else {
       setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
@@ -335,6 +390,7 @@ const CreateAssetWizard = () => {
               nextAssetId={nextAssetId}
               isFinalStep={isFinalStep}
               setAssetData={setAssetData}
+              isLoading={isLoading}
             />
           );
         })()}

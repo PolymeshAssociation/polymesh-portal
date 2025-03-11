@@ -82,6 +82,7 @@ const SecurityIdentifiersStep: React.FC<WizardStepProps> = ({
   onBack,
   defaultValues,
   isFinalStep,
+  isLoading,
 }) => {
   const {
     register,
@@ -170,6 +171,7 @@ const SecurityIdentifiersStep: React.FC<WizardStepProps> = ({
           onNext={handleSubmit(onSubmit)}
           isFinalStep={isFinalStep}
           disabled={Object.keys(errors).length > 0}
+          isLoading={isLoading}
         />
       </NavigationWrapper>
     </FormContainer>

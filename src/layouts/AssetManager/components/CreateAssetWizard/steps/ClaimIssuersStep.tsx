@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useCallback, useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -35,6 +35,7 @@ import { Icon } from '~/components';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
 import CreateCustomClaimModal from '../components/CreateCustomClaimModal';
+import { useCustomClaims } from '~/hooks/polymesh/useCustomClaims';
 
 type CustomClaimType = { type: ClaimType.Custom; customClaimTypeId: BigNumber };
 type ClaimTypeValue = ClaimType | CustomClaimType;
@@ -64,6 +65,7 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
   onComplete,
   defaultValues,
   isFinalStep,
+  isLoading,
 }) => {
   const {
     api: { sdk },
@@ -73,14 +75,13 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
     { id: BigNumber; name: string }[]
   >([]);
   const [customClaimInput, setCustomClaimInput] = useState<string>('');
-  const [showCreateCustomClaimModal, setShowCreateCustomClaimModal] =
-    useState(false);
-  const [pendingCustomClaimName, setPendingCustomClaimName] =
-    useState<string>('');
-  const [pendingCustomClaimCallback, setPendingCustomClaimCallback] = useState<{
-    onChange: (value: ClaimTypeValue[] | null) => void;
-    currentValue: ClaimTypeValue[] | null;
-  } | null>(null);
+  const {
+    validateCustomClaim,
+    createModalState,
+    handleCreateModalClose,
+    handleCreateModalOpen,
+    handleCustomClaimCreated,
+  } = useCustomClaims();
 
   useEffect(() => {
     const fetchCustomClaimNames = async () => {
@@ -169,96 +170,59 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
     name: 'claimIssuers',
   });
 
-  const getCustomClaim = useCallback(
-    async (claimNameOrId: string) => {
-      if (!sdk)
-        throw new Error('Failed to get custom claim. SDK not available');
-      let customClaimId: BigNumber;
-      let customClaimName: string;
-      if (Number.isNaN(Number(claimNameOrId))) {
-        const claim = await sdk.claims.getCustomClaimTypeByName(claimNameOrId);
-        if (!claim) {
-          return null;
-        }
-        customClaimName = claim.name;
-        customClaimId = claim.id;
-      } else {
-        const claim = await sdk.claims.getCustomClaimTypeById(
-          new BigNumber(claimNameOrId),
-        );
-        if (!claim) {
-          throw new Error(`Custom claim ID ${claimNameOrId} does not exist`);
-        }
-        customClaimName = claim.name;
-        customClaimId = claim.id;
-      }
-      return { id: customClaimId, name: customClaimName };
-    },
-    [sdk],
-  );
-
-  const handleCustomClaimCreated = (newClaim: {
-    id: BigNumber;
-    name: string;
-  }) => {
-    if (!pendingCustomClaimCallback) return;
-
-    const { onChange, currentValue } = pendingCustomClaimCallback;
-
-    setCustomClaims([...customClaims, newClaim]);
-
-    const customClaimValue: ClaimTypeValue = {
-      type: ClaimType.Custom,
-      customClaimTypeId: newClaim.id,
-    };
-
-    if (currentValue === null) {
-      onChange([customClaimValue]);
-    } else {
-      onChange([...currentValue, customClaimValue]);
-    }
-
-    setPendingCustomClaimName('');
-    setPendingCustomClaimCallback(null);
-    setCustomClaimInput('');
-  };
-
   const handleAddCustomClaim = async (
     onChange: (value: ClaimTypeValue[] | null) => void,
     currentValue: ClaimTypeValue[] | null,
   ) => {
     if (!customClaimInput) return;
 
-    try {
-      const claim = await getCustomClaim(customClaimInput);
-
-      if (!claim) {
-        // Custom claim doesn't exist - show creation modal
-        setPendingCustomClaimName(customClaimInput);
-        setPendingCustomClaimCallback({ onChange, currentValue });
-        setShowCreateCustomClaimModal(true);
+    const validClaim = await validateCustomClaim(customClaimInput);
+    if (!validClaim) {
+      // If it's a number ID that doesn't exist, error was already shown
+      if (!Number.isNaN(Number(customClaimInput))) {
         return;
       }
+      // Otherwise, show creation modal
+      handleCreateModalOpen(customClaimInput, (newClaim) => {
+        if (customClaims.some((c) => c.id.eq(newClaim.id))) {
+          notifyError('Custom claim already added');
+          return;
+        }
 
-      if (customClaims.some((c) => c.id.eq(claim.id))) {
-        throw new Error('Custom claim already added');
-      }
+        setCustomClaims([...customClaims, newClaim]);
+        setCustomClaimInput('');
 
-      setCustomClaims([...customClaims, claim]);
-      setCustomClaimInput('');
+        const customClaimValue: ClaimTypeValue = {
+          type: ClaimType.Custom,
+          customClaimTypeId: newClaim.id,
+        };
 
-      const customClaimValue: ClaimTypeValue = {
-        type: ClaimType.Custom,
-        customClaimTypeId: claim.id,
-      };
+        if (currentValue === null) {
+          onChange([customClaimValue]);
+        } else {
+          onChange([...currentValue, customClaimValue]);
+        }
+      });
+      return;
+    }
 
-      if (currentValue === null) {
-        onChange([customClaimValue]);
-      } else {
-        onChange([...currentValue, customClaimValue]);
-      }
-    } catch (error) {
-      notifyError((error as Error).message);
+    if (customClaims.some((c) => c.id.eq(validClaim.id))) {
+      notifyError('Custom claim already added');
+      return;
+    }
+
+    setCustomClaims([...customClaims, validClaim]);
+    setCustomClaimInput('');
+
+    const customClaimValue: ClaimTypeValue = {
+      type: ClaimType.Custom,
+      customClaimTypeId: validClaim.id,
+    };
+
+    if (currentValue === null) {
+      onChange([customClaimValue]);
+    } else {
+      onChange([...currentValue, customClaimValue]);
     }
   };
 
@@ -292,6 +256,7 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
                 <FieldInput
                   placeholder="Enter issuer DID"
                   {...register(`claimIssuers.${index}.identity` as const)}
+                  $hasError={!!errors.claimIssuers?.[index]?.identity}
                 />
               </FieldRow>
               {errors.claimIssuers?.[index]?.identity && (
@@ -450,17 +415,13 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
           onNext={handleSubmit(onSubmit)}
           isFinalStep={isFinalStep}
           disabled={Object.keys(errors).length > 0}
+          isLoading={isLoading}
         />
       </NavigationWrapper>
-      {showCreateCustomClaimModal && (
+      {createModalState.isOpen && (
         <CreateCustomClaimModal
-          customClaimName={pendingCustomClaimName}
-          onClose={() => {
-            setShowCreateCustomClaimModal(false);
-            setPendingCustomClaimName('');
-            setPendingCustomClaimCallback(null);
-            setCustomClaimInput('');
-          }}
+          customClaimName={createModalState.pendingName}
+          onClose={handleCreateModalClose}
           onSuccess={handleCustomClaimCreated}
         />
       )}

@@ -263,6 +263,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
   onComplete,
   defaultValues,
   isFinalStep,
+  isLoading,
 }) => {
   const {
     api: { sdk },
@@ -400,6 +401,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
                           exemptedIdentities: [],
                         });
                       }}
+                      $hasError={!!typeError}
                     >
                       {Object.values(StatType)
                         .filter(
@@ -434,6 +436,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
                           {...methods.register(
                             `transferRestrictions.${index}.claimType`,
                           )}
+                          $hasError={!!claimTypeError}
                         >
                           <option value="" disabled>
                             Select claim type
@@ -461,6 +464,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
                             {...methods.register(
                               `transferRestrictions.${index}.jurisdiction`,
                             )}
+                            $hasError={!!jurisdictionError}
                           >
                             <option value="" disabled>
                               Select country
@@ -489,6 +493,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
                             `transferRestrictions.${index}.issuer`,
                           )}
                           placeholder="Enter claim issuer DID"
+                          $hasError={!!issuerError}
                         />
                       </FieldRow>
                       {issuerError && (
@@ -526,6 +531,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
                         const input = e.currentTarget;
                         input.value = input.value.replace(/[^\d.]/g, '');
                       }}
+                      $hasError={!!maxError}
                     />
                   </FieldRow>
                   {maxError && (
@@ -556,6 +562,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
                           const input = e.currentTarget;
                           input.value = input.value.replace(/[^\d.]/g, '');
                         }}
+                        $hasError={!!minError}
                       />
                     </FieldRow>
                     {minError && (
@@ -603,6 +610,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
           onNext={methods.handleSubmit(onSubmit)}
           isFinalStep={isFinalStep}
           disabled={Object.keys(errors).length > 0}
+          isLoading={isLoading}
         />
       </NavigationWrapper>
     </FormContainer>

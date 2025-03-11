@@ -58,6 +58,7 @@ const IssuanceStep: React.FC<WizardStepProps> = ({
   onComplete,
   defaultValues,
   isFinalStep,
+  isLoading,
 }) => {
   const { allPortfolios } = useContext(PortfolioContext);
   const { isDivisible } = defaultValues;
@@ -148,6 +149,7 @@ const IssuanceStep: React.FC<WizardStepProps> = ({
           onNext={handleSubmit(onSubmit)}
           isFinalStep={isFinalStep}
           disabled={Object.keys(errors).length > 0}
+          isLoading={isLoading}
         />
       </NavigationWrapper>
     </FormContainer>
