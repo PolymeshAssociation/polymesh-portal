@@ -57,6 +57,7 @@ const DocumentsStep: React.FC<WizardStepProps> = ({
   onBack,
   defaultValues,
   isFinalStep,
+  isLoading,
 }) => {
   const defaultDocuments = defaultValues.documents.map((document) => {
     const normalizedDocument = {
@@ -214,6 +215,7 @@ const DocumentsStep: React.FC<WizardStepProps> = ({
           onNext={handleSubmit(onSubmit)}
           isFinalStep={isFinalStep}
           disabled={Object.keys(errors).length > 0}
+          isLoading={isLoading}
         />
       </NavigationWrapper>
     </FormContainer>

@@ -8,6 +8,7 @@ interface StepNavigationProps {
   onNext: () => void;
   isFinalStep: boolean;
   disabled?: boolean;
+  isLoading?: boolean;
 }
 
 const StepNavigation: React.FC<StepNavigationProps> = ({
@@ -15,6 +16,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   onNext,
   isFinalStep,
   disabled = false,
+  isLoading = false,
 }) => {
   const { isExternalConnection } = useContext(AccountContext);
 
@@ -23,26 +25,34 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
     onNext();
   };
 
+  const isButtonDisabled =
+    disabled || (isFinalStep && isExternalConnection) || isLoading;
+
+  const getButtonContent = () => {
+    if (isFinalStep) {
+      if (isLoading) {
+        return 'Creating Asset...';
+      }
+      return 'Create Asset';
+    }
+
+    return (
+      <>
+        Next <Icon name="NextPage" size="20px" />
+      </>
+    );
+  };
+
   return (
     <ButtonRow>
       {onBack && (
-        <Button type="button" onClick={onBack}>
+        <Button type="button" onClick={onBack} disabled={isLoading}>
           <Icon name="PrevPage" size="20px" />
           Back
         </Button>
       )}
-      <Button
-        type="button"
-        onClick={handleNext}
-        disabled={disabled || (isFinalStep && isExternalConnection)}
-      >
-        {isFinalStep ? (
-          'Create Asset'
-        ) : (
-          <>
-            Next <Icon name="NextPage" size="20px" />
-          </>
-        )}
+      <Button type="button" onClick={handleNext} disabled={isButtonDisabled}>
+        {getButtonContent()}
       </Button>
     </ButtonRow>
   );

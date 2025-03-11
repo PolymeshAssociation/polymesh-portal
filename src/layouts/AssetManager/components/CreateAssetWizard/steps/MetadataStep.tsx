@@ -45,6 +45,11 @@ type FormData = Omit<WizardData, 'metadata'> & {
   metadata: FormMetadataEntry[];
 };
 
+const getMinDateTime = () => {
+  const tomorrow = new Date(Date.now() + 86400000);
+  return tomorrow.toISOString().slice(0, 16); // Format: YYYY-MM-DDThh:mm
+};
+
 // New Yup validation schemas for metadata entries
 const createMetadataDetailsSchema = () =>
   yup
@@ -58,14 +63,17 @@ const createMetadataDetailsSchema = () =>
             .required('Locked until is required')
             .test('is-future-date', 'Date must be in the future', (value) => {
               if (!value) return false;
-              const today = new Date();
-              today.setHours(0, 0, 0, 0);
-              const inputDate = new Date(value);
-              return inputDate >= today;
+              return new Date(value) > new Date();
             }),
         otherwise: (schema) => schema.transform(() => undefined).notRequired(),
       }),
-      expiry: yup.string().nullable(),
+      expiry: yup
+        .string()
+        .nullable()
+        .test('is-future-date', 'Date must be in the future', (value) => {
+          if (!value) return true;
+          return new Date(value) > new Date();
+        }),
     })
     .nullable();
 
@@ -97,6 +105,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
   onBack,
   defaultValues,
   isFinalStep,
+  isLoading,
 }) => {
   const { globalMetadata } = useContext(AssetContext);
 
@@ -227,8 +236,8 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                       onChange: () => handleTypeChange(),
                     })}
                   >
-                    <option value="Global">Existing Type</option>
-                    <option value="Local">User Defined Type</option>
+                    <option value="Global">Existing Type (Global)</option>
+                    <option value="Local">User Defined Type (Local)</option>
                   </FieldSelect>
                 </FieldRow>
               </FieldWrapper>
@@ -424,8 +433,8 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                     </FieldLabel>
                     <FieldInput
                       id={`metadata.${index}.details.lockedUntil`}
-                      type="date"
-                      min={new Date().toISOString().split('T')[0]}
+                      type="datetime-local"
+                      min={getMinDateTime()}
                       {...register(
                         `metadata.${index}.details.lockedUntil` as const,
                       )}
@@ -448,11 +457,16 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                   </FieldLabel>
                   <FieldInput
                     id={`metadata.${index}.details.expiry`}
-                    type="date"
+                    type="datetime-local"
+                    min={getMinDateTime()}
                     {...register(`metadata.${index}.details.expiry` as const)}
-                    min={new Date().toISOString().split('T')[0]}
                   />
                 </FieldRow>
+                {errors.metadata?.[index]?.details?.expiry && (
+                  <StyledErrorMessage>
+                    {errors.metadata[index].details.expiry.message}
+                  </StyledErrorMessage>
+                )}
               </FieldWrapper>
             </StyledFormSection>
           );
@@ -482,6 +496,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
           onNext={handleSubmit(onSubmit)}
           isFinalStep={isFinalStep}
           disabled={Object.keys(errors).length > 0}
+          isLoading={isLoading}
         />
       </NavigationWrapper>
     </FormContainer>

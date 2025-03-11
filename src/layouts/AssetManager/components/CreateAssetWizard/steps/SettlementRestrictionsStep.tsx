@@ -53,6 +53,7 @@ const SettlementRestrictionsStep: React.FC<WizardStepProps> = ({
   onComplete,
   defaultValues,
   isFinalStep,
+  isLoading,
 }) => {
   const {
     api: { sdk },
@@ -294,6 +295,7 @@ const SettlementRestrictionsStep: React.FC<WizardStepProps> = ({
                     {...register(
                       `requiredMediators.${index}.mediator` as const,
                     )}
+                    $hasError={!!errors.requiredMediators?.[index]?.mediator}
                   />
                   <IconWrapper onClick={() => removeMediator(index)}>
                     <Icon name="Delete" size="20px" />
@@ -414,6 +416,7 @@ const SettlementRestrictionsStep: React.FC<WizardStepProps> = ({
           onNext={handleSubmit(onSubmit)}
           isFinalStep={isFinalStep}
           disabled={Object.keys(errors).length > 0}
+          isLoading={isLoading}
         />
       </NavigationWrapper>
     </FormContainer>

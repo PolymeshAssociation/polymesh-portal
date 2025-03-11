@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 
-export const breakpoints = {
+const breakpoints = {
   mobile: '768px',
   tablet: '1024px',
   desktop: '1280px',
 } as const;
 
-export const mediaQueries = {
+const mediaQueries = {
   mobile: `@media (max-width: ${breakpoints.mobile})`,
   tablet: `@media (max-width: ${breakpoints.tablet})`,
   desktop: `@media (max-width: ${breakpoints.desktop})`,
@@ -88,14 +88,6 @@ export const SubSectionTitle = styled.h4`
   font-weight: 500;
   color: ${({ theme }) => theme.colors.textPrimary};
   margin: 0;
-`;
-
-export const VenueDescription = styled(DescriptionText)`
-  margin: 4px 0 0 0;
-  padding: 4px 8px;
-  background-color: ${({ theme }) => theme.colors.dashboardBackground};
-  border-radius: 4px;
-  font-style: italic;
 `;
 
 // --- Form Elements ---
@@ -369,13 +361,6 @@ export const HeaderRow = styled.div`
 `;
 
 // --- Miscellaneous ---
-export const Section = styled.div`
-  margin-bottom: 16px;
-  padding: 16px;
-  background-color: ${({ theme }) => theme.colors.dashboardBackground};
-  border-radius: 12px;
-`;
-
 export const IconWrapper = styled.div`
   cursor: pointer;
   display: inline-flex;
@@ -394,6 +379,9 @@ export const IconWrapper = styled.div`
 `;
 
 export const TrustedClaimTypesContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   padding: 16px;
   background-color: ${({ theme }) => theme.colors.dashboardBackground};
   border-radius: ${({ theme }) => theme.borderRadius.small};
@@ -501,23 +489,6 @@ export const StyledFormSection = styled.div<{ $nested?: boolean }>`
   }
 `;
 
-export const StyledConditionSection = styled.div<{ $nested?: boolean }>`
-  background: ${({ theme }) => theme.colors.dashboardBackground};
-  border-radius: ${({ theme }) => theme.borderRadius.medium};
-  padding: 24px;
-  margin-bottom: 24px;
-
-  ${mediaQueries.mobile} {
-    padding: 16px;
-    margin-bottom: 16px;
-    background: transparent;
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
 export const CheckboxRow = styled.div`
   display: flex;
   align-items: center;
@@ -553,19 +524,32 @@ export const ChipContainer = styled.div`
   }
 `;
 
-export const StepCount = styled.div`
+export const StyledClaimContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   font-size: 14px;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  background-color: ${({ theme }) => theme.colors.dashboardBackground};
-  padding: 4px 12px;
-  border-radius: ${({ theme }) => theme.borderRadius.small};
-  display: inline-flex;
-  align-items: center;
   margin-bottom: 16px;
+  overflow: hidden;
+  border-top: 1px solid ${({ theme }) => theme.colors.textPrimary};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.textPrimary};
 
-  ${mediaQueries.mobile} {
-    font-size: 13px;
-    padding: 6px 10px;
-    margin-bottom: 12px;
+  .no-claims {
+    padding: 12px;
+    color: ${({ theme }) => theme.colors.textSecondary};
+    font-style: italic;
+    margin: auto;
+  }
+`;
+
+export const StyledClaim = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  padding: 8px 12px;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid ${({ theme }) => theme.colors.textPrimary};
   }
 `;

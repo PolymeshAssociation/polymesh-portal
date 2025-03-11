@@ -91,10 +91,11 @@ const convertFormDataToWizardData = (
 });
 
 const CollectionKeysStep: React.FC<WizardStepProps> = ({
-  onBack,
   onComplete,
+  onBack,
   defaultValues,
   isFinalStep,
+  isLoading,
 }) => {
   // Use form type with our updated collectionKeys type
   const { globalMetadata } = useContext(AssetContext);
@@ -186,8 +187,8 @@ const CollectionKeysStep: React.FC<WizardStepProps> = ({
                       onChange: (e) => handleTypeChange(e.target.value),
                     })}
                   >
-                    <option value="Global">Existing Type</option>
-                    <option value="Local">User Defined Type</option>
+                    <option value="Global">Existing Type (Global)</option>
+                    <option value="Local">User Defined Type (Local)</option>
                   </FieldSelect>
                 </FieldRow>
               </FieldWrapper>
@@ -342,6 +343,7 @@ const CollectionKeysStep: React.FC<WizardStepProps> = ({
           onNext={handleSubmit(onSubmit)}
           isFinalStep={isFinalStep}
           disabled={Object.keys(errors).length > 0}
+          isLoading={isLoading}
         />
       </NavigationWrapper>
     </FormContainer>
