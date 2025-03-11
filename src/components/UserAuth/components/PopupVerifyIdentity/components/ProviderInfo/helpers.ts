@@ -3,9 +3,12 @@ import { notifyError } from '~/helpers/notifications';
 export const fetchIdentityProviderLink = async (
   address: string,
   provider: string,
+  business: boolean = false,
 ) => {
   const { body, status } = await fetch(
-    `${import.meta.env.VITE_CDD_SERVICE_URL}provider-link`,
+    `${import.meta.env.VITE_CDD_SERVICE_URL}${
+      business ? 'business-provider-link' : 'provider-link'
+    }`,
     {
       headers: {
         'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useAuthContext } from '~/context/AuthContext';
 import {
+  FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER,
   FRACTAL_IDENTITY_PROVIDER,
   MOCKID_IDENTITY_PROVIDER,
   TIdentityModalType,
@@ -28,7 +29,7 @@ export const ProviderSelect = () => {
   const { setIdentityPopup } = useAuthContext();
 
   const [isTestnet, setIsTestnet] = useState<null | boolean>(null);
-  const [showContactUs, setShowContactUs] = useState(false);
+  const [showContactUs] = useState(false);
 
   const handleContactFormClick = () => {
     window.open('https://polymesh.network/contact-us', '_blank');
@@ -67,7 +68,11 @@ export const ProviderSelect = () => {
           <StyledTestnetList>
             {Object.entries(IDENTITY_PROVIDERS).map(
               ([provider, providerDetails]) => {
-                if (provider === FRACTAL_IDENTITY_PROVIDER) return null;
+                if (
+                  provider === FRACTAL_IDENTITY_PROVIDER ||
+                  provider === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER
+                )
+                  return null;
                 return (
                   <StyleProviderBox
                     key={providerDetails.name}
@@ -93,7 +98,11 @@ export const ProviderSelect = () => {
       <StyledProvidersContainer>
         {Object.entries(IDENTITY_PROVIDERS).map(
           ([provider, providerDetails]) => {
-            if (provider === FRACTAL_IDENTITY_PROVIDER) return null;
+            if (
+              provider === FRACTAL_IDENTITY_PROVIDER ||
+              provider === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER
+            )
+              return null;
             return (
               <StyleProviderBox
                 key={providerDetails.name}
@@ -120,12 +129,11 @@ export const ProviderSelect = () => {
       {isTestnet !== null && renderProviders()}
       <SecondaryButton
         label="I need to onboard as a business"
-        handleClick={() => setShowContactUs(true)}
-        matomoData={{
-          eventCategory: 'onboarding',
-          eventAction: 'cdd-select',
-          eventName: 'business',
-        }}
+        handleClick={() =>
+          setIdentityPopup({
+            type: 'finclusive-kyb' as TIdentityModalType,
+          })
+        }
       />
       {showContactUs && (
         <StyledContactUsContainer>

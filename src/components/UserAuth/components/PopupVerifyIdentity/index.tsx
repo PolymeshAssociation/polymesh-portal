@@ -20,6 +20,7 @@ export const PopupVerifyIdentity = () => {
       case 'fractal':
       case 'finclusive':
       case 'mockid':
+      case 'finclusive-kyb':
         return (
           <ProviderInfo
             providerName={normalizedPopup}

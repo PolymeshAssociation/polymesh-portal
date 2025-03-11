@@ -4,6 +4,7 @@ import { CopyToClipboard as ReactCopyToClipboard } from 'react-copy-to-clipboard
 import { AccountContext } from '~/context/AccountContext';
 import { useAuthContext } from '~/context/AuthContext';
 import {
+  FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER,
   MOCKID_IDENTITY_PROVIDER,
   NETKI_IDENTITY_PROVIDER,
 } from '~/context/AuthContext/constants';
@@ -68,9 +69,11 @@ export const ProviderInfo = ({
         setProviderLink(applicationUrl);
         return;
       }
+      const isBusiness = providerName === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER;
       const data = await fetchIdentityProviderLink(
         selectedAccount,
         provider.link,
+        isBusiness,
       );
       refreshAccountIdentity();
       setProviderLink(data.link);
