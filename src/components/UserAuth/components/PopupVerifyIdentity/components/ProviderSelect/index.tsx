@@ -131,7 +131,9 @@ export const ProviderSelect = () => {
         label="I need to onboard as a business"
         handleClick={() =>
           setIdentityPopup({
-            type: 'finclusive-kyb' as TIdentityModalType,
+            type: (isTestnet
+              ? 'mockid'
+              : 'finclusive-kyb') as TIdentityModalType,
           })
         }
       />
