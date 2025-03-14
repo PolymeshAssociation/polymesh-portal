@@ -147,6 +147,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
           await BrowserExtensionSigningManager.create({
             appName: 'polymesh-portal',
             extensionName,
+            accountTypes: ['sr25519', 'ed25519', 'ecdsa'],
           });
         if (extensionName !== 'polywallet') {
           signingManagerInstance.setGenesisHash(
