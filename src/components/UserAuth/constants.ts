@@ -101,6 +101,22 @@ export const IDENTITY_PROVIDER_MOCK: IIdentityProvider = {
   steps: [],
 };
 
+export const IDENTITY_PROVIDER_FINCLUSIVE_KYB: IIdentityProvider = {
+  name: 'Finclusive KYB',
+  link: 'finclusive-kyb',
+  icon: 'FinclusiveProviderIcon' as TIcons,
+  requirements: [
+    'Fill the application form along with legal name',
+    'Fill in the significant parties information',
+    'Government issued ID for Significant Parties',
+  ],
+  steps: [
+    'Fill in your wallet address and legal information',
+    'Fill in the details for all Significant Parties of the entity (either beneficial owners and/or control persons)',
+    'Upload a proof of identity for Significant Parties (e.g. passport, driver’s license, etc.)',
+  ],
+};
+
 export const IDENTITY_PROVIDERS: {
   [key: string]: IIdentityProvider;
 } = {
@@ -163,21 +179,6 @@ export const IDENTITY_PROVIDERS: {
       'Fill in your wallet and personal information',
       'Upload a proof of identity (e.g. passport, driver’s license, etc.)',
       'Upload a selfie',
-    ],
-  },
-  [FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER]: {
-    name: 'Finclusive KYB',
-    link: 'finclusive-kyb',
-    icon: 'FinclusiveProviderIcon' as TIcons,
-    requirements: [
-      'Fill the application form along with legal name',
-      'Fill in the significant parties information',
-      'Government issued ID for Significant Parties',
-    ],
-    steps: [
-      'Fill in your wallet address and legal information',
-      'Fill in the details for all Significant Parties of the entity (either beneficial owners and/or control persons)',
-      'Upload a proof of identity for Significant Parties (e.g. passport, driver’s license, etc.)',
     ],
   },
 };

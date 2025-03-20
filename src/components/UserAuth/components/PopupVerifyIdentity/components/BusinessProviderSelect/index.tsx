@@ -7,7 +7,7 @@ import {
 } from '~/context/AuthContext/constants';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import {
-  IDENTITY_PROVIDERS,
+  IDENTITY_PROVIDER_FINCLUSIVE_KYB,
   IDENTITY_PROVIDER_MOCK,
 } from '../../../../constants';
 import { PopupActionButtons } from '../../../PopupActionButtons';
@@ -48,6 +48,24 @@ export const BusinessProviderSelect = () => {
     })();
   }, [sdk]);
 
+  const renderFinclusiveKyb = () => {
+    return (
+      <StyleProviderBox
+        key={IDENTITY_PROVIDER_FINCLUSIVE_KYB.name}
+        onClick={() =>
+          setIdentityPopup({
+            type: FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER,
+          })
+        }
+      >
+        <ProviderCard
+          provider={IDENTITY_PROVIDER_FINCLUSIVE_KYB}
+          isTestnet={isTestnet as boolean}
+        />
+      </StyleProviderBox>
+    );
+  };
+
   const renderProviders = () => {
     if (isTestnet) {
       return (
@@ -65,54 +83,13 @@ export const BusinessProviderSelect = () => {
               isTestnet={isTestnet as boolean}
             />
           </StyleProviderBox>
-          <StyledTestnetList>
-            {Object.entries(IDENTITY_PROVIDERS).map(
-              ([provider, providerDetails]) => {
-                if (provider !== FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER)
-                  return null;
-                return (
-                  <StyleProviderBox
-                    key={providerDetails.name}
-                    onClick={() =>
-                      setIdentityPopup({
-                        type: provider as TIdentityModalType,
-                      })
-                    }
-                  >
-                    <ProviderCard
-                      provider={providerDetails}
-                      isTestnet={isTestnet as boolean}
-                    />
-                  </StyleProviderBox>
-                );
-              },
-            )}
-          </StyledTestnetList>
+          <StyledTestnetList>{renderFinclusiveKyb()}</StyledTestnetList>
         </StyledTestnetContainer>
       );
     }
     return (
       <StyledProvidersContainer>
-        {Object.entries(IDENTITY_PROVIDERS).map(
-          ([provider, providerDetails]) => {
-            if (provider !== FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER) return null;
-            return (
-              <StyleProviderBox
-                key={providerDetails.name}
-                onClick={() =>
-                  setIdentityPopup({
-                    type: provider as TIdentityModalType,
-                  })
-                }
-              >
-                <ProviderCard
-                  provider={providerDetails}
-                  isTestnet={isTestnet as boolean}
-                />
-              </StyleProviderBox>
-            );
-          },
-        )}
+        {renderFinclusiveKyb()}
       </StyledProvidersContainer>
     );
   };

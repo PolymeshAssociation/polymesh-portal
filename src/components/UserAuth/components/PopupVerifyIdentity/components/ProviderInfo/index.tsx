@@ -1,6 +1,8 @@
-import { useState, useEffect, useContext, useMemo } from 'react';
-import QRCode from 'react-qr-code';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { CopyToClipboard as ReactCopyToClipboard } from 'react-copy-to-clipboard';
+import QRCode from 'react-qr-code';
+import { Icon } from '~/components';
+import { Heading, Text } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
 import { useAuthContext } from '~/context/AuthContext';
 import {
@@ -9,12 +11,12 @@ import {
   NETKI_IDENTITY_PROVIDER,
 } from '~/context/AuthContext/constants';
 import { formatDid } from '~/helpers/formatters';
-import { Text, Heading } from '~/components/UiKit';
-import { Icon } from '~/components';
+import { useWindowWidth } from '~/hooks/utility';
 import {
-  TIdentityProvider,
   IDENTITY_PROVIDERS,
+  IDENTITY_PROVIDER_FINCLUSIVE_KYB,
   IDENTITY_PROVIDER_MOCK,
+  TIdentityProvider,
 } from '../../../../constants';
 import { ActionCard } from '../../../ActionCard';
 import { PopupActionButtons } from '../../../PopupActionButtons';
@@ -23,12 +25,11 @@ import { fetchIdentityProviderLink, fetchMockCdd } from './helpers';
 import {
   StyledProviderContainer,
   StyledProviderInfo,
-  StyledProviderNameContainer,
   StyledProviderName,
+  StyledProviderNameContainer,
   StyledProviderStepsList,
   StyledQRCode,
 } from './styles';
-import { useWindowWidth } from '~/hooks/utility';
 
 interface IProvideInfoProps {
   providerName: TIdentityProvider;
@@ -46,10 +47,14 @@ export const ProviderInfo = ({
   const { setIdentityPopup } = useAuthContext();
   const { isMobile } = useWindowWidth();
 
-  const provider =
-    providerName === MOCKID_IDENTITY_PROVIDER
-      ? IDENTITY_PROVIDER_MOCK
-      : IDENTITY_PROVIDERS[providerName];
+  let provider;
+  if (providerName === MOCKID_IDENTITY_PROVIDER) {
+    provider = IDENTITY_PROVIDER_MOCK;
+  } else if (providerName === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER) {
+    provider = IDENTITY_PROVIDER_FINCLUSIVE_KYB;
+  } else {
+    provider = IDENTITY_PROVIDERS[providerName];
+  }
 
   const handleOpenProviderDesktop = () => {
     if (!providerLink) return;
