@@ -125,7 +125,7 @@ export const ProviderInfo = ({
                 Scan QR code with your phone,{' '}
                 {(isMobile || providerName !== NETKI_IDENTITY_PROVIDER) && (
                   <>
-                    click{' '}
+                    or click{' '}
                     <SecondaryButton
                       label="HERE"
                       labelSize="medium"

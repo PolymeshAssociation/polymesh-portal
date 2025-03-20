@@ -40,6 +40,7 @@ export const FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER = 'finclusive-kyb';
 
 export type TIdentityModalType =
   | 'providers'
+  | 'business-providers'
   | typeof JUMIO_IDENTITY_PROVIDER
   | typeof NETKI_IDENTITY_PROVIDER
   | typeof FRACTAL_IDENTITY_PROVIDER
