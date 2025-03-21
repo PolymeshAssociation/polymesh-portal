@@ -29,6 +29,7 @@ import {
   StyledProviderNameContainer,
   StyledProviderStepsList,
   StyledQRCode,
+  StyledQRCodeContainer,
 } from './styles';
 
 interface IProvideInfoProps {
@@ -124,42 +125,46 @@ export const ProviderInfo = ({
               )}
             </StyledProviderName>
           </StyledProviderNameContainer>
-          {providerName !== MOCKID_IDENTITY_PROVIDER && providerLink && (
-            <>
-              <Text>
-                Scan QR code with your phone,{' '}
-                {(isMobile || providerName !== NETKI_IDENTITY_PROVIDER) && (
-                  <>
-                    or click{' '}
-                    <SecondaryButton
-                      label="HERE"
-                      labelSize="medium"
-                      handleClick={handleOpenProviderDesktop}
-                    />{' '}
-                    to proceed on this device{' '}
-                  </>
-                )}
-                or click on it to copy the url to your clipboard.
-              </Text>
-              <ReactCopyToClipboard text={providerLink}>
-                <StyledQRCode>
-                  {providerLink && <QRCode value={providerLink} />}
-                </StyledQRCode>
-              </ReactCopyToClipboard>
-            </>
+          {!!provider.steps.length && (
+            <ActionCard>
+              <Heading type="h5" fontWeight={600}>
+                You will be asked to:
+              </Heading>
+              <StyledProviderStepsList>
+                {provider.steps.map((step) => (
+                  <li key={step}>
+                    <Text>{step}</Text>
+                  </li>
+                ))}
+              </StyledProviderStepsList>
+            </ActionCard>
           )}
         </StyledProviderInfo>
-        {!!provider.steps.length && (
-          <ActionCard>
-            <Heading type="h4">You will be asked to:</Heading>
-            <StyledProviderStepsList>
-              {provider.steps.map((step) => (
-                <li key={step}>
-                  <Text>{step}</Text>
-                </li>
-              ))}
-            </StyledProviderStepsList>
-          </ActionCard>
+        {providerName !== MOCKID_IDENTITY_PROVIDER && providerLink && (
+          <StyledQRCodeContainer>
+            <ReactCopyToClipboard text={providerLink}>
+              <StyledQRCode>
+                {providerLink && (
+                  <QRCode size={128} value={providerLink} level="L" />
+                )}
+              </StyledQRCode>
+            </ReactCopyToClipboard>
+            <Text centered>
+              Scan QR code with your phone,{' '}
+              {(isMobile || providerName !== NETKI_IDENTITY_PROVIDER) && (
+                <>
+                  or click{' '}
+                  <SecondaryButton
+                    label="HERE"
+                    labelSize="medium"
+                    handleClick={handleOpenProviderDesktop}
+                  />{' '}
+                  to proceed on this device{' '}
+                </>
+              )}
+              or click on it to copy the url to your clipboard.
+            </Text>
+          </StyledQRCodeContainer>
         )}
       </StyledProviderContainer>
       <PopupActionButtons

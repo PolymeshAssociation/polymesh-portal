@@ -20,5 +20,6 @@ export interface IHeadingProps {
   marginTop?: number;
   marginBottom?: number;
   transform?: `${EHeadingCases}`;
+  fontWeight?: number;
   children: React.ReactNode;
 }

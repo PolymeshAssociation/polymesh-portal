@@ -8,6 +8,7 @@ const Heading: React.FC<IHeadingProps> = ({
   marginBottom,
   transform = EHeadingCases.DEFAULT,
   children,
+  fontWeight,
 }) => {
   return (
     <StyledHeading
@@ -16,6 +17,7 @@ const Heading: React.FC<IHeadingProps> = ({
       $marginTop={marginTop}
       $marginBottom={marginBottom}
       $transform={transform}
+      $fontWeight={fontWeight}
     >
       {children}
     </StyledHeading>
