@@ -96,6 +96,9 @@ export const ProviderInfo = ({
     if (providerName === MOCKID_IDENTITY_PROVIDER) {
       return null;
     }
+    if (providerName === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER) {
+      return 'business-providers';
+    }
     return applicationUrl ? 'pending' : 'providers';
   }, [providerName, applicationUrl]);
 
