@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import {
   ConditionTarget,
@@ -30,6 +30,7 @@ import {
   ComplianceRuleFormData,
 } from '../types';
 import StepNavigation from '../components/StepNavigation';
+import { notifyError } from '~/helpers/notifications';
 
 const convertFormClaimToSdk = (formClaim: FormClaim): Claim => {
   const base = {
@@ -211,10 +212,16 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
   isFinalStep,
   isLoading,
 }) => {
+  const [activeRuleIndex, setActiveRuleIndex] = useState<number | null>(null);
+  const [activeConditionIndex, setActiveConditionIndex] = useState<
+    number | null
+  >(null);
+
   const {
     control,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<ComplianceRuleFormData>({
     defaultValues: {
@@ -231,7 +238,26 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
     name: 'complianceRules',
   });
 
+  const rules = watch('complianceRules');
+
+  const validateActiveRule = () => {
+    if (activeRuleIndex === null) return true;
+    const rule = rules[activeRuleIndex];
+    if (!rule?.conditions?.length) {
+      notifyError('A rule must have at least one condition');
+      return false;
+    }
+    return true;
+  };
+
+  const handleEditRule = (ruleIndex: number) => {
+    if (!validateActiveRule()) return;
+    setActiveRuleIndex(ruleIndex);
+    setActiveConditionIndex(null);
+  };
+
   const handleFormSubmit = (data: ComplianceRuleFormData) => {
+    if (!validateActiveRule()) return;
     const sdkRules = data.complianceRules.length
       ? convertFormRulesToSdk(data.complianceRules)
       : [];
@@ -256,9 +282,29 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
           <StyledFormSection key={rule.id}>
             <HeaderRow>
               <FieldLabel>Rule #{ruleIndex + 1}</FieldLabel>
-              <IconWrapper onClick={() => removeRule(ruleIndex)}>
-                <Icon name="Delete" size="20px" />
-              </IconWrapper>
+              <div>
+                {activeRuleIndex !== ruleIndex && (
+                  <IconWrapper onClick={() => handleEditRule(ruleIndex)}>
+                    <Icon name="Edit" size="20px" />
+                  </IconWrapper>
+                )}
+                <IconWrapper
+                  onClick={() => {
+                    removeRule(ruleIndex);
+                    if (activeRuleIndex === ruleIndex) {
+                      setActiveRuleIndex(null);
+                      setActiveConditionIndex(null);
+                    } else if (
+                      activeRuleIndex !== null &&
+                      activeRuleIndex > ruleIndex
+                    ) {
+                      setActiveRuleIndex(activeRuleIndex - 1);
+                    }
+                  }}
+                >
+                  <Icon name="Delete" size="20px" />
+                </IconWrapper>
+              </div>
             </HeaderRow>
 
             <ComplianceRule
@@ -266,13 +312,18 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
               setValue={setValue}
               baseName={`complianceRules.${ruleIndex}.conditions`}
               nextAssetId={nextAssetId}
+              isActive={activeRuleIndex === ruleIndex}
+              activeConditionIndex={activeConditionIndex}
+              setActiveConditionIndex={setActiveConditionIndex}
             />
           </StyledFormSection>
         ))}
 
         <Button
           type="button"
-          onClick={() =>
+          onClick={() => {
+            if (!validateActiveRule()) return;
+            const newRuleIndex = ruleFields.length;
             appendRule({
               conditions: [
                 {
@@ -281,8 +332,10 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
                   claims: [],
                 },
               ],
-            })
-          }
+            });
+            setActiveRuleIndex(newRuleIndex);
+            setActiveConditionIndex(0);
+          }}
         >
           Add Rule
         </Button>
@@ -290,7 +343,13 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
 
       <NavigationWrapper>
         <StepNavigation
-          onBack={onBack}
+          onBack={() => {
+            if (validateActiveRule()) {
+              setActiveRuleIndex(null);
+              setActiveConditionIndex(null);
+              onBack();
+            }
+          }}
           onNext={handleSubmit(handleFormSubmit)}
           isFinalStep={isFinalStep}
           disabled={Object.keys(errors).length > 0}

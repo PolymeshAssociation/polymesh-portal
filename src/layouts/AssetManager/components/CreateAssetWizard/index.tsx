@@ -15,7 +15,7 @@ import SecurityIdentifiersStep from './steps/SecurityIdentifiersStep';
 import DocumentsStep from './steps/DocumentsStep';
 import MetadataStep from './steps/MetadataStep';
 import ClaimIssuersStep from './steps/ClaimIssuersStep';
-import ComplianceRulesConstructor from './steps/ComplianceRulesConstructor';
+import ComplianceRulesStep from './steps/ComplianceRulesStep';
 import CollectionKeysStep from './steps/CollectionKeysStep';
 import TransferRestrictionsStep from './steps/TransferRestrictionsStep';
 import SettlementRestrictionsStep from './steps/SettlementRestrictionsStep';
@@ -62,7 +62,7 @@ const CreateAssetWizard = () => {
         { component: DocumentsStep, label: 'Documents' },
         { component: MetadataStep, label: 'Metadata' },
         { component: ClaimIssuersStep, label: 'Claim Issuers' },
-        { component: ComplianceRulesConstructor, label: 'Compliance Rules' },
+        { component: ComplianceRulesStep, label: 'Compliance Rules' },
         {
           component: SettlementRestrictionsStep,
           label: 'Settlement Restrictions',
@@ -75,7 +75,7 @@ const CreateAssetWizard = () => {
       { component: DocumentsStep, label: 'Documents' },
       { component: MetadataStep, label: 'Metadata' },
       { component: ClaimIssuersStep, label: 'Claim Issuers' },
-      { component: ComplianceRulesConstructor, label: 'Compliance Rules' },
+      { component: ComplianceRulesStep, label: 'Compliance Rules' },
       { component: IssuanceStep, label: 'Issuance' },
       {
         component: SettlementRestrictionsStep,
@@ -165,6 +165,7 @@ const CreateAssetWizard = () => {
                       {
                         count: restriction.max,
                         exemptedIdentities: restriction.exemptedIdentities,
+                        skipStatIsEnabledCheck: true,
                       },
                       {
                         skipChecks: {
@@ -178,6 +179,7 @@ const CreateAssetWizard = () => {
                       {
                         percentage: restriction.max,
                         exemptedIdentities: restriction.exemptedIdentities,
+                        skipStatIsEnabledCheck: true,
                       },
                       {
                         skipChecks: {
@@ -196,6 +198,7 @@ const CreateAssetWizard = () => {
                         max: restriction.max,
                         min: restriction.min,
                         exemptedIdentities: restriction.exemptedIdentities,
+                        skipStatIsEnabledCheck: true,
                       },
                       {
                         skipChecks: {
@@ -214,6 +217,7 @@ const CreateAssetWizard = () => {
                         max: restriction.max,
                         min: restriction.min,
                         exemptedIdentities: restriction.exemptedIdentities,
+                        skipStatIsEnabledCheck: true,
                       },
                       {
                         skipChecks: {

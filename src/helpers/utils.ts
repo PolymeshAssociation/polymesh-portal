@@ -1,3 +1,5 @@
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+
 export const downloadCSV = (
   data: object[],
   headings: string[],
@@ -20,5 +22,23 @@ export const downloadCSV = (
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+};
+
+export const validateDid = async (did: string, sdk: Polymesh) => {
+  if (!did) {
+    return { isValid: false, error: 'Identity DID is required' };
+  }
+
+  try {
+    const isValid = await sdk.identities.isIdentityValid({
+      identity: did,
+    });
+    if (!isValid) {
+      return { isValid: false, error: 'Identity DID does not exist' };
+    }
+    return { isValid: true };
+  } catch (error) {
+    return { isValid: false, error: 'Invalid Identity DID' };
   }
 };
