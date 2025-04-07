@@ -553,3 +553,9 @@ export const StyledClaim = styled.div`
     border-bottom: 1px solid ${({ theme }) => theme.colors.textPrimary};
   }
 `;
+
+export const StyledCondition = styled.div`
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 6px;
+`;
