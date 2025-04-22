@@ -77,3 +77,4 @@ export { ReactComponent as WalletConnectSymbolNoColor } from './walletconnect-bl
 export { ReactComponent as Search } from './search.svg';
 export { ReactComponent as EyeIcon } from './eye-outline.svg';
 export { ReactComponent as AlertIcon } from './alert-icon.svg';
+export { ReactComponent as ExplorerIcon } from './explorer-icon.svg';

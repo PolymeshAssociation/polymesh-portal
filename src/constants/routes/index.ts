@@ -194,6 +194,11 @@ export const NAV_LINKS = [
         nestedLabel: 'Token Studio',
         nestedIcon: 'PolymathLogo',
       },
+      {
+        nestedPath: import.meta.env.VITE_ASSET_EXPLORER_URL,
+        nestedLabel: 'Asset Explorer',
+        nestedIcon: 'ExplorerIcon',
+      },
     ],
   },
   { path: PATHS.SETTINGS, label: 'Settings', icon: 'SettingsIcon' },
