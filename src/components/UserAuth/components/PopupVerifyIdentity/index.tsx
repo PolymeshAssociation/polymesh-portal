@@ -1,11 +1,12 @@
-import { useAuthContext } from '~/context/AuthContext';
 import { Modal } from '~/components';
+import { useAuthContext } from '~/context/AuthContext';
 import { PopupHeader } from '../PopupHeader';
-import { ProviderSelect } from './components/ProviderSelect';
-import { ProviderInfo } from './components/ProviderInfo';
-import { PendingInfo } from './components/PendingInfo';
 import { BusinessAccount } from './components/BusinessAccount';
+import { PendingInfo } from './components/PendingInfo';
+import { ProviderInfo } from './components/ProviderInfo';
+import { ProviderSelect } from './components/ProviderSelect';
 import { StyledModalContent } from './styles';
+import { BusinessProviderSelect } from './components/BusinessProviderSelect';
 
 export const PopupVerifyIdentity = () => {
   const { identityPopup, setIdentityPopup } = useAuthContext();
@@ -15,10 +16,14 @@ export const PopupVerifyIdentity = () => {
     switch (normalizedPopup) {
       case 'providers':
         return <ProviderSelect />;
+      case 'business-providers':
+        return <BusinessProviderSelect />;
       case 'jumio':
       case 'netki':
       case 'fractal':
+      case 'finclusive':
       case 'mockid':
+      case 'finclusive-kyb':
         return (
           <ProviderInfo
             providerName={normalizedPopup}
@@ -39,6 +44,19 @@ export const PopupVerifyIdentity = () => {
     return null;
   }
 
+  let subTitle = '';
+  let title = 'Verify Identity';
+  if (identityPopup.type === 'providers') {
+    subTitle =
+      'We are required to verify everyone’s identity on Polymesh to ensure security for all. Please proceed with choosing a third party CDD provider to verify your identity.';
+  } else if (identityPopup.type === 'business-providers') {
+    title = 'Verify Business Identity';
+    subTitle =
+      "We are required to verify all the businesses' onboarding on Polymesh to ensure security for all. Please proceed with choosing a third party CDD provider to verify your business.";
+  } else if (identityPopup.type === 'finclusive-kyb') {
+    title = 'Verify Business Identity';
+  }
+
   return (
     <Modal
       handleClose={() => setIdentityPopup({ type: null })}
@@ -46,12 +64,8 @@ export const PopupVerifyIdentity = () => {
     >
       <StyledModalContent>
         <PopupHeader
-          title="Verify Identity"
-          subTitle={
-            identityPopup.type === 'providers'
-              ? 'We are required to verify everyone’s identity on Polymesh to ensure security for all. Please proceed with choosing a third party CDD provider to verify your identity.'
-              : ''
-          }
+          title={title}
+          subTitle={subTitle}
           icon="ConnectIdentityIcon"
           isWide
         />

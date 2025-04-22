@@ -1,19 +1,21 @@
 import { TIcons } from '~/assets/icons/types';
 
 import {
-  POLYMESH_WALLET,
-  POLKADOT_WALLET,
-  TALISMAN_WALLET,
   NOVA_WALLET,
+  POLKADOT_WALLET,
+  POLYMESH_WALLET,
   SUBWALLET_WALLET,
+  TALISMAN_WALLET,
   TWalletName,
 } from '~/constants/wallets';
 
 import {
-  JUMIO_IDENTITY_PROVIDER,
-  NETKI_IDENTITY_PROVIDER,
+  FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER,
+  FINCLUSIVE_IDENTITY_PROVIDER,
   FRACTAL_IDENTITY_PROVIDER,
+  JUMIO_IDENTITY_PROVIDER,
   MOCKID_IDENTITY_PROVIDER,
+  NETKI_IDENTITY_PROVIDER,
 } from '~/context/AuthContext/constants';
 
 export enum EActionButtonStatus {
@@ -75,6 +77,8 @@ export type TIdentityProvider =
   | typeof JUMIO_IDENTITY_PROVIDER
   | typeof NETKI_IDENTITY_PROVIDER
   | typeof FRACTAL_IDENTITY_PROVIDER
+  | typeof FINCLUSIVE_IDENTITY_PROVIDER
+  | typeof FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER
   | typeof MOCKID_IDENTITY_PROVIDER;
 
 export interface IIdentityProvider {
@@ -95,6 +99,22 @@ export const IDENTITY_PROVIDER_MOCK: IIdentityProvider = {
     'Mock CDD is for testing purposes only and is not available for mainnet.',
   ],
   steps: [],
+};
+
+export const IDENTITY_PROVIDER_FINCLUSIVE_KYB: IIdentityProvider = {
+  name: 'Finclusive KYB',
+  link: 'finclusive-kyb',
+  icon: 'FinclusiveProviderIcon' as TIcons,
+  requirements: [
+    'Complete Legal Entity Information section',
+    'Complete section(s) about Significant Parties',
+    'Upload photos of Government issued ID for Significant Parties',
+  ],
+  steps: [
+    'Complete wallet address and Legal Entity Information section',
+    'Complete sections (s) about each Significant Party of the entity (either beneficial owners and/or control persons)',
+    'Upload a proof of identity for each Significant Party (e.g. passport, driver’s license, etc.)',
+  ],
 };
 
 export const IDENTITY_PROVIDERS: {
@@ -144,6 +164,21 @@ export const IDENTITY_PROVIDERS: {
       'Take a picture of a proof of residence (e.g Bank statement, utility bill, etc.)',
       'Take a picture of a government issued ID front and back',
       'Take a selfie',
+    ],
+  },
+  [FINCLUSIVE_IDENTITY_PROVIDER]: {
+    name: 'Finclusive',
+    link: 'finclusive',
+    icon: 'FinclusiveProviderIcon' as TIcons,
+    requirements: [
+      'Complete the application form',
+      'Upload photos of Government issued ID',
+      'Take Selfie',
+    ],
+    steps: [
+      'Provide wallet and personal information',
+      'Upload a proof of identity (e.g. passport, driver’s license, etc.)',
+      'Take selfie',
     ],
   },
 };

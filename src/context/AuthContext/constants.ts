@@ -34,14 +34,19 @@ export const initialState: IAuthContext = {
 export const JUMIO_IDENTITY_PROVIDER = 'jumio';
 export const NETKI_IDENTITY_PROVIDER = 'netki';
 export const FRACTAL_IDENTITY_PROVIDER = 'fractal';
+export const FINCLUSIVE_IDENTITY_PROVIDER = 'finclusive';
 export const MOCKID_IDENTITY_PROVIDER = 'mockid';
+export const FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER = 'finclusive-kyb';
 
 export type TIdentityModalType =
   | 'providers'
+  | 'business-providers'
   | typeof JUMIO_IDENTITY_PROVIDER
   | typeof NETKI_IDENTITY_PROVIDER
   | typeof FRACTAL_IDENTITY_PROVIDER
+  | typeof FINCLUSIVE_IDENTITY_PROVIDER
   | typeof MOCKID_IDENTITY_PROVIDER
+  | typeof FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER
   | 'business'
   | 'pending';
 
