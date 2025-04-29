@@ -164,6 +164,11 @@ export const NAV_LINKS = [
         nestedLabel: 'Token Studio',
         nestedIcon: 'PolymathLogo',
       },
+      {
+        nestedPath: 'https://polymesh.protofire.io/',
+        nestedLabel: 'Asset Explorer',
+        nestedIcon: 'ExplorerIcon',
+      },
     ],
   },
   { path: PATHS.SETTINGS, label: 'Settings', icon: 'SettingsIcon' },
