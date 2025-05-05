@@ -9,7 +9,6 @@ import {
   StyledProviderInfo,
   StyledProviderRegList,
   StyledTestnetLabel,
-  DisabledOverlay,
 } from './styles';
 import styled from 'styled-components';
 
@@ -42,11 +41,6 @@ export const ProviderCard: React.FC<IProviderCardProps> = ({
 
   return (
     <DisabledWrapper $isDisabled={disabled}>
-      {disabled && (
-        <DisabledOverlay>
-          <span>Coming Soon</span>
-        </DisabledOverlay>
-      )}
       <ActionCard
         hovered
         matomoData={{
