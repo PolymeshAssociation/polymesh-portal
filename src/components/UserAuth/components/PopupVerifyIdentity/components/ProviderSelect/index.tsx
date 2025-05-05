@@ -48,23 +48,23 @@ export const ProviderSelect = () => {
   }, [sdk]);
 
   // Read environment variables for provider availability
-  const isJumioEnabled = isProviderEnabled(import.meta.env.VITE_PROVIDER_JUMIO_ENABLED);
-  const isNetkiEnabled = isProviderEnabled(import.meta.env.VITE_PROVIDER_NETKI_ENABLED);
-  const isFinclusiveEnabled = isProviderEnabled(import.meta.env.VITE_PROVIDER_FINCLUSIVE_ENABLED);
-  // Add other providers as needed, defaulting to true if var is missing?
-  // Or maybe default to false for safety?
-  // Let's default to true for now, assuming existing providers should work unless explicitly disabled.
   const providerEnabledMap: Record<string, boolean> = {
-    jumio: isProviderEnabled(import.meta.env.VITE_PROVIDER_JUMIO_ENABLED ?? 'true'),
-    netki: isProviderEnabled(import.meta.env.VITE_PROVIDER_NETKI_ENABLED ?? 'true'),
-    finclusive: isProviderEnabled(import.meta.env.VITE_PROVIDER_FINCLUSIVE_ENABLED ?? 'true'),
+    jumio: isProviderEnabled(
+      import.meta.env.VITE_PROVIDER_JUMIO_ENABLED ?? 'true',
+    ),
+    netki: isProviderEnabled(
+      import.meta.env.VITE_PROVIDER_NETKI_ENABLED ?? 'true',
+    ),
+    finclusive: isProviderEnabled(
+      import.meta.env.VITE_PROVIDER_FINCLUSIVE_ENABLED ?? 'true',
+    ),
     // Assuming MockID is always enabled for testnet
     mockid: true,
   };
 
   const renderProviders = () => {
     if (isTestnet) {
-      const mockProviderDisabled = !providerEnabledMap['mockid']; // Determine disabled state
+      const mockProviderDisabled = !providerEnabledMap.mockid; // Use dot notation
       return (
         <StyledTestnetContainer>
           <StyleProviderBox
@@ -80,7 +80,7 @@ export const ProviderSelect = () => {
             <ProviderCard
               provider={IDENTITY_PROVIDER_MOCK}
               isTestnet={isTestnet as boolean}
-              disabled={mockProviderDisabled} // Pass determined state
+              disabled={mockProviderDisabled}
             />
           </StyleProviderBox>
           <StyledTestnetList>
@@ -106,7 +106,7 @@ export const ProviderSelect = () => {
                     <ProviderCard
                       provider={providerDetails}
                       isTestnet={isTestnet as boolean}
-                      disabled={isDisabled} // Pass determined state
+                      disabled={isDisabled}
                     />
                   </StyleProviderBox>
                 );
@@ -140,7 +140,7 @@ export const ProviderSelect = () => {
                 <ProviderCard
                   provider={providerDetails}
                   isTestnet={isTestnet as boolean}
-                  disabled={isDisabled} // Pass determined state
+                  disabled={isDisabled}
                 />
               </StyleProviderBox>
             );

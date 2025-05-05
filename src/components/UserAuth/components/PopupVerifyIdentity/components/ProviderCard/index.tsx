@@ -1,3 +1,4 @@
+import styled from 'styled-components';
 import { useWindowWidth } from '~/hooks/utility';
 import { Text, Heading } from '~/components/UiKit';
 import { Icon } from '~/components';
@@ -10,7 +11,6 @@ import {
   StyledProviderRegList,
   StyledTestnetLabel,
 } from './styles';
-import styled from 'styled-components';
 
 // Create a wrapper to handle disabled state
 const DisabledWrapper = styled.div<{ $isDisabled: boolean }>`
@@ -51,7 +51,10 @@ export const ProviderCard: React.FC<IProviderCardProps> = ({
           }}
         >
           <StyledProviderContainer>
-            <Icon name={provider.icon} size={windowWidth > 420 ? '88px' : '60px'} />
+            <Icon
+              name={provider.icon}
+              size={windowWidth > 420 ? '88px' : '60px'}
+            />
             <StyledProviderInfo>
               <Heading type="h4">
                 {provider.name}{' '}
