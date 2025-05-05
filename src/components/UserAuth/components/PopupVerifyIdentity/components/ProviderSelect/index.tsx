@@ -21,6 +21,11 @@ import {
   StyledTestnetList,
 } from './styles';
 
+// Helper function to parse env var string to boolean
+const isProviderEnabled = (envVar: string | undefined): boolean => {
+  return envVar?.toLowerCase() === 'true';
+};
+
 export const ProviderSelect = () => {
   const {
     api: { sdk },
@@ -42,21 +47,40 @@ export const ProviderSelect = () => {
     })();
   }, [sdk]);
 
+  // Read environment variables for provider availability
+  const isJumioEnabled = isProviderEnabled(import.meta.env.VITE_PROVIDER_JUMIO_ENABLED);
+  const isNetkiEnabled = isProviderEnabled(import.meta.env.VITE_PROVIDER_NETKI_ENABLED);
+  const isFinclusiveEnabled = isProviderEnabled(import.meta.env.VITE_PROVIDER_FINCLUSIVE_ENABLED);
+  // Add other providers as needed, defaulting to true if var is missing?
+  // Or maybe default to false for safety?
+  // Let's default to true for now, assuming existing providers should work unless explicitly disabled.
+  const providerEnabledMap: Record<string, boolean> = {
+    jumio: isProviderEnabled(import.meta.env.VITE_PROVIDER_JUMIO_ENABLED ?? 'true'),
+    netki: isProviderEnabled(import.meta.env.VITE_PROVIDER_NETKI_ENABLED ?? 'true'),
+    finclusive: isProviderEnabled(import.meta.env.VITE_PROVIDER_FINCLUSIVE_ENABLED ?? 'true'),
+    // Assuming MockID is always enabled for testnet
+    mockid: true,
+  };
+
   const renderProviders = () => {
     if (isTestnet) {
+      const mockProviderDisabled = !providerEnabledMap['mockid']; // Determine disabled state
       return (
         <StyledTestnetContainer>
           <StyleProviderBox
             key={MOCKID_IDENTITY_PROVIDER}
-            onClick={() =>
-              setIdentityPopup({
-                type: MOCKID_IDENTITY_PROVIDER,
-              })
-            }
+            onClick={() => {
+              if (!mockProviderDisabled) { // Check disabled state before setting popup
+                setIdentityPopup({
+                  type: MOCKID_IDENTITY_PROVIDER,
+                });
+              }
+            }}
           >
             <ProviderCard
               provider={IDENTITY_PROVIDER_MOCK}
               isTestnet={isTestnet as boolean}
+              disabled={mockProviderDisabled} // Pass determined state
             />
           </StyleProviderBox>
           <StyledTestnetList>
@@ -67,18 +91,22 @@ export const ProviderSelect = () => {
                   provider === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER
                 )
                   return null;
+                const isDisabled = !providerEnabledMap[provider.toLowerCase()]; // Determine disabled state
                 return (
                   <StyleProviderBox
                     key={providerDetails.name}
-                    onClick={() =>
-                      setIdentityPopup({
-                        type: provider as TIdentityModalType,
-                      })
-                    }
+                    onClick={() => {
+                      if (!isDisabled) { // Check disabled state before setting popup
+                        setIdentityPopup({
+                          type: provider as TIdentityModalType,
+                        });
+                      }
+                    }}
                   >
                     <ProviderCard
                       provider={providerDetails}
                       isTestnet={isTestnet as boolean}
+                      disabled={isDisabled} // Pass determined state
                     />
                   </StyleProviderBox>
                 );
@@ -97,18 +125,22 @@ export const ProviderSelect = () => {
               provider === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER
             )
               return null;
+            const isDisabled = !providerEnabledMap[provider.toLowerCase()]; // Determine disabled state
             return (
               <StyleProviderBox
                 key={providerDetails.name}
-                onClick={() =>
-                  setIdentityPopup({
-                    type: provider as TIdentityModalType,
-                  })
-                }
+                onClick={() => {
+                  if (!isDisabled) { // Check disabled state before setting popup
+                    setIdentityPopup({
+                      type: provider as TIdentityModalType,
+                    });
+                  }
+                }}
               >
                 <ProviderCard
                   provider={providerDetails}
                   isTestnet={isTestnet as boolean}
+                  disabled={isDisabled} // Pass determined state
                 />
               </StyleProviderBox>
             );

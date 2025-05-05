@@ -32,3 +32,27 @@ export const StyledTestnetLabel = styled.div`
   border-radius: 16px;
   cursor: pointer;
 `;
+
+export const DisabledOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px; // Match ActionCard's border-radius
+  z-index: 1;
+
+  span {
+    transform: rotate(-15deg);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: ${({ theme }) => theme.colors.textSecondary};
+    opacity: 1;
+    border: 2px solid ${({ theme }) => theme.colors.textSecondary};
+    padding: 4px 12px;
+  }
+`;
