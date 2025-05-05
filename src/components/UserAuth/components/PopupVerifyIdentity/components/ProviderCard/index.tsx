@@ -31,49 +31,51 @@ export const ProviderCard: React.FC<IProviderCardProps> = ({
   disabled = false,
 }) => {
   const { windowWidth } = useWindowWidth();
-  if (isTestnet && provider.name.toLowerCase() !== MOCKID_IDENTITY_PROVIDER) {
-    return (
-      <StyledTestnetLabel>
-        <Heading type="h4">{provider.name} [Not for TESTNET]</Heading>
-      </StyledTestnetLabel>
-    );
-  }
 
+  // Apply the wrapper regardless of the rendering path
   return (
     <DisabledWrapper $isDisabled={disabled}>
-      <ActionCard
-        hovered
-        matomoData={{
-          eventCategory: 'onboarding',
-          eventAction: 'cdd-select',
-          eventName: `${provider.name.toLowerCase()}`,
-        }}
-      >
-        <StyledProviderContainer>
-          <Icon name={provider.icon} size={windowWidth > 420 ? '88px' : '60px'} />
-          <StyledProviderInfo>
-            <Heading type="h4">
-              {provider.name}{' '}
-              {provider.name.toLowerCase() === MOCKID_IDENTITY_PROVIDER &&
-                '[TESTNET]'}
-            </Heading>
-            <div>
-              {provider.name.toLowerCase() !== MOCKID_IDENTITY_PROVIDER && (
-                <Text size="small" bold>
-                  REQUIREMENTS
-                </Text>
-              )}
-              <StyledProviderRegList>
-                {provider.requirements.map((reg) => (
-                  <li key={reg}>
-                    <Text size="small">{reg}</Text>
-                  </li>
-                ))}
-              </StyledProviderRegList>
-            </div>
-          </StyledProviderInfo>
-        </StyledProviderContainer>
-      </ActionCard>
+      {isTestnet && provider.name.toLowerCase() !== MOCKID_IDENTITY_PROVIDER ? (
+        // Render the Testnet label INSIDE the wrapper
+        <StyledTestnetLabel>
+          <Heading type="h4">{provider.name} [Not for TESTNET]</Heading>
+        </StyledTestnetLabel>
+      ) : (
+        // Render the ActionCard INSIDE the wrapper (as before)
+        <ActionCard
+          hovered
+          matomoData={{
+            eventCategory: 'onboarding',
+            eventAction: 'cdd-select',
+            eventName: `${provider.name.toLowerCase()}`,
+          }}
+        >
+          <StyledProviderContainer>
+            <Icon name={provider.icon} size={windowWidth > 420 ? '88px' : '60px'} />
+            <StyledProviderInfo>
+              <Heading type="h4">
+                {provider.name}{' '}
+                {provider.name.toLowerCase() === MOCKID_IDENTITY_PROVIDER &&
+                  '[TESTNET]'}
+              </Heading>
+              <div>
+                {provider.name.toLowerCase() !== MOCKID_IDENTITY_PROVIDER && (
+                  <Text size="small" bold>
+                    REQUIREMENTS
+                  </Text>
+                )}
+                <StyledProviderRegList>
+                  {provider.requirements.map((reg) => (
+                    <li key={reg}>
+                      <Text size="small">{reg}</Text>
+                    </li>
+                  ))}
+                </StyledProviderRegList>
+              </div>
+            </StyledProviderInfo>
+          </StyledProviderContainer>
+        </ActionCard>
+      )}
     </DisabledWrapper>
   );
 };
