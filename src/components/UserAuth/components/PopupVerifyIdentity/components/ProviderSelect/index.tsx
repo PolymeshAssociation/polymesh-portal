@@ -70,7 +70,8 @@ export const ProviderSelect = () => {
           <StyleProviderBox
             key={MOCKID_IDENTITY_PROVIDER}
             onClick={() => {
-              if (!mockProviderDisabled) { // Check disabled state before setting popup
+              if (!mockProviderDisabled) {
+                // Check disabled state before setting popup
                 setIdentityPopup({
                   type: MOCKID_IDENTITY_PROVIDER,
                 });
@@ -96,7 +97,8 @@ export const ProviderSelect = () => {
                   <StyleProviderBox
                     key={providerDetails.name}
                     onClick={() => {
-                      if (!isDisabled) { // Check disabled state before setting popup
+                      if (!isDisabled) {
+                        // Check disabled state before setting popup
                         setIdentityPopup({
                           type: provider as TIdentityModalType,
                         });
@@ -130,7 +132,8 @@ export const ProviderSelect = () => {
               <StyleProviderBox
                 key={providerDetails.name}
                 onClick={() => {
-                  if (!isDisabled) { // Check disabled state before setting popup
+                  if (!isDisabled) {
+                    // Check disabled state before setting popup
                     setIdentityPopup({
                       type: provider as TIdentityModalType,
                     });
