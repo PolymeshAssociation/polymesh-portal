@@ -21,7 +21,6 @@ import {
   StyledTestnetList,
 } from './styles';
 
-// Helper function to parse env var string to boolean
 const isProviderEnabled = (envVar: string | undefined): boolean => {
   return envVar?.toLowerCase() === 'true';
 };
@@ -47,7 +46,6 @@ export const ProviderSelect = () => {
     })();
   }, [sdk]);
 
-  // Read environment variables for provider availability
   const providerEnabledMap: Record<string, boolean> = {
     jumio: isProviderEnabled(
       import.meta.env.VITE_PROVIDER_JUMIO_ENABLED ?? 'true',
@@ -71,7 +69,6 @@ export const ProviderSelect = () => {
             key={MOCKID_IDENTITY_PROVIDER}
             onClick={() => {
               if (!mockProviderDisabled) {
-                // Check disabled state before setting popup
                 setIdentityPopup({
                   type: MOCKID_IDENTITY_PROVIDER,
                 });
@@ -98,7 +95,6 @@ export const ProviderSelect = () => {
                     key={providerDetails.name}
                     onClick={() => {
                       if (!isDisabled) {
-                        // Check disabled state before setting popup
                         setIdentityPopup({
                           type: provider as TIdentityModalType,
                         });
@@ -133,7 +129,6 @@ export const ProviderSelect = () => {
                 key={providerDetails.name}
                 onClick={() => {
                   if (!isDisabled) {
-                    // Check disabled state before setting popup
                     setIdentityPopup({
                       type: provider as TIdentityModalType,
                     });

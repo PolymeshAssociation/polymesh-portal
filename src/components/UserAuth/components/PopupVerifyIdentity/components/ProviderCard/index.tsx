@@ -1,4 +1,3 @@
-import styled from 'styled-components';
 import { useWindowWidth } from '~/hooks/utility';
 import { Text, Heading } from '~/components/UiKit';
 import { Icon } from '~/components';
@@ -10,14 +9,8 @@ import {
   StyledProviderInfo,
   StyledProviderRegList,
   StyledTestnetLabel,
+  DisabledWrapper,
 } from './styles';
-
-// Create a wrapper to handle disabled state
-const DisabledWrapper = styled.div<{ $isDisabled: boolean }>`
-  position: relative;
-  opacity: ${({ $isDisabled }) => ($isDisabled ? 0.5 : 1)};
-  pointer-events: ${({ $isDisabled }) => ($isDisabled ? 'none' : 'auto')};
-`;
 
 interface IProviderCardProps {
   provider: IIdentityProvider;
@@ -32,16 +25,13 @@ export const ProviderCard: React.FC<IProviderCardProps> = ({
 }) => {
   const { windowWidth } = useWindowWidth();
 
-  // Apply the wrapper regardless of the rendering path
   return (
     <DisabledWrapper $isDisabled={disabled}>
       {isTestnet && provider.name.toLowerCase() !== MOCKID_IDENTITY_PROVIDER ? (
-        // Render the Testnet label INSIDE the wrapper
         <StyledTestnetLabel>
           <Heading type="h4">{provider.name} [Not for TESTNET]</Heading>
         </StyledTestnetLabel>
       ) : (
-        // Render the ActionCard INSIDE the wrapper (as before)
         <ActionCard
           hovered
           matomoData={{
