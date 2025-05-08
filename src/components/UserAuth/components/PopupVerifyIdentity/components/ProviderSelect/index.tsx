@@ -56,13 +56,12 @@ export const ProviderSelect = () => {
     finclusive: isProviderEnabled(
       import.meta.env.VITE_PROVIDER_FINCLUSIVE_ENABLED ?? 'true',
     ),
-    // Assuming MockID is always enabled for testnet
     mockid: true,
   };
 
   const renderProviders = () => {
     if (isTestnet) {
-      const mockProviderDisabled = !providerEnabledMap.mockid; // Use dot notation
+      const mockProviderDisabled = !providerEnabledMap.mockid;
       return (
         <StyledTestnetContainer>
           <StyleProviderBox
@@ -89,7 +88,7 @@ export const ProviderSelect = () => {
                   provider === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER
                 )
                   return null;
-                const isDisabled = !providerEnabledMap[provider.toLowerCase()]; // Determine disabled state
+                const isDisabled = !providerEnabledMap[provider.toLowerCase()];
                 return (
                   <StyleProviderBox
                     key={providerDetails.name}
@@ -123,7 +122,7 @@ export const ProviderSelect = () => {
               provider === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER
             )
               return null;
-            const isDisabled = !providerEnabledMap[provider.toLowerCase()]; // Determine disabled state
+            const isDisabled = !providerEnabledMap[provider.toLowerCase()];
             return (
               <StyleProviderBox
                 key={providerDetails.name}
