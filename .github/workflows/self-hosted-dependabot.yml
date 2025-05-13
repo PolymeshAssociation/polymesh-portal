@@ -73,6 +73,10 @@ jobs:
     #   with:
     #     install-dependabot: true         # switch on extra installer
 
+    - name: Install Dependabot CLI
+      run: |
+        go install github.com/dependabot/cli/cmd/dependabot@latest
+
     - name: Generate update diff
       run: |
         dependabot update \
