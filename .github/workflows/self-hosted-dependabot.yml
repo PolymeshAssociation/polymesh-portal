@@ -68,10 +68,10 @@ jobs:
     ############################################################
     # 2) Run Dependabot CLI in *readonly* mode (no pushes yet)
     ############################################################
-    - name: Download Dependabot CLI
-      uses: cli/cli-action@v3            # installs gh CLI which ships CLI too
-      with:
-        install-dependabot: true         # switch on extra installer
+    # - name: Download Dependabot CLI
+    #   uses: cli/cli-action@v3            # installs gh CLI which ships CLI too
+    #   with:
+    #     install-dependabot: true         # switch on extra installer
 
     - name: Generate update diff
       run: |
