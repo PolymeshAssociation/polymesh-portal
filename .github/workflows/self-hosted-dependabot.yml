@@ -97,6 +97,15 @@ jobs:
           SSH_KEY_PRIVATE: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_KEY_PUBLIC: ${{ vars.SSH_PUBLIC_KEY }}
 
+      - name: Create dependencies label if it doesn't exist
+        run: |
+          gh label create dependencies \
+            --description "Pull requests that update a dependency file" \
+            --color 0366d6 \
+            || true  # Don't fail if label already exists
+        env:
+          GH_TOKEN: ${{ secrets.DEPENDABOT_PAT || secrets.GITHUB_TOKEN }}
+
       - name: Create PRs
         env:
           GH_TOKEN: ${{ secrets.DEPENDABOT_PAT || secrets.GITHUB_TOKEN }}
