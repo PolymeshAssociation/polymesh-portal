@@ -7,6 +7,84 @@ on:
   # schedule:                   # …and/or on a timer
   #   - cron: '35 4 * * 1-5'    # 04:35 UTC Mon‑Fri
 
+
+jobs:
+  run-dependabot:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        # Checkout to a directory to keep the working dir clean for the update.
+        with:
+          path: repo
+
+      - name: Download CLI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo dependabot/cli -p "*linux-amd64.tar.gz"
+          tar xzvf *.tar.gz >/dev/null 2>&1
+          ./dependabot --version
+      
+      - name: Run Dependabot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./dependabot update \
+            -f repo/.github/dependabot/npm_yarn.yml \
+            --local repo \
+            --timeout 20m >> result.jsonl || true
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependabot-result
+          path: result.jsonl
+
+  create-prs:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    needs: run-dependabot
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download result
+        uses: actions/download-artifact@v4
+        with:
+          name: dependabot-result
+
+      - name: Setup SSH signing key
+        run: |
+          echo $SSH_KEY_PRIVATE | base64 -d > /tmp/id_ed25519
+          echo $SSH_KEY_PUBLIC > /tmp/id_ed25519.pub
+          chmod 600 /tmp/id_ed25519
+          eval "$(ssh-agent -s)"
+          ssh-add /tmp/id_ed25519
+          git config --global gpg.format ssh
+          git config --global commit.gpgsign true
+          git config --global user.signingkey /tmp/id_ed25519.pub
+          mkdir -p ~/.config/git
+          echo "${{ vars.DB_EMAIL }} $SSH_KEY_PUBLIC" > ~/.config/git/allowed_signers
+          git config --global gpg.ssh.allowedSignersFile ~/.config/git/allowed_signers
+        shell: bash
+        env:
+          SSH_KEY_PRIVATE: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KEY_PUBLIC: ${{ vars.SSH_PUBLIC_KEY }}
+
+      - name: Create PRs
+        # env:
+        #   GH_TOKEN: ${{ github.token }}
+        run: bash create-pr.sh result.jsonl
+
+
+
+
+
 permissions:
   # needed so we can push a branch and open PRs with GITHUB_TOKEN
   contents: write
