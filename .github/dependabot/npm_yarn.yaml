@@ -1,7 +1,6 @@
-
-
   job:
-      package-manager: npm_and_yarn
+      # package-manager: npm_and_yarn
+      package-manager: github_actions
       allowed-updates:
           - update-type: all
       experiments:
