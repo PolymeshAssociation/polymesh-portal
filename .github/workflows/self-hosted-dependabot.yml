@@ -33,7 +33,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./dependabot update \
-            -f repo/.github/dependabot/npm_yarn.yml \
+            -f repo/.github/dependabot/npm_yarn.yaml \
             --local repo \
             --timeout 20m >> result.jsonl || true
 
