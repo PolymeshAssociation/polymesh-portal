@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # This script takes a jsonl file as input which is the stdout of a Dependabot CLI run.
@@ -38,7 +37,7 @@ jq -c 'select(.type == "create_pull_request")' "$INPUT" | while read -r event; d
 
   # Apply file changes
   echo "$event" | jq -c '.data."updated-dependency-files"[]' | while read -r file; do
-    FILE_PATH=$(echo "$file" | jq -r '.directory + "/" + .name' | sed 's#^/##')
+    FILE_PATH=$(echo "$file" | jq -r '.directory + "/" + .name' | sed 's#^/##; s#^/##; s#//#/#g')
     DELETED=$(echo "$file" | jq -r '.deleted')
     if [ "$DELETED" = "true" ]; then
       git rm -f "$FILE_PATH" || true
