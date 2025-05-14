@@ -44,17 +44,16 @@ jobs:
           path: result.jsonl
 
   create-prs:
-    # permissions:
-    #   contents: write
-    #   pull-requests: write
-    #   actions: write
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     needs: run-dependabot
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.DEPENDABOT_PAT || secrets.GITHUB_TOKEN }}
+        # with:
+        #   token: ${{ secrets.DEPENDABOT_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Download result
         uses: actions/download-artifact@v4
@@ -99,5 +98,10 @@ jobs:
 
       - name: Create PRs
         env:
-          GH_TOKEN: ${{ secrets.DEPENDABOT_PAT || secrets.GITHUB_TOKEN }}
+          # GH_TOKEN: ${{ secrets.DEPENDABOT_PAT || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash create-pr.sh result.jsonl
+
+      - name: Clear SSH key
+        run: |
+          shred /tmp/id_ed25519
