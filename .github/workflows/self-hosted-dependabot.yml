@@ -61,13 +61,29 @@ jobs:
         with:
           name: dependabot-result
 
-      - name: Setup SSH signing key
+      - name: Setup SSH for GitHub authentication and signing
         run: |
           echo $SSH_KEY_PRIVATE | base64 -d > /tmp/id_ed25519
           echo $SSH_KEY_PUBLIC > /tmp/id_ed25519.pub
           chmod 600 /tmp/id_ed25519
           eval "$(ssh-agent -s)"
           ssh-add /tmp/id_ed25519
+          
+          # Configure SSH to use this key for GitHub
+          mkdir -p ~/.ssh
+          cat > ~/.ssh/config << EOF
+          Host github.com
+            User git
+            IdentityFile /tmp/id_ed25519
+            StrictHostKeyChecking yes
+          EOF
+          
+          # Setup known_hosts to avoid the warning
+          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+          
+          # Change from HTTPS to SSH remote URL
+          git remote set-url origin git@github.com:PolymeshAssociation/polymesh-portal.git
+          
           git config --global gpg.format ssh
           git config --global commit.gpgsign true
           git config --global user.signingkey /tmp/id_ed25519.pub
@@ -80,13 +96,6 @@ jobs:
         env:
           SSH_KEY_PRIVATE: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_KEY_PUBLIC: ${{ vars.SSH_PUBLIC_KEY }}
-
-      - name: Setup Git credentials
-        run: |
-          git config --global credential.helper 'store --file ~/.config/git/credentials'
-          echo "https://x-access-token:${GH_TOKEN}@github.com" > ~/.config/git/credentials
-        env:
-          GH_TOKEN: ${{ secrets.DEPENDABOT_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Create PRs
         env:

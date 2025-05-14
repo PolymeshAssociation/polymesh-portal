@@ -51,6 +51,7 @@ jq -c 'select(.type == "create_pull_request")' "$INPUT" | while read -r event; d
   # Commit and push
   git commit -m "$COMMIT_MSG"
   echo "Committed"
+  git config --global --list
   git push -f origin "$BRANCH_NAME"
   echo "Pushed"
 
