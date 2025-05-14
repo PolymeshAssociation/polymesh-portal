@@ -53,6 +53,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+          with:
+            token: ${{ secrets.DEPENDABOT_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Download result
         uses: actions/download-artifact@v4
@@ -79,7 +81,14 @@ jobs:
           SSH_KEY_PRIVATE: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_KEY_PUBLIC: ${{ vars.SSH_PUBLIC_KEY }}
 
+      - name: Setup Git credentials
+        run: |
+          git config --global credential.helper 'store --file ~/.config/git/credentials'
+          echo "https://x-access-token:${GH_TOKEN}@github.com" > ~/.config/git/credentials
+        env:
+          GH_TOKEN: ${{ secrets.DEPENDABOT_PAT || secrets.GITHUB_TOKEN }}
+
       - name: Create PRs
         env:
-          GH_TOKEN: ${{ secrets.DEPENDABOT_PAT }}
+          GH_TOKEN: ${{ secrets.DEPENDABOT_PAT || secrets.GITHUB_TOKEN }}
         run: bash create-pr.sh result.jsonl
