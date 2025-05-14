@@ -68,6 +68,8 @@ jobs:
           git config --global gpg.format ssh
           git config --global commit.gpgsign true
           git config --global user.signingkey /tmp/id_ed25519.pub
+          git config --global user.email "bot@polymesh.network"
+          git config --global user.name "Polymesh Bot"
           mkdir -p ~/.config/git
           echo "${{ vars.DB_EMAIL }} $SSH_KEY_PUBLIC" > ~/.config/git/allowed_signers
           git config --global gpg.ssh.allowedSignersFile ~/.config/git/allowed_signers
