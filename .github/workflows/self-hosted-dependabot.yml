@@ -44,10 +44,10 @@ jobs:
           path: result.jsonl
 
   create-prs:
-    permissions:
-      contents: write
-      pull-requests: write
-      actions: write
+    # permissions:
+    #   contents: write
+    #   pull-requests: write
+    #   actions: write
     runs-on: ubuntu-latest
     needs: run-dependabot
     steps:
@@ -80,6 +80,6 @@ jobs:
           SSH_KEY_PUBLIC: ${{ vars.SSH_PUBLIC_KEY }}
 
       - name: Create PRs
-        # env:
-        #   GH_TOKEN: ${{ github.token }}
+        env:
+          GH_TOKEN: ${{ secrets.DEPENDABOT_PAT }}
         run: bash create-pr.sh result.jsonl
