@@ -6,15 +6,19 @@
 
 set -euo pipefail
 
-if [ $# -ne 1 ]; then
-  echo "Usage: $0 <result.jsonl>"
+# Check for required arguments
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+  echo "Usage: $0 <result.jsonl> [base_branch]"
+  echo "  result.jsonl: The Dependabot output file"
+  echo "  base_branch: The branch to open PRs against (default: develop)"
   exit 1
 fi
 
 INPUT="$1"
+BASE_BRANCH="${2:-develop}" # Use the provided base branch or default to 'develop'
 
-# git config --global user.email "support@github.com"
-# git config --global user.name "Dependabot Standalone"
+echo "Using base branch: $BASE_BRANCH"
+
 git config --global advice.detachedHead false
 
 # Parse each create_pull_request event
@@ -29,6 +33,7 @@ jq -c 'select(.type == "create_pull_request")' "$INPUT" | while read -r event; d
   echo "Processing PR: $PR_TITLE"
   echo "  Base SHA: $BASE_SHA"
   echo "  Branch: $BRANCH_NAME"
+  echo "  Target: $BASE_BRANCH"
 
   # Create and checkout new branch from base commit
   git fetch origin
@@ -50,13 +55,10 @@ jq -c 'select(.type == "create_pull_request")' "$INPUT" | while read -r event; d
 
   # Commit and push
   git commit -m "$COMMIT_MSG"
-  echo "Committed"
   git push -f origin "$BRANCH_NAME"
-  echo "Pushed"
 
   # Create PR using gh CLI
-  gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base main --head "$BRANCH_NAME" --label dependencies || true
-  echo "PR created"
-  # Return to main branch for next PR
-  git checkout main
+  gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base "$BASE_BRANCH" --head "$BRANCH_NAME" --label dependencies || true
+  # Return to base branch for next PR
+  git checkout "$BASE_BRANCH"
 done

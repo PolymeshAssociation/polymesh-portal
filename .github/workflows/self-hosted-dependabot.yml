@@ -4,8 +4,11 @@ on:
   workflow_dispatch:          # run manually from the Actions tab
   push:
     branches: [ db_test ]
-  # schedule:                   # …and/or on a timer
-  #   - cron: '35 4 * * 1-5'    # 04:35 UTC Mon‑Fri
+  schedule:
+    - cron: '0 5 * * 1'       # 5:00 AM UTC every Monday
+  pull_request:
+    branches: [ develop ]     # run when someone opens a PR to develop
+    types: [ opened, synchronize, reopened ]
 
 
 jobs:
@@ -19,6 +22,14 @@ jobs:
         # Checkout to a directory to keep the working dir clean for the update.
         with:
           path: repo
+          # When triggered by a PR: use PR's head branch
+          # When triggered by push to db_test: use db_test branch
+          # When triggered by manual run or schedule: use develop branch
+          ref: ${{ 
+                 github.event_name == 'pull_request' && github.event.pull_request.head.ref || 
+                 github.event_name == 'push' && github.ref_name ||
+                 'develop'
+               }}
 
       - name: Download CLI
         env:
@@ -33,9 +44,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./dependabot update \
-            -f repo/.github/dependabot/npm_yarn.yaml \
+            -f repo/.github/dependabot/github_actions.yaml \
             --local repo \
             --timeout 20m >> result.jsonl || true
+          # ./dependabot update \
+          #   -f repo/.github/dependabot/npm_yarn.yaml \
+          #   --local repo \
+          #   --timeout 20m >> result.jsonl || true
 
       - name: Upload result
         uses: actions/upload-artifact@v4
@@ -50,10 +65,33 @@ jobs:
     runs-on: ubuntu-latest
     needs: run-dependabot
     steps:
+      - name: Set target branch
+        id: set-branch
+        run: |
+          # Determine which branch to open PRs against
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # For PRs to develop, target the source branch
+            echo "target_branch=${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
+            echo "Target branch set to PR source: ${{ github.event.pull_request.head.ref }}"
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            # For push events, base PRs on the pushed branch
+            echo "target_branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "Target branch set to pushed branch: ${{ github.ref_name }}"
+          else
+            # Default case (schedule, manual run)
+            echo "target_branch=develop" >> $GITHUB_OUTPUT
+            echo "Target branch set to default: develop"
+          fi
+      
       - name: Checkout code
         uses: actions/checkout@v4
-        # with:
-        #   token: ${{ secrets.DEPENDABOT_PAT || secrets.GITHUB_TOKEN }}
+        with:
+          # Dynamic ref selection based on trigger type
+          ref: ${{ 
+                 github.event_name == 'pull_request' && github.event.pull_request.head.ref || 
+                 github.event_name == 'push' && github.ref_name ||
+                 'develop'
+               }}
 
       - name: Download result
         uses: actions/download-artifact@v4
@@ -98,9 +136,8 @@ jobs:
 
       - name: Create PRs
         env:
-          # GH_TOKEN: ${{ secrets.DEPENDABOT_PAT || secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash create-pr.sh result.jsonl
+        run: bash create-pr.sh result.jsonl ${{ steps.set-branch.outputs.target_branch }}
 
       - name: Clear SSH key
         run: |
