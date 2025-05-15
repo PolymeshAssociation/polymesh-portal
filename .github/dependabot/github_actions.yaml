@@ -1,15 +1,42 @@
   job:
-      package-manager: github_actions
-      allowed-updates:
-          - update-type: all
-      experiments:
-          record-ecosystem-versions: true
-      source:
-          provider: github
-          repo: PolymeshAssociation/polymesh-portal
-          directory: /
-          # branch: develop
-      groups:
-        actions-deps:
-          patterns:
-            - "*"
+    package-manager: github_actions
+    allowed-updates:
+        - update-type: all
+    experiments:
+        record-ecosystem-versions: true
+    source:
+        provider: github
+        repo: PolymeshAssociation/polymesh-portal
+        directory: /
+        # branch: develop
+    dependency-groups:
+    - name: version-updates-non-breaking
+      applies-to: version-updates
+      rules:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    - name: version-updates-breaking
+      applies-to: version-updates
+      rules:
+        patterns:
+          - "*"
+        update-types:
+          - major
+    - name: security-updates-non-breaking
+      applies-to: security-updates-non-breaking
+      rules:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    - name: security-updates-breaking
+      applies-to: security-updates-breaking
+      rules:
+        patterns:
+          - "*"
+        update-types:
+          - major
