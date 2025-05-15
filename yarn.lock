@@ -876,7 +876,7 @@
     rxjs "^7.8.1"
     tslib "^2.6.2"
 
-"@polkadot/api@11.2.1", "@polkadot/api@^11.1.1":
+"@polkadot/api@11.2.1", "@polkadot/api@^11.1.1", "@polkadot/api@^11.2.1":
   version "11.2.1"
   resolved "https://registry.yarnpkg.com/@polkadot/api/-/api-11.2.1.tgz#b19a8e22367703333e71f3613095f76f0dbbca70"
   integrity sha512-NwcWadMt+mrJ3T7RuwpnaIYtH4x0eix+GiKRtLMtIO32uAfhwVyMnqvLtxDxa4XDJ/es2rtSMYG+t0b1BTM+xQ==
@@ -1256,9 +1256,11 @@
   integrity sha512-MX806MeIXBR50cA9bJsajd9CdcgPZ1+vhf6byZXXLrxPqsv5lvrnB/AZanf3jvLSjYl7ynxHYJr8GR88Qm54PQ==
 
 "@polymeshassociation/signing-manager-types@^3.2.0", "@polymeshassociation/signing-manager-types@^3.3.0":
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/@polymeshassociation/signing-manager-types/-/signing-manager-types-3.3.0.tgz#ca727b0cde19a0082920a17b231be29b17f60dec"
-  integrity sha512-pcnr4XW20htefMDIYnOgOTxPTVspb64DHK0WZFMT7u8ALqtcpN2lgm1XpaMcqCJ+ERWiVgKRvwc6V2AXHhP/ng==
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@polymeshassociation/signing-manager-types/-/signing-manager-types-3.4.0.tgz#3796a2ec72198559c0c4cf4baec4fe4ec132b645"
+  integrity sha512-ZCkWxn+gEUlCEY/MxBFJL8tEPGVqU5h9ID9ZqOJYHAfESBGs9rCizMv1o3vHWSAJGb4RT5xqKoaKU4YOkCjKQg==
+  dependencies:
+    "@polkadot/api" "^11.2.1"
 
 "@polymeshassociation/walletconnect-signing-manager@^1.0.0":
   version "1.0.0"
@@ -6471,3 +6473,4 @@ zen-observable@0.8.15:
   version "0.8.15"
   resolved "https://registry.yarnpkg.com/zen-observable/-/zen-observable-0.8.15.tgz#96415c512d8e3ffd920afd3889604e30b9eaac15"
   integrity sha512-PQ2PC7R9rslx84ndNBZB/Dkv8V8fZEpk83RLgXtYd0fwUgEjseMn1Dgajh2x6S8QbZAFa9p2qVCEuYZNgve0dQ==
+
