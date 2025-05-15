@@ -43,14 +43,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          TARGET_BRANCH="${{ 
+            github.event_name == 'pull_request' && github.event.pull_request.head.ref || 
+            github.event_name == 'push' && github.ref_name ||
+            'develop'
+          }}"
+          
           ./dependabot update \
             -f repo/.github/dependabot/github_actions.yaml \
             --local repo \
+            --target-branch "$TARGET_BRANCH" \
             --grouped-updates \
             --timeout 20m >> result.jsonl || true
           ./dependabot update \
             -f repo/.github/dependabot/npm_yarn.yaml \
             --local repo \
+            --target-branch "$TARGET_BRANCH" \
             --grouped-updates \
             --timeout 20m >> result.jsonl || true
 

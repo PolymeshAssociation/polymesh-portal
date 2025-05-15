@@ -9,3 +9,7 @@
           repo: PolymeshAssociation/polymesh-portal
           directory: /
           branch: develop
+      groups:
+        actions-deps:
+          patterns:
+            - "*"

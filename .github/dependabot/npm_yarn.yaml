@@ -9,3 +9,8 @@
           repo: PolymeshAssociation/polymesh-portal
           directory: /
           branch: develop
+      groups:
+        dev-deps:
+          dependency-type: "development"
+        prod-deps:
+          dependency-type: "production"
