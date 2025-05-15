@@ -33,7 +33,7 @@
     "react-toastify": "^10.0.5",
     "styled-components": "^6.1.13",
     "vite-plugin-svgr": "^3.3.0",
-    "yup": "^1.4.0"
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@polkadot/extension-inject": "0.47.5",
@@ -121,3 +121,4 @@
     }
   }
 }
+
