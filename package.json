@@ -60,7 +60,7 @@
     "rollup": "^4.21.2",
     "typescript": "^5.5.4",
     "vite": "^4.5.5",
-    "vite-plugin-html-injection": "^1.4.2",
+    "vite-plugin-html-injection": "^1.5.1",
     "vite-plugin-node-polyfills": "^0.22.0",
     "vite-tsconfig-paths": "^4.3.2"
   },
@@ -121,3 +121,4 @@
     }
   }
 }
+
