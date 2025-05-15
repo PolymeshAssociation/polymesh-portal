@@ -8,7 +8,7 @@
           provider: github
           repo: PolymeshAssociation/polymesh-portal
           directory: /
-          branch: develop
+          # branch: develop
       groups:
         dev-deps:
           dependency-type: "development"
