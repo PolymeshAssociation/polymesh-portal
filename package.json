@@ -18,7 +18,7 @@
     "@polymeshassociation/browser-extension-signing-manager": "^2.3.0",
     "@polymeshassociation/polymesh-sdk": "27.1.0-alpha.1",
     "@polymeshassociation/walletconnect-signing-manager": "^1.0.0",
-    "@tanstack/react-table": "^8.20.5",
+    "@tanstack/react-table": "^8.21.3",
     "events": "^3.3.0",
     "graphql": "^16.9.0",
     "lottie-react": "^2.4.0",
@@ -121,3 +121,4 @@
     }
   }
 }
+
