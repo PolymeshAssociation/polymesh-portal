@@ -6232,10 +6232,10 @@ valtio@1.11.2:
     proxy-compare "2.5.1"
     use-sync-external-store "1.2.0"
 
-vite-plugin-html-injection@^1.4.2:
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/vite-plugin-html-injection/-/vite-plugin-html-injection-1.4.2.tgz#88e48aa584b7995bc77af3ad0ccc32d05832eb4c"
-  integrity sha512-bFK9SauFsiOdcbWsF0JdNIPAgZ3t2vnojkh+SGd/AMrFKIYCB7rSw7+WhPnWcwor9aCgpdDvsjU9df3Ke6MlDQ==
+vite-plugin-html-injection@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/vite-plugin-html-injection/-/vite-plugin-html-injection-1.5.1.tgz#8315f63f73a6391936346e12fc417ed336caf5b8"
+  integrity sha512-jv8xtXuDf41QOoL2j0Eusi7I0B0g96u9v6yeaPXQS+erA1U306kuUUTizsLAgJss8dnvAlV3uyvjPhJ+NEjBrA==
 
 vite-plugin-node-polyfills@^0.22.0:
   version "0.22.0"
@@ -6471,3 +6471,4 @@ zen-observable@0.8.15:
   version "0.8.15"
   resolved "https://registry.yarnpkg.com/zen-observable/-/zen-observable-0.8.15.tgz#96415c512d8e3ffd920afd3889604e30b9eaac15"
   integrity sha512-PQ2PC7R9rslx84ndNBZB/Dkv8V8fZEpk83RLgXtYd0fwUgEjseMn1Dgajh2x6S8QbZAFa9p2qVCEuYZNgve0dQ==
+
