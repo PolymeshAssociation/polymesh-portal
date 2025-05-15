@@ -26,7 +26,7 @@
     "react": "^18.3.1",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.3.1",
-    "react-hook-form": "^7.53.0",
+    "react-hook-form": "^7.56.3",
     "react-loading-skeleton": "^3.4.0",
     "react-qr-code": "^2.0.15",
     "react-router-dom": "^6.26.1",
@@ -121,3 +121,4 @@
     }
   }
 }
+
