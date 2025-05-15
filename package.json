@@ -30,7 +30,7 @@
     "react-loading-skeleton": "^3.4.0",
     "react-qr-code": "^2.0.15",
     "react-router-dom": "^6.26.1",
-    "react-toastify": "^10.0.5",
+    "react-toastify": "^11.0.5",
     "styled-components": "^6.1.13",
     "vite-plugin-svgr": "^3.3.0",
     "yup": "^1.4.0"
@@ -121,3 +121,4 @@
     }
   }
 }
+
