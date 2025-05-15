@@ -47,10 +47,10 @@ jobs:
             -f repo/.github/dependabot/github_actions.yaml \
             --local repo \
             --timeout 20m >> result.jsonl || true
-          # ./dependabot update \
-          #   -f repo/.github/dependabot/npm_yarn.yaml \
-          #   --local repo \
-          #   --timeout 20m >> result.jsonl || true
+          ./dependabot update \
+            -f repo/.github/dependabot/npm_yarn.yaml \
+            --local repo \
+            --timeout 20m >> result.jsonl || true
 
       - name: Upload result
         uses: actions/upload-artifact@v4
