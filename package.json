@@ -10,7 +10,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@apollo/client": "3.10.8",
+    "@apollo/client": "3.13.8",
     "@hookform/resolvers": "^2.9.11",
     "@polkadot/react-identicon": "^3.6.6",
     "@polkadot/util": "12.6.2",
@@ -121,3 +121,4 @@
     }
   }
 }
+
