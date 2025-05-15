@@ -58,7 +58,7 @@
     "prettier": "^3.3.3",
     "react-is": "^18.3.1",
     "rollup": "^4.21.2",
-    "typescript": "^5.5.4",
+    "typescript": "^5.8.3",
     "vite": "^4.5.5",
     "vite-plugin-html-injection": "^1.4.2",
     "vite-plugin-node-polyfills": "^0.22.0",
@@ -121,3 +121,4 @@
     }
   }
 }
+
