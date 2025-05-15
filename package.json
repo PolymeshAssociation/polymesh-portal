@@ -62,7 +62,7 @@
     "vite": "^4.5.5",
     "vite-plugin-html-injection": "^1.4.2",
     "vite-plugin-node-polyfills": "^0.22.0",
-    "vite-tsconfig-paths": "^4.3.2"
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "resolutions": {
     "@polkadot/keyring": "12.6.2",
@@ -121,3 +121,4 @@
     }
   }
 }
+
