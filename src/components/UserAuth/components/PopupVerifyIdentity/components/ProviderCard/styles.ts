@@ -32,3 +32,9 @@ export const StyledTestnetLabel = styled.div`
   border-radius: 16px;
   cursor: pointer;
 `;
+
+export const DisabledWrapper = styled.div<{ $isDisabled: boolean }>`
+  position: relative;
+  opacity: ${({ $isDisabled }) => ($isDisabled ? 0.5 : 1)};
+  pointer-events: ${({ $isDisabled }) => ($isDisabled ? 'none' : 'auto')};
+`;

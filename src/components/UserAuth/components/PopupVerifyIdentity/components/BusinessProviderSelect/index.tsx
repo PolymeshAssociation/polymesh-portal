@@ -29,6 +29,10 @@ import {
   StyledTestnetList,
 } from './styles';
 
+const isProviderEnabled = (envVar: string | undefined): boolean => {
+  return envVar?.toLowerCase() === 'true';
+};
+
 export const BusinessProviderSelect = () => {
   const { windowWidth } = useWindowWidth();
 
@@ -38,6 +42,13 @@ export const BusinessProviderSelect = () => {
   const { setIdentityPopup } = useAuthContext();
 
   const [isTestnet, setIsTestnet] = useState<null | boolean>(null);
+
+  const providerEnabledMap: Record<string, boolean> = {
+    mockid: true,
+    finclusive_kyb: isProviderEnabled(
+      import.meta.env.VITE_PROVIDER_FINCLUSIVE_KYB_ENABLED ?? 'true',
+    ),
+  };
 
   const handleContactFormClick = () => {
     window.open('https://polymesh.network/contact-us', '_blank');
@@ -57,18 +68,22 @@ export const BusinessProviderSelect = () => {
   }, [sdk]);
 
   const renderFinclusiveKyb = () => {
+    const isDisabled = !providerEnabledMap.finclusive_kyb;
     return (
       <StyleProviderBox
         key={IDENTITY_PROVIDER_FINCLUSIVE_KYB.name}
-        onClick={() =>
-          setIdentityPopup({
-            type: FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER,
-          })
-        }
+        onClick={() => {
+          if (!isDisabled) {
+            setIdentityPopup({
+              type: FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER,
+            });
+          }
+        }}
       >
         <ProviderCard
           provider={IDENTITY_PROVIDER_FINCLUSIVE_KYB}
           isTestnet={isTestnet as boolean}
+          disabled={isDisabled}
         />
       </StyleProviderBox>
     );
@@ -128,19 +143,23 @@ export const BusinessProviderSelect = () => {
 
   const renderProviders = () => {
     if (isTestnet) {
+      const mockProviderDisabled = !providerEnabledMap.mockid;
       return (
         <StyledTestnetContainer>
           <StyleProviderBox
             key={MOCKID_IDENTITY_PROVIDER}
-            onClick={() =>
-              setIdentityPopup({
-                type: MOCKID_IDENTITY_PROVIDER,
-              })
-            }
+            onClick={() => {
+              if (!mockProviderDisabled) {
+                setIdentityPopup({
+                  type: MOCKID_IDENTITY_PROVIDER,
+                });
+              }
+            }}
           >
             <ProviderCard
               provider={IDENTITY_PROVIDER_MOCK}
               isTestnet={isTestnet as boolean}
+              disabled={mockProviderDisabled}
             />
           </StyleProviderBox>
           <StyledTestnetList>{renderFinclusiveKyb()}</StyledTestnetList>

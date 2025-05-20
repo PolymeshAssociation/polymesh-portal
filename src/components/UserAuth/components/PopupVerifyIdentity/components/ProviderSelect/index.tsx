@@ -21,6 +21,10 @@ import {
   StyledTestnetList,
 } from './styles';
 
+const isProviderEnabled = (envVar: string | undefined): boolean => {
+  return envVar?.toLowerCase() === 'true';
+};
+
 export const ProviderSelect = () => {
   const {
     api: { sdk },
@@ -42,21 +46,38 @@ export const ProviderSelect = () => {
     })();
   }, [sdk]);
 
+  const providerEnabledMap: Record<string, boolean> = {
+    jumio: isProviderEnabled(
+      import.meta.env.VITE_PROVIDER_JUMIO_ENABLED ?? 'true',
+    ),
+    netki: isProviderEnabled(
+      import.meta.env.VITE_PROVIDER_NETKI_ENABLED ?? 'true',
+    ),
+    finclusive: isProviderEnabled(
+      import.meta.env.VITE_PROVIDER_FINCLUSIVE_ENABLED ?? 'true',
+    ),
+    mockid: true,
+  };
+
   const renderProviders = () => {
     if (isTestnet) {
+      const mockProviderDisabled = !providerEnabledMap.mockid;
       return (
         <StyledTestnetContainer>
           <StyleProviderBox
             key={MOCKID_IDENTITY_PROVIDER}
-            onClick={() =>
-              setIdentityPopup({
-                type: MOCKID_IDENTITY_PROVIDER,
-              })
-            }
+            onClick={() => {
+              if (!mockProviderDisabled) {
+                setIdentityPopup({
+                  type: MOCKID_IDENTITY_PROVIDER,
+                });
+              }
+            }}
           >
             <ProviderCard
               provider={IDENTITY_PROVIDER_MOCK}
               isTestnet={isTestnet as boolean}
+              disabled={mockProviderDisabled}
             />
           </StyleProviderBox>
           <StyledTestnetList>
@@ -67,18 +88,22 @@ export const ProviderSelect = () => {
                   provider === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER
                 )
                   return null;
+                const isDisabled = !providerEnabledMap[provider.toLowerCase()];
                 return (
                   <StyleProviderBox
                     key={providerDetails.name}
-                    onClick={() =>
-                      setIdentityPopup({
-                        type: provider as TIdentityModalType,
-                      })
-                    }
+                    onClick={() => {
+                      if (!isDisabled) {
+                        setIdentityPopup({
+                          type: provider as TIdentityModalType,
+                        });
+                      }
+                    }}
                   >
                     <ProviderCard
                       provider={providerDetails}
                       isTestnet={isTestnet as boolean}
+                      disabled={isDisabled}
                     />
                   </StyleProviderBox>
                 );
@@ -97,18 +122,22 @@ export const ProviderSelect = () => {
               provider === FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER
             )
               return null;
+            const isDisabled = !providerEnabledMap[provider.toLowerCase()];
             return (
               <StyleProviderBox
                 key={providerDetails.name}
-                onClick={() =>
-                  setIdentityPopup({
-                    type: provider as TIdentityModalType,
-                  })
-                }
+                onClick={() => {
+                  if (!isDisabled) {
+                    setIdentityPopup({
+                      type: provider as TIdentityModalType,
+                    });
+                  }
+                }}
               >
                 <ProviderCard
                   provider={providerDetails}
                   isTestnet={isTestnet as boolean}
+                  disabled={isDisabled}
                 />
               </StyleProviderBox>
             );
