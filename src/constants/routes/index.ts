@@ -165,7 +165,7 @@ export const NAV_LINKS = [
         nestedIcon: 'PolymathLogo',
       },
       {
-        nestedPath: import.meta.env.VITE_ASSET_EXPLORER_URL,
+        nestedPath: 'https://polymesh.protofire.io/',
         nestedLabel: 'Asset Explorer',
         nestedIcon: 'ExplorerIcon',
       },
