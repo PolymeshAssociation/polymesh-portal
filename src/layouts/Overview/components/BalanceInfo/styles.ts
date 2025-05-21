@@ -53,6 +53,7 @@ export const StyledButtonGroup = styled.div`
   align-items: center;
   justify-content: center;
   gap: 12px;
+  flex-wrap: wrap;
 
   & button {
     flex-grow: 1;
