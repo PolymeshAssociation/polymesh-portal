@@ -3,6 +3,7 @@ import { Icon } from '~/components';
 import { Text, Heading, Button, SkeletonLoader } from '~/components/UiKit';
 import { TransferPolyx } from './components/TransferPolyx';
 import { ReceivePolyx } from './components/ReceivePolyx';
+import { GetPolyx } from './components/GetPolyx';
 import {
   StyledWrapper,
   StyledAsset,
@@ -22,9 +23,13 @@ export const BalanceInfo = () => {
   } = useContext(AccountContext);
   const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [receiveModalOpen, setReceiveModalOpen] = useState(false);
+  const [getPolyxModalOpen, setGetPolyxModalOpen] = useState(false);
 
   const toggleTransferModal = () => setTransferModalOpen((prev) => !prev);
   const toggleReceiveModal = () => setReceiveModalOpen((prev) => !prev);
+  const toggleGetPolyxModal = () => setGetPolyxModalOpen((prev) => !prev);
+
+  const banxaUrl = import.meta.env.VITE_BANXA_URL;
 
   return (
     <>
@@ -93,10 +98,21 @@ export const BalanceInfo = () => {
             <Icon name="ArrowBottomLeft" />
             Receive
           </Button>
+          {banxaUrl && (
+            <Button
+              variant="secondary"
+              onClick={toggleGetPolyxModal}
+              disabled={!identityHasValidCdd || accountIsMultisigSigner}
+            >
+              <Icon name="Coins" />
+              Get POLYX
+            </Button>
+          )}
         </StyledButtonGroup>
       </StyledWrapper>
       {transferModalOpen && <TransferPolyx toggleModal={toggleTransferModal} />}
       {receiveModalOpen && <ReceivePolyx toggleModal={toggleReceiveModal} />}
+      {getPolyxModalOpen && <GetPolyx toggleModal={toggleGetPolyxModal} />}
     </>
   );
 };
