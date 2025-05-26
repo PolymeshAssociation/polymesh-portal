@@ -26,6 +26,7 @@ import {
   IconWrapper,
   FieldSelect,
   StyledErrorMessage,
+  StyledLink,
 } from '../styles';
 import { WizardData, WizardStepProps } from '../types';
 import StepNavigation from '../components/StepNavigation';
@@ -348,10 +349,17 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
     <FormContainer>
       <h2>Transfer Restrictions</h2>
       <DescriptionText>
-        Configure transfer restrictions to control asset movements. Define rules
-        for maximum number of holders or maximum percentage ownership, with
-        optional claim-based scoping. These restrictions work alongside
-        compliance rules to enforce regulatory compliance for your asset.
+        Define transfer restrictions for your asset, such as holder count and
+        percentage ownership limits. These restrictions are enforced at the
+        protocol level. These restrictions work alongside compliance rules to
+        enforce regulatory compliance for your asset. Learn more at{' '}
+        <StyledLink
+          href="https://developers.polymesh.network/compliance/transfer-restrictions/"
+          target="_blank"
+        >
+          Transfer Restrictions Documentation
+        </StyledLink>
+        .
       </DescriptionText>
 
       <FormProvider {...methods}>

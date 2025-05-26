@@ -18,6 +18,7 @@ import {
   StyledFormSection,
   StyledErrorMessage,
   FieldWrapper,
+  StyledLink,
 } from '../styles';
 import { Icon } from '~/components';
 import { WizardStepProps } from '../types';
@@ -97,10 +98,17 @@ const DocumentsStep: React.FC<WizardStepProps> = ({
     <FormContainer>
       <h2>Documents</h2>
       <DescriptionText>
-        Link essential documentation to your asset. For example register
-        prospectuses, offering memorandums, shareholder agreements, and other
-        legal documents. A hash of the document can be recorded to create an
-        immutable audit trail of asset documentation on the Polymesh blockchain.
+        Link essential documentation to your asset, such as prospectuses,
+        agreements and more. A hash of the document can be recorded to create an
+        immutable audit trail of asset documentation on the Polymesh
+        blockchain.For more information, visit the{' '}
+        <StyledLink
+          href="https://developers.polymesh.network/core/assets/#document-references"
+          target="_blank"
+        >
+          Polymesh Asset Documentation
+        </StyledLink>
+        .
       </DescriptionText>
       <StyledForm onSubmit={handleSubmit(onSubmit)}>
         {fields.map((field, index) => (

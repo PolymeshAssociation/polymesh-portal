@@ -26,6 +26,7 @@ import {
   ChipContainer,
   VenueSelectRow,
   CheckboxGrid,
+  StyledLink,
 } from '../styles';
 import Chip from '../components/Chip';
 import { WizardStepProps } from '../types';
@@ -239,7 +240,14 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
         for your asset. These claim issuers validate investor requirements
         through verifiable claims such as KYC, accreditation status, and
         jurisdiction checks. Each issuer can be trusted for specific claim types
-        or all compliance verifications.
+        or all compliance verifications. Learn more at{' '}
+        <StyledLink
+          href="https://developers.polymesh.network/compliance/#trusted-claim-issuers"
+          target="_blank"
+        >
+          Trusted Claim Issuers Documentation
+        </StyledLink>
+        .
       </DescriptionText>
       <StyledForm onSubmit={handleSubmit(onSubmit)}>
         {fields.map((field, index) => (

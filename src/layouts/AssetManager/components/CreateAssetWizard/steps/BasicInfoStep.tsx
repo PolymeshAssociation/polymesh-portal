@@ -26,6 +26,7 @@ import {
   StyledForm,
   FieldInput,
   FieldSelect,
+  StyledLink,
 } from '../styles';
 import { WizardData, WizardStepProps } from '../types';
 import StepNavigation from '../components/StepNavigation';
@@ -211,6 +212,14 @@ const BasicInfoStep: React.FC<WizardStepProps> = ({
         This Asset creation wizard allow you to define the fundamental
         characteristics of your Polymesh asset. Polymesh offers a wide range of
         features allowing you to customise your asset to your specific use case.
+        For more details, visit the{' '}
+        <StyledLink
+          href="https://developers.polymesh.network/core/assets/"
+          target="_blank"
+        >
+          Polymesh Asset Documentation
+        </StyledLink>
+        .
       </DescriptionText>
       <StyledForm onSubmit={handleSubmit(onSubmit)}>
         <StyledFormSection>

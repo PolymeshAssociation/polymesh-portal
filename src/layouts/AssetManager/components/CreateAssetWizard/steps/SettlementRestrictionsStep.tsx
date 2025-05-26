@@ -32,6 +32,7 @@ import {
   VenueSelectRow,
   ChipContainer,
   FieldInputWithDelete,
+  StyledLink,
 } from '../styles';
 import { WizardStepProps } from '../types';
 import StepNavigation from '../components/StepNavigation';
@@ -269,11 +270,25 @@ const SettlementRestrictionsStep: React.FC<WizardStepProps> = ({
       <h2>Settlement Restrictions</h2>
 
       <DescriptionText>
-        Define additional restrictions for your asset. Mediators are parties
+        Configure settlement restrictions for your asset. Mediators are parties
         that must approve a settlement instruction (e.g. a transfer agent)
         before an instruction can execute on chain. Venue restrictions ensure
         only predefined parties can create settlement instructions involving
-        your asset.
+        your asset. Learn more about{' '}
+        <StyledLink
+          href="https://developers.polymesh.network/settlement/mediators/"
+          target="_blank"
+        >
+          Mediators
+        </StyledLink>{' '}
+        and{' '}
+        <StyledLink
+          href="https://developers.polymesh.network/settlement/venues/#venue-filtering"
+          target="_blank"
+        >
+          Venue Filtering
+        </StyledLink>
+        .
       </DescriptionText>
       <StyledForm onSubmit={handleSubmit(onSubmit)}>
         <StyledFormSection>

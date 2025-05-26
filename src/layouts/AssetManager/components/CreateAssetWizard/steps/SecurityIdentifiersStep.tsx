@@ -25,6 +25,7 @@ import {
   StyledFormSection,
   StyledErrorMessage,
   FieldWrapper,
+  StyledLink,
 } from '../styles';
 import { WizardData, WizardStepProps } from '../types';
 import StepNavigation from '../components/StepNavigation';
@@ -108,7 +109,15 @@ const SecurityIdentifiersStep: React.FC<WizardStepProps> = ({
       <h2>Security Identifiers</h2>
       <DescriptionText>
         Link standardized security identifiers, like ISIN, CUSIP, FIGI, or LEI
-        to your asset.
+        to your asset. These identifiers help integrate your asset with global
+        financial systems. Learn more at{' '}
+        <StyledLink
+          href="https://developers.polymesh.network/core/assets/#securities-identifiers"
+          target="_blank"
+        >
+          Securities Identifiers Documentation
+        </StyledLink>
+        .
       </DescriptionText>
       <StyledForm onSubmit={handleSubmit(onSubmit)}>
         {fields.map((field, index) => (

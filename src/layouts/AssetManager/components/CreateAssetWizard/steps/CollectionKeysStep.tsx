@@ -24,6 +24,7 @@ import {
   StyledFormSection,
   StyledErrorMessage,
   FieldWrapper,
+  StyledLink,
 } from '../styles';
 import { WizardData, WizardStepProps } from '../types';
 import StepNavigation from '../components/StepNavigation';
@@ -130,7 +131,15 @@ const CollectionKeysStep: React.FC<WizardStepProps> = ({
         properties each token can have. Use standardized global keys for
         interoperability or create custom local keys. Each key represents a
         trait or attribute that can be assigned to individual NFTs, enabling
-        rich asset characterization and enhanced trading capabilities.
+        rich asset characterization and enhanced trading capabilities. Learn
+        more about{' '}
+        <StyledLink
+          href="https://developers.polymesh.network/core/assets/nft/#collection-metadata-keys"
+          target="_blank"
+        >
+          Collection Metadata Keys
+        </StyledLink>
+        .
       </DescriptionText>
       <StyledForm onSubmit={handleSubmit(onSubmit)}>
         {fields.map((field, index) => {

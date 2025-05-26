@@ -24,6 +24,7 @@ import {
   StyledFormSection,
   StyledErrorMessage,
   FieldWrapper,
+  StyledLink,
 } from '../styles';
 import { WizardData, WizardStepProps } from '../types';
 import StepNavigation from '../components/StepNavigation';
@@ -187,11 +188,19 @@ const MetadataStep: React.FC<WizardStepProps> = ({
     <FormContainer>
       <h2>Metadata</h2>
       <DescriptionText>
-        Define and configure rich metadata attributes for your Polymesh asset.
+        Define and configure metadata attributes for your Polymesh asset.
         Metadata supports a type definition which can optionally be used to
         provide a data structure for external software or smart contracts to
         parse the stored value or an external URL for further details. Values
-        can optionally be locked to ensure data integrity.
+        can optionally be locked to ensure data integrity. For details, visit
+        the{' '}
+        <StyledLink
+          href="https://developers.polymesh.network/core/assets/metadata/"
+          target="_blank"
+        >
+          Metadata Documentation
+        </StyledLink>
+        .
       </DescriptionText>
       <StyledForm onSubmit={handleSubmit(onSubmit)}>
         {fields.map((field, index: number) => {

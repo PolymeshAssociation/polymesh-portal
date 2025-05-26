@@ -559,3 +559,13 @@ export const StyledCondition = styled.div`
   align-items: center;
   padding-bottom: 6px;
 `;
+
+export const StyledLink = styled.a`
+  color: ${({ theme }) => theme.colors.textPink};
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;

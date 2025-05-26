@@ -19,6 +19,7 @@ import {
   StyledForm,
   StyledFormSection,
   Button,
+  StyledLink,
 } from '../styles';
 import { Icon } from '~/components';
 import ComplianceRule from '../components/ComplianceRule';
@@ -271,10 +272,17 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
     <FormContainer>
       <h2>Compliance Rules</h2>
       <DescriptionText>
-        Define on-chain compliance rules that are automatically enforced. At
-        least one rule must be fully met for an asset transfer to proceed. Each
-        rule's conditions must all be satisfied for the rule to be considered
-        met.
+        Define on-chain compliance rules for your asset that are automatically
+        enforced. At least one rule must be fully met for an asset transfer to
+        proceed. Each rule's conditions must all be satisfied for the rule to be
+        considered met. Learn more at{' '}
+        <StyledLink
+          href="https://developers.polymesh.network/compliance/"
+          target="_blank"
+        >
+          Compliance Documentation
+        </StyledLink>
+        .
       </DescriptionText>
 
       <StyledForm onSubmit={handleSubmit(handleFormSubmit)}>
