@@ -12,7 +12,9 @@ export const GetPolyx: React.FC<GetPolyxProps> = ({ toggleModal }) => {
   const { selectedAccount } = useContext(AccountContext);
   const [consentChecked, setConsentChecked] = useState(false);
 
-  const banxaUrl = `${import.meta.env.VITE_BANXA_URL}?coinType=POLYX&blockchain=POLYX&walletAddress=${selectedAccount}&orderType=BUY`;
+  const banxaBaseUrl = import.meta.env.VITE_BANXA_URL;
+
+  const banxaUrl = `${banxaBaseUrl}?coinType=POLYX&blockchain=POLYX&walletAddress=${encodeURIComponent(selectedAccount)}&orderType=BUY`;
 
   const handleContinue = () => {
     window.open(banxaUrl, '_blank', 'noreferrer');

@@ -12,6 +12,20 @@ import {
 } from './styles';
 import { formatBalance } from '~/helpers/formatters';
 import { AccountContext } from '~/context/AccountContext';
+import { notifyGlobalError } from '~/helpers/notifications';
+
+const validateBanxaUrl = (url: string): boolean => {
+  try {
+    const parsedUrl = new URL(url);
+    return (
+      parsedUrl.protocol === 'https:' &&
+      (parsedUrl.hostname.endsWith('banxa.com') ||
+        parsedUrl.hostname.endsWith('banxa-sandbox.com'))
+    );
+  } catch {
+    return false;
+  }
+};
 
 export const BalanceInfo = () => {
   const {
@@ -30,6 +44,15 @@ export const BalanceInfo = () => {
   const toggleGetPolyxModal = () => setGetPolyxModalOpen((prev) => !prev);
 
   const banxaUrl = import.meta.env.VITE_BANXA_URL;
+
+  const handleGetPolyxClick = () => {
+    if (!banxaUrl || !validateBanxaUrl(banxaUrl)) {
+      notifyGlobalError('Invalid Banxa URL configuration');
+      setGetPolyxModalOpen(false);
+      return;
+    }
+    setGetPolyxModalOpen(true);
+  };
 
   return (
     <>
@@ -101,7 +124,7 @@ export const BalanceInfo = () => {
           {banxaUrl && (
             <Button
               variant="secondary"
-              onClick={toggleGetPolyxModal}
+              onClick={handleGetPolyxClick}
               disabled={!identityHasValidCdd || accountIsMultisigSigner}
             >
               <Icon name="Coins" />
