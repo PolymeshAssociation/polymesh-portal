@@ -535,6 +535,7 @@ const ComplianceRule: React.FC<ComplianceRuleProps> = ({
                         {...control.register(
                           `${baseName}.${condIndex}.identity`,
                         )}
+                        value={conditions?.[condIndex]?.identity || ''}
                         $hasError={!!errors.identity}
                       />
                     </FieldRow>

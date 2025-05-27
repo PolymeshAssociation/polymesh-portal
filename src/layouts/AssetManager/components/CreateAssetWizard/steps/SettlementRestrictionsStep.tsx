@@ -204,6 +204,8 @@ const SettlementRestrictionsStep: React.FC<WizardStepProps> = ({
     name: 'allowedVenues',
   });
 
+  const watchedMediators = watch('requiredMediators');
+
   const handleVenueRestrictionsToggle = (enabled: boolean) => {
     if (!enabled) {
       setValue('allowedVenues', []);
@@ -310,6 +312,7 @@ const SettlementRestrictionsStep: React.FC<WizardStepProps> = ({
                     {...register(
                       `requiredMediators.${index}.mediator` as const,
                     )}
+                    value={watchedMediators?.[index]?.mediator || ''}
                     $hasError={!!errors.requiredMediators?.[index]?.mediator}
                   />
                   <IconWrapper onClick={() => removeMediator(index)}>

@@ -244,6 +244,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                     {...register(`metadata.${index}.type` as const, {
                       onChange: () => handleTypeChange(),
                     })}
+                    value={metadataEntry?.type || 'Local'}
                   >
                     <option value="Global">Existing Type (Global)</option>
                     <option value="Local">User Defined Type (Local)</option>
@@ -263,6 +264,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                           onChange: (e) =>
                             handleGlobalNameChange(e.target.value),
                         })}
+                        value={metadataEntry?.name || ''}
                         $hasError={!!errors.metadata?.[index]?.name}
                       >
                         <option disabled value="">
@@ -333,6 +335,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                         {...register(`metadata.${index}.name` as const, {
                           required: true,
                         })}
+                        value={metadataEntry?.name || ''}
                         $hasError={!!errors.metadata?.[index]?.name}
                       />
                     </FieldRow>
@@ -355,6 +358,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                         {...register(
                           `metadata.${index}.specs.description` as const,
                         )}
+                        value={metadataEntry?.specs?.description || ''}
                       />
                     </FieldRow>
                   </FieldWrapper>
@@ -369,6 +373,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                         {...register(
                           `metadata.${index}.specs.typeDef` as const,
                         )}
+                        value={metadataEntry?.specs?.typeDef || ''}
                       />
                     </FieldRow>
                   </FieldWrapper>
@@ -381,6 +386,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                         id={`metadata.${index}.specs.url`}
                         placeholder="Enter URL (optional)"
                         {...register(`metadata.${index}.specs.url` as const)}
+                        value={metadataEntry?.specs?.url || ''}
                       />
                     </FieldRow>
                   </FieldWrapper>
@@ -400,6 +406,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                     {...register(`metadata.${index}.value` as const, {
                       required: true,
                     })}
+                    value={metadataEntry?.value || ''}
                     $hasError={!!errors.metadata?.[index]?.value}
                   />
                 </FieldRow>
@@ -423,6 +430,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                           handleLockStatusChange(index, e.target.value),
                       },
                     )}
+                    value={metadataEntry?.details?.lockStatus || 'Unlocked'}
                     prefix="Enter lock status"
                   >
                     <option value="Unlocked">Unlocked</option>
@@ -447,6 +455,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                       {...register(
                         `metadata.${index}.details.lockedUntil` as const,
                       )}
+                      value={metadataEntry?.details?.lockedUntil || ''}
                       $hasError={
                         !!errors.metadata?.[index]?.details?.lockedUntil
                       }
@@ -469,6 +478,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                     type="datetime-local"
                     min={getMinDateTime()}
                     {...register(`metadata.${index}.details.expiry` as const)}
+                    value={metadataEntry?.details?.expiry || ''}
                   />
                 </FieldRow>
                 {errors.metadata?.[index]?.details?.expiry && (

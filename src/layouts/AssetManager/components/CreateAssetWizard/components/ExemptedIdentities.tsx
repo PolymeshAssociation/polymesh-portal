@@ -41,12 +41,16 @@ const ExemptedIdentities: React.FC<ExemptedIdentitiesProps> = ({
   errors,
   nestIndex,
 }) => {
-  const { control, register } = useFormContext();
+  const { control, register, watch } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name: `transferRestrictions.${nestIndex}.exemptedIdentities`,
     keyName: 'exemptedId',
   });
+
+  const watchedIdentities = watch(
+    `transferRestrictions.${nestIndex}.exemptedIdentities`,
+  );
 
   return (
     <>
@@ -66,6 +70,7 @@ const ExemptedIdentities: React.FC<ExemptedIdentitiesProps> = ({
                 {...register(
                   `transferRestrictions.${nestIndex}.exemptedIdentities.${index}.identity`,
                 )}
+                value={watchedIdentities?.[index]?.identity || ''}
               />
               <IconWrapper onClick={() => remove(index)}>
                 <Icon name="Delete" size="20px" />

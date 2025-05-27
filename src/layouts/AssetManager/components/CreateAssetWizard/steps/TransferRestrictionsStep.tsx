@@ -501,6 +501,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
                             `transferRestrictions.${index}.issuer`,
                           )}
                           placeholder="Enter claim issuer DID"
+                          value={watchTransferRestrictions[index]?.issuer || ''}
                           $hasError={!!issuerError}
                         />
                       </FieldRow>
@@ -530,6 +531,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
                           : 'percentage'
                       }`}
                       {...methods.register(`transferRestrictions.${index}.max`)}
+                      value={watchTransferRestrictions[index]?.max || ''}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -566,6 +568,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
                         {...methods.register(
                           `transferRestrictions.${index}.min`,
                         )}
+                        value={watchTransferRestrictions[index]?.min || ''}
                         onInput={(e: React.FormEvent<HTMLInputElement>) => {
                           const input = e.currentTarget;
                           input.value = input.value.replace(/[^\d.]/g, '');

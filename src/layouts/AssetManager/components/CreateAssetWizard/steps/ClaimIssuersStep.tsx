@@ -72,10 +72,12 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
     api: { sdk },
   } = useContext(PolymeshContext);
 
-  const [customClaims, setCustomClaims] = useState<
-    { id: BigNumber; name: string }[]
-  >([]);
-  const [customClaimInput, setCustomClaimInput] = useState<string>('');
+  const [customClaimsByIssuer, setCustomClaimsByIssuer] = useState<
+    Record<string, { id: BigNumber; name: string }[]>
+  >({});
+  const [customClaimInputByIssuer, setCustomClaimInputByIssuer] = useState<
+    Record<string, string>
+  >({});
   const {
     validateCustomClaim,
     createModalState,
@@ -88,30 +90,47 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
     const fetchCustomClaimNames = async () => {
       if (!sdk || !defaultValues.claimIssuers) return;
 
-      const customClaimIds = defaultValues.claimIssuers
-        .flatMap((issuer) => issuer.trustedFor || [])
-        .filter(isCustomClaim)
-        .map((claim) => claim.customClaimTypeId);
+      const newCustomClaimsByIssuer: Record<
+        string,
+        { id: BigNumber; name: string }[]
+      > = {};
 
-      const claims = await Promise.all(
-        customClaimIds.map(async (id) => {
-          try {
-            const details = await sdk.claims.getCustomClaimTypeById(id);
-            return details ? { id, name: details.name } : null;
-          } catch (error) {
-            notifyError(
-              `Failed to fetch custom claim ${id.toString()}: ${(error as Error).message}`,
+      await Promise.all(
+        defaultValues.claimIssuers.map(async (issuer, i) => {
+          const issuerId = `issuer-${i}`;
+
+          const customClaimIds = (issuer.trustedFor || [])
+            .filter(isCustomClaim)
+            .map((claim) => claim.customClaimTypeId);
+
+          if (customClaimIds.length > 0) {
+            const claimResults = await Promise.all(
+              customClaimIds.map(async (id) => {
+                try {
+                  const details = await sdk.claims.getCustomClaimTypeById(id);
+                  return details ? { id, name: details.name } : null;
+                } catch (error) {
+                  notifyError(
+                    `Failed to fetch custom claim ${id.toString()}: ${(error as Error).message}`,
+                  );
+                  return null;
+                }
+              }),
             );
-            return null;
+
+            const validClaims = claimResults.filter(
+              (claim): claim is { id: BigNumber; name: string } =>
+                claim !== null,
+            );
+
+            if (validClaims.length > 0) {
+              newCustomClaimsByIssuer[issuerId] = validClaims;
+            }
           }
         }),
       );
 
-      const validClaims = claims.filter(
-        (claim): claim is { id: BigNumber; name: string } => claim !== null,
-      );
-
-      setCustomClaims(validClaims);
+      setCustomClaimsByIssuer(newCustomClaimsByIssuer);
     };
 
     fetchCustomClaimNames();
@@ -160,21 +179,46 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
     register,
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<ClaimIssuersFormData>({
     defaultValues: { claimIssuers: defaultValues.claimIssuers },
     resolver: yupResolver(validationSchema),
   });
 
+  const watchedClaimIssuers = watch('claimIssuers');
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'claimIssuers',
   });
 
+  const handleRemoveIssuer = (index: number) => {
+    const issuerId = `issuer-${index}`;
+
+    setCustomClaimsByIssuer((prev) => {
+      const newState = { ...prev };
+      delete newState[issuerId];
+      return newState;
+    });
+
+    setCustomClaimInputByIssuer((prev) => {
+      const newState = { ...prev };
+      delete newState[issuerId];
+      return newState;
+    });
+
+    remove(index);
+  };
+
   const handleAddCustomClaim = async (
     onChange: (value: ClaimTypeValue[] | null) => void,
     currentValue: ClaimTypeValue[] | null,
+    issuerIndex: number,
   ) => {
+    const issuerId = `issuer-${issuerIndex}`;
+    const customClaimInput = customClaimInputByIssuer[issuerId] || '';
+
     if (!customClaimInput) return;
 
     const validClaim = await validateCustomClaim(customClaimInput);
@@ -185,13 +229,20 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
       }
       // Otherwise, show creation modal
       handleCreateModalOpen(customClaimInput, (newClaim) => {
-        if (customClaims.some((c) => c.id.eq(newClaim.id))) {
+        const issuerClaims = customClaimsByIssuer[issuerId] || [];
+        if (issuerClaims.some((c) => c.id.eq(newClaim.id))) {
           notifyError('Custom claim already added');
           return;
         }
 
-        setCustomClaims([...customClaims, newClaim]);
-        setCustomClaimInput('');
+        setCustomClaimsByIssuer((prev) => ({
+          ...prev,
+          [issuerId]: [...issuerClaims, newClaim],
+        }));
+        setCustomClaimInputByIssuer((prev) => ({
+          ...prev,
+          [issuerId]: '',
+        }));
 
         const customClaimValue: ClaimTypeValue = {
           type: ClaimType.Custom,
@@ -207,13 +258,20 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
       return;
     }
 
-    if (customClaims.some((c) => c.id.eq(validClaim.id))) {
+    const issuerClaims = customClaimsByIssuer[issuerId] || [];
+    if (issuerClaims.some((c) => c.id.eq(validClaim.id))) {
       notifyError('Custom claim already added');
       return;
     }
 
-    setCustomClaims([...customClaims, validClaim]);
-    setCustomClaimInput('');
+    setCustomClaimsByIssuer((prev) => ({
+      ...prev,
+      [issuerId]: [...issuerClaims, validClaim],
+    }));
+    setCustomClaimInputByIssuer((prev) => ({
+      ...prev,
+      [issuerId]: '',
+    }));
 
     const customClaimValue: ClaimTypeValue = {
       type: ClaimType.Custom,
@@ -250,164 +308,188 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
         .
       </DescriptionText>
       <StyledForm onSubmit={handleSubmit(onSubmit)}>
-        {fields.map((field, index) => (
-          <StyledFormSection key={field.id}>
-            <HeaderRow>
-              <FieldLabel>Issuer #{index + 1}</FieldLabel>
-              <IconWrapper onClick={() => remove(index)}>
-                <Icon name="Delete" size="20px" />
-              </IconWrapper>
-            </HeaderRow>
-            <FieldWrapper>
-              <FieldRow>
-                <FieldLabel>Issuer DID</FieldLabel>
-                <FieldInput
-                  placeholder="Enter issuer DID"
-                  {...register(`claimIssuers.${index}.identity` as const)}
-                  $hasError={!!errors.claimIssuers?.[index]?.identity}
-                />
-              </FieldRow>
-              {errors.claimIssuers?.[index]?.identity && (
-                <StyledErrorMessage>
-                  {errors.claimIssuers[index].identity.message}
-                </StyledErrorMessage>
-              )}
-            </FieldWrapper>
-            <div>
-              <FieldLabel>Trusted for Claim Types</FieldLabel>
-              <Controller
-                name={`claimIssuers.${index}.trustedFor`}
-                control={control}
-                render={({ field: { value, onChange } }) => (
-                  <div>
-                    <CheckboxRow>
-                      <TrustedCheckboxLabel
-                        htmlFor={`all-claim-types-${index}`}
-                      >
-                        <ThemedCheckbox
-                          checked={value === null}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              onChange(null);
-                              setCustomClaims([]);
-                            } else {
-                              onChange([]);
-                            }
-                          }}
-                          id={`all-claim-types-${index}`}
-                        />
-                        All Claim Types
-                      </TrustedCheckboxLabel>
-                    </CheckboxRow>
-                    <TrustedClaimTypesContainer>
-                      <CheckboxGrid>
-                        {Object.values(ClaimType)
-                          .filter(
-                            (claim) =>
-                              claim !== ClaimType.CustomerDueDiligence &&
-                              claim !== ClaimType.Custom,
-                          )
-                          .map((claim) => (
-                            <CheckboxRow key={claim}>
-                              <TrustedCheckboxLabel
-                                htmlFor={`${claim}-${index}`}
-                              >
-                                <ThemedCheckbox
-                                  checked={
-                                    Array.isArray(value) &&
-                                    value.some((item) =>
-                                      isCustomClaim(item)
-                                        ? false
-                                        : item === claim,
-                                    )
-                                  }
-                                  onChange={(e) => {
-                                    if (!Array.isArray(value)) {
-                                      onChange(e.target.checked ? [claim] : []);
-                                      return;
-                                    }
+        {fields.map((field, index) => {
+          const issuerId = `issuer-${index}`;
+          const issuerCustomClaims = customClaimsByIssuer[issuerId] || [];
+          const issuerCustomClaimInput =
+            customClaimInputByIssuer[issuerId] || '';
+          const currentIssuer = watchedClaimIssuers?.[index];
 
-                                    if (e.target.checked) {
-                                      onChange([...value, claim]);
-                                    } else {
-                                      onChange(
-                                        value.filter((item) =>
-                                          isCustomClaim(item)
-                                            ? true
-                                            : item !== claim,
-                                        ),
-                                      );
-                                    }
-                                  }}
-                                  id={`${claim}-${index}`}
-                                />
-                                {splitCamelCase(claim)}
-                              </TrustedCheckboxLabel>
-                            </CheckboxRow>
-                          ))}
-                      </CheckboxGrid>
-                      <FieldWrapper>
-                        <FieldRow>
-                          <FieldLabel>Custom Claim</FieldLabel>
-                          <VenueSelectRow>
-                            <FieldInput
-                              placeholder="Enter claim name or ID"
-                              value={customClaimInput}
-                              onChange={(e) =>
-                                setCustomClaimInput(e.target.value)
+          return (
+            <StyledFormSection key={field.id}>
+              <HeaderRow>
+                <FieldLabel>Issuer #{index + 1}</FieldLabel>
+                <IconWrapper onClick={() => handleRemoveIssuer(index)}>
+                  <Icon name="Delete" size="20px" />
+                </IconWrapper>
+              </HeaderRow>
+              <FieldWrapper>
+                <FieldRow>
+                  <FieldLabel>Issuer DID</FieldLabel>
+                  <FieldInput
+                    placeholder="Enter issuer DID"
+                    value={currentIssuer?.identity || ''}
+                    {...register(`claimIssuers.${index}.identity` as const)}
+                    $hasError={!!errors.claimIssuers?.[index]?.identity}
+                  />
+                </FieldRow>
+                {errors.claimIssuers?.[index]?.identity && (
+                  <StyledErrorMessage>
+                    {errors.claimIssuers[index].identity.message}
+                  </StyledErrorMessage>
+                )}
+              </FieldWrapper>
+              <div>
+                <FieldLabel>Trusted for Claim Types</FieldLabel>
+                <Controller
+                  name={`claimIssuers.${index}.trustedFor`}
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <div>
+                      <CheckboxRow>
+                        <TrustedCheckboxLabel
+                          htmlFor={`all-claim-types-${index}`}
+                        >
+                          <ThemedCheckbox
+                            checked={value === null}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                onChange(null);
+                                setCustomClaimsByIssuer((prev) => ({
+                                  ...prev,
+                                  [issuerId]: [],
+                                }));
+                              } else {
+                                onChange([]);
                               }
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  handleAddCustomClaim(onChange, value);
+                            }}
+                            id={`all-claim-types-${index}`}
+                          />
+                          All Claim Types
+                        </TrustedCheckboxLabel>
+                      </CheckboxRow>
+                      <TrustedClaimTypesContainer>
+                        <CheckboxGrid>
+                          {Object.values(ClaimType)
+                            .filter(
+                              (claim) =>
+                                claim !== ClaimType.CustomerDueDiligence &&
+                                claim !== ClaimType.Custom,
+                            )
+                            .map((claim) => (
+                              <CheckboxRow key={claim}>
+                                <TrustedCheckboxLabel
+                                  htmlFor={`${claim}-${index}`}
+                                >
+                                  <ThemedCheckbox
+                                    checked={
+                                      Array.isArray(value) &&
+                                      value.some((item) =>
+                                        isCustomClaim(item)
+                                          ? false
+                                          : item === claim,
+                                      )
+                                    }
+                                    onChange={(e) => {
+                                      if (!Array.isArray(value)) {
+                                        onChange(
+                                          e.target.checked ? [claim] : [],
+                                        );
+                                        return;
+                                      }
+
+                                      if (e.target.checked) {
+                                        onChange([...value, claim]);
+                                      } else {
+                                        onChange(
+                                          value.filter((item) =>
+                                            isCustomClaim(item)
+                                              ? true
+                                              : item !== claim,
+                                          ),
+                                        );
+                                      }
+                                    }}
+                                    id={`${claim}-${index}`}
+                                  />
+                                  {splitCamelCase(claim)}
+                                </TrustedCheckboxLabel>
+                              </CheckboxRow>
+                            ))}
+                        </CheckboxGrid>
+                        <FieldWrapper>
+                          <FieldRow>
+                            <FieldLabel>Custom Claim</FieldLabel>
+                            <VenueSelectRow>
+                              <FieldInput
+                                placeholder="Enter claim name or ID"
+                                value={issuerCustomClaimInput}
+                                onChange={(e) =>
+                                  setCustomClaimInputByIssuer((prev) => ({
+                                    ...prev,
+                                    [issuerId]: e.target.value,
+                                  }))
+                                }
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    handleAddCustomClaim(
+                                      onChange,
+                                      value,
+                                      index,
+                                    );
+                                  }
+                                }}
+                              />
+                              <Button
+                                type="button"
+                                onClick={() =>
+                                  handleAddCustomClaim(onChange, value, index)
+                                }
+                              >
+                                Add
+                              </Button>
+                            </VenueSelectRow>
+                          </FieldRow>
+                        </FieldWrapper>
+                        <ChipContainer>
+                          {issuerCustomClaims.map(({ id, name }) => (
+                            <Chip
+                              key={id.toString()}
+                              label={`${id.toString()} - ${name}`}
+                              onDelete={() => {
+                                setCustomClaimsByIssuer((prev) => ({
+                                  ...prev,
+                                  [issuerId]: issuerCustomClaims.filter(
+                                    (c) => !c.id.eq(id),
+                                  ),
+                                }));
+                                if (Array.isArray(value)) {
+                                  onChange(
+                                    value.filter(
+                                      (item) =>
+                                        !isCustomClaim(item) ||
+                                        !item.customClaimTypeId.eq(id),
+                                    ),
+                                  );
                                 }
                               }}
                             />
-                            <Button
-                              type="button"
-                              onClick={() =>
-                                handleAddCustomClaim(onChange, value)
-                              }
-                            >
-                              Add
-                            </Button>
-                          </VenueSelectRow>
-                        </FieldRow>
-                      </FieldWrapper>
-                      <ChipContainer>
-                        {customClaims.map(({ id, name }) => (
-                          <Chip
-                            key={id.toString()}
-                            label={`${id.toString()} - ${name}`}
-                            onDelete={() => {
-                              setCustomClaims(
-                                customClaims.filter((c) => !c.id.eq(id)),
-                              );
-                              if (Array.isArray(value)) {
-                                onChange(
-                                  value.filter(
-                                    (item) =>
-                                      !isCustomClaim(item) ||
-                                      !item.customClaimTypeId.eq(id),
-                                  ),
-                                );
-                              }
-                            }}
-                          />
-                        ))}
-                      </ChipContainer>
-                    </TrustedClaimTypesContainer>
-                  </div>
+                          ))}
+                        </ChipContainer>
+                      </TrustedClaimTypesContainer>
+                    </div>
+                  )}
+                />
+                {errors.claimIssuers?.[index]?.trustedFor && (
+                  <StyledErrorMessage>
+                    {errors.claimIssuers[index].trustedFor.message}
+                  </StyledErrorMessage>
                 )}
-              />
-              {errors.claimIssuers?.[index]?.trustedFor && (
-                <StyledErrorMessage>
-                  {errors.claimIssuers[index].trustedFor.message}
-                </StyledErrorMessage>
-              )}
-            </div>
-          </StyledFormSection>
-        ))}
+              </div>
+            </StyledFormSection>
+          );
+        })}
         <Button
           type="button"
           onClick={() => {

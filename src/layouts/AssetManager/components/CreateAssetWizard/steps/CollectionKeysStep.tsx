@@ -78,6 +78,21 @@ const collectionKeysSchema = yup.object().shape({
   collectionKeys: yup.array().of(collectionKeySchema),
 });
 
+const createDefaultKeyValue = (type: MetadataType): FormCollectionKeyInput => {
+  if (type === MetadataType.Global) {
+    return {
+      type: MetadataType.Global,
+      id: new BigNumber(0),
+      name: '',
+    };
+  }
+  return {
+    type: MetadataType.Local,
+    name: '',
+    spec: { description: '', typeDef: '', url: '' },
+  };
+};
+
 // New helper functions to parse default input and convert form data to wizardData.
 const parseDefaultInput = (defaultValues: WizardData): FormWizardData => ({
   collectionKeys: defaultValues.collectionKeys || [],
@@ -154,19 +169,8 @@ const CollectionKeysStep: React.FC<WizardStepProps> = ({
             : undefined;
 
           const handleTypeChange = (value: string) => {
-            if (value === 'Global') {
-              setValue(`collectionKeys.${index}`, {
-                type: MetadataType.Global,
-                id: new BigNumber(0),
-                name: '',
-              });
-            } else {
-              setValue(`collectionKeys.${index}`, {
-                type: MetadataType.Local,
-                name: '',
-                spec: { description: '', typeDef: '', url: '' },
-              });
-            }
+            const newKeyValue = createDefaultKeyValue(value as MetadataType);
+            setValue(`collectionKeys.${index}`, newKeyValue);
           };
 
           const handleGlobalNameChange = (value: string) => {
@@ -214,6 +218,7 @@ const CollectionKeysStep: React.FC<WizardStepProps> = ({
                           onChange: (e) =>
                             handleGlobalNameChange(e.target.value),
                         })}
+                        value={collectionKey?.name || ''}
                         $hasError={!!errors.collectionKeys?.[index]?.name}
                       >
                         <option disabled value="">
@@ -273,6 +278,7 @@ const CollectionKeysStep: React.FC<WizardStepProps> = ({
                         {...register(`collectionKeys.${index}.name` as const, {
                           required: true,
                         })}
+                        value={collectionKey?.name || ''}
                         $hasError={!!errors.collectionKeys?.[index]?.name}
                       />
                     </FieldRow>
@@ -295,6 +301,7 @@ const CollectionKeysStep: React.FC<WizardStepProps> = ({
                         {...register(
                           `collectionKeys.${index}.spec.description` as const,
                         )}
+                        value={collectionKey?.spec?.description || ''}
                       />
                     </FieldRow>
                   </FieldWrapper>
@@ -311,6 +318,7 @@ const CollectionKeysStep: React.FC<WizardStepProps> = ({
                         {...register(
                           `collectionKeys.${index}.spec.typeDef` as const,
                         )}
+                        value={collectionKey?.spec?.typeDef || ''}
                       />
                     </FieldRow>
                   </FieldWrapper>
@@ -325,6 +333,7 @@ const CollectionKeysStep: React.FC<WizardStepProps> = ({
                         {...register(
                           `collectionKeys.${index}.spec.url` as const,
                         )}
+                        value={collectionKey?.spec?.url || ''}
                       />
                     </FieldRow>
                   </FieldWrapper>
@@ -335,13 +344,7 @@ const CollectionKeysStep: React.FC<WizardStepProps> = ({
         })}
         <Button
           type="button"
-          onClick={() =>
-            append({
-              type: MetadataType.Local,
-              name: '',
-              spec: { description: '', typeDef: '', url: '' },
-            })
-          }
+          onClick={() => append(createDefaultKeyValue(MetadataType.Local))}
         >
           Add Collection Key
         </Button>

@@ -89,6 +89,7 @@ const SecurityIdentifiersStep: React.FC<WizardStepProps> = ({
     register,
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<WizardData>({
     defaultValues,
@@ -99,6 +100,8 @@ const SecurityIdentifiersStep: React.FC<WizardStepProps> = ({
     control,
     name: 'securityIdentifiers',
   });
+
+  const watchedIdentifiers = watch('securityIdentifiers');
 
   const onSubmit = (data: WizardData) => {
     onComplete(data);
@@ -120,51 +123,58 @@ const SecurityIdentifiersStep: React.FC<WizardStepProps> = ({
         .
       </DescriptionText>
       <StyledForm onSubmit={handleSubmit(onSubmit)}>
-        {fields.map((field, index) => (
-          <StyledFormSection key={field.id}>
-            <HeaderRow>
-              <FieldLabel>Identifier #{index + 1}</FieldLabel>
-              <IconWrapper onClick={() => remove(index)}>
-                <Icon name="Delete" size="20px" />
-              </IconWrapper>
-            </HeaderRow>
-            <FieldWrapper>
-              <FieldRow>
-                <FieldLabel>Type</FieldLabel>
-                <FieldSelect
-                  {...register(`securityIdentifiers.${index}.type` as const)}
-                >
-                  {Object.values(SecurityIdentifierType).map((type) => (
-                    <option key={type} value={type}>
-                      {type.toUpperCase()}
-                    </option>
-                  ))}
-                </FieldSelect>
-              </FieldRow>
-            </FieldWrapper>
-
-            <FieldWrapper>
-              <FieldRow>
-                <FieldLabel>Value</FieldLabel>
-                <FieldInput
-                  placeholder="Enter identifier value"
-                  $hasError={!!errors.securityIdentifiers?.[index]?.value}
-                  {...register(`securityIdentifiers.${index}.value` as const)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
+        {fields.map((field, index) => {
+          const currentIdentifier = watchedIdentifiers?.[index];
+          return (
+            <StyledFormSection key={field.id}>
+              <HeaderRow>
+                <FieldLabel>Identifier #{index + 1}</FieldLabel>
+                <IconWrapper onClick={() => remove(index)}>
+                  <Icon name="Delete" size="20px" />
+                </IconWrapper>
+              </HeaderRow>
+              <FieldWrapper>
+                <FieldRow>
+                  <FieldLabel>Type</FieldLabel>
+                  <FieldSelect
+                    {...register(`securityIdentifiers.${index}.type` as const)}
+                    value={
+                      currentIdentifier?.type || SecurityIdentifierType.Isin
                     }
-                  }}
-                />
-              </FieldRow>
-              {errors.securityIdentifiers?.[index]?.value && (
-                <StyledErrorMessage>
-                  {errors.securityIdentifiers[index].value?.message}
-                </StyledErrorMessage>
-              )}
-            </FieldWrapper>
-          </StyledFormSection>
-        ))}
+                  >
+                    {Object.values(SecurityIdentifierType).map((type) => (
+                      <option key={type} value={type}>
+                        {type.toUpperCase()}
+                      </option>
+                    ))}
+                  </FieldSelect>
+                </FieldRow>
+              </FieldWrapper>
+
+              <FieldWrapper>
+                <FieldRow>
+                  <FieldLabel>Value</FieldLabel>
+                  <FieldInput
+                    placeholder="Enter identifier value"
+                    $hasError={!!errors.securityIdentifiers?.[index]?.value}
+                    {...register(`securityIdentifiers.${index}.value` as const)}
+                    value={currentIdentifier?.value || ''}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                      }
+                    }}
+                  />
+                </FieldRow>
+                {errors.securityIdentifiers?.[index]?.value && (
+                  <StyledErrorMessage>
+                    {errors.securityIdentifiers[index].value?.message}
+                  </StyledErrorMessage>
+                )}
+              </FieldWrapper>
+            </StyledFormSection>
+          );
+        })}
         <Button
           type="button"
           onClick={() =>
