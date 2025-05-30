@@ -280,6 +280,7 @@ const SettlementRestrictionsStep: React.FC<WizardStepProps> = ({
         <StyledLink
           href="https://developers.polymesh.network/settlement/mediators/"
           target="_blank"
+          rel="noopener noreferrer"
         >
           Mediators
         </StyledLink>{' '}
@@ -287,6 +288,7 @@ const SettlementRestrictionsStep: React.FC<WizardStepProps> = ({
         <StyledLink
           href="https://developers.polymesh.network/settlement/venues/#venue-filtering"
           target="_blank"
+          rel="noopener noreferrer"
         >
           Venue Filtering
         </StyledLink>

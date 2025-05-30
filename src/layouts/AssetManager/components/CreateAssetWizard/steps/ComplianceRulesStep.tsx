@@ -4,10 +4,6 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import {
   ConditionTarget,
   ConditionType,
-  ClaimType,
-  InputCondition,
-  SetAssetRequirementsParams,
-  Claim,
 } from '@polymeshassociation/polymesh-sdk/types';
 import {
   FormContainer,
@@ -25,184 +21,30 @@ import { Icon } from '~/components';
 import ComplianceRule from '../components/ComplianceRule';
 import {
   WizardStepProps,
-  FormCondition,
-  FormClaim,
   FormComplianceRule,
   ComplianceRuleFormData,
 } from '../types';
 import StepNavigation from '../components/StepNavigation';
 import { notifyError } from '~/helpers/notifications';
+import {
+  convertFormRulesToSdk,
+  convertSdkToFormFormat,
+} from '../utils/complianceConverters';
 
-const convertFormClaimToSdk = (formClaim: FormClaim): Claim => {
-  const base = {
-    type: formClaim.type,
-    ...(formClaim.scope && { scope: formClaim.scope }),
-  };
+// Type definition for compliance rule component ref
+interface ComplianceRuleRef {
+  validateActiveCondition: () => Promise<boolean>;
+}
 
-  if (formClaim.type === ClaimType.Jurisdiction && formClaim.code) {
-    return {
-      ...base,
-      type: ClaimType.Jurisdiction,
-      code: formClaim.code,
-    } as Claim;
-  }
-
-  if (formClaim.type === ClaimType.Custom && formClaim.customClaimTypeId) {
-    return {
-      ...base,
-      type: ClaimType.Custom,
-      customClaimTypeId: formClaim.customClaimTypeId,
-    } as Claim;
-  }
-
-  return base as Claim;
-};
-
-const convertFormRulesToSdk = (
-  formData: FormComplianceRule[],
-): InputCondition[][] => {
-  return formData.map((rule) => {
-    const inputConditions: InputCondition[] = [];
-
-    rule.conditions.forEach((condition) => {
-      switch (condition.type) {
-        case ConditionType.IsPresent:
-        case ConditionType.IsAbsent: {
-          condition.claims?.forEach((claim) => {
-            const singleCondition = {
-              type:
-                condition.type === ConditionType.IsPresent
-                  ? ConditionType.IsPresent
-                  : ConditionType.IsAbsent,
-              target: condition.target,
-              claim: convertFormClaimToSdk(claim),
-              trustedClaimIssuers: condition.trustedClaimIssuers || [],
-            } satisfies InputCondition;
-            inputConditions.push(singleCondition);
-          });
-          break;
-        }
-
-        case ConditionType.IsAnyOf:
-        case ConditionType.IsNoneOf:
-          inputConditions.push({
-            type: condition.type,
-            target: condition.target,
-            claims: condition.claims
-              ? condition.claims.map(convertFormClaimToSdk)
-              : [],
-            trustedClaimIssuers: condition.trustedClaimIssuers || [],
-          } satisfies InputCondition);
-          break;
-
-        case ConditionType.IsIdentity: {
-          if (!condition.identity) {
-            throw new Error('Identity condition requires an identity');
-          }
-          inputConditions.push({
-            type: condition.type,
-            target: condition.target,
-            identity: condition.identity,
-          } satisfies InputCondition);
-          break;
-        }
-
-        case ConditionType.IsExternalAgent: {
-          inputConditions.push({
-            type: condition.type,
-            target: condition.target,
-          } satisfies InputCondition);
-          break;
-        }
-
-        default:
-          throw new Error('Invalid condition type');
-      }
-    });
-    return inputConditions;
-  });
-};
-
-const convertSdkToFormFormat = (
-  sdkRules: SetAssetRequirementsParams,
-): FormComplianceRule[] => {
-  const { requirements } = sdkRules;
-  const formRules: FormComplianceRule[] = requirements.map(
-    (rule: InputCondition[]) => {
-      // Group conditions by type, target and trusted claim issuers
-      const groupedConditions = rule.reduce<{
-        [key: string]: FormCondition;
-      }>((acc, condition, index) => {
-        if (
-          condition.type === ConditionType.IsPresent ||
-          condition.type === ConditionType.IsAbsent
-        ) {
-          // Create a key using the target and trusted claim issuers to group by
-          const key = `${condition.type}-${condition.target}-${JSON.stringify(condition.trustedClaimIssuers || [])}`;
-          if (!acc[key]) {
-            acc[key] = {
-              type:
-                condition.type === ConditionType.IsPresent
-                  ? ConditionType.IsPresent
-                  : ConditionType.IsNoneOf,
-              target: condition.target,
-              claims: [],
-              ...(condition.trustedClaimIssuers && {
-                trustedClaimIssuers: condition.trustedClaimIssuers,
-              }),
-            };
-          }
-          if (condition.claim) {
-            acc[key].claims?.push(condition.claim);
-          }
-          return acc;
-        }
-
-        switch (condition.type) {
-          case ConditionType.IsAnyOf:
-          case ConditionType.IsNoneOf:
-            return {
-              ...acc,
-              [index]: {
-                type: condition.type,
-                target: condition.target,
-                claims: condition.claims || [],
-                ...(condition.trustedClaimIssuers && {
-                  trustedClaimIssuers: condition.trustedClaimIssuers,
-                }),
-              },
-            };
-
-          case ConditionType.IsIdentity:
-            return {
-              ...acc,
-              [index]: {
-                type: condition.type,
-                target: condition.target,
-                identity: condition.identity.toString() || '',
-              },
-            };
-
-          case ConditionType.IsExternalAgent:
-            return {
-              ...acc,
-              [index]: {
-                type: condition.type,
-                target: condition.target,
-              },
-            };
-
-          default:
-            return acc;
-        }
-      }, {});
-
-      return {
-        conditions: Object.values(groupedConditions),
-      };
+// Constants for default rule configuration
+const DEFAULT_NEW_RULE: FormComplianceRule = {
+  conditions: [
+    {
+      type: ConditionType.IsPresent,
+      target: ConditionTarget.Both,
+      claims: [],
     },
-  );
-  return formRules;
+  ],
 };
 
 const ComplianceRulesStep: React.FC<WizardStepProps> = ({
@@ -217,6 +59,9 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
   const [activeConditionIndex, setActiveConditionIndex] = useState<
     number | null
   >(null);
+  const [complianceRuleRefs, setComplianceRuleRefs] = useState<{
+    [key: number]: React.RefObject<ComplianceRuleRef>;
+  }>({});
 
   const {
     control,
@@ -241,31 +86,129 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
 
   const rules = watch('complianceRules');
 
-  const validateActiveRule = () => {
+  // Create and manage refs for ComplianceRule components
+  const getOrCreateRuleRef = (ruleIndex: number) => {
+    if (!complianceRuleRefs[ruleIndex]) {
+      setComplianceRuleRefs((prev) => ({
+        ...prev,
+        [ruleIndex]: React.createRef<ComplianceRuleRef>(),
+      }));
+    }
+    return complianceRuleRefs[ruleIndex];
+  };
+
+  const validateActiveRule = async (): Promise<boolean> => {
     if (activeRuleIndex === null) return true;
+
     const rule = rules[activeRuleIndex];
     if (!rule?.conditions?.length) {
       notifyError('A rule must have at least one condition');
       return false;
     }
+
+    // Validate the active condition in the active rule
+    if (activeConditionIndex !== null) {
+      const ruleRef = complianceRuleRefs[activeRuleIndex];
+      if (ruleRef?.current) {
+        try {
+          const isConditionValid =
+            await ruleRef.current.validateActiveCondition();
+          if (!isConditionValid) {
+            notifyError(
+              'Please fix errors in the current condition before proceeding',
+            );
+            return false;
+          }
+        } catch (error) {
+          notifyError('Validation error occurred');
+          return false;
+        }
+      }
+    }
+
     return true;
   };
 
-  const handleEditRule = (ruleIndex: number) => {
-    if (!validateActiveRule()) return;
+  const handleEditRule = async (ruleIndex: number) => {
+    const isValid = await validateActiveRule();
+    if (!isValid) return;
+
     setActiveRuleIndex(ruleIndex);
     setActiveConditionIndex(null);
   };
 
-  const handleFormSubmit = (data: ComplianceRuleFormData) => {
-    if (!validateActiveRule()) return;
-    const sdkRules = data.complianceRules.length
-      ? convertFormRulesToSdk(data.complianceRules)
-      : [];
-    onComplete({
-      ...defaultValues,
-      complianceRules: { requirements: sdkRules },
+  const handleFormSubmit = async (data: ComplianceRuleFormData) => {
+    const isValid = await validateActiveRule();
+    if (!isValid) return;
+
+    try {
+      const sdkRules = data.complianceRules.length
+        ? convertFormRulesToSdk(data.complianceRules)
+        : [];
+
+      onComplete({
+        ...defaultValues,
+        complianceRules: { requirements: sdkRules },
+      });
+    } catch (error) {
+      notifyError(
+        `Failed to convert compliance rules: ${(error as Error).message}`,
+      );
+    }
+  };
+
+  // Helper function to handle adding a new rule
+  const handleAddRule = async () => {
+    const isValid = await validateActiveRule();
+    if (!isValid) return;
+
+    const newRuleIndex = ruleFields.length;
+    appendRule(DEFAULT_NEW_RULE);
+    setActiveRuleIndex(newRuleIndex);
+    setActiveConditionIndex(0);
+  };
+
+  // Helper function to handle rule deletion with proper ref cleanup
+  const handleDeleteRule = (ruleIndex: number) => {
+    removeRule(ruleIndex);
+
+    // Clean up and reindex refs after deletion
+    setComplianceRuleRefs((prev) => {
+      const newRefs: typeof prev = {};
+
+      // Rebuild refs object with correct indices
+      Object.entries(prev).forEach(([oldIndex, ref]) => {
+        const oldIndexNum = parseInt(oldIndex, 10);
+        if (oldIndexNum < ruleIndex) {
+          // Rules before deleted rule keep same index
+          newRefs[oldIndexNum] = ref;
+        } else if (oldIndexNum > ruleIndex) {
+          // Rules after deleted rule shift down by 1
+          newRefs[oldIndexNum - 1] = ref;
+        }
+        // Skip the deleted rule's ref (oldIndexNum === ruleIndex)
+      });
+
+      return newRefs;
     });
+
+    // Update active indices appropriately
+    if (activeRuleIndex === ruleIndex) {
+      setActiveRuleIndex(null);
+      setActiveConditionIndex(null);
+    } else if (activeRuleIndex !== null && activeRuleIndex > ruleIndex) {
+      setActiveRuleIndex(activeRuleIndex - 1);
+    }
+  };
+
+  // Helper function to handle back navigation
+  const handleBackNavigation = async () => {
+    const isValid = await validateActiveRule();
+    if (isValid) {
+      setActiveRuleIndex(null);
+      setActiveConditionIndex(null);
+      onBack();
+    }
   };
 
   return (
@@ -279,6 +222,7 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
         <StyledLink
           href="https://developers.polymesh.network/compliance/"
           target="_blank"
+          rel="noopener noreferrer"
         >
           Compliance Documentation
         </StyledLink>
@@ -296,26 +240,14 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
                     <Icon name="Edit" size="20px" />
                   </IconWrapper>
                 )}
-                <IconWrapper
-                  onClick={() => {
-                    removeRule(ruleIndex);
-                    if (activeRuleIndex === ruleIndex) {
-                      setActiveRuleIndex(null);
-                      setActiveConditionIndex(null);
-                    } else if (
-                      activeRuleIndex !== null &&
-                      activeRuleIndex > ruleIndex
-                    ) {
-                      setActiveRuleIndex(activeRuleIndex - 1);
-                    }
-                  }}
-                >
+                <IconWrapper onClick={() => handleDeleteRule(ruleIndex)}>
                   <Icon name="Delete" size="20px" />
                 </IconWrapper>
               </div>
             </HeaderRow>
 
             <ComplianceRule
+              ref={getOrCreateRuleRef(ruleIndex)}
               control={control}
               setValue={setValue}
               baseName={`complianceRules.${ruleIndex}.conditions`}
@@ -327,37 +259,14 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
           </StyledFormSection>
         ))}
 
-        <Button
-          type="button"
-          onClick={() => {
-            if (!validateActiveRule()) return;
-            const newRuleIndex = ruleFields.length;
-            appendRule({
-              conditions: [
-                {
-                  type: ConditionType.IsPresent,
-                  target: ConditionTarget.Both,
-                  claims: [],
-                },
-              ],
-            });
-            setActiveRuleIndex(newRuleIndex);
-            setActiveConditionIndex(0);
-          }}
-        >
+        <Button type="button" onClick={handleAddRule}>
           Add Rule
         </Button>
       </StyledForm>
 
       <NavigationWrapper>
         <StepNavigation
-          onBack={() => {
-            if (validateActiveRule()) {
-              setActiveRuleIndex(null);
-              setActiveConditionIndex(null);
-              onBack();
-            }
-          }}
+          onBack={handleBackNavigation}
           onNext={handleSubmit(handleFormSubmit)}
           isFinalStep={isFinalStep}
           disabled={Object.keys(errors).length > 0}

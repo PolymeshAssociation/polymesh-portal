@@ -24,7 +24,7 @@ export const FormContainer = styled.div`
   padding: 24px;
 
   ${mediaQueries.mobile} {
-    padding: 16px;
+    padding: 0px;
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -103,11 +103,11 @@ export const FieldInput = styled.input<{ $hasError?: boolean }>`
   color: ${({ theme }) => theme.colors.textPrimary};
   font-size: 14px;
   color-scheme: ${({ theme }) => theme.mode};
+
   ${mediaQueries.mobile} {
     width: 100%;
     min-height: 48px; // Increased touch target
     padding: 12px 16px;
-    border-radius: ${({ theme }) => theme.borderRadius.small};
   }
 
   &:focus {
@@ -311,7 +311,7 @@ export const StepItem = styled.div<{ $active: boolean; $completed?: boolean }>`
   border-left: 3px solid
     ${({ theme, $active, $completed }) => {
       if ($completed) {
-        return theme.colors.textSuccess;
+        return '#00AA5E';
       }
       if ($active) {
         return theme.colors.textPink;
@@ -330,8 +330,6 @@ export const NavigationWrapper = styled.div`
   padding-top: 24px;
 
   ${mediaQueries.mobile} {
-    margin-top: 16px;
-    padding-top: 16px;
     position: sticky;
     bottom: 0;
     background: ${({ theme }) => theme.colors.landingBackground};
@@ -339,8 +337,8 @@ export const NavigationWrapper = styled.div`
     padding: 16px;
     border-top: 1px solid ${({ theme }) => theme.colors.border};
     z-index: 2;
-    margin-left: -40px;
-    margin-right: -40px;
+    margin-left: -24px;
+    margin-right: -24px;
   }
 `;
 
@@ -352,6 +350,10 @@ export const HeaderRow = styled.div`
 
   ${mediaQueries.mobile} {
     margin-bottom: 12px;
+  }
+
+  &:only-child {
+    margin-bottom: 0;
   }
 
   h3,
@@ -424,7 +426,6 @@ export const StyledErrorMessage = styled.span`
   color: ${({ theme }) => theme.colors.error};
   font-size: 12px;
   margin-top: 4px;
-  display: block;
   display: flex;
   justify-content: flex-end;
 
@@ -455,8 +456,6 @@ export const FieldInputWithDelete = styled.div`
   width: 100%;
 
   ${mediaQueries.mobile} {
-    width: 100%;
-
     & > input {
       flex: 1;
       width: 100%;
@@ -472,11 +471,12 @@ export const StyledForm = styled.form`
   }
 `;
 
-export const StyledFormSection = styled.div<{ $nested?: boolean }>`
+export const StyledFormSection = styled.div`
   background: ${({ theme }) => theme.colors.landingBackground};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
   padding: 24px;
   margin-bottom: 24px;
+  box-shadow: ${({ theme }) => theme.colors.shadow} 0px 5px 15px;
 
   ${mediaQueries.mobile} {
     padding: 16px;
@@ -555,8 +555,6 @@ export const StyledClaim = styled.div`
 `;
 
 export const StyledCondition = styled.div`
-  justify-content: space-between;
-  align-items: center;
   padding-bottom: 6px;
 `;
 

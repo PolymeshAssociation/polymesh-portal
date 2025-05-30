@@ -197,6 +197,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
         <StyledLink
           href="https://developers.polymesh.network/core/assets/metadata/"
           target="_blank"
+          rel="noopener noreferrer"
         >
           Metadata Documentation
         </StyledLink>

@@ -36,9 +36,9 @@ import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
 
 const restrictionTypeLabels: Record<StatType, string> = {
   [StatType.Count]: 'Holder Count',
-  [StatType.Balance]: 'Percentage Ownership',
+  [StatType.Balance]: 'Individual Percentage Ownership',
   [StatType.ScopedCount]: 'Holder Count with Claim',
-  [StatType.ScopedBalance]: 'Percentage Ownership with Claim',
+  [StatType.ScopedBalance]: 'Total Percentage Ownership with Claim',
 };
 
 enum FormClaimType {
@@ -356,6 +356,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
         <StyledLink
           href="https://developers.polymesh.network/compliance/transfer-restrictions/"
           target="_blank"
+          rel="noopener noreferrer"
         >
           Transfer Restrictions Documentation
         </StyledLink>

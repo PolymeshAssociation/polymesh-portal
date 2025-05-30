@@ -216,6 +216,7 @@ const BasicInfoStep: React.FC<WizardStepProps> = ({
         <StyledLink
           href="https://developers.polymesh.network/core/assets/"
           target="_blank"
+          rel="noopener noreferrer"
         >
           Polymesh Asset Documentation
         </StyledLink>

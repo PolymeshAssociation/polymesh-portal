@@ -151,6 +151,7 @@ const CollectionKeysStep: React.FC<WizardStepProps> = ({
         <StyledLink
           href="https://developers.polymesh.network/core/assets/nft/#collection-metadata-keys"
           target="_blank"
+          rel="noopener noreferrer"
         >
           Collection Metadata Keys
         </StyledLink>

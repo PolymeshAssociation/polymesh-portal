@@ -117,6 +117,7 @@ const SecurityIdentifiersStep: React.FC<WizardStepProps> = ({
         <StyledLink
           href="https://developers.polymesh.network/core/assets/#securities-identifiers"
           target="_blank"
+          rel="noopener noreferrer"
         >
           Securities Identifiers Documentation
         </StyledLink>

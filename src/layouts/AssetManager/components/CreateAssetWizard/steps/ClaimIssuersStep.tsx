@@ -302,6 +302,7 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
         <StyledLink
           href="https://developers.polymesh.network/compliance/#trusted-claim-issuers"
           target="_blank"
+          rel="noopener noreferrer"
         >
           Trusted Claim Issuers Documentation
         </StyledLink>
