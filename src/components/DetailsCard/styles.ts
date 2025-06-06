@@ -1,9 +1,11 @@
 import styled from 'styled-components';
 
 export const StyledDetailsContainer = styled.div`
-  background-color: ${({ theme }) => theme.colors.landingBackground};
+  background-color: ${({ theme }) => theme.colors.cardBackground};
   flex: 2;
-  border-radius: 24px;
+  border-radius: ${({ theme }) => theme.borderRadius.large};
+  box-shadow: ${({ theme }) => theme.boxShadow.medium}
+    ${({ theme }) => theme.colors.shadow};
   @media screen and (max-width: 1572px) {
     width: 100%;
   }
@@ -13,24 +15,25 @@ export const StyledId = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px;
-  border-bottom: 2px solid ${({ theme }) => theme.colors.shadow};
+  padding: ${({ theme }) => theme.spacing(3)};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.border};
   color: ${({ theme }) => theme.colors.textPrimary};
   font-size: 24px;
   font-weight: 600;
 `;
 
 export const StyledInfo = styled.div`
-  padding: 24px 24px 0;
-  margin-bottom: 24px;
+  padding: ${({ theme }) => theme.spacing(3)} ${({ theme }) => theme.spacing(3)}
+    0;
+  margin-bottom: ${({ theme }) => theme.spacing(3)};
   overflow-y: scroll;
   max-height: calc(100vh - 411px);
   min-height: 220px;
 `;
 
 export const StyledInfoItem = styled.div`
-  border: 1px solid ${({ theme }) => theme.colors.shadow};
-  border-radius: 24px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.large};
   background-color: unset;
   &:not(:last-child) {
     margin-bottom: 24px;

@@ -31,7 +31,7 @@ import {
   SubSectionTitle,
   VenueSelectRow,
   ChipContainer,
-  FieldInputWithDelete,
+  FieldInputWithButton,
   StyledLink,
 } from '../styles';
 import { WizardStepProps } from '../types';
@@ -303,7 +303,7 @@ const SettlementRestrictionsStep: React.FC<WizardStepProps> = ({
             <FieldWrapper key={field.id}>
               <FieldRow>
                 <FieldLabel>Mediator DID #{index + 1}</FieldLabel>
-                <FieldInputWithDelete>
+                <FieldInputWithButton>
                   <FieldInput
                     placeholder="Enter mediator DID"
                     onKeyDown={(e) => {
@@ -320,7 +320,7 @@ const SettlementRestrictionsStep: React.FC<WizardStepProps> = ({
                   <IconWrapper onClick={() => removeMediator(index)}>
                     <Icon name="Delete" size="20px" />
                   </IconWrapper>
-                </FieldInputWithDelete>
+                </FieldInputWithButton>
               </FieldRow>
               {errors?.requiredMediators?.[index]?.mediator && (
                 <StyledErrorMessage>

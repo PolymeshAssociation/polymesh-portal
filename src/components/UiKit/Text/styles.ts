@@ -27,7 +27,7 @@ export const StyledText = styled.p<{
         ${$width ? `width: ${$width}px;` : ''}
         ${$centered ? 'text-align: center;' : ''}
         ${$marginTop ? `margin-top: ${$marginTop}px;` : ''}
-        ${$marginBottom ? `margin-bottom: ${$marginBottom}px;` : ''}
+        ${$marginBottom ? `margin-bottom: ${$marginBottom}px !important;` : ''}
         ${
           color === ETextColor.PRIMARY
             ? `color: ${theme.colors.textPrimary};`

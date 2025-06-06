@@ -114,11 +114,20 @@ export const FieldInput = styled.input<{ $hasError?: boolean }>`
     outline: none;
     border-color: ${({ theme }) => theme.colors.focusBorder};
   }
+
+  &:disabled {
+    background-color: ${({ theme }) => theme.colors.disabledBackground};
+    color: ${({ theme }) => theme.colors.textDisabled};
+    border-color: ${({ theme }) => theme.colors.textDisabled};
+    cursor: not-allowed;
+    -webkit-text-fill-color: ${({ theme }) => theme.colors.textDisabled};
+  }
 `;
 
 export const FieldSelect = styled.select<{ $hasError?: boolean }>`
   flex: 1;
   padding: 12px;
+  min-height: 46px;
   background: ${({ theme }) => theme.colors.landingBackground};
   border: 1px solid
     ${({ $hasError, theme }) =>
@@ -159,6 +168,7 @@ export const FieldSelect = styled.select<{ $hasError?: boolean }>`
   &:disabled {
     background-color: ${({ theme }) => theme.colors.disabledBackground};
     color: ${({ theme }) => theme.colors.textDisabled};
+    border-color: ${({ theme }) => theme.colors.textDisabled};
     cursor: not-allowed;
   }
 `;
@@ -447,11 +457,11 @@ export const FieldWrapper = styled.div<{ $hasError?: boolean }>`
   }
 `;
 
-export const FieldInputWithDelete = styled.div`
+export const FieldInputWithButton = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   flex: 1;
   width: 100%;
 

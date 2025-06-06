@@ -16,8 +16,8 @@ const AssetManager = lazy(() => import('~/layouts/AssetManager'));
 const CreateAsset = lazy(
   () => import('~/layouts/AssetManager/components/CreateAssetWizard/index'),
 );
-const AssetView = lazy(
-  () => import('~/layouts/AssetManager/components/AssetView'),
+const AssetControlCenter = lazy(
+  () => import('~/layouts/AssetManager/components/AssetControlCenter'),
 );
 
 interface IRoute {
@@ -115,9 +115,10 @@ export const ROUTES = [
   },
   {
     path: `${PATHS.ASSET_MANAGER}/:assetId`,
-    label: null,
-    component: AssetView,
+    label: 'Asset Control Center',
+    component: AssetControlCenter,
   },
+
   {
     path: PATHS.NOT_FOUND,
     label: null,

@@ -14,7 +14,7 @@ export const StyledWrapper = styled.div`
   }
 
   & .id-icon {
-    color: #ff2e72;
+    color: ${({ theme }) => theme.colors.textPink};
   }
 
   & .copy-icon {
@@ -30,8 +30,8 @@ export const StyledLabel = styled.div`
   height: 24px;
   padding: 0 8px;
   gap: 8px;
-  background-color: #fbf3d0;
-  color: #e3a30c;
+  background-color: ${({ theme }) => theme.colors.warningBackground};
+  color: ${({ theme }) => theme.colors.textWarning};
   border-radius: 100px;
   font-size: 12px;
 `;

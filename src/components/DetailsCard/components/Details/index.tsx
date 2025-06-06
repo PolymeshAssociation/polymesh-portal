@@ -3,8 +3,8 @@ import { PropertiesDropdown } from '../PropertiesDropdown';
 import { PropertiesItem } from '../PropertiesItem';
 import { getDateTime, isValidLink } from '../../helpers';
 import { formatDid, splitCamelCase } from '~/helpers/formatters';
-import { IAssetMeta, IDetails } from '~/hooks/polymesh/useAssetDetails';
 import { MediatorList } from '../MediatorList';
+import { IDetails, IAssetMeta } from '~/context/AssetContext/constants';
 
 interface IDetailsProps {
   details: IDetails;

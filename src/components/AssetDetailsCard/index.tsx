@@ -13,7 +13,7 @@ import {
   StyledDocumentWrap,
 } from '../DetailsCard/styles';
 import { StyledAssetDetailsCard } from './styles';
-import { IAssetDetails } from '~/hooks/polymesh/useAssetDetails';
+import { IAssetDetails } from '~/context/AssetContext/constants';
 
 interface IAssetDetailsCardProps {
   assetDetails?: IAssetDetails;

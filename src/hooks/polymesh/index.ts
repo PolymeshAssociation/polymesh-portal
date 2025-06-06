@@ -7,3 +7,5 @@ export { default as useEraStatus } from './useEraStatus';
 export { default as useStakingAccount } from './useStakingAccount';
 export { default as useStakingInfo } from './useStakingInfo';
 export { default as useOperatorInfo } from './useOperatorInfo';
+export { default as useAssetActions } from './useAssetActions';
+export { useAssetDetails } from './useAssetDetails';

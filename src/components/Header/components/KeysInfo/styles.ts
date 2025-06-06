@@ -11,11 +11,11 @@ export const StyledWrapper = styled.div`
   }
 
   & .key-icon {
-    color: #ff2e72;
+    color: ${({ theme }) => theme.colors.textPink};
   }
 
   & .eye-icon {
-    color: #ff2e72;
+    color: ${({ theme }) => theme.colors.textPink};
   }
 
   & .icon-wrapper {

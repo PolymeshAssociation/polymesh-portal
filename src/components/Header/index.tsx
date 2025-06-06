@@ -32,7 +32,18 @@ const Header: React.FC<IHeaderProps> = ({ toggleMobileMenu }) => {
   const nftId = searchParams.get('nftId');
 
   useEffect(() => {
-    const currentPage = ROUTES.find(({ path }) => path === pathname);
+    const currentPage = ROUTES.find(({ path }) => {
+      if (path === pathname) return true;
+
+      // Handle parameterized routes by converting :param to a regex pattern
+      if (path.includes(':')) {
+        const pathPattern = path.replace(/:[^/]+/g, '[^/]+');
+        const regex = new RegExp(`^${pathPattern}$`);
+        return regex.test(pathname);
+      }
+
+      return false;
+    });
     const currentPageLabel = currentPage?.label || null;
     setPageLabel(currentPageLabel);
   }, [nftCollection, nftId, pathname]);

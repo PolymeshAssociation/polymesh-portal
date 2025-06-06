@@ -12,10 +12,10 @@ export const StyledPaginationButton = styled.button`
   padding: 0;
   background-color: transparent;
   color: ${({ theme }) => theme.colors.textPrimary};
-  transition: color 250ms ease-out;
+  transition: color ${({ theme }) => theme.transition.normal};
 
   &:hover {
-    color: #ff2e72;
+    color: ${({ theme }) => theme.colors.textPink};
   }
 
   &:disabled {

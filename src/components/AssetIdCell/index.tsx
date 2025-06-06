@@ -8,12 +8,14 @@ interface IAssetIdCellProps {
   assetId: string;
   abbreviate?: boolean;
   isNftCollection?: boolean;
+  disableNavigation?: boolean;
 }
 
 export const AssetIdCell: React.FC<IAssetIdCellProps> = ({
   assetId,
   abbreviate = true,
   isNftCollection = false,
+  disableNavigation = false,
 }) => {
   const assetUuid = isHexUuid(assetId) ? hexToUuid(assetId) : assetId;
   const formattedAssetId = abbreviate ? formatUuid(assetUuid) : assetUuid;
@@ -22,15 +24,19 @@ export const AssetIdCell: React.FC<IAssetIdCellProps> = ({
     <AssetIdCellWrapper>
       {assetUuid ? (
         <>
-          <NavLink
-            to={
-              isNftCollection
-                ? `/portfolio?nftCollection=${assetUuid}`
-                : `/portfolio?asset=${assetUuid}`
-            }
-          >
-            {formattedAssetId}
-          </NavLink>
+          {disableNavigation ? (
+            <span>{formattedAssetId}</span>
+          ) : (
+            <NavLink
+              to={
+                isNftCollection
+                  ? `/portfolio?nftCollection=${assetUuid}`
+                  : `/portfolio?asset=${assetUuid}`
+              }
+            >
+              {formattedAssetId}
+            </NavLink>
+          )}
           <CopyToClipboard value={assetUuid} />
         </>
       ) : (

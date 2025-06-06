@@ -51,31 +51,37 @@ export const StyledButton = styled.button<{
       : ''}
   ${$variant === EButtonVariants.MODAL_PRIMARY
       ? css`
-          color: white;
-          background: #170087;
-          box-shadow: 0px 24px 24px rgba(23, 0, 135, 0.12);
+          color: ${theme.colors.pinkBackground};
+          background: ${theme.colors.textPink};
+          box-shadow: ${theme.boxShadow.large} ${theme.colors.shadow};
 
           &:hover:enabled,
           &:focus:enabled {
-            background: #100255;
+            background: ${theme.colors.pinkBackground};
+            color: ${theme.colors.textPink};
           }
           &:active:enabled {
-            box-shadow: 0px 12px 24px transparent;
+            box-shadow: ${theme.boxShadow.medium} transparent;
           }
         `
       : ''}
   ${$variant === EButtonVariants.MODAL_SECONDARY
       ? css`
-          color: #170087;
-          background: #ffffff;
-          border: 1px solid #170087;
+          color: ${theme.colors.textPink};
+          background: ${theme.colors.cardBackground};
+          border: 1px solid ${theme.colors.textPink};
+          box-shadow: ${theme.boxShadow.large} ${theme.colors.shadow};
 
           &:hover:enabled,
           &:focus:enabled {
-            background: #f2efff;
+            background: ${theme.colors.textPink};
+            color: ${theme.colors.pinkBackground};
+            border: 1px solid ${theme.colors.textPink};
           }
           &:active:enabled {
-            background: #dcd3ff;
+            background: ${theme.colors.textPink};
+            color: ${theme.colors.cardBackground};
+            box-shadow: ${theme.boxShadow.medium} transparent;
           }
         `
       : ''}
@@ -95,7 +101,7 @@ export const StyledButton = styled.button<{
       : ''}
   ${$variant === EButtonVariants.TRANSPARENT
       ? css`
-          color: #ffffff;
+          color: ${theme.colors.buttonText};
           background: rgba(255, 255, 255, 0.24);
 
           &:hover:enabled,
@@ -120,7 +126,7 @@ export const StyledButton = styled.button<{
   ${$marginBottom ? `margin-bottom: ${$marginBottom}px;` : ''}
 
   transition-property: color, background, box-shadow, border;
-    transition-duration: 250ms;
+    transition-duration: ${theme.transition.normal};
     transition-timing-function: ease-out;
   `}
 

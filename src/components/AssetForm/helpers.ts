@@ -38,9 +38,15 @@ export const parseNftsFromCollection = async (
 
 export const parseCollectionsFromSinglePortfolio = async (
   portfolio: DefaultPortfolio | NumberedPortfolio,
+  collectionId?: string | NftCollection,
 ): Promise<IParsedCollectionData> => {
   const nfts = {} as Record<string, INft[]>;
-  const collectionList = await portfolio.getCollections();
+
+  // If collectionId is provided, only fetch that specific collection
+  const collectionList = collectionId
+    ? await portfolio.getCollections({ collections: [collectionId] })
+    : await portfolio.getCollections();
+
   const collections = await Promise.all(
     collectionList.map(async ({ collection, free, locked }) => {
       const parsedNfts = await parseNftsFromCollection(free, locked);
@@ -54,9 +60,12 @@ export const parseCollectionsFromSinglePortfolio = async (
 
 export const parseCollectionsFromCombinedPortfolio = async (
   portfolios: (DefaultPortfolio | NumberedPortfolio)[],
+  collectionId?: string,
 ) => {
   const data = await Promise.all(
-    portfolios.map(parseCollectionsFromSinglePortfolio),
+    portfolios.map((portfolio) =>
+      parseCollectionsFromSinglePortfolio(portfolio, collectionId),
+    ),
   );
 
   const collectionMap = new Map<string, NftCollection>();
@@ -69,11 +78,11 @@ export const parseCollectionsFromCombinedPortfolio = async (
     });
 
     // Accumulate NFTs by collection ID
-    Object.entries(elem.nfts).forEach(([collectionId, nfts]) => {
-      if (!nftRecord[collectionId]) {
-        nftRecord[collectionId] = [];
+    Object.entries(elem.nfts).forEach(([colId, nfts]) => {
+      if (!nftRecord[colId]) {
+        nftRecord[colId] = [];
       }
-      nftRecord[collectionId].push(...nfts);
+      nftRecord[colId].push(...nfts);
     });
   });
 
@@ -85,13 +94,16 @@ export const parseCollectionsFromCombinedPortfolio = async (
 
 export const parseCollections = async (
   portfolio: ICombinedPortfolioData | IPortfolioData,
+  collectionId?: string,
 ) => {
   const parsedList = Array.isArray(portfolio.portfolio)
     ? await parseCollectionsFromCombinedPortfolio(
         portfolio.portfolio as (DefaultPortfolio | NumberedPortfolio)[],
+        collectionId,
       )
     : await parseCollectionsFromSinglePortfolio(
         portfolio.portfolio as DefaultPortfolio | NumberedPortfolio,
+        collectionId,
       );
   return parsedList;
 };

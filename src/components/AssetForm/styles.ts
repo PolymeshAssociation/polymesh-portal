@@ -69,9 +69,9 @@ export const StyledSelect = styled.div<{
   min-height: 36px;
   padding: 1px 12px 1px 16px;
   background-color: ${({ theme, $disabled }) =>
-    !$disabled && theme.colors.landingBackground};
-  border: 1px solid #8f8f8f;
-  border-radius: 8px;
+    !$disabled && theme.colors.cardBackground};
+  border: 1px solid ${({ theme }) => theme.colors.inputBorder};
+  border-radius: ${({ theme }) => theme.borderRadius.small};
   cursor: pointer;
 
   & .expand-icon {
@@ -86,11 +86,12 @@ export const StyledExpandedSelect = styled.div`
   left: 0;
   width: 100%;
   padding: 8px;
-  background-color: ${({ theme }) => theme.colors.landingBackground};
-  border: 1px solid #8f8f8f;
-  border-radius: 8px;
+  background-color: ${({ theme }) => theme.colors.cardBackground};
+  border: 1px solid ${({ theme }) => theme.colors.inputBorder};
+  border-radius: ${({ theme }) => theme.borderRadius.small};
   z-index: 1;
-  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
+  box-shadow: ${({ theme }) => theme.boxShadow.xl}
+    ${({ theme }) => theme.colors.shadow};
   scroll-behavior: auto;
 `;
 
@@ -133,10 +134,16 @@ export const StyledInput = styled.input`
   width: 100%;
   padding: 9px 16px;
   height: 36px;
-  border: 1px solid #8f8f8f;
-  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.inputBorder};
+  border-radius: ${({ theme }) => theme.borderRadius.small};
   font-size: 14px;
   color: ${({ theme }) => theme.colors.textPrimary};
+  background: ${({ theme }) => theme.colors.cardBackground};
+  transition: border-color ${({ theme }) => theme.transition.normal};
+
+  &:focus {
+    border-color: ${({ theme }) => theme.colors.focusBorder};
+  }
 
   &::placeholder {
     color: ${({ theme }) => theme.colors.textSecondary};
@@ -147,5 +154,5 @@ export const StyledError = styled.p`
   text-align: right;
   font-size: 12px;
   font-weight: 500;
-  color: #db2c3e;
+  color: ${({ theme }) => theme.colors.error};
 `;

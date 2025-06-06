@@ -9,7 +9,7 @@ import {
 } from 'react-hook-form';
 import {
   FieldInput,
-  FieldInputWithDelete,
+  FieldInputWithButton,
   FieldLabel,
   FieldRow,
   FieldWrapper,
@@ -64,7 +64,7 @@ const ExemptedIdentities: React.FC<ExemptedIdentitiesProps> = ({
       {fields.map((field, index) => (
         <FieldWrapper key={field.exemptedId}>
           <FieldRow key={field.exemptedId}>
-            <FieldInputWithDelete>
+            <FieldInputWithButton>
               <FieldInput
                 placeholder="Enter identity DID"
                 {...register(
@@ -75,7 +75,7 @@ const ExemptedIdentities: React.FC<ExemptedIdentitiesProps> = ({
               <IconWrapper onClick={() => remove(index)}>
                 <Icon name="Delete" size="20px" />
               </IconWrapper>
-            </FieldInputWithDelete>
+            </FieldInputWithButton>
           </FieldRow>
           {errors?.[index]?.identity?.message && (
             <StyledErrorMessage>

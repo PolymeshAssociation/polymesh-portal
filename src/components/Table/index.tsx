@@ -37,6 +37,7 @@ interface ITableProps<T, S> {
   totalItems?: number;
   downloadButton?: IDownloadButton;
   handleRowClick?: (row: T) => void;
+  noBoxShadow?: boolean;
 }
 
 const perPageOptions = [3, 5, 10, 20, 50];
@@ -53,6 +54,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
     totalItems = 0,
     downloadButton = undefined,
     handleRowClick,
+    noBoxShadow = false,
   } = props;
 
   const colsNumber = table.getAllColumns().length;
@@ -202,7 +204,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
   const isSmallScreen = isMobile || isTablet;
 
   return (
-    <StyledTableWrapper>
+    <StyledTableWrapper $noBoxShadow={noBoxShadow}>
       {title && (
         <StyledTableHeader>
           <Heading type="h3">{title}</Heading>

@@ -15,6 +15,8 @@ declare module 'styled-components' {
       disabledBackground: string;
       pinkBackground: string;
       successBackground: string;
+      warningBackground: string;
+      errorBackground: string;
       textPrimary: string;
       textSecondary: string;
       textBlue: string;
@@ -22,23 +24,41 @@ declare module 'styled-components' {
       textPurple: string;
       textDisabled: string;
       textSuccess: string;
+      textWarning: string;
       lightAccent: string;
       shadow: string;
       backdrop: string;
       skeletonBase: string;
       skeletonHighlight: string;
       error: string;
+      warning: string;
+      success: string;
+      info: string;
       focusBorder: string;
       buttonBackground: string;
       buttonHoverBackground: string;
       buttonText: string;
       hoverBackground: string;
       border: string;
+      inputBorder: string;
+      cardBackground: string;
     };
     borderRadius: {
       small: string;
       medium: string;
+      large: string;
     };
     spacing: (multiplier: number) => string;
+    boxShadow: {
+      small: string;
+      medium: string;
+      large: string;
+      xl: string;
+    };
+    transition: {
+      fast: string;
+      normal: string;
+      slow: string;
+    };
   }
 }

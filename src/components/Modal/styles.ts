@@ -10,7 +10,6 @@ export const StyledBackdrop = styled.div`
   align-items: center;
   justify-content: center;
   background-color: ${({ theme }) => theme.colors.backdrop};
-  z-index: 2;
   overflow: scroll;
   @media screen and (min-width: 768px) {
     padding: 24px;

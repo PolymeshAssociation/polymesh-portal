@@ -16,7 +16,7 @@ import { AssetContext } from '~/context/AssetContext';
 const initialPaginationState = { pageIndex: 0, pageSize: 10 };
 
 export const useAssetManagerTable = (currentTab: EAssetManagerTableTabs) => {
-  const { ownedAssets, assetsLoading, tickerReservations } =
+  const { ownedAssets, managedAssets, assetsLoading, tickerReservations } =
     useContext(AssetContext);
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>(
     initialPaginationState,
@@ -59,6 +59,12 @@ export const useAssetManagerTable = (currentTab: EAssetManagerTableTabs) => {
             setTotalItems(ownedAssets.length);
             break;
           }
+          case EAssetManagerTableTabs.MANAGED_ASSETS: {
+            setTableData(managedAssets);
+            setTotalPages(Math.ceil(managedAssets.length / pageSize));
+            setTotalItems(managedAssets.length);
+            break;
+          }
           case EAssetManagerTableTabs.TICKER_RESERVATIONS: {
             setTableData(tickerReservations);
             setTotalPages(Math.ceil(tickerReservations.length / pageSize));
@@ -81,6 +87,7 @@ export const useAssetManagerTable = (currentTab: EAssetManagerTableTabs) => {
     currentTab,
     identity,
     ownedAssets,
+    managedAssets,
     pageIndex,
     pageSize,
     tickerReservations,
@@ -99,9 +106,10 @@ export const useAssetManagerTable = (currentTab: EAssetManagerTableTabs) => {
       data: tableData,
       columns: columns[tabRef.current] as ColumnDef<AssetManagerTableItem>[],
       state: { pagination },
-      manualPagination: tabRef.current !== EAssetManagerTableTabs.OWNED_ASSETS,
+      manualPagination:
+        tabRef.current === EAssetManagerTableTabs.TICKER_RESERVATIONS,
       pageCount:
-        tabRef.current !== EAssetManagerTableTabs.OWNED_ASSETS
+        tabRef.current === EAssetManagerTableTabs.TICKER_RESERVATIONS
           ? totalPages
           : Math.ceil(tableData.length ? tableData.length / pageSize : 1),
       onPaginationChange: setPagination,

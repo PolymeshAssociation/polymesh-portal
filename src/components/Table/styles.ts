@@ -1,11 +1,12 @@
 import styled from 'styled-components';
 
-export const StyledTableWrapper = styled.div`
+export const StyledTableWrapper = styled.div<{ $noBoxShadow?: boolean }>`
   grid-area: table;
   display: flex;
   flex-direction: column;
   background-color: ${({ theme }) => theme.colors.landingBackground};
-  box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
+  box-shadow: ${({ $noBoxShadow, theme }) =>
+    $noBoxShadow ? 'none' : `0px 20px 40px ${theme.colors.shadow}`};
   border-radius: 24px;
   /* overflow: hidden; */
 
@@ -275,7 +276,6 @@ export const StyledPerPageSelect = styled.div`
 
   & select {
     position: relative;
-    z-index: 1;
     appearance: none;
     display: flex;
     align-items: flex-end;

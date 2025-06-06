@@ -14,24 +14,28 @@ import { TSelectedLeg, ISelectedLegFungible } from './types';
 
 export const getPortfolioDataFromIdentity = async (
   identity: Identity,
+  assetId?: string | FungibleAsset,
 ): Promise<IPortfolioData[]> => {
   if (!identity) return [];
 
   const portfolios = await identity.portfolios.getPortfolios();
 
   const defaultP = portfolios[0];
-  const numberedP = portfolios
-    .filter((_, idx) => idx !== 0)
-    .sort((a, b) => {
-      const first = (a as NumberedPortfolio).id.toString();
-      const second = (b as NumberedPortfolio).id.toString();
-      return first.localeCompare(second);
-    }) as NumberedPortfolio[];
+  const numberedP = portfolios.slice(1).sort((a, b) => {
+    const first = (a as NumberedPortfolio).id.toString();
+    const second = (b as NumberedPortfolio).id.toString();
+    return first.localeCompare(second);
+  }) as NumberedPortfolio[];
 
   const parsedPortfolios = await Promise.all(
     [defaultP, ...numberedP].map(async (portfolio, idx) => {
+      // Only fetch balances for specific asset if provided
+      const assets = assetId
+        ? await portfolio.getAssetBalances({ assets: [assetId] })
+        : await portfolio.getAssetBalances();
+
       const data = {
-        assets: await portfolio.getAssetBalances(),
+        assets,
         custodian: await portfolio.getCustodian(),
         portfolio,
       };

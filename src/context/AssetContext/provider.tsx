@@ -6,7 +6,10 @@ import React, {
   useContext,
   useRef,
 } from 'react';
-import { NftCollection } from '@polymeshassociation/polymesh-sdk/internal';
+import {
+  FungibleAsset,
+  NftCollection,
+} from '@polymeshassociation/polymesh-sdk/internal';
 import {
   Asset,
   MetadataLockStatus,
@@ -16,8 +19,12 @@ import AssetContext from './context';
 import { PolymeshContext } from '../PolymeshContext';
 import { AccountContext } from '../AccountContext';
 import { notifyGlobalError, notifyError } from '~/helpers/notifications';
-import { AssetWithDetails, TickerReservationWithDetails } from './constants';
-import { IAssetDetails } from '~/hooks/polymesh/useAssetDetails';
+import {
+  AssetWithDetails,
+  IAssetDetails,
+  TickerReservationWithDetails,
+} from './constants';
+
 import { splitCamelCase } from '~/helpers/formatters';
 import { toFormattedTimestamp } from '~/helpers/dateTime';
 
@@ -32,6 +39,7 @@ const AssetProvider = ({ children }: IProviderProps) => {
   const { identity, identityLoading } = useContext(AccountContext);
   const [assetsLoading, setAssetsLoading] = useState(false);
   const [ownedAssets, setOwnedAssets] = useState<AssetWithDetails[]>([]);
+  const [managedAssets, setManagedAssets] = useState<AssetWithDetails[]>([]);
   const [tickerReservations, setTickerReservations] = useState<
     TickerReservationWithDetails[]
   >([]);
@@ -42,25 +50,39 @@ const AssetProvider = ({ children }: IProviderProps) => {
     [assetId: string]: IAssetDetails;
   }>({});
 
+  const fetchAsset = useCallback(
+    async (assetIdentifier: string): Promise<Asset | undefined> => {
+      if (!sdk) return undefined;
+
+      try {
+        const asset =
+          assetIdentifier.length <= 12
+            ? await sdk.assets.getAsset({ ticker: assetIdentifier })
+            : await sdk.assets.getAsset({ assetId: assetIdentifier });
+
+        return asset;
+      } catch (error) {
+        notifyGlobalError((error as Error).message);
+        return undefined;
+      }
+    },
+    [sdk],
+  );
+
   const fetchAssetDetails = useCallback(
     async (
       assetIdentifier: string | Asset,
       forceRefresh = false,
     ): Promise<IAssetDetails | undefined> => {
       if (!sdk || !gqlClient) return undefined;
-      let asset;
-      try {
-        if (typeof assetIdentifier === 'string') {
-          asset =
-            assetIdentifier.length <= 12
-              ? await sdk.assets.getAsset({ ticker: assetIdentifier })
-              : await sdk.assets.getAsset({ assetId: assetIdentifier });
-        } else {
-          asset = assetIdentifier;
-        }
-      } catch (error) {
-        notifyGlobalError((error as Error).message);
-        return undefined;
+
+      let asset: Asset;
+      if (typeof assetIdentifier === 'string') {
+        const fetchedAsset = await fetchAsset(assetIdentifier);
+        if (!fetchedAsset) return undefined;
+        asset = fetchedAsset;
+      } else {
+        asset = assetIdentifier;
       }
       if (!forceRefresh && assetFullDetailsCacheRef.current[asset.id]) {
         return assetFullDetailsCacheRef.current[asset.id];
@@ -79,6 +101,18 @@ const AssetProvider = ({ children }: IProviderProps) => {
           requiredMediators,
           venueFilteringDetails,
           assetIsFrozen,
+          agentsWithGroups,
+          permissionGroups,
+          complianceRequirements,
+          compliancePaused,
+          transferRestrictionCount,
+          transferRestrictionPercentage,
+          transferRestrictionClaimCount,
+          transferRestrictionClaimPercentage,
+          transferRestrictionCountStat,
+          transferRestrictionPercentageStat,
+          transferRestrictionClaimCountStat,
+          transferRestrictionClaimPercentageStat,
         ] = await Promise.all([
           asset.details(),
           asset instanceof NftCollection ? asset.getCollectionId() : undefined,
@@ -92,6 +126,34 @@ const AssetProvider = ({ children }: IProviderProps) => {
           asset.getRequiredMediators(),
           asset.getVenueFilteringDetails(),
           asset.isFrozen(),
+          asset.permissions.getAgents(),
+          asset.permissions.getGroups(),
+          asset.compliance.requirements.get(),
+          asset.compliance.requirements.arePaused(),
+          asset instanceof FungibleAsset
+            ? asset.transferRestrictions.count.get()
+            : undefined,
+          asset instanceof FungibleAsset
+            ? asset.transferRestrictions.percentage.get()
+            : undefined,
+          asset instanceof FungibleAsset
+            ? asset.transferRestrictions.claimCount.get()
+            : undefined,
+          asset instanceof FungibleAsset
+            ? asset.transferRestrictions.claimPercentage.get()
+            : undefined,
+          asset instanceof FungibleAsset
+            ? asset.transferRestrictions.count.getStat()
+            : undefined,
+          asset instanceof FungibleAsset
+            ? asset.transferRestrictions.percentage.getStat()
+            : undefined,
+          asset instanceof FungibleAsset
+            ? asset.transferRestrictions.claimCount.getStat()
+            : undefined,
+          asset instanceof FungibleAsset
+            ? asset.transferRestrictions.claimPercentage.getStat()
+            : undefined,
         ]);
 
         const metaData = (
@@ -144,7 +206,20 @@ const AssetProvider = ({ children }: IProviderProps) => {
             permittedVenuesIds: venueFilteringDetails.allowedVenues.map(
               (venue) => venue.id.toString(),
             ),
+            permittedVenues: venueFilteringDetails.allowedVenues,
             isFrozen: assetIsFrozen,
+            agentsWithGroups,
+            permissionGroups,
+            complianceRequirements,
+            compliancePaused,
+            transferRestrictionCount,
+            transferRestrictionPercentage,
+            transferRestrictionClaimCount,
+            transferRestrictionClaimPercentage,
+            transferRestrictionCountStat,
+            transferRestrictionPercentageStat,
+            transferRestrictionClaimCountStat,
+            transferRestrictionClaimPercentageStat,
           },
           docs: docs.data,
         };
@@ -156,7 +231,7 @@ const AssetProvider = ({ children }: IProviderProps) => {
         return undefined;
       }
     },
-    [sdk, gqlClient],
+    [sdk, gqlClient, fetchAsset],
   );
 
   const refreshGlobalMetadata = useCallback(async () => {
@@ -173,17 +248,20 @@ const AssetProvider = ({ children }: IProviderProps) => {
     if (!sdk || identityLoading) {
       setAssetsLoading(true);
       setOwnedAssets([]);
+      setManagedAssets([]);
       setTickerReservations([]);
       return;
     }
     if (!identity) {
       setOwnedAssets([]);
+      setManagedAssets([]);
       setTickerReservations([]);
       setAssetsLoading(false);
       return;
     }
     setAssetsLoading(true);
     let ownedAssetsWithDetails: AssetWithDetails[] = [];
+    let managedAssetsWithDetails: AssetWithDetails[] = [];
     let reservationsWithDetails: TickerReservationWithDetails[] = [];
 
     try {
@@ -199,6 +277,21 @@ const AssetProvider = ({ children }: IProviderProps) => {
         `Failed to retrieve asset details: ${(error as Error).message}`,
       );
       ownedAssetsWithDetails = [];
+    }
+
+    try {
+      const assetPermissions = await identity.assetPermissions.get();
+      managedAssetsWithDetails = (await Promise.all(
+        assetPermissions.map(async ({ asset }) => {
+          const detailsData = await asset.details();
+          return Object.assign(asset, { ...detailsData });
+        }),
+      )) as AssetWithDetails[];
+    } catch (error) {
+      notifyError(
+        `Failed to retrieve managed assets: ${(error as Error).message}`,
+      );
+      managedAssetsWithDetails = [];
     }
 
     try {
@@ -219,6 +312,7 @@ const AssetProvider = ({ children }: IProviderProps) => {
     }
 
     setOwnedAssets(ownedAssetsWithDetails);
+    setManagedAssets(managedAssetsWithDetails);
     setTickerReservations(reservationsWithDetails);
     setAssetsLoading(false);
   }, [sdk, identityLoading, identity]);
@@ -234,20 +328,24 @@ const AssetProvider = ({ children }: IProviderProps) => {
   const contextValue = useMemo(
     () => ({
       ownedAssets,
+      managedAssets,
       assetsLoading,
       setOwnedAssets,
       refreshAssets,
       tickerReservations,
       fetchAssetDetails,
+      fetchAsset,
       globalMetadata,
       refreshGlobalMetadata,
     }),
     [
       ownedAssets,
+      managedAssets,
       assetsLoading,
       refreshAssets,
       tickerReservations,
       fetchAssetDetails,
+      fetchAsset,
       globalMetadata,
       refreshGlobalMetadata,
     ],
