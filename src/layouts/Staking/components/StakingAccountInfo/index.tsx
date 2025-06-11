@@ -440,7 +440,8 @@ export const StakingAccountInfo = () => {
           One or more of your nominations are ineligible for election. Update
           your nominations to ensure they are eligible. Ineligible nominations
           are marked with a <Icon name="AlertIcon" className="alert-icon" />{' '}
-          symbol.
+          symbol. [Learn
+          more.](https://community.polymesh.live/hc/en-us/articles/19605157602332)
         </StyledStakingMessage>
       );
     }
