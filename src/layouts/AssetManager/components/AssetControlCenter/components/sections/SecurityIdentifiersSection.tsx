@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Icon } from '~/components';
 import { SecurityIdentifiersTable } from '../SecurityIdentifiersTable';
+import { ComingSoonModal } from '../modals';
 import type { TabProps, SecurityIdentifier } from '../../types';
 import {
   TabSection,
@@ -18,18 +19,24 @@ interface SecurityIdentifiersSectionProps {
 export const SecurityIdentifiersSection: React.FC<
   SecurityIdentifiersSectionProps
 > = ({ asset }) => {
+  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
+  const [comingSoonFeature, setComingSoonFeature] = useState('');
+
   const handleAddSecurityIdentifier = () => {
-    // TODO: Open add security identifier modal
+    setComingSoonFeature('add security identifier');
+    setComingSoonModalOpen(true);
   };
 
   const handleEditSecurityIdentifier = (identifierId: string) => {
-    // TODO: Open edit security identifier modal
+    setComingSoonFeature('edit security identifier');
+    setComingSoonModalOpen(true);
     // eslint-disable-next-line no-console
     console.log('Edit identifier:', identifierId);
   };
 
   const handleRemoveSecurityIdentifier = (identifierId: string) => {
-    // TODO: Open remove security identifier confirmation modal
+    setComingSoonFeature('remove security identifier');
+    setComingSoonModalOpen(true);
     // eslint-disable-next-line no-console
     console.log('Remove identifier:', identifierId);
   };
@@ -43,29 +50,37 @@ export const SecurityIdentifiersSection: React.FC<
     })) || [];
 
   return (
-    <TabSection>
-      <SectionHeader>
-        <SectionTitle>Security Identifiers</SectionTitle>
-        <AddButton onClick={handleAddSecurityIdentifier}>
-          <Icon name="Plus" size="16px" />
-          Add Identifier
-        </AddButton>
-      </SectionHeader>
-      <SectionContent>
-        {securityIdentifiers.length > 0 ? (
-          <SecurityIdentifiersTable
-            identifiers={securityIdentifiers}
-            onEditIdentifier={handleEditSecurityIdentifier}
-            onRemoveIdentifier={handleRemoveSecurityIdentifier}
-          />
-        ) : (
-          <EmptyState>
-            No security identifiers configured. Security identifiers are
-            alternative ways to reference your asset, such as ISIN, CUSIP, or
-            LEI codes.
-          </EmptyState>
-        )}
-      </SectionContent>
-    </TabSection>
+    <>
+      <TabSection>
+        <SectionHeader>
+          <SectionTitle>Security Identifiers</SectionTitle>
+          <AddButton onClick={handleAddSecurityIdentifier}>
+            <Icon name="Plus" size="16px" />
+            Add Identifier
+          </AddButton>
+        </SectionHeader>
+        <SectionContent>
+          {securityIdentifiers.length > 0 ? (
+            <SecurityIdentifiersTable
+              identifiers={securityIdentifiers}
+              onEditIdentifier={handleEditSecurityIdentifier}
+              onRemoveIdentifier={handleRemoveSecurityIdentifier}
+            />
+          ) : (
+            <EmptyState>
+              No security identifiers configured. Security identifiers are
+              alternative ways to reference your asset, such as ISIN, CUSIP, or
+              LEI codes.
+            </EmptyState>
+          )}
+        </SectionContent>
+      </TabSection>
+
+      <ComingSoonModal
+        isOpen={comingSoonModalOpen}
+        onClose={() => setComingSoonModalOpen(false)}
+        feature={comingSoonFeature}
+      />
+    </>
   );
 };

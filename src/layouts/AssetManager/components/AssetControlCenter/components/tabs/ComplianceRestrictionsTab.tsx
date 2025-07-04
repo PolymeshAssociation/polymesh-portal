@@ -16,8 +16,12 @@ export const ComplianceRestrictionsTab: React.FC<TabProps> = ({ asset }) => {
       <TrustedClaimIssuersSection asset={asset} />
       <VenueFilteringSection asset={asset} />
       <RequiredMediatorsSection asset={asset} />
-      <TrackedStatsSection asset={asset} />
-      <TransferRestrictionsSection asset={asset} />
+      {!asset.details?.isNftCollection && (
+        <>
+          <TrackedStatsSection asset={asset} />
+          <TransferRestrictionsSection asset={asset} />
+        </>
+      )}
     </>
   );
 };

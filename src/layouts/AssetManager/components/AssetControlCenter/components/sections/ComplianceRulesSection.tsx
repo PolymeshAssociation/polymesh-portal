@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ConditionType,
   ConditionTarget,
@@ -40,6 +40,7 @@ import {
 } from '../../styles';
 import { splitCamelCase, formatDid } from '~/helpers/formatters';
 import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
+import { ComingSoonModal } from '../modals';
 
 interface ComplianceRulesSectionProps {
   asset: TabProps['asset'];
@@ -106,24 +107,29 @@ const conditionTypeLabels = {
 export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
   asset,
 }) => {
+  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
+  const [comingSoonFeature, setComingSoonFeature] = useState('');
+
   const handleManageComplianceRules = () => {
-    // TODO: Open manage compliance rules modal/page
+    setComingSoonFeature('add compliance rule');
+    setComingSoonModalOpen(true);
   };
 
   const handlePauseCompliance = () => {
-    // TODO: Open pause/resume compliance confirmation modal
-    // Current state: compliancePaused
-    // Action: compliancePaused ? Resume : Pause
+    setComingSoonFeature('pause/resume compliance');
+    setComingSoonModalOpen(true);
   };
 
   const handleEditRule = (ruleIndex: number) => {
-    // TODO: Open edit rule modal/page
+    setComingSoonFeature('edit compliance rule');
+    setComingSoonModalOpen(true);
     // eslint-disable-next-line no-console
     console.log('Edit rule:', ruleIndex);
   };
 
   const handleDeleteRule = (ruleIndex: number) => {
-    // TODO: Open delete rule confirmation modal
+    setComingSoonFeature('delete compliance rule');
+    setComingSoonModalOpen(true);
     // eslint-disable-next-line no-console
     console.log('Delete rule:', ruleIndex);
   };
@@ -306,151 +312,160 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
   const compliancePaused = asset?.details?.compliancePaused ?? false;
 
   return (
-    <TabSection>
-      <SectionHeader>
-        <SectionTitle>Compliance Rules</SectionTitle>
-        <HeaderButtons>
-          <AddButton onClick={handlePauseCompliance}>
-            <Icon name="ClockIcon" size="16px" />
-            {compliancePaused ? 'Resume All Rules' : 'Pause All Rules'}
-          </AddButton>
-          <AddButton onClick={handleManageComplianceRules}>
-            <Icon name="Plus" size="16px" />
-            Add Rules
-          </AddButton>
-        </HeaderButtons>
-      </SectionHeader>
-      <SectionContent>
-        {/* Compliance Status Indicator */}
-        <ComplianceStatus $status={compliancePaused ? 'paused' : 'active'}>
-          <span>
-            Compliance rules are currently{' '}
-            <strong>{compliancePaused ? 'paused' : 'active'}</strong>
-            {compliancePaused &&
-              '. All transfers are allowed until rules are resumed.'}
-            {!compliancePaused &&
-              complianceRules.length > 0 &&
-              '. All transfers must comply with at least one rule below.'}
-            {!compliancePaused &&
-              complianceRules.length === 0 &&
-              '. No rules are configured, so all transfers are currently allowed.'}
-          </span>
-        </ComplianceStatus>
-        {complianceRules.length > 0 ? (
-          <GridDataList>
-            {complianceRules.map((rule) => (
-              <DataItem key={rule.id}>
-                <RuleContainer>
-                  {/* Edit/Delete buttons in top right corner */}
-                  <ButtonsContainer>
-                    <ActionButton
-                      onClick={() => handleEditRule(rule.ruleIndex)}
-                      title="Edit Rule"
-                    >
-                      <Icon name="Edit" size="14px" />
-                    </ActionButton>
-                    <ActionButton
-                      onClick={() => handleDeleteRule(rule.ruleIndex)}
-                      title="Delete Rule"
-                    >
-                      <Icon name="Delete" size="14px" />
-                    </ActionButton>
-                  </ButtonsContainer>
+    <>
+      <TabSection>
+        <SectionHeader>
+          <SectionTitle>Compliance Rules</SectionTitle>
+          <HeaderButtons>
+            <AddButton onClick={handlePauseCompliance}>
+              <Icon name="ClockIcon" size="16px" />
+              {compliancePaused ? 'Resume All Rules' : 'Pause All Rules'}
+            </AddButton>
+            <AddButton onClick={handleManageComplianceRules}>
+              <Icon name="Plus" size="16px" />
+              Add Rules
+            </AddButton>
+          </HeaderButtons>
+        </SectionHeader>
+        <SectionContent>
+          {/* Compliance Status Indicator */}
+          <ComplianceStatus $status={compliancePaused ? 'paused' : 'active'}>
+            <span>
+              Compliance rules are currently{' '}
+              <strong>{compliancePaused ? 'paused' : 'active'}</strong>
+              {compliancePaused &&
+                '. All transfers are allowed until rules are resumed.'}
+              {!compliancePaused &&
+                complianceRules.length > 0 &&
+                '. All transfers must comply with at least one rule below.'}
+              {!compliancePaused &&
+                complianceRules.length === 0 &&
+                '. No rules are configured, so all transfers are currently allowed.'}
+            </span>
+          </ComplianceStatus>
+          {complianceRules.length > 0 ? (
+            <GridDataList>
+              {complianceRules.map((rule) => (
+                <DataItem key={rule.id}>
+                  <RuleContainer>
+                    {/* Edit/Delete buttons in top right corner */}
+                    <ButtonsContainer>
+                      <ActionButton
+                        onClick={() => handleEditRule(rule.ruleIndex)}
+                        title="Edit Rule"
+                      >
+                        <Icon name="Edit" size="14px" />
+                      </ActionButton>
+                      <ActionButton
+                        onClick={() => handleDeleteRule(rule.ruleIndex)}
+                        title="Delete Rule"
+                      >
+                        <Icon name="Delete" size="14px" />
+                      </ActionButton>
+                    </ButtonsContainer>
 
-                  {/* Rule header */}
-                  <DataLabel>Rule #{rule.ruleIndex + 1}</DataLabel>
+                    {/* Rule header */}
+                    <DataLabel>Rule #{rule.ruleIndex + 1}</DataLabel>
 
-                  {/* Conditions in column layout */}
-                  <RuleHeader>
-                    <DataLabel>Conditions</DataLabel>
-                    <ConditionsContainer>
-                      {rule.groupedConditions.map((groupedCondition) => (
-                        <ConditionCard
-                          key={`${groupedCondition.type}-${groupedCondition.target}-${groupedCondition.displayText}`}
-                        >
-                          <ConditionText>
-                            {groupedCondition.type === 'single' &&
-                            groupedCondition.conditions[0].type ===
-                              ConditionType.IsIdentity &&
-                            groupedCondition.identity ? (
-                              <InlineWithCopy>
-                                {groupedCondition.displayText}
-                                <CopyToClipboard
-                                  value={groupedCondition.identity}
-                                />
-                              </InlineWithCopy>
-                            ) : (
-                              groupedCondition.displayText
-                            )}
-                          </ConditionText>
+                    {/* Conditions in column layout */}
+                    <RuleHeader>
+                      <DataLabel>Conditions</DataLabel>
+                      <ConditionsContainer>
+                        {rule.groupedConditions.map((groupedCondition) => (
+                          <ConditionCard
+                            key={`${groupedCondition.type}-${groupedCondition.target}-${groupedCondition.displayText}`}
+                          >
+                            <ConditionText>
+                              {groupedCondition.type === 'single' &&
+                              groupedCondition.conditions[0].type ===
+                                ConditionType.IsIdentity &&
+                              groupedCondition.identity ? (
+                                <InlineWithCopy>
+                                  {groupedCondition.displayText}
+                                  <CopyToClipboard
+                                    value={groupedCondition.identity}
+                                  />
+                                </InlineWithCopy>
+                              ) : (
+                                groupedCondition.displayText
+                              )}
+                            </ConditionText>
 
-                          {/* Claims */}
-                          {groupedCondition.claims &&
-                            groupedCondition.claims.length > 0 && (
-                              <ClaimsContainer>
-                                <ClaimsHeader>Claims:</ClaimsHeader>
-                                {groupedCondition.claims.map((claim) => (
-                                  <ClaimItem
-                                    key={`${claim.type}-${claim.displayText}-${claim.scope?.value || 'no-scope'}`}
-                                  >
-                                    • {claim.displayText}
-                                    {claim.scope &&
-                                      renderScopeWithCopy(claim.scope)}
-                                  </ClaimItem>
-                                ))}
-                              </ClaimsContainer>
-                            )}
+                            {/* Claims */}
+                            {groupedCondition.claims &&
+                              groupedCondition.claims.length > 0 && (
+                                <ClaimsContainer>
+                                  <ClaimsHeader>Claims:</ClaimsHeader>
+                                  {groupedCondition.claims.map((claim) => (
+                                    <ClaimItem
+                                      key={`${claim.type}-${claim.displayText}-${claim.scope?.value || 'no-scope'}`}
+                                    >
+                                      • {claim.displayText}
+                                      {claim.scope &&
+                                        renderScopeWithCopy(claim.scope)}
+                                    </ClaimItem>
+                                  ))}
+                                </ClaimsContainer>
+                              )}
 
-                          {/* Condition-specific trusted claim issuers */}
-                          {groupedCondition.trustedClaimIssuers &&
-                            groupedCondition.trustedClaimIssuers.length > 0 && (
-                              <TrustedIssuersContainer>
-                                <TrustedIssuersHeader>
-                                  Allowed Condition Claim Issuers:
-                                </TrustedIssuersHeader>
-                                {groupedCondition.trustedClaimIssuers.map(
-                                  (issuer) => (
-                                    <TrustedIssuerItem key={issuer.identity}>
-                                      <div>
-                                        <InlineWithCopy>
-                                          <span>
-                                            <strong>DID:</strong>{' '}
-                                            {formatDid(issuer.identity, 8, 8)}
-                                          </span>
-                                          <CopyToClipboard
-                                            value={issuer.identity}
-                                          />
-                                        </InlineWithCopy>
-                                      </div>
-                                      <TrustedIssuerDetails>
-                                        <strong>Trusted for:</strong>{' '}
-                                        {issuer.trustedFor === null
-                                          ? 'All claim types'
-                                          : issuer.trustedFor
-                                              .map(splitCamelCase)
-                                              .join(', ')}
-                                      </TrustedIssuerDetails>
-                                    </TrustedIssuerItem>
-                                  ),
-                                )}
-                              </TrustedIssuersContainer>
-                            )}
-                        </ConditionCard>
-                      ))}
-                    </ConditionsContainer>
-                  </RuleHeader>
-                </RuleContainer>
-              </DataItem>
-            ))}
-          </GridDataList>
-        ) : (
-          <EmptyState>
-            No compliance rules configured. When no rules are set, all transfers
-            are allowed by default. Add rules to restrict transfers based on
-            investor claims and identity requirements.
-          </EmptyState>
-        )}
-      </SectionContent>
-    </TabSection>
+                            {/* Condition-specific trusted claim issuers */}
+                            {groupedCondition.trustedClaimIssuers &&
+                              groupedCondition.trustedClaimIssuers.length >
+                                0 && (
+                                <TrustedIssuersContainer>
+                                  <TrustedIssuersHeader>
+                                    Allowed Condition Claim Issuers:
+                                  </TrustedIssuersHeader>
+                                  {groupedCondition.trustedClaimIssuers.map(
+                                    (issuer) => (
+                                      <TrustedIssuerItem key={issuer.identity}>
+                                        <div>
+                                          <InlineWithCopy>
+                                            <span>
+                                              <strong>DID:</strong>{' '}
+                                              {formatDid(issuer.identity, 8, 8)}
+                                            </span>
+                                            <CopyToClipboard
+                                              value={issuer.identity}
+                                            />
+                                          </InlineWithCopy>
+                                        </div>
+                                        <TrustedIssuerDetails>
+                                          <strong>Trusted for:</strong>{' '}
+                                          {issuer.trustedFor === null
+                                            ? 'All claim types'
+                                            : issuer.trustedFor
+                                                .map(splitCamelCase)
+                                                .join(', ')}
+                                        </TrustedIssuerDetails>
+                                      </TrustedIssuerItem>
+                                    ),
+                                  )}
+                                </TrustedIssuersContainer>
+                              )}
+                          </ConditionCard>
+                        ))}
+                      </ConditionsContainer>
+                    </RuleHeader>
+                  </RuleContainer>
+                </DataItem>
+              ))}
+            </GridDataList>
+          ) : (
+            <EmptyState>
+              No compliance rules configured. When no rules are set, all
+              transfers are allowed by default. Add rules to restrict transfers
+              based on investor claims and identity requirements.
+            </EmptyState>
+          )}
+        </SectionContent>
+      </TabSection>
+
+      <ComingSoonModal
+        isOpen={comingSoonModalOpen}
+        onClose={() => setComingSoonModalOpen(false)}
+        feature={comingSoonFeature}
+      />
+    </>
   );
 };

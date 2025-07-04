@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Icon, CopyToClipboard } from '~/components';
 import { formatDid } from '~/helpers/formatters';
 import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
@@ -25,6 +25,7 @@ import {
   InlineValue,
   DataLabel,
 } from '../../styles';
+import { ComingSoonModal } from '../modals';
 
 interface TransferRestrictionsSectionProps {
   asset: TabProps['asset'];
@@ -117,18 +118,24 @@ const getRestrictionTypeDescription = (
 export const TransferRestrictionsSection: React.FC<
   TransferRestrictionsSectionProps
 > = ({ asset }) => {
+  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
+  const [comingSoonFeature, setComingSoonFeature] = useState('');
+
   const handleManageTransferRestrictions = () => {
-    // TODO: Open manage transfer restrictions modal
+    setComingSoonFeature('add transfer restriction');
+    setComingSoonModalOpen(true);
   };
 
   const handleEditRestriction = (restrictionId: string) => {
-    // TODO: Open edit restriction modal
+    setComingSoonFeature('edit transfer restriction');
+    setComingSoonModalOpen(true);
     // eslint-disable-next-line no-console
     console.log('Edit restriction:', restrictionId);
   };
 
   const handleDeleteRestriction = (restrictionId: string) => {
-    // TODO: Open delete restriction confirmation modal
+    setComingSoonFeature('delete transfer restriction');
+    setComingSoonModalOpen(true);
     // eslint-disable-next-line no-console
     console.log('Delete restriction:', restrictionId);
   };
@@ -137,7 +144,8 @@ export const TransferRestrictionsSection: React.FC<
     restrictionId: string,
     exemptedDid: string,
   ) => {
-    // TODO: Open delete exemption confirmation modal
+    setComingSoonFeature('delete transfer restriction exemption');
+    setComingSoonModalOpen(true);
     // eslint-disable-next-line no-console
     console.log('Delete exemption:', restrictionId, exemptedDid);
   };
@@ -232,135 +240,143 @@ export const TransferRestrictionsSection: React.FC<
   }
 
   return (
-    <TabSection>
-      <SectionHeader>
-        <SectionTitle>Transfer Restrictions</SectionTitle>
-        <AddButton onClick={handleManageTransferRestrictions}>
-          <Icon name="Plus" size="16px" />
-          Add Restrictions
-        </AddButton>
-      </SectionHeader>
-      <SectionContent>
-        {restrictions.length > 0 ? (
-          <GridDataList>
-            {restrictions.map((restriction) => (
-              <DataItem key={restriction.id}>
-                {/* Header with restriction type and action buttons */}
-                <GroupHeader>
-                  <GroupTitleSection>
-                    <InlineRow>
-                      <InlineLabel>Type</InlineLabel>
-                      <InlineValue>
-                        {getRestrictionTypeDescription(restriction)}
-                      </InlineValue>
-                    </InlineRow>
-                  </GroupTitleSection>
-
-                  {/* Action buttons in top-right corner */}
-                  <GroupActions>
-                    <ActionButton
-                      onClick={() => handleEditRestriction(restriction.id)}
-                      title="Edit Restriction"
-                    >
-                      <Icon name="Edit" size="14px" />
-                    </ActionButton>
-                    <ActionButton
-                      onClick={() => handleDeleteRestriction(restriction.id)}
-                      title="Delete Restriction"
-                    >
-                      <Icon name="Delete" size="14px" />
-                    </ActionButton>
-                  </GroupActions>
-                </GroupHeader>
-
-                {/* Content section */}
-                <GroupContent>
-                  {restriction.claimType && (
-                    <InlineRow>
-                      <InlineLabel>Claim Type</InlineLabel>
-                      <InlineValue>
-                        {getClaimDetailDescription(
-                          restriction.claimType,
-                          restriction.claimDetails || {},
-                        )}
-                      </InlineValue>
-                    </InlineRow>
-                  )}
-
-                  {restriction.claimType === 'Jurisdiction' &&
-                    restriction.claimDetails?.countryCode && (
+    <>
+      <TabSection>
+        <SectionHeader>
+          <SectionTitle>Transfer Restrictions</SectionTitle>
+          <AddButton onClick={handleManageTransferRestrictions}>
+            <Icon name="Plus" size="16px" />
+            Add Restrictions
+          </AddButton>
+        </SectionHeader>
+        <SectionContent>
+          {restrictions.length > 0 ? (
+            <GridDataList>
+              {restrictions.map((restriction) => (
+                <DataItem key={restriction.id}>
+                  {/* Header with restriction type and action buttons */}
+                  <GroupHeader>
+                    <GroupTitleSection>
                       <InlineRow>
-                        <InlineLabel>Jurisdiction</InlineLabel>
+                        <InlineLabel>Type</InlineLabel>
                         <InlineValue>
-                          {getJurisdictionCountryName(
-                            restriction.claimDetails.countryCode,
+                          {getRestrictionTypeDescription(restriction)}
+                        </InlineValue>
+                      </InlineRow>
+                    </GroupTitleSection>
+
+                    {/* Action buttons in top-right corner */}
+                    <GroupActions>
+                      <ActionButton
+                        onClick={() => handleEditRestriction(restriction.id)}
+                        title="Edit Restriction"
+                      >
+                        <Icon name="Edit" size="14px" />
+                      </ActionButton>
+                      <ActionButton
+                        onClick={() => handleDeleteRestriction(restriction.id)}
+                        title="Delete Restriction"
+                      >
+                        <Icon name="Delete" size="14px" />
+                      </ActionButton>
+                    </GroupActions>
+                  </GroupHeader>
+
+                  {/* Content section */}
+                  <GroupContent>
+                    {restriction.claimType && (
+                      <InlineRow>
+                        <InlineLabel>Claim Type</InlineLabel>
+                        <InlineValue>
+                          {getClaimDetailDescription(
+                            restriction.claimType,
+                            restriction.claimDetails || {},
                           )}
                         </InlineValue>
                       </InlineRow>
                     )}
 
-                  {restriction.claimIssuer && (
-                    <InlineRow>
-                      <InlineLabel>Claim Issuer</InlineLabel>
-                      <InlineValue>
-                        {formatDid(restriction.claimIssuer, 8, 8)}
-                        <CopyToClipboard value={restriction.claimIssuer} />
-                      </InlineValue>
-                    </InlineRow>
-                  )}
+                    {restriction.claimType === 'Jurisdiction' &&
+                      restriction.claimDetails?.countryCode && (
+                        <InlineRow>
+                          <InlineLabel>Jurisdiction</InlineLabel>
+                          <InlineValue>
+                            {getJurisdictionCountryName(
+                              restriction.claimDetails.countryCode,
+                            )}
+                          </InlineValue>
+                        </InlineRow>
+                      )}
 
-                  {restriction.maxLimit && (
-                    <InlineRow>
-                      <InlineLabel>Max Limit</InlineLabel>
-                      <InlineValue>{restriction.maxLimit}</InlineValue>
-                    </InlineRow>
-                  )}
+                    {restriction.claimIssuer && (
+                      <InlineRow>
+                        <InlineLabel>Claim Issuer</InlineLabel>
+                        <InlineValue>
+                          {formatDid(restriction.claimIssuer, 8, 8)}
+                          <CopyToClipboard value={restriction.claimIssuer} />
+                        </InlineValue>
+                      </InlineRow>
+                    )}
 
-                  {restriction.minLimit && (
-                    <InlineRow>
-                      <InlineLabel>Min Limit</InlineLabel>
-                      <InlineValue>{restriction.minLimit}</InlineValue>
-                    </InlineRow>
-                  )}
+                    {restriction.maxLimit && (
+                      <InlineRow>
+                        <InlineLabel>Max Limit</InlineLabel>
+                        <InlineValue>{restriction.maxLimit}</InlineValue>
+                      </InlineRow>
+                    )}
 
-                  {restriction.exemptions > 0 && (
-                    <>
-                      <DataLabel>Exemptions</DataLabel>
-                      <MediatorContainer>
-                        {restriction.exemptedDids.map((did, index) => (
-                          <MediatorItem
-                            key={did}
-                            $isLast={
-                              index === restriction.exemptedDids.length - 1
-                            }
-                          >
-                            <DetailValue>
-                              {formatDid(did, 8, 8)}
-                              <CopyToClipboard value={did} />
-                            </DetailValue>
-                            <ActionButton
-                              onClick={() =>
-                                handleDeleteExemption(restriction.id, did)
+                    {restriction.minLimit && (
+                      <InlineRow>
+                        <InlineLabel>Min Limit</InlineLabel>
+                        <InlineValue>{restriction.minLimit}</InlineValue>
+                      </InlineRow>
+                    )}
+
+                    {restriction.exemptions > 0 && (
+                      <>
+                        <DataLabel>Exemptions</DataLabel>
+                        <MediatorContainer>
+                          {restriction.exemptedDids.map((did, index) => (
+                            <MediatorItem
+                              key={did}
+                              $isLast={
+                                index === restriction.exemptedDids.length - 1
                               }
                             >
-                              <Icon name="Delete" size="14px" />
-                            </ActionButton>
-                          </MediatorItem>
-                        ))}
-                      </MediatorContainer>
-                    </>
-                  )}
-                </GroupContent>
-              </DataItem>
-            ))}
-          </GridDataList>
-        ) : (
-          <EmptyState>
-            No transfer restrictions configured. Transfer restrictions limit how
-            many tokens can be held by individuals or groups.
-          </EmptyState>
-        )}
-      </SectionContent>
-    </TabSection>
+                              <DetailValue>
+                                {formatDid(did, 8, 8)}
+                                <CopyToClipboard value={did} />
+                              </DetailValue>
+                              <ActionButton
+                                onClick={() =>
+                                  handleDeleteExemption(restriction.id, did)
+                                }
+                              >
+                                <Icon name="Delete" size="14px" />
+                              </ActionButton>
+                            </MediatorItem>
+                          ))}
+                        </MediatorContainer>
+                      </>
+                    )}
+                  </GroupContent>
+                </DataItem>
+              ))}
+            </GridDataList>
+          ) : (
+            <EmptyState>
+              No transfer restrictions configured. Transfer restrictions limit
+              how many tokens can be held by individuals or groups.
+            </EmptyState>
+          )}
+        </SectionContent>
+      </TabSection>
+
+      <ComingSoonModal
+        isOpen={comingSoonModalOpen}
+        onClose={() => setComingSoonModalOpen(false)}
+        feature={comingSoonFeature}
+      />
+    </>
   );
 };

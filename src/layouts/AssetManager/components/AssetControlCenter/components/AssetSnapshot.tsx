@@ -12,6 +12,7 @@ import { EditNameModal } from './modals/EditNameModal';
 import { EditTypeModal } from './modals/EditTypeModal';
 import { SetFundingRoundModal } from './modals/SetFundingRoundModal';
 import { LinkTickerModal } from './modals/LinkTickerModal';
+import { MintNftsModal } from './modals/MintNftsModal';
 import {
   SnapshotContainer,
   HeaderBar,
@@ -49,6 +50,7 @@ export const AssetSnapshot: React.FC<AssetSnapshotProps> = ({
   const [isSetFundingRoundModalOpen, setIsSetFundingRoundModalOpen] =
     useState(false);
   const [isLinkTickerModalOpen, setIsLinkTickerModalOpen] = useState(false);
+  const [isMintNftsModalOpen, setIsMintNftsModalOpen] = useState(false);
 
   const {
     freeze,
@@ -74,7 +76,7 @@ export const AssetSnapshot: React.FC<AssetSnapshotProps> = ({
 
   const handlePrimaryAction = () => {
     if (asset.details?.isNftCollection) {
-      // TODO: Open mint NFTs modal
+      setIsMintNftsModalOpen(true);
     } else {
       setIsIssueModalOpen(true);
     }
@@ -309,6 +311,12 @@ export const AssetSnapshot: React.FC<AssetSnapshotProps> = ({
         onClose={() => setIsLinkTickerModalOpen(false)}
         asset={asset}
         onLinkTicker={linkTicker}
+        transactionInProcess={transactionInProcess}
+      />
+
+      <MintNftsModal
+        isOpen={isMintNftsModalOpen}
+        onClose={() => setIsMintNftsModalOpen(false)}
         transactionInProcess={transactionInProcess}
       />
     </SnapshotContainer>
