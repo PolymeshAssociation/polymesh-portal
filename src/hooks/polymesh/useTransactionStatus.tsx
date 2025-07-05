@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import {
   GenericPolymeshTransaction,
   TransactionStatus,
@@ -9,12 +8,10 @@ import { Id, toast } from 'react-toastify';
 import { TransactionToast } from '~/components/NotificationToasts';
 
 const useTransactionStatus = () => {
-  const idRef = useRef<Id>(0);
-
   const handleStatusChange = (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     transaction: GenericPolymeshTransaction<any, any>,
-    customId?: Id,
+    transactionId: Id,
   ) => {
     const isTxBatch = transaction instanceof PolymeshTransactionBatch;
     let tag: TxTag;
@@ -24,9 +21,12 @@ const useTransactionStatus = () => {
     } else {
       tag = transaction.tag;
     }
+
+    const toastId = transactionId;
+
     switch (transaction.status) {
-      case TransactionStatus.Unapproved:
-        idRef.current = toast.info(
+      case TransactionStatus.Unapproved: {
+        toast.info(
           <TransactionToast
             message="Please sign transaction in your wallet"
             tag={tag}
@@ -39,14 +39,15 @@ const useTransactionStatus = () => {
             autoClose: false,
             closeOnClick: false,
             containerId: 'notification-center',
-            toastId: customId,
+            toastId,
           },
         );
 
         break;
+      }
 
       case TransactionStatus.Running:
-        toast.update(idRef.current, {
+        toast.update(toastId, {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
@@ -64,7 +65,7 @@ const useTransactionStatus = () => {
         });
         break;
       case TransactionStatus.Succeeded:
-        toast.update(idRef.current, {
+        toast.update(toastId, {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
@@ -83,7 +84,7 @@ const useTransactionStatus = () => {
         });
         break;
       case TransactionStatus.Rejected:
-        toast.update(idRef.current, {
+        toast.update(toastId, {
           render: (
             <TransactionToast
               status={transaction.status}
@@ -104,7 +105,7 @@ const useTransactionStatus = () => {
         break;
 
       case TransactionStatus.Failed:
-        toast.update(idRef.current, {
+        toast.update(toastId, {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
@@ -125,7 +126,7 @@ const useTransactionStatus = () => {
         break;
 
       case TransactionStatus.Aborted:
-        toast.update(idRef.current, {
+        toast.update(toastId, {
           render: (
             <TransactionToast
               status={transaction.status}

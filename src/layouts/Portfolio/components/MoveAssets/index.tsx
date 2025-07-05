@@ -19,7 +19,9 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
   const [selectedPortfolio, setSelectedPortfolio] = useState<
     DefaultPortfolio | NumberedPortfolio | null
   >(null);
-  const { moveAssets } = usePortfolio(portfolio.portfolio);
+  const { moveAssets, isTransactionInProgress } = usePortfolio(
+    portfolio.portfolio,
+  );
   const { isMobile } = useWindowWidth();
 
   const {
@@ -116,6 +118,7 @@ export const MoveAssets: React.FC<IMoveAssetsProps> = ({
           disabled={
             !Object.keys(selectedAssets).length ||
             !selectedPortfolio ||
+            isTransactionInProgress ||
             Object.values(selectedAssets).some((asset) => {
               if ('amount' in asset) {
                 return asset.amount.toNumber() <= 0;

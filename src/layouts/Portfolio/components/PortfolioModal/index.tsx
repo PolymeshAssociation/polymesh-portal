@@ -27,7 +27,8 @@ export const PortfolioModal: React.FC<IPortfolioModalProps> = ({
       type === EModalType.EDIT ? (portfolio as IPortfolioData).name : '',
     ),
   );
-  const { createPortfolio, editPortfolio } = usePortfolio(portfolio?.portfolio);
+  const { createPortfolio, editPortfolio, isTransactionInProgress } =
+    usePortfolio(portfolio?.portfolio);
   const { isMobile } = useWindowWidth();
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
@@ -71,7 +72,7 @@ export const PortfolioModal: React.FC<IPortfolioModalProps> = ({
         <Button
           variant="modalPrimary"
           onClick={handleSubmit(onSubmit)}
-          disabled={!isValid}
+          disabled={!isValid || isTransactionInProgress}
         >
           Confirm
         </Button>

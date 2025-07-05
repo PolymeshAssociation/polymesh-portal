@@ -5,7 +5,6 @@ import {
   InputStatType,
   MetadataType,
   StatType,
-  UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { useNavigate } from 'react-router-dom';
@@ -17,7 +16,7 @@ import MetadataStep from './steps/MetadataStep';
 import ClaimIssuersStep from './steps/ClaimIssuersStep';
 import ComplianceRulesStep from './steps/ComplianceRulesStep';
 import CollectionKeysStep from './steps/CollectionKeysStep';
-import TransferRestrictionsStep from './steps/TransferRestrictionsStep';
+// import TransferRestrictionsStep from './steps/TransferRestrictionsStep';
 import SettlementRestrictionsStep from './steps/SettlementRestrictionsStep';
 import IssuanceStep from './steps/IssuanceStep';
 import { WizardContainer, StepContainer } from './styles';
@@ -25,7 +24,7 @@ import { initialWizardData, WizardData } from './types';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { useWindowWidth } from '~/hooks/utility';
 import { PATHS } from '~/constants/routes';
 
@@ -35,7 +34,7 @@ const CreateAssetWizard = () => {
   } = useContext(PolymeshContext);
   const { account } = useContext(AccountContext);
   const { isMobile } = useWindowWidth();
-  const { handleStatusChange } = useTransactionStatus();
+  const { executeBatchTransaction } = useTransactionStatusContext();
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [assetData, setAssetData] = useState<WizardData>(initialWizardData);
@@ -81,7 +80,7 @@ const CreateAssetWizard = () => {
         component: SettlementRestrictionsStep,
         label: 'Settlement Restrictions',
       },
-      { component: TransferRestrictionsStep, label: 'Transfer Restrictions' },
+      // { component: TransferRestrictionsStep, label: 'Transfer Restrictions' },
     ];
   }, [assetData.fungibility]);
 
@@ -119,8 +118,6 @@ const CreateAssetWizard = () => {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const batchCalls: Array<GenericPolymeshTransaction<any, any>> = [];
-
-      let unsubCb: UnsubCallback | undefined;
 
       const nextAsset = await sdk.assets.getFungibleAsset({
         assetId: nextAssetId,
@@ -353,20 +350,18 @@ const CreateAssetWizard = () => {
         }
 
         if (batchCalls.length) {
-          const batchTransaction = await sdk.createTransactionBatch({
-            transactions: batchCalls,
-          });
-
-          unsubCb = batchTransaction.onStatusChange((transaction) =>
-            handleStatusChange(transaction),
+          const transactionPromises = batchCalls.map((call) =>
+            Promise.resolve(call),
           );
-          await batchTransaction.run();
-          navigate(`${PATHS.ASSET_MANAGER}/${nextAssetId}`);
+          await executeBatchTransaction(transactionPromises, {
+            onSuccess: () => {
+              navigate(`${PATHS.ASSET_MANAGER}/${nextAssetId}`);
+            },
+          });
         }
       } catch (error) {
         notifyError((error as Error).message);
       } finally {
-        if (unsubCb) unsubCb();
         setIsLoading(false);
       }
     } else {
@@ -388,7 +383,6 @@ const CreateAssetWizard = () => {
               defaultValues={assetData}
               onComplete={(data) => {
                 handleNext(data);
-                console.log('Wizard Data:', { ...assetData, ...data });
               }}
               onBack={handleBack}
               nextAssetId={nextAssetId}

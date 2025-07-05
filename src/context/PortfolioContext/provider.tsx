@@ -207,9 +207,7 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
       const parsedCustodiedPortfolios = await Promise.all(
         custodiedPortfoliosResult.data.map(async (portfolio) => {
           // Check if it's a default portfolio or numbered portfolio
-          const isDefaultPortfolio = !(
-            'toHuman' in portfolio && typeof portfolio.toHuman === 'function'
-          );
+          const isDefaultPortfolio = !('id' in portfolio);
           return parsePortfolioData(portfolio, isDefaultPortfolio);
         }),
       );

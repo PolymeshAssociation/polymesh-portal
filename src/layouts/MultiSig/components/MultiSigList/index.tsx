@@ -1,12 +1,7 @@
-import { useState, useContext } from 'react';
-import {
-  UnsubCallback,
-  GenericPolymeshTransaction,
-} from '@polymeshassociation/polymesh-sdk/types';
+import { useContext } from 'react';
 import { AccountContext } from '~/context/AccountContext';
 import { useMultiSigContext } from '~/context/MultiSigContext';
-import { useTransactionStatus } from '~/hooks/polymesh';
-import { notifyError } from '~/helpers/notifications';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { ESortOptions, EProposalAction } from '../../types';
 import { MultiSigListItem } from '../MultiSigItem';
 import { ItemPlaceHolder } from '../ItemPlaceHolder';
@@ -17,59 +12,32 @@ interface IMultiSigListProps {
 }
 
 export const MultiSigList: React.FC<IMultiSigListProps> = ({ sortBy }) => {
-  const [actionInProgress, setActionInProgress] = useState(false);
-
   const { account } = useContext(AccountContext);
-  const { handleStatusChange } = useTransactionStatus();
+  const { executeTransaction, isTransactionInProgress } =
+    useTransactionStatusContext();
   const { refreshProposals, pendingProposals } = useMultiSigContext();
   const { proposalsList, isLoading } = useMultiSigList();
 
   const executeAction = async (action: EProposalAction, proposalId: number) => {
-    let unsubCb: UnsubCallback | undefined;
-    let unsubProcessedByMiddleware: UnsubCallback | undefined;
     try {
-      setActionInProgress(true);
-
       const proposal = pendingProposals.find((p) => p.id.isEqualTo(proposalId));
       if (!proposal)
         throw new Error(`MultiSig proposal ID ${proposalId} not found !!!!`);
 
       const tx = await proposal[action]({ signingAccount: account?.address });
-      unsubCb = tx.onStatusChange((transaction) =>
-        handleStatusChange(transaction),
-      );
 
-      const refreshOnProcessedByMiddleware = new Promise<void>(
-        (resolve, reject) => {
-          unsubProcessedByMiddleware = tx.onProcessedByMiddleware((error) => {
-            if (error) {
-              notifyError((error as Error).message);
-              reject();
-            }
-            refreshProposals();
-            resolve();
-          });
+      // Execute transaction with global status handling including middleware
+      await executeTransaction(Promise.resolve(tx), {
+        onProcessedByMiddleware: () => {
+          refreshProposals();
         },
-      );
-
-      const runTx = async (
-        transaction: GenericPolymeshTransaction<void, void>,
-      ) => {
-        await transaction.run();
-        setActionInProgress(false);
-      };
-
-      await Promise.all([refreshOnProcessedByMiddleware, runTx(tx)]);
+        onSuccess: () => {
+          // Transaction success is handled by middleware
+        },
+      });
     } catch (error) {
-      notifyError((error as Error).message);
-      setActionInProgress(false);
-    } finally {
-      if (unsubCb) {
-        unsubCb();
-      }
-      if (unsubProcessedByMiddleware) {
-        unsubProcessedByMiddleware();
-      }
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -99,7 +67,7 @@ export const MultiSigList: React.FC<IMultiSigListProps> = ({ sortBy }) => {
         key={proposal.proposalId}
         item={proposal}
         executeAction={executeAction}
-        actionInProgress={actionInProgress}
+        actionInProgress={isTransactionInProgress}
       />
     ))
   );

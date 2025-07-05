@@ -20,6 +20,7 @@ import { CreateNewClaim } from '../CreateNewClaim';
 import { ClaimsContext } from '~/context/ClaimsContext';
 import { useWindowWidth } from '~/hooks/utility';
 import { AccountContext } from '~/context/AccountContext';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 
 interface IClaimsNavigationProps {
   sortBy: EScopeSortOptions;
@@ -30,6 +31,7 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
   sortBy,
   setSortBy,
 }) => {
+  const { isTransactionInProgress } = useTransactionStatusContext();
   const { identity, isExternalConnection } = useContext(AccountContext);
   const { refreshClaims, claimsLoading } = useContext(ClaimsContext);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -104,7 +106,9 @@ export const ClaimsNavigation: React.FC<IClaimsNavigationProps> = ({
             variant="modalPrimary"
             onClick={toggleModal}
             round={isSmallScreen}
-            disabled={!identity || isExternalConnection}
+            disabled={
+              !identity || isExternalConnection || isTransactionInProgress
+            }
           >
             <Icon name="Plus" />
             {!isSmallScreen && 'Create New Claim'}

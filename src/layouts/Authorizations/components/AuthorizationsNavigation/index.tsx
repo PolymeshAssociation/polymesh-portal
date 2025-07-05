@@ -21,6 +21,7 @@ import { Icon } from '~/components';
 import { AuthorizationsContext } from '~/context/AuthorizationsContext';
 import { useWindowWidth } from '~/hooks/utility';
 import { EAuthorizationDirections } from '../../constants';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 
 interface IAuthorizationsNavigationProps {
   notificationsCount: {
@@ -33,6 +34,7 @@ export const AuthorizationsNavigation: React.FC<
   IAuthorizationsNavigationProps
 > = ({ notificationsCount }) => {
   const { identity, isExternalConnection } = useContext(AccountContext);
+  const { isTransactionInProgress } = useTransactionStatusContext();
   const { refreshAuthorizations, authorizationsLoading } = useContext(
     AuthorizationsContext,
   );
@@ -112,7 +114,9 @@ export const AuthorizationsNavigation: React.FC<
       <StyledActionsWrapper>
         <Button
           variant="modalPrimary"
-          disabled={!identity || isExternalConnection}
+          disabled={
+            !identity || isExternalConnection || isTransactionInProgress
+          }
           onClick={toggleModal}
           round={isSmallScreen}
         >

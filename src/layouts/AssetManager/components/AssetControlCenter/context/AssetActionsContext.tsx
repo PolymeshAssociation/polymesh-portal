@@ -1,11 +1,13 @@
 import React, { createContext, useContext, ReactNode, useMemo } from 'react';
 import type { Asset } from '@polymeshassociation/polymesh-sdk/types';
 import useAssetActions from '~/hooks/polymesh/useAssetActions';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 
 // Define the context type based on the return type of useAssetActions
 type AssetActionsContextType =
   | (ReturnType<typeof useAssetActions> & {
       refreshAssetDetails?: () => void | Promise<void>;
+      isGlobalTransactionInProgress: boolean;
     })
   | null;
 
@@ -28,10 +30,15 @@ export const AssetActionsProvider: React.FC<AssetActionsProviderProps> = ({
   refreshAssetDetails,
 }) => {
   const assetActions = useAssetActions(assetInstance, onTransactionSuccess);
+  const { isTransactionInProgress } = useTransactionStatusContext();
 
   const contextValue = useMemo(
-    () => ({ ...assetActions, refreshAssetDetails }),
-    [assetActions, refreshAssetDetails],
+    () => ({
+      ...assetActions,
+      refreshAssetDetails,
+      isGlobalTransactionInProgress: isTransactionInProgress,
+    }),
+    [assetActions, refreshAssetDetails, isTransactionInProgress],
   );
 
   return (

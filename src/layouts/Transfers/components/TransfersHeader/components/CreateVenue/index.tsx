@@ -1,9 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { useForm } from 'react-hook-form';
-import {
-  UnsubCallback,
-  VenueType,
-} from '@polymeshassociation/polymesh-sdk/types';
+import { VenueType } from '@polymeshassociation/polymesh-sdk/types';
 import { useContext } from 'react';
 import { Modal } from '~/components';
 import { Heading, Button, DropdownSelect } from '~/components/UiKit';
@@ -11,8 +8,7 @@ import { StyledInput, StyledLabel, StyledButtonsWrapper } from '../styles';
 import { InputWrapper, StyledErrorMessage } from './styles';
 import { FORM_CONFIG, IFieldValues } from './config';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { notifyError } from '~/helpers/notifications';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { InstructionsContext } from '~/context/InstructionsContext';
 import { useWindowWidth } from '~/hooks/utility';
 
@@ -32,27 +28,28 @@ export const CreateVenue: React.FC<ICreateVenueProps> = ({ toggleModal }) => {
     api: { sdk },
   } = useContext(PolymeshContext);
   const { refreshInstructions } = useContext(InstructionsContext);
-  const { handleStatusChange } = useTransactionStatus();
+  const { executeTransaction, isTransactionInProgress } =
+    useTransactionStatusContext();
   const { isMobile } = useWindowWidth();
 
   const onSubmit = async ({ description, type }: IFieldValues) => {
     if (!sdk) return;
-
-    let unsubCb: UnsubCallback | undefined;
-
-    reset();
-    toggleModal();
     try {
-      const venueQ = await sdk.settlements.createVenue({ description, type });
-      venueQ.onStatusChange((transaction) => handleStatusChange(transaction));
-      await venueQ.run();
-      refreshInstructions();
+      await executeTransaction(
+        sdk.settlements.createVenue({ description, type }),
+        {
+          onTransactionRunning: () => {
+            reset();
+            toggleModal();
+          },
+          onSuccess: async () => {
+            refreshInstructions();
+          },
+        },
+      );
     } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      if (unsubCb) {
-        unsubCb();
-      }
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -87,7 +84,7 @@ export const CreateVenue: React.FC<ICreateVenueProps> = ({ toggleModal }) => {
         )}
         <Button
           variant="modalPrimary"
-          disabled={!isValid}
+          disabled={!isValid || isTransactionInProgress}
           onClick={handleSubmit(onSubmit)}
         >
           Confirm

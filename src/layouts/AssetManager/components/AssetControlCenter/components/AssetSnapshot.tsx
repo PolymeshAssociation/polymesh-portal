@@ -64,7 +64,6 @@ export const AssetSnapshot: React.FC<AssetSnapshotProps> = ({
     modifyAssetName,
     modifyAssetType,
     modifyFundingRound,
-    createCustomAssetType,
     transactionInProcess,
     refreshAssetDetails,
   } = useAssetActionsContext();
@@ -296,7 +295,6 @@ export const AssetSnapshot: React.FC<AssetSnapshotProps> = ({
         onClose={() => setIsEditTypeModalOpen(false)}
         asset={asset}
         onModifyAssetType={modifyAssetType}
-        onCreateAssetType={createCustomAssetType}
         transactionInProcess={transactionInProcess}
       />
 

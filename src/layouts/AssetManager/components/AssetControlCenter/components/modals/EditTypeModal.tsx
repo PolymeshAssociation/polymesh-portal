@@ -12,6 +12,8 @@ import { Modal } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
 import { IAssetDetails } from '~/context/AssetContext/constants';
 import { splitCamelCase } from '~/helpers/formatters';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { notifyError } from '~/helpers/notifications';
 
 import { ModalContainer, ModalContent, ModalActions } from '../../styles';
 import {
@@ -38,10 +40,6 @@ interface IEditTypeModalProps {
     assetType: KnownAssetType | string,
     onTransactionRunning?: () => void | Promise<void>,
   ) => Promise<void>;
-  onCreateAssetType: (
-    name: string,
-    onTransactionRunning?: () => void | Promise<void>,
-  ) => Promise<void>;
   transactionInProcess: boolean;
 }
 
@@ -50,12 +48,12 @@ export const EditTypeModal: React.FC<IEditTypeModalProps> = ({
   onClose,
   asset,
   onModifyAssetType,
-  onCreateAssetType,
   transactionInProcess,
 }) => {
   const {
-    api: { polkadotApi },
+    api: { sdk, polkadotApi },
   } = useContext(PolymeshContext);
+  const { executeTransaction } = useTransactionStatusContext();
   const [pendingCustomAssetType, setPendingCustomAssetType] =
     useState<string>('');
   const [customTypeExists, setCustomTypeExists] = useState(true);
@@ -379,20 +377,35 @@ export const EditTypeModal: React.FC<IEditTypeModalProps> = ({
 
   // Handle creating a custom type directly
   const handleCreateCustomType = useCallback(async () => {
-    if (!pendingCustomAssetType) return;
+    if (!pendingCustomAssetType || !sdk) {
+      notifyError('Invalid input or SDK not available');
+      return;
+    }
 
     try {
-      await onCreateAssetType(pendingCustomAssetType);
-      // After creation, resolve the ID for the name
-      await resolveCustomTypeFromName(pendingCustomAssetType);
-
-      setShowCreateButton(false);
-      setCustomTypeExists(true);
-      setPendingCustomAssetType('');
+      await executeTransaction(
+        sdk.assets.registerCustomAssetType({ name: pendingCustomAssetType }),
+        {
+          onSuccess: async () => {
+            // After creation, resolve the ID for the name
+            await resolveCustomTypeFromName(pendingCustomAssetType);
+            setShowCreateButton(false);
+            setCustomTypeExists(true);
+            setPendingCustomAssetType('');
+          },
+        },
+      );
     } catch (error) {
-      // Error handling is done in the hook
+      notifyError(
+        `Failed to create custom asset type: ${(error as Error).message}`,
+      );
     }
-  }, [pendingCustomAssetType, onCreateAssetType, resolveCustomTypeFromName]);
+  }, [
+    pendingCustomAssetType,
+    sdk,
+    executeTransaction,
+    resolveCustomTypeFromName,
+  ]);
 
   // Resolve custom type ID when modal opens with a custom type
   useEffect(() => {

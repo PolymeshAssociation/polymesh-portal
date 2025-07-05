@@ -13,6 +13,7 @@ import {
 import { formatBalance } from '~/helpers/formatters';
 import { AccountContext } from '~/context/AccountContext';
 import { notifyGlobalError } from '~/helpers/notifications';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 
 const validateBanxaUrl = (url: string): boolean => {
   try {
@@ -35,6 +36,7 @@ export const BalanceInfo = () => {
     balanceIsLoading,
     isExternalConnection,
   } = useContext(AccountContext);
+  const { isTransactionInProgress } = useTransactionStatusContext();
   const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [receiveModalOpen, setReceiveModalOpen] = useState(false);
   const [getPolyxModalOpen, setGetPolyxModalOpen] = useState(false);
@@ -107,7 +109,8 @@ export const BalanceInfo = () => {
             disabled={
               !identityHasValidCdd ||
               accountIsMultisigSigner ||
-              isExternalConnection
+              isExternalConnection ||
+              isTransactionInProgress
             }
           >
             <Icon name="ArrowTopRight" />

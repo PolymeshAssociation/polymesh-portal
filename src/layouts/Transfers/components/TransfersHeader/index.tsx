@@ -4,6 +4,7 @@ import { Icon } from '~/components';
 import { Button, DropdownSelect, RefreshButton } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
 import { InstructionsContext } from '~/context/InstructionsContext';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { useWindowWidth } from '~/hooks/utility';
 import { ESortOptions } from '../../types';
 import { CreateVenue } from './components/CreateVenue';
@@ -33,6 +34,7 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
     useContext(InstructionsContext);
   const { identityLoading, identity, isExternalConnection } =
     useContext(AccountContext);
+  const { isTransactionInProgress } = useTransactionStatusContext();
   const [createVenueOpen, setCreateVenueOpen] = useState(false);
   const [sendAssetOpen, setSendAssetOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -109,14 +111,21 @@ export const TransfersHeader: React.FC<ITransfersHeaderProps> = ({
             variant="modalPrimary"
             onClick={toggleCreateVenue}
             round={!isWidescreen}
-            disabled={identityLoading || !identity || isExternalConnection}
+            disabled={
+              identityLoading ||
+              !identity ||
+              isExternalConnection ||
+              isTransactionInProgress
+            }
           >
             <Icon name="Plus" />
             {isWidescreen && ' Create Venue'}
           </Button>
           <Button
             variant="modalPrimary"
-            disabled={identityLoading || isExternalConnection}
+            disabled={
+              identityLoading || isExternalConnection || isTransactionInProgress
+            }
             onClick={toggleSendAsset}
             round={!isWidescreen}
           >

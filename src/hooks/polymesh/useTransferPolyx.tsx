@@ -3,8 +3,8 @@ import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
-import { useTransactionStatus } from '~/hooks/polymesh';
 import { notifyError } from '~/helpers/notifications';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 
 export interface ITransfer {
   amount: string;
@@ -17,6 +17,8 @@ const useTransferPolyx = () => {
     api: { sdk },
   } = useContext(PolymeshContext);
   const { selectedAccount } = useContext(AccountContext);
+  const { executeTransaction, isTransactionInProgress } =
+    useTransactionStatusContext();
   const [availableBalance, setAvailableBalance] = useState<BigNumber>(
     new BigNumber(0),
   );
@@ -25,8 +27,6 @@ const useTransferPolyx = () => {
   );
   const [maxTransferablePolyxWithMemo, setMaxTransferablePolyxWithMemo] =
     useState<BigNumber>(new BigNumber(0));
-  const [transactionInProcess, setTransactionInProcess] = useState(false);
-  const { handleStatusChange } = useTransactionStatus();
 
   // Subscribe to the selected account's balance and max transferable.
   useEffect(() => {
@@ -105,35 +105,40 @@ const useTransferPolyx = () => {
     to,
     memo,
   }) => {
-    if (!sdk) return undefined;
-
-    setTransactionInProcess(true);
-
-    let unsubCb: UnsubCallback | null = null;
-
-    try {
-      const transferPolyxTx = await sdk.network.transferPolyx({
-        amount: new BigNumber(amount),
-        to,
-        memo,
-      });
-
-      unsubCb = transferPolyxTx.onStatusChange((tx) => handleStatusChange(tx));
-
-      await transferPolyxTx.run();
-    } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      setTransactionInProcess(false);
+    if (!sdk) {
+      notifyError('SDK not available');
+      return;
     }
 
-    return () => (unsubCb ? unsubCb() : undefined);
+    try {
+      await executeTransaction(
+        sdk.network.transferPolyx({
+          amount: new BigNumber(amount),
+          to,
+          memo,
+        }),
+        {
+          onTransactionRunning: () => {
+            // Optional: Handle transaction running state
+          },
+          onSuccess: () => {
+            // Optional: Handle success
+          },
+          onError: (/* error: Error */) => {
+            // Optional: Handle error
+          },
+        },
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
   return {
     availableBalance,
     transferPolyx,
-    transactionInProcess,
+    transactionInProcess: isTransactionInProgress,
     selectedAccount,
     checkAddressValidity,
     maxTransferablePolyx,

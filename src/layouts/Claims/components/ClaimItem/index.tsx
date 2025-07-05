@@ -1,10 +1,9 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import {
   Claim,
   ClaimData,
   ClaimType,
   CountryCode,
-  UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useSearchParams } from 'react-router-dom';
 import { CopyToClipboard, Icon } from '~/components';
@@ -14,8 +13,7 @@ import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { toParsedDate } from '~/helpers/dateTime';
 import { formatDid, splitCamelCase } from '~/helpers/formatters';
-import { notifyError } from '~/helpers/notifications';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { EClaimsType } from '../../constants';
 import {
   StyledClaimItem,
@@ -36,8 +34,8 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
   } = useContext(PolymeshContext);
   const { isExternalConnection } = useContext(AccountContext);
   const { refreshClaims } = useContext(ClaimsContext);
-  const { handleStatusChange } = useTransactionStatus();
-  const [revokeInProgress, setRevokeInProgress] = useState(false);
+  const { executeTransaction, isTransactionInProgress } =
+    useTransactionStatusContext();
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
   const { isMobile } = useWindowWidth();
@@ -46,24 +44,20 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
   const handleRevoke = async () => {
     if (type === EClaimsType.RECEIVED || !sdk) return;
 
-    let unsubCb: UnsubCallback | undefined;
     try {
-      setRevokeInProgress(true);
-      const revokeTx = await sdk.claims.revokeClaims({
-        claims: [{ claim, target: claimData.target }],
-      });
-      unsubCb = await revokeTx.onStatusChange((transaction) =>
-        handleStatusChange(transaction),
+      await executeTransaction(
+        sdk.claims.revokeClaims({
+          claims: [{ claim, target: claimData.target }],
+        }),
+        {
+          onSuccess: () => {
+            refreshClaims();
+          },
+        },
       );
-      await revokeTx.run();
-      refreshClaims();
     } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      setRevokeInProgress(false);
-      if (unsubCb) {
-        unsubCb();
-      }
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -140,7 +134,7 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
       )}
       {type === EClaimsType.ISSUED && (
         <RevokeButton
-          disabled={revokeInProgress || isExternalConnection}
+          disabled={isTransactionInProgress || isExternalConnection}
           onClick={handleRevoke}
         >
           <Icon name="CloseIcon" size="24px" />

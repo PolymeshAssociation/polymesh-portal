@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { ButtonRow, Button } from '../styles';
 import { Icon } from '~/components';
 import { AccountContext } from '~/context/AccountContext';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 
 interface StepNavigationProps {
   onBack?: () => void;
@@ -19,6 +20,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   isLoading = false,
 }) => {
   const { isExternalConnection } = useContext(AccountContext);
+  const { isTransactionInProgress } = useTransactionStatusContext();
 
   const handleNext = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -26,7 +28,9 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   };
 
   const isButtonDisabled =
-    disabled || (isFinalStep && isExternalConnection) || isLoading;
+    disabled ||
+    (isFinalStep && (isExternalConnection || isTransactionInProgress)) ||
+    isLoading;
 
   const getButtonContent = () => {
     if (isFinalStep) {

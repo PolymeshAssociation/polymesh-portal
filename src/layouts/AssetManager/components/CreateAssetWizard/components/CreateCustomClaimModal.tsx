@@ -1,12 +1,10 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
 import { Modal } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { useTransactionStatus } from '~/hooks/polymesh';
-import { notifyError } from '~/helpers/notifications';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 
 const StyledButtonsWrapper = styled.div`
   display: flex;
@@ -30,30 +28,30 @@ const CreateCustomClaimModal: React.FC<CreateCustomClaimModalProps> = ({
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { handleStatusChange } = useTransactionStatus();
+  const { executeTransaction, isTransactionInProgress } =
+    useTransactionStatusContext();
 
   const handleCreateClaim = async () => {
     if (!sdk) return;
-    let unsubCb: UnsubCallback | undefined;
+
     try {
-      const registerCustomClaimTx = await sdk.claims.registerCustomClaimType({
-        name: customClaimName,
-      });
-      onClose();
-
-      unsubCb = registerCustomClaimTx.onStatusChange((transaction) =>
-        handleStatusChange(transaction),
+      await executeTransaction(
+        sdk.claims.registerCustomClaimType({
+          name: customClaimName,
+        }),
+        {
+          onTransactionRunning: () => {
+            onClose();
+          },
+          onSuccess: async (transactionResult) => {
+            const newClaimId = transactionResult;
+            onSuccess({ id: newClaimId, name: customClaimName });
+          },
+        },
       );
-
-      const newClaimId = await registerCustomClaimTx.run();
-
-      onSuccess({ id: newClaimId, name: customClaimName });
     } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      if (unsubCb) {
-        unsubCb();
-      }
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -68,7 +66,11 @@ const CreateCustomClaimModal: React.FC<CreateCustomClaimModalProps> = ({
         <Button variant="modalSecondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="modalPrimary" onClick={handleCreateClaim}>
+        <Button
+          variant="modalPrimary"
+          onClick={handleCreateClaim}
+          disabled={isTransactionInProgress}
+        >
           Create
         </Button>
       </StyledButtonsWrapper>

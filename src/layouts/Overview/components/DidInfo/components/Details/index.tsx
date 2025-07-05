@@ -1,5 +1,4 @@
 import { useContext, useState } from 'react';
-import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
 import {
   AccountIdentityRelation,
   AccountKeyType,
@@ -30,7 +29,7 @@ import {
 } from './styles';
 import { formatDid, formatBalance, formatKey } from '~/helpers/formatters';
 import { useWindowWidth } from '~/hooks/utility';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { notifyError } from '~/helpers/notifications';
 import { PolymeshContext } from '~/context/PolymeshContext';
 
@@ -52,6 +51,8 @@ export const Details: React.FC<IDetailsProps> = ({
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
+  const { isTransactionInProgress, executeTransaction } =
+    useTransactionStatusContext();
   const {
     allKeyInfo,
     primaryKey,
@@ -62,7 +63,6 @@ export const Details: React.FC<IDetailsProps> = ({
     isExternalConnection,
   } = useContext(AccountContext);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const { handleStatusChange } = useTransactionStatus();
   const { isMobile } = useWindowWidth();
 
   const handleKeySelect = (key: string) => {
@@ -78,50 +78,53 @@ export const Details: React.FC<IDetailsProps> = ({
   };
 
   const handleLeaveIdentity = async () => {
-    if (!sdk) return;
-    let unsubCb: UnsubCallback | undefined;
+    if (!sdk) {
+      notifyError('SDK not available');
+      return;
+    }
     try {
-      toggleModal();
-      const tx = await sdk.accountManagement.leaveIdentity();
-      unsubCb = tx.onStatusChange((transaction) =>
-        handleStatusChange(transaction),
-      );
-      await tx.run();
+      await executeTransaction(sdk.accountManagement.leaveIdentity(), {
+        onTransactionRunning: () => {
+          toggleModal();
+        },
+        onSuccess: () => {
+          refreshAccountIdentity();
+        },
+      });
     } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      refreshAccountIdentity();
-      if (unsubCb) {
-        unsubCb();
-      }
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
   const handleRemoveAccounts = async () => {
-    if (!sdk) return;
-    let unsubCb: UnsubCallback | undefined;
+    if (!sdk) {
+      notifyError('SDK not available');
+      return;
+    }
+
     try {
-      toggleModal();
       const accounts = await Promise.all(
         selectedKeys.map(async (key) =>
           sdk.accountManagement.getAccount({ address: key }),
         ),
       );
-      const tx = await sdk.accountManagement.removeSecondaryAccounts({
-        accounts,
-      });
-      unsubCb = tx.onStatusChange((transaction) =>
-        handleStatusChange(transaction),
+
+      await executeTransaction(
+        sdk.accountManagement.removeSecondaryAccounts({ accounts }),
+        {
+          onTransactionRunning: () => {
+            toggleModal();
+          },
+          onSuccess: () => {
+            setSelectedKeys([]);
+            refreshAccountIdentity();
+          },
+        },
       );
-      await tx.run();
     } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      setSelectedKeys([]);
-      refreshAccountIdentity();
-      if (unsubCb) {
-        unsubCb();
-      }
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -290,7 +293,11 @@ export const Details: React.FC<IDetailsProps> = ({
         {primaryIsSelected ? (
           <Button
             variant="modalPrimary"
-            disabled={!selectedKeys.length || isExternalConnection}
+            disabled={
+              !selectedKeys.length ||
+              isExternalConnection ||
+              isTransactionInProgress
+            }
             onClick={handleRemoveAccounts}
           >
             Remove Keys
@@ -299,7 +306,11 @@ export const Details: React.FC<IDetailsProps> = ({
           <Button
             variant="modalPrimary"
             onClick={handleLeaveIdentity}
-            disabled={accountIsMultisigSigner || isExternalConnection}
+            disabled={
+              accountIsMultisigSigner ||
+              isExternalConnection ||
+              isTransactionInProgress
+            }
           >
             Leave Identity
           </Button>

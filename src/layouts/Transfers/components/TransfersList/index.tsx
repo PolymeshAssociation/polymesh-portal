@@ -1,7 +1,6 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Instruction,
-  UnsubCallback,
   GroupedInstructions,
   AffirmationStatus,
 } from '@polymeshassociation/polymesh-sdk/types';
@@ -10,7 +9,7 @@ import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { InstructionsContext } from '~/context/InstructionsContext';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { Icon, Pagination } from '~/components';
 import {
   StyledSelectionWrapper,
@@ -59,7 +58,6 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const cachedDetailsRef = useRef<CachedDetails>({});
 
   const [selectedItems, setSelectedItems] = useState<Instruction[]>([]);
-  const [actionInProgress, setActionInProgress] = useState(false);
   const [invalidInstructions, setInvalidInstructions] = useState<number[]>([]);
   const [instructionDetails, setInstructionDetails] = useState<
     Record<string, InstructionData>
@@ -71,7 +69,11 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   const { account, isExternalConnection } = useContext(AccountContext);
   const { allInstructions, instructionsLoading, refreshInstructions } =
     useContext(InstructionsContext);
-  const { handleStatusChange } = useTransactionStatus();
+  const {
+    executeTransaction,
+    executeBatchTransaction,
+    isTransactionInProgress,
+  } = useTransactionStatusContext();
   const { isWidescreen, isMobile, isTablet } = useWindowWidth();
 
   const currentTabInstructions = useMemo(
@@ -230,83 +232,66 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
   ) => {
     if (!sdk || !account) return;
 
-    let unsubCb: UnsubCallback | undefined;
-
     try {
-      setActionInProgress(true);
-
       const itemsToExecute = items || selectedItems;
-      const transactions = await createTransactions(action, itemsToExecute);
+      const transactionPromises = createTransactions(action, itemsToExecute);
 
-      if (!transactions) return;
+      if (!transactionPromises) return;
 
-      const chunks = createTransactionChunks(transactions, 10);
-
+      const chunks = createTransactionChunks(transactionPromises, 10);
       const currentNonce = await account.getCurrentNonce();
+
+      // Execute all chunks in parallel with incremental nonces
       await Promise.all(
-        chunks.map(async (chunk, index) => {
-          const batch = await sdk.createTransactionBatch(
-            {
-              transactions: chunk,
+        chunks.map((chunk, index) =>
+          executeBatchTransaction(chunk, {
+            nonce: () => new BigNumber(currentNonce.toNumber() + index),
+            onSuccess: async () => {
+              refreshInstructions();
             },
-            { nonce: () => new BigNumber(currentNonce.toNumber() + index) },
-          );
-          unsubCb = await batch.onStatusChange((transaction) =>
-            handleStatusChange(transaction, index),
-          );
-          await batch.run();
-        }),
+          }),
+        ),
       );
+
       clearSelection();
-      refreshInstructions();
     } catch (error) {
       notifyError((error as Error).message);
-    } finally {
-      setActionInProgress(false);
-      if (unsubCb) {
-        unsubCb();
-      }
     }
   };
+
   const executeAction = async (
     action: InstructionAction | InstructionAction[],
   ) => {
     if (!sdk) return;
 
-    let unsubCb: UnsubCallback | undefined;
     try {
-      setActionInProgress(true);
-      let tx;
       if (Array.isArray(action)) {
-        const transactions = await Promise.all(
-          action.map(async (actionItem) => {
-            if (actionItem.params) {
-              return actionItem.method(actionItem.params);
-            }
-            return actionItem.method();
-          }),
-        );
-        tx = await sdk.createTransactionBatch({
-          transactions,
+        const transactionPromises = action.map(async (actionItem) => {
+          if (actionItem.params) {
+            return actionItem.method(actionItem.params);
+          }
+          return actionItem.method();
         });
-      } else if (action.params) {
-        tx = await action.method(action.params);
-      } else {
-        tx = await action.method();
-      }
 
-      unsubCb = tx.onStatusChange((transaction) =>
-        handleStatusChange(transaction),
-      );
-      await tx.run();
-      refreshInstructions();
-    } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      setActionInProgress(false);
-      if (unsubCb) {
-        unsubCb();
+        await executeBatchTransaction(transactionPromises, {
+          onSuccess: async () => {
+            refreshInstructions();
+          },
+        });
+      } else {
+        const txPromise = action.params
+          ? action.method(action.params)
+          : action.method();
+
+        await executeTransaction(txPromise, {
+          onSuccess: async () => {
+            refreshInstructions();
+          },
+        });
       }
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -348,7 +333,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
           <StyledButtonWrapper>
             <StyledActionButton
               $isReject
-              disabled={actionInProgress || isExternalConnection}
+              disabled={isTransactionInProgress || isExternalConnection}
               onClick={() => executeBatch(EActionTypes.REJECT)}
             >
               <Icon name="CloseIcon" size="24px" />
@@ -357,7 +342,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
             {type === EInstructionTypes.AFFIRMED && (
               <StyledActionButton
                 $isReject
-                disabled={actionInProgress || isExternalConnection}
+                disabled={isTransactionInProgress || isExternalConnection}
                 onClick={() => executeBatch(EActionTypes.WITHDRAW)}
               >
                 <Icon name="Check" size="24px" />
@@ -366,7 +351,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
             )}
             {type === EInstructionTypes.PENDING && (
               <StyledActionButton
-                disabled={actionInProgress || isExternalConnection}
+                disabled={isTransactionInProgress || isExternalConnection}
                 onClick={handleApproveValidBatch}
               >
                 <Icon name="Check" size="24px" />
@@ -412,7 +397,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
                       (item) => item.toHuman() === instruction.toHuman(),
                     )}
                     executeAction={executeAction}
-                    actionInProgress={actionInProgress}
+                    actionInProgress={isTransactionInProgress}
                     details={instructionDetails[instruction.id.toString()]}
                   />
                 ))}

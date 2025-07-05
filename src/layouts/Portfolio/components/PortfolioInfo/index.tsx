@@ -25,7 +25,7 @@ export const PortfolioInfo = () => {
   const { identity, identityHasValidCdd, isExternalConnection } =
     useContext(AccountContext);
   const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
-  const { deletePortfolio, actionInProgress } = usePortfolio(
+  const { deletePortfolio, isTransactionInProgress } = usePortfolio(
     selectedPortfolio?.portfolio,
   );
   const [editExpanded, setEditExpanded] = useState(false);
@@ -119,7 +119,7 @@ export const PortfolioInfo = () => {
             disabled={
               isExternalConnection ||
               !!selectedPortfolio.assets.length ||
-              actionInProgress ||
+              isTransactionInProgress ||
               !identityHasValidCdd ||
               selectedPortfolio.custodian.did !== identity?.did
             }
@@ -155,6 +155,7 @@ export const PortfolioInfo = () => {
               disabled={
                 isExternalConnection ||
                 !identityHasValidCdd ||
+                isTransactionInProgress ||
                 selectedPortfolio.custodian.did !== identity?.did
               }
             >
@@ -166,7 +167,7 @@ export const PortfolioInfo = () => {
                 <Button
                   variant="secondary"
                   disabled={
-                    actionInProgress ||
+                    isTransactionInProgress ||
                     !identityHasValidCdd ||
                     isExternalConnection
                   }
@@ -181,7 +182,7 @@ export const PortfolioInfo = () => {
                     disabled={
                       isExternalConnection ||
                       !!selectedPortfolio.assets.length ||
-                      actionInProgress ||
+                      isTransactionInProgress ||
                       !identityHasValidCdd ||
                       selectedPortfolio.custodian.did !== identity?.did
                     }

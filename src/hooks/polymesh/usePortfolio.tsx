@@ -4,12 +4,12 @@ import {
   MoveFundsParams,
   NumberedPortfolio,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { PortfolioContext } from '~/context/PortfolioContext';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { notifyError, notifyWarning } from '~/helpers/notifications';
-import { useTransactionStatus } from '~/hooks/polymesh';
 
 const usePortfolio = (
   portfolio: DefaultPortfolio | NumberedPortfolio | undefined,
@@ -19,56 +19,58 @@ const usePortfolio = (
   } = useContext(PolymeshContext);
   const { identity } = useContext(AccountContext);
   const { getPortfoliosData } = useContext(PortfolioContext);
-  const { handleStatusChange } = useTransactionStatus();
-  const [actionInProgress, setActionInProgress] = useState(false);
+  const { executeTransaction, isTransactionInProgress } =
+    useTransactionStatusContext();
 
   const moveAssets = async (data: MoveFundsParams) => {
-    if (!identity || !portfolio) return;
-
+    if (!identity || !portfolio) {
+      notifyError('Identity or portfolio not available');
+      return;
+    }
     try {
-      const moveQ = await portfolio.moveFunds(data);
-      moveQ.onStatusChange((transaction) => handleStatusChange(transaction));
-      await moveQ.run();
-      await getPortfoliosData();
+      await executeTransaction(portfolio.moveFunds(data), {
+        onSuccess: async () => {
+          await getPortfoliosData();
+        },
+      });
     } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      setActionInProgress(false);
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
   const createPortfolio = async (name: string) => {
-    if (!sdk) return;
-
-    setActionInProgress(true);
+    if (!sdk) {
+      notifyError('SDK not available');
+      return;
+    }
     try {
-      const createQ = await sdk.identities.createPortfolio({ name });
-      createQ.onStatusChange((transaction) => handleStatusChange(transaction));
-      await createQ.run();
-      await getPortfoliosData();
+      await executeTransaction(sdk.identities.createPortfolio({ name }), {
+        onSuccess: async () => {
+          await getPortfoliosData();
+        },
+      });
     } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      setActionInProgress(false);
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
   const editPortfolio = async (newName: string) => {
-    if (!identity || !portfolio) return;
-
+    if (!identity || !portfolio) {
+      notifyError('Identity or portfolio not available');
+      return;
+    }
     if (portfolio instanceof NumberedPortfolioClass) {
-      setActionInProgress(true);
       try {
-        const editQ = await portfolio.modifyName({
-          name: newName,
+        await executeTransaction(portfolio.modifyName({ name: newName }), {
+          onSuccess: async () => {
+            await getPortfoliosData();
+          },
         });
-        editQ.onStatusChange((transaction) => handleStatusChange(transaction));
-        await editQ.run();
-        await getPortfoliosData();
       } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        setActionInProgress(false);
+        // Error is already handled by the transaction context and notified to the user
+        // This catch block prevents unhandled promise rejection
       }
     } else {
       notifyWarning('You cannot edit this portfolio');
@@ -76,34 +78,33 @@ const usePortfolio = (
   };
 
   const deletePortfolio = async () => {
-    if (!identity || !portfolio) return;
+    if (!identity || !portfolio) {
+      notifyError('Identity or portfolio not available');
+      return;
+    }
 
     if (portfolio instanceof NumberedPortfolioClass) {
-      setActionInProgress(true);
       try {
-        const deleteQ = await identity.portfolios.delete({
-          portfolio,
+        await executeTransaction(identity.portfolios.delete({ portfolio }), {
+          onSuccess: async () => {
+            await getPortfoliosData();
+          },
         });
-        deleteQ.onStatusChange((transaction) =>
-          handleStatusChange(transaction),
-        );
-        await deleteQ.run();
-        await getPortfoliosData();
       } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        setActionInProgress(false);
+        // Error is already handled by the transaction context and notified to the user
+        // This catch block prevents unhandled promise rejection
       }
     } else {
       notifyWarning('You cannot delete this portfolio');
     }
   };
+
   return {
     moveAssets,
     createPortfolio,
     editPortfolio,
     deletePortfolio,
-    actionInProgress,
+    isTransactionInProgress,
   };
 };
 

@@ -4,30 +4,22 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 import { EActionTypes } from '../../types';
 
-export const createTransactions = async (
+export const createTransactions = (
   action: `${EActionTypes}`,
   selectedItems: Instruction[],
-) => {
+): Promise<GenericPolymeshTransaction<Instruction, Instruction>>[] | null => {
   switch (action) {
     case EActionTypes.AFFIRM:
-      return Promise.all(
-        selectedItems.map(async (instruction) => instruction.affirm()),
-      );
+      return selectedItems.map((instruction) => instruction.affirm());
 
     case EActionTypes.REJECT:
-      return Promise.all(
-        selectedItems.map(async (instruction) => instruction.reject()),
-      );
+      return selectedItems.map((instruction) => instruction.reject());
 
     case EActionTypes.WITHDRAW:
-      return Promise.all(
-        selectedItems.map(async (instruction) => instruction.withdraw()),
-      );
+      return selectedItems.map((instruction) => instruction.withdraw());
 
     case EActionTypes.EXECUTE:
-      return Promise.all(
-        selectedItems.map(async (instruction) => instruction.executeManually()),
-      );
+      return selectedItems.map((instruction) => instruction.executeManually());
 
     default:
       return null;
@@ -35,7 +27,7 @@ export const createTransactions = async (
 };
 
 export const createTransactionChunks = (
-  transactions: GenericPolymeshTransaction<Instruction, Instruction>[],
+  transactions: Promise<GenericPolymeshTransaction<Instruction, Instruction>>[],
   perChunk: number,
 ) => {
   const result = transactions.reduce(
@@ -50,7 +42,7 @@ export const createTransactionChunks = (
 
       return acc;
     },
-    [] as GenericPolymeshTransaction<Instruction, Instruction>[][],
+    [] as Promise<GenericPolymeshTransaction<Instruction, Instruction>>[][],
   );
 
   return result;

@@ -2,6 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useContext, useEffect, useState } from 'react';
 import { PortfolioContext } from '~/context/PortfolioContext';
 import { AccountContext } from '~/context/AccountContext';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { Icon } from '~/components';
 import { PortfolioModal } from '../PortfolioModal';
 import {
@@ -28,6 +29,7 @@ export const PortfolioNavigation = () => {
   } = useContext(AccountContext);
   const { allPortfolios, portfolioLoading, getPortfoliosData } =
     useContext(PortfolioContext);
+  const { isTransactionInProgress } = useTransactionStatusContext();
   const [addExpanded, setAddExpanded] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
@@ -60,7 +62,11 @@ export const PortfolioNavigation = () => {
         <StyledMobileNavigation>
           <AddPortfolioMobile
             onClick={toggleModal}
-            disabled={!identityHasValidCdd || isExternalConnection}
+            disabled={
+              !identityHasValidCdd ||
+              isExternalConnection ||
+              isTransactionInProgress
+            }
           >
             <Icon name="Plus" />
           </AddPortfolioMobile>
@@ -127,7 +133,11 @@ export const PortfolioNavigation = () => {
       {!isMobile && (
         <AddPortfolioButton
           onClick={toggleModal}
-          disabled={!identityHasValidCdd || isExternalConnection}
+          disabled={
+            !identityHasValidCdd ||
+            isExternalConnection ||
+            isTransactionInProgress
+          }
         >
           <Icon name="Plus" />
           {!isTablet && 'Add Portfolio'}

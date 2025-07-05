@@ -5,6 +5,7 @@ import { ApolloProvider } from '@apollo/client';
 import { ToastContainer } from 'react-toastify';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { PolymeshProvider, PolymeshContext } from '~/context/PolymeshContext';
+import { TransactionStatusProvider } from '~/context/TransactionStatusContext';
 import { AccountProvider } from '~/context/AccountContext';
 import { PortfolioProvider } from '~/context/PortfolioContext';
 import { AuthorizationsProvider } from '~/context/AuthorizationsContext';
@@ -67,31 +68,33 @@ const App = () => {
 const WrappedApp = () => {
   return (
     <PolymeshProvider>
-      <AccountProvider>
-        <PortfolioProvider>
-          <AuthorizationsProvider>
-            <AuthProvider>
-              <InstructionsProvider>
-                <MultiSigProvider>
-                  <ClaimsProvider>
-                    <DistributionsProvider>
-                      <StakingProvider>
-                        <AssetProvider>
-                          <AppThemeProvider>
-                            <BrowserRouter>
-                              <App />
-                            </BrowserRouter>
-                          </AppThemeProvider>
-                        </AssetProvider>
-                      </StakingProvider>
-                    </DistributionsProvider>
-                  </ClaimsProvider>
-                </MultiSigProvider>
-              </InstructionsProvider>
-            </AuthProvider>
-          </AuthorizationsProvider>
-        </PortfolioProvider>
-      </AccountProvider>
+      <TransactionStatusProvider>
+        <AccountProvider>
+          <PortfolioProvider>
+            <AuthorizationsProvider>
+              <AuthProvider>
+                <InstructionsProvider>
+                  <MultiSigProvider>
+                    <ClaimsProvider>
+                      <DistributionsProvider>
+                        <StakingProvider>
+                          <AssetProvider>
+                            <AppThemeProvider>
+                              <BrowserRouter>
+                                <App />
+                              </BrowserRouter>
+                            </AppThemeProvider>
+                          </AssetProvider>
+                        </StakingProvider>
+                      </DistributionsProvider>
+                    </ClaimsProvider>
+                  </MultiSigProvider>
+                </InstructionsProvider>
+              </AuthProvider>
+            </AuthorizationsProvider>
+          </PortfolioProvider>
+        </AccountProvider>
+      </TransactionStatusProvider>
     </PolymeshProvider>
   );
 };

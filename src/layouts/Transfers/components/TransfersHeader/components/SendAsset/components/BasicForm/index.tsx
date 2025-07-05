@@ -1,13 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import {
-  GenericPolymeshTransaction,
-  Instruction,
-  UnsubCallback,
-  Venue,
-  VenueDetails,
-} from '@polymeshassociation/polymesh-sdk/types';
+import { Venue, VenueDetails } from '@polymeshassociation/polymesh-sdk/types';
 import { Button, DropdownSelect } from '~/components/UiKit';
 import { InstructionsContext } from '~/context/InstructionsContext';
 import { PortfolioContext } from '~/context/PortfolioContext';
@@ -18,8 +12,7 @@ import {
 } from '../../../styles';
 import { InputWrapper, StyledErrorMessage } from '../../styles';
 import { IBasicFieldValues, BASIC_FORM_CONFIG } from '../config';
-import { notifyError } from '~/helpers/notifications';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { createBasicInstructionParams } from '../helpers';
 import { useWindowWidth } from '~/hooks/utility';
 import AssetForm from '~/components/AssetForm';
@@ -59,7 +52,8 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     setValue,
     reset,
   } = useForm<IBasicFieldValues>(BASIC_FORM_CONFIG);
-  const { handleStatusChange } = useTransactionStatus();
+  const { executeTransaction, isTransactionInProgress } =
+    useTransactionStatusContext();
   const {
     assets,
     collections,
@@ -152,39 +146,35 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   const onSubmit = async (formData: IBasicFieldValues) => {
     if (!selectedPortfolio || !sdk) return;
 
-    let unsubCb: UnsubCallback | undefined;
-
-    reset();
-    toggleModal();
     try {
-      let tx: GenericPolymeshTransaction<Instruction[], Instruction>;
-      if (!selectedVenue) {
-        tx = await sdk.settlements.addInstruction(
-          createBasicInstructionParams({
-            selectedAssets: Object.values(selectedAssets),
-            selectedPortfolio,
-            formData,
-          }),
-        );
-      } else {
-        tx = await selectedVenue.addInstruction(
-          createBasicInstructionParams({
-            selectedAssets: Object.values(selectedAssets),
-            selectedPortfolio,
-            formData,
-          }),
-        );
-      }
+      const transactionPromise = !selectedVenue
+        ? sdk.settlements.addInstruction(
+            createBasicInstructionParams({
+              selectedAssets: Object.values(selectedAssets),
+              selectedPortfolio,
+              formData,
+            }),
+          )
+        : selectedVenue.addInstruction(
+            createBasicInstructionParams({
+              selectedAssets: Object.values(selectedAssets),
+              selectedPortfolio,
+              formData,
+            }),
+          );
 
-      unsubCb = tx.onStatusChange((transaction) =>
-        handleStatusChange(transaction),
-      );
-      await tx.run();
-      refreshInstructions();
+      await executeTransaction(transactionPromise, {
+        onTransactionRunning: () => {
+          reset();
+          toggleModal();
+        },
+        onSuccess: async () => {
+          refreshInstructions();
+        },
+      });
     } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      if (unsubCb) unsubCb();
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -285,7 +275,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
         )}
         <Button
           variant="modalPrimary"
-          disabled={!isDataValid}
+          disabled={!isDataValid || isTransactionInProgress}
           onClick={handleSubmit(onSubmit)}
         >
           Send

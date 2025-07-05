@@ -15,14 +15,13 @@ import {
   KnownPermissionGroup,
   PermissionGroupType,
   TickerReservation,
-  UnsubCallback,
   Asset,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { PortfolioContext } from '~/context/PortfolioContext';
 import { AuthorizationsContext } from '~/context/AuthorizationsContext';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { notifyError, notifyWarning } from '~/helpers/notifications';
 import {
   INPUT_NAMES,
@@ -274,7 +273,7 @@ export const useSubmitHandler = () => {
     api: { sdk },
   } = useContext(PolymeshContext);
   const { allPortfolios } = useContext(PortfolioContext);
-  const { handleStatusChange } = useTransactionStatus();
+  const { executeTransaction } = useTransactionStatusContext();
   const { refreshAuthorizations } = useContext(AuthorizationsContext);
 
   //   Retrieve held asset and ticker reservation entities
@@ -315,7 +314,6 @@ export const useSubmitHandler = () => {
 
       const args = expiry ? { expiry, target } : { target };
 
-      let unsubCb: UnsubCallback | undefined;
       try {
         const {
           signerPermissions: { result },
@@ -327,18 +325,14 @@ export const useSubmitHandler = () => {
           return;
         }
 
-        const tx = await tickerReservation.transferOwnership(args);
-        unsubCb = tx.onStatusChange((transaction) =>
-          handleStatusChange(transaction),
-        );
-        await tx.run();
-        refreshAuthorizations();
+        await executeTransaction(tickerReservation.transferOwnership(args), {
+          onSuccess: () => {
+            refreshAuthorizations();
+          },
+        });
       } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        if (unsubCb) {
-          unsubCb();
-        }
+        // Error is already handled by the transaction context and notified to the user
+        // This catch block prevents unhandled promise rejection
       }
     },
 
@@ -359,7 +353,6 @@ export const useSubmitHandler = () => {
 
       const args = expiry ? { expiry, target } : { target };
 
-      let unsubCb: UnsubCallback | undefined;
       try {
         const {
           signerPermissions: { result },
@@ -371,18 +364,14 @@ export const useSubmitHandler = () => {
           return;
         }
 
-        const tx = await assetEntity.transferOwnership(args);
-        unsubCb = tx.onStatusChange((transaction) =>
-          handleStatusChange(transaction),
-        );
-        await tx.run();
-        refreshAuthorizations();
+        await executeTransaction(assetEntity.transferOwnership(args), {
+          onSuccess: () => {
+            refreshAuthorizations();
+          },
+        });
       } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        if (unsubCb) {
-          unsubCb();
-        }
+        // Error is already handled by the transaction context and notified to the user
+        // This catch block prevents unhandled promise rejection
       }
     },
 
@@ -396,7 +385,6 @@ export const useSubmitHandler = () => {
 
       const args = expiry ? { expiry, targetAccount } : { targetAccount };
 
-      let unsubCb: UnsubCallback | undefined;
       try {
         const {
           signerPermissions: { result },
@@ -408,18 +396,14 @@ export const useSubmitHandler = () => {
           return;
         }
 
-        const tx = await sdk.accountManagement.inviteAccount(args);
-        unsubCb = tx.onStatusChange((transaction) =>
-          handleStatusChange(transaction),
-        );
-        await tx.run();
-        refreshAuthorizations();
+        await executeTransaction(sdk.accountManagement.inviteAccount(args), {
+          onSuccess: () => {
+            refreshAuthorizations();
+          },
+        });
       } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        if (unsubCb) {
-          unsubCb();
-        }
+        // Error is already handled by the transaction context and notified to the user
+        // This catch block prevents unhandled promise rejection
       }
     },
 
@@ -449,7 +433,6 @@ export const useSubmitHandler = () => {
           }
         : { targetIdentity };
 
-      let unsubCb: UnsubCallback | undefined;
       try {
         const {
           signerPermissions: { result },
@@ -461,18 +444,14 @@ export const useSubmitHandler = () => {
           return;
         }
 
-        const tx = await portfolioEntity.setCustodian(args);
-        unsubCb = tx.onStatusChange((transaction) =>
-          handleStatusChange(transaction),
-        );
-        await tx.run();
-        refreshAuthorizations();
+        await executeTransaction(portfolioEntity.setCustodian(args), {
+          onSuccess: () => {
+            refreshAuthorizations();
+          },
+        });
       } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        if (unsubCb) {
-          unsubCb();
-        }
+        // Error is already handled by the transaction context and notified to the user
+        // This catch block prevents unhandled promise rejection
       }
     },
 
@@ -529,7 +508,6 @@ export const useSubmitHandler = () => {
           }
         : { target, permissions: permissionGroupEntity };
 
-      let unsubCb: UnsubCallback | undefined;
       try {
         const {
           signerPermissions: { result },
@@ -541,18 +519,14 @@ export const useSubmitHandler = () => {
           return;
         }
 
-        const tx = await assetEntity.permissions.inviteAgent(args);
-        unsubCb = tx.onStatusChange((transaction) =>
-          handleStatusChange(transaction),
-        );
-        await tx.run();
-        refreshAuthorizations();
+        await executeTransaction(assetEntity.permissions.inviteAgent(args), {
+          onSuccess: () => {
+            refreshAuthorizations();
+          },
+        });
       } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        if (unsubCb) {
-          unsubCb();
-        }
+        // Error is already handled by the transaction context and notified to the user
+        // This catch block prevents unhandled promise rejection
       }
     },
 
@@ -565,7 +539,6 @@ export const useSubmitHandler = () => {
         beneficiary,
       };
 
-      let unsubCb: UnsubCallback | undefined;
       try {
         const {
           signerPermissions: { result },
@@ -579,18 +552,14 @@ export const useSubmitHandler = () => {
           return;
         }
 
-        const tx = await sdk.accountManagement.subsidizeAccount(args);
-        unsubCb = tx.onStatusChange((transaction) =>
-          handleStatusChange(transaction),
-        );
-        await tx.run();
-        refreshAuthorizations();
+        await executeTransaction(sdk.accountManagement.subsidizeAccount(args), {
+          onSuccess: () => {
+            refreshAuthorizations();
+          },
+        });
       } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        if (unsubCb) {
-          unsubCb();
-        }
+        // Error is already handled by the transaction context and notified to the user
+        // This catch block prevents unhandled promise rejection
       }
     },
 
@@ -604,7 +573,6 @@ export const useSubmitHandler = () => {
 
       const args = expiry ? { expiry, targetAccount } : { targetAccount };
 
-      let unsubCb: UnsubCallback | undefined;
       try {
         const {
           signerPermissions: { result },
@@ -616,18 +584,14 @@ export const useSubmitHandler = () => {
           return;
         }
 
-        const tx = await sdk.identities.rotatePrimaryKey(args);
-        unsubCb = tx.onStatusChange((transaction) =>
-          handleStatusChange(transaction),
-        );
-        await tx.run();
-        refreshAuthorizations();
+        await executeTransaction(sdk.identities.rotatePrimaryKey(args), {
+          onSuccess: () => {
+            refreshAuthorizations();
+          },
+        });
       } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        if (unsubCb) {
-          unsubCb();
-        }
+        // Error is already handled by the transaction context and notified to the user
+        // This catch block prevents unhandled promise rejection
       }
     },
 
@@ -646,7 +610,6 @@ export const useSubmitHandler = () => {
         ? { expiry, targetAccount, permissions }
         : { targetAccount, permissions };
 
-      let unsubCb: UnsubCallback | undefined;
       try {
         const {
           signerPermissions: { result },
@@ -661,18 +624,17 @@ export const useSubmitHandler = () => {
           return;
         }
 
-        const tx = await sdk.identities.rotatePrimaryKeyToSecondary(args);
-        unsubCb = tx.onStatusChange((transaction) =>
-          handleStatusChange(transaction),
+        await executeTransaction(
+          sdk.identities.rotatePrimaryKeyToSecondary(args),
+          {
+            onSuccess: () => {
+              refreshAuthorizations();
+            },
+          },
         );
-        await tx.run();
-        refreshAuthorizations();
       } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        if (unsubCb) {
-          unsubCb();
-        }
+        // Error is already handled by the transaction context and notified to the user
+        // This catch block prevents unhandled promise rejection
       }
     },
   };

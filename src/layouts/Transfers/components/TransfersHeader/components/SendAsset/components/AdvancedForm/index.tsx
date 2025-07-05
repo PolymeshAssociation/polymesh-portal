@@ -1,13 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import {
-  GenericPolymeshTransaction,
-  Instruction,
-  UnsubCallback,
-  Venue,
-  VenueDetails,
-} from '@polymeshassociation/polymesh-sdk/types';
+import { Venue, VenueDetails } from '@polymeshassociation/polymesh-sdk/types';
 import { LegSelect, Icon } from '~/components';
 import { Button, DropdownSelect, Text } from '~/components/UiKit';
 import { InstructionsContext } from '~/context/InstructionsContext';
@@ -24,8 +18,7 @@ import {
 } from '../../styles';
 import { IAdvancedFieldValues, ADVANCED_FORM_CONFIG } from '../config';
 import { TSelectedLeg } from '~/components/LegSelect/types';
-import { notifyError } from '~/helpers/notifications';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { MAX_NFTS_PER_LEG } from '~/components/AssetForm/constants';
 import { createAdvancedInstructionParams } from '../helpers';
 import { useWindowWidth } from '~/hooks/utility';
@@ -53,7 +46,8 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
     setValue,
     reset,
   } = useForm<IAdvancedFieldValues>(ADVANCED_FORM_CONFIG);
-  const { handleStatusChange } = useTransactionStatus();
+  const { executeTransaction, isTransactionInProgress } =
+    useTransactionStatusContext();
   const [removeSelection, setRemoveSelection] = useState<boolean>(false);
   const [venues, setVenues] = useState<IVenueWithDetails[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
@@ -164,29 +158,28 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
   const onSubmit = useCallback(
     async (formData: IAdvancedFieldValues) => {
       if (!isDataValid || !sdk) return;
-      let unsubCb: UnsubCallback | undefined;
-      reset();
-      toggleModal();
+
       try {
-        let tx: GenericPolymeshTransaction<Instruction[], Instruction>;
-        if (!selectedVenue) {
-          tx = await sdk.settlements.addInstruction(
-            createAdvancedInstructionParams({ selectedLegs, formData }),
-          );
-        } else {
-          tx = await selectedVenue.addInstruction(
-            createAdvancedInstructionParams({ selectedLegs, formData }),
-          );
-        }
-        unsubCb = tx.onStatusChange((transaction) =>
-          handleStatusChange(transaction),
-        );
-        await tx.run();
-        refreshInstructions();
+        const transactionPromise = !selectedVenue
+          ? sdk.settlements.addInstruction(
+              createAdvancedInstructionParams({ selectedLegs, formData }),
+            )
+          : selectedVenue.addInstruction(
+              createAdvancedInstructionParams({ selectedLegs, formData }),
+            );
+
+        await executeTransaction(transactionPromise, {
+          onTransactionRunning: () => {
+            reset();
+            toggleModal();
+          },
+          onSuccess: async () => {
+            refreshInstructions();
+          },
+        });
       } catch (error) {
-        notifyError((error as Error).message);
-      } finally {
-        if (unsubCb) unsubCb();
+        // Error is already handled by the transaction context and notified to the user
+        // This catch block prevents unhandled promise rejection
       }
     },
     [
@@ -197,7 +190,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
       selectedVenue,
       refreshInstructions,
       selectedLegs,
-      handleStatusChange,
+      executeTransaction,
     ],
   );
 
@@ -275,7 +268,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
         )}
         <Button
           variant="modalPrimary"
-          disabled={!isDataValid}
+          disabled={!isDataValid || isTransactionInProgress}
           onClick={handleSubmit(onSubmit)}
         >
           Send

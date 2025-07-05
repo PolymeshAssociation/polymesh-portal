@@ -1,10 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { useContext, useState } from 'react';
-import {
-  ClaimType,
-  ScopeType,
-  UnsubCallback,
-} from '@polymeshassociation/polymesh-sdk/types';
+import { ClaimType, ScopeType } from '@polymeshassociation/polymesh-sdk/types';
 import { useForm } from 'react-hook-form';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { Modal } from '~/components';
@@ -25,8 +21,7 @@ import {
   ISelectedClaimItem,
 } from './constants';
 import { createClaimsData, createPlaceholderByScopeType } from './helpers';
-import { notifyError } from '~/helpers/notifications';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { ClaimsContext } from '~/context/ClaimsContext';
 import { useWindowWidth } from '~/hooks/utility';
 
@@ -50,7 +45,8 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
   const [selectedClaims, setSelectedClaims] = useState<ISelectedClaimItem[]>(
     [],
   );
-  const { handleStatusChange } = useTransactionStatus();
+  const { executeTransaction, isTransactionInProgress } =
+    useTransactionStatusContext();
   const { isMobile } = useWindowWidth();
 
   const handleScopeChange = (option: string | null) => {
@@ -89,20 +85,15 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
     toggleModal();
 
     const claims = createClaimsData({ data, selectedClaims });
-    let unsubCb: UnsubCallback | undefined;
     try {
-      const addClaimsTx = await sdk.claims.addClaims({ claims });
-      unsubCb = addClaimsTx.onStatusChange((transaction) =>
-        handleStatusChange(transaction),
-      );
-      await addClaimsTx.run();
-      refreshClaims();
+      await executeTransaction(sdk.claims.addClaims({ claims }), {
+        onSuccess: () => {
+          refreshClaims();
+        },
+      });
     } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      if (unsubCb) {
-        unsubCb();
-      }
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -169,6 +160,7 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
           disabled={
             !isValid ||
             !selectedClaims.length ||
+            isTransactionInProgress ||
             selectedClaims.some(
               ({ claimType, code }) =>
                 claimType === ClaimType.Jurisdiction && !code,

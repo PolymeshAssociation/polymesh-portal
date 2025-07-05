@@ -1,9 +1,8 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import {
   Asset,
   FungibleAsset,
   NftCollection,
-  UnsubCallback,
   IssueTokensParams,
   RedeemTokensParams,
   AssetMediatorParams,
@@ -15,14 +14,11 @@ import {
   ModifyAssetParams,
   SecurityIdentifier,
   KnownAssetType,
-  TransactionStatus,
-  GenericPolymeshTransaction,
   NumberedPortfolio,
   DefaultPortfolio,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { PolymeshContext } from '~/context/PolymeshContext';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { notifyError } from '~/helpers/notifications';
 import { PortfolioContext } from '~/context/PortfolioContext';
 
@@ -30,113 +26,36 @@ const useAssetActions = (
   asset: Asset | undefined,
   onTransactionSuccess?: () => void | Promise<void>,
 ) => {
-  const {
-    api: { sdk },
-  } = useContext(PolymeshContext);
   const { getPortfoliosData } = useContext(PortfolioContext);
-  const [transactionInProcess, setTransactionInProcess] = useState(false);
-  const { handleStatusChange } = useTransactionStatus();
+  const {
+    executeTransaction,
+    executeBatchTransaction,
+    isTransactionInProgress,
+  } = useTransactionStatusContext();
 
-  // Generic transaction execution helper
-  const executeTransaction = async (
-    transactionPromise: Promise<GenericPolymeshTransaction<unknown, unknown>>,
+  // Check if any transactions are in process
+  const transactionInProcess = isTransactionInProgress;
+
+  // Helper to create transaction options
+  const createOptions = (
     onTransactionRunning?: () => void | Promise<void>,
     onSuccess?: () => void | Promise<void>,
-  ): Promise<void> => {
-    if (!sdk || !asset) {
-      notifyError('SDK or asset not available');
-      return;
-    }
-
-    setTransactionInProcess(true);
-    let unsubCb: UnsubCallback | null = null;
-
-    try {
-      const tx = await transactionPromise;
-
-      unsubCb = tx.onStatusChange((txState) => {
-        handleStatusChange(txState);
-        if (
-          txState.status === TransactionStatus.Running &&
-          onTransactionRunning
-        ) {
-          onTransactionRunning();
-        }
-        if (txState.status === TransactionStatus.Succeeded) {
-          // Call the custom success callback first
-          if (onSuccess) {
-            onSuccess();
-          }
-          // Then call the original transaction success callback
-          if (onTransactionSuccess) {
-            onTransactionSuccess();
-          }
-        }
-      });
-
-      await tx.run();
-    } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      setTransactionInProcess(false);
-      if (unsubCb) {
-        unsubCb();
+  ) => ({
+    onTransactionRunning,
+    onSuccess: async () => {
+      // Call custom success callback first
+      if (onSuccess) {
+        await onSuccess();
       }
-    }
-  };
-
-  // Generic batch transaction execution helper
-  const executeBatchTransaction = async (
-    transactionPromises: Promise<
-      GenericPolymeshTransaction<unknown, unknown>
-    >[],
-    onTransactionRunning?: () => void | Promise<void>,
-    onSuccess?: () => void | Promise<void>,
-  ): Promise<void> => {
-    if (!sdk) {
-      notifyError('SDK not available');
-      return;
-    }
-
-    setTransactionInProcess(true);
-    let unsubCb: UnsubCallback | null = null;
-
-    try {
-      // Resolve all transaction promises
-      const transactions = await Promise.all(transactionPromises);
-
-      // Create batch transaction
-      const batchTransaction = await sdk.createTransactionBatch({
-        transactions,
-      });
-
-      unsubCb = batchTransaction.onStatusChange((tx) => {
-        handleStatusChange(tx);
-        if (tx.status === TransactionStatus.Running && onTransactionRunning) {
-          onTransactionRunning();
-        }
-        if (tx.status === TransactionStatus.Succeeded) {
-          // Call the custom success callback first
-          if (onSuccess) {
-            onSuccess();
-          }
-          // Then call the original transaction success callback
-          if (onTransactionSuccess) {
-            onTransactionSuccess();
-          }
-        }
-      });
-
-      await batchTransaction.run();
-    } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      setTransactionInProcess(false);
-      if (unsubCb) {
-        unsubCb();
+      // Then call the original transaction success callback
+      if (onTransactionSuccess) {
+        await onTransactionSuccess();
       }
-    }
-  };
+    },
+    onError: (error: Error) => {
+      notifyError(error.message);
+    },
+  });
 
   const issueTokens = async ({
     amount,
@@ -151,14 +70,18 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.issuance.issue({
-        amount,
-        portfolioId,
-      }) as Promise<GenericPolymeshTransaction<unknown, unknown>>,
-      onTransactionRunning,
-      getPortfoliosData,
-    );
+    try {
+      await executeTransaction(
+        asset.issuance.issue({
+          amount,
+          portfolioId,
+        }),
+        createOptions(onTransactionRunning, getPortfoliosData),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
   const redeemTokens = async ({
@@ -174,14 +97,18 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.redeem({
-        amount,
-        from,
-      }) as Promise<GenericPolymeshTransaction<unknown, unknown>>,
-      onTransactionRunning,
-      getPortfoliosData,
-    );
+    try {
+      await executeTransaction(
+        asset.redeem({
+          amount,
+          from,
+        }),
+        createOptions(onTransactionRunning, getPortfoliosData),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
   const redeemNfts = async ({
@@ -206,29 +133,20 @@ const useAssetActions = (
         // Single NFT redemption
         const nft = await nftCollection.getNft({ id: nftIds[0] });
         await executeTransaction(
-          nft.redeem({ from }) as Promise<
-            GenericPolymeshTransaction<unknown, unknown>
-          >,
-          onTransactionRunning,
-          getPortfoliosData,
+          nft.redeem({ from }),
+          createOptions(onTransactionRunning, getPortfoliosData),
         );
       } else {
-        // Batch redemption for multiple NFTs (up to 10)
+        // Batch redemption for multiple NFTs
         const nfts = await Promise.all(
           nftIds.map((id) => nftCollection.getNft({ id })),
         );
 
-        const redeemTransactions = nfts.map(
-          (nft) =>
-            nft.redeem({ from }) as Promise<
-              GenericPolymeshTransaction<unknown, unknown>
-            >,
-        );
+        const redeemTransactions = nfts.map((nft) => nft.redeem({ from }));
 
         await executeBatchTransaction(
           redeemTransactions,
-          onTransactionRunning,
-          getPortfoliosData,
+          createOptions(onTransactionRunning, getPortfoliosData),
         );
       }
     } catch (error) {
@@ -248,12 +166,15 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.addRequiredMediators({
-        mediators,
-      }) as Promise<GenericPolymeshTransaction<unknown, unknown>>,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.addRequiredMediators({ mediators }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
   const removeRequiredMediators = async ({
@@ -267,12 +188,15 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.removeRequiredMediators({
-        mediators,
-      }) as Promise<GenericPolymeshTransaction<unknown, unknown>>,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.removeRequiredMediators({ mediators }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
   const controllerTransfer = async (
@@ -280,71 +204,66 @@ const useAssetActions = (
       onTransactionRunning?: () => void | Promise<void>;
     },
   ) => {
-    if (!asset || !sdk) {
-      notifyError('Asset or SDK not available');
+    if (!asset) {
+      notifyError('Asset not available');
       return;
     }
 
     const { onTransactionRunning, ...transferParams } = params;
 
-    // Type narrowing: check if asset is FungibleAsset or NftCollection
-    // FungibleAsset has 'issuance' property, NftCollection has 'issue' method
-    if ('issuance' in asset) {
-      // FungibleAsset - expects ControllerTransferParams
-      const fungibleParams = transferParams as ControllerTransferParams;
-      await executeTransaction(
-        (asset as FungibleAsset).controllerTransfer(fungibleParams) as Promise<
-          GenericPolymeshTransaction<unknown, unknown>
-        >,
-        onTransactionRunning,
-        getPortfoliosData,
-      );
-    } else if ('issue' in asset) {
-      // NftCollection - expects NftControllerTransferParams
-      const nftParams = transferParams as NftControllerTransferParams;
-
-      // Check if we need to batch NFT transfers
-      const MaxNumberOfNFTsPerLeg = 10;
-
-      if (nftParams.nfts && nftParams.nfts.length > MaxNumberOfNFTsPerLeg) {
-        // Split NFTs into batches and create a batch transaction
-        const batchCallPromises: Promise<
-          GenericPolymeshTransaction<void, void>
-        >[] = [];
-
-        // Split NFTs into chunks of MaxNumberOfNFTsPerLeg
-        for (let i = 0; i < nftParams.nfts.length; i += MaxNumberOfNFTsPerLeg) {
-          const nftBatch = nftParams.nfts.slice(i, i + MaxNumberOfNFTsPerLeg);
-          const batchParams = { ...nftParams, nfts: nftBatch };
-
-          const transferTx = (asset as NftCollection).controllerTransfer(
-            batchParams,
-          );
-          batchCallPromises.push(transferTx);
-        }
-
-        // Execute batch transaction using the reusable helper
-        await executeBatchTransaction(
-          batchCallPromises as Promise<
-            GenericPolymeshTransaction<unknown, unknown>
-          >[],
-          onTransactionRunning,
-          getPortfoliosData,
-        );
-      } else {
-        // Single transaction for 10 or fewer NFTs
+    try {
+      // Type narrowing: check if asset is FungibleAsset or NftCollection
+      if ('issuance' in asset) {
+        // FungibleAsset - expects ControllerTransferParams
+        const fungibleParams = transferParams as ControllerTransferParams;
         await executeTransaction(
-          (asset as NftCollection).controllerTransfer(nftParams) as Promise<
-            GenericPolymeshTransaction<unknown, unknown>
-          >,
-          onTransactionRunning,
-          getPortfoliosData,
+          (asset as FungibleAsset).controllerTransfer(fungibleParams),
+          createOptions(onTransactionRunning, getPortfoliosData),
+        );
+      } else if ('issue' in asset) {
+        // NftCollection - expects NftControllerTransferParams
+        const nftParams = transferParams as NftControllerTransferParams;
+
+        // Check if we need to batch NFT transfers
+        const MaxNumberOfNFTsPerLeg = 10;
+        if (nftParams.nfts && nftParams.nfts.length > MaxNumberOfNFTsPerLeg) {
+          // Split NFTs into batches and create a batch transaction
+          const batchCallPromises = [];
+
+          // Split NFTs into chunks of MaxNumberOfNFTsPerLeg
+          for (
+            let i = 0;
+            i < nftParams.nfts.length;
+            i += MaxNumberOfNFTsPerLeg
+          ) {
+            const nftBatch = nftParams.nfts.slice(i, i + MaxNumberOfNFTsPerLeg);
+            const batchParams = { ...nftParams, nfts: nftBatch };
+
+            const controllerTransferTx = (
+              asset as NftCollection
+            ).controllerTransfer(batchParams);
+            batchCallPromises.push(controllerTransferTx);
+          }
+
+          await executeBatchTransaction(
+            batchCallPromises,
+            createOptions(onTransactionRunning, getPortfoliosData),
+          );
+        } else {
+          // Single transaction for 10 or fewer NFTs
+          await executeTransaction(
+            (asset as NftCollection).controllerTransfer(nftParams),
+            createOptions(onTransactionRunning, getPortfoliosData),
+          );
+        }
+      } else {
+        notifyError(
+          'Asset could not be identified as a Fungible or Non-Fungible type',
         );
       }
-    } else {
-      notifyError(
-        'Asset could not be identified as a Fungible or Non-Fungible type',
-      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -354,10 +273,15 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.freeze() as Promise<GenericPolymeshTransaction<unknown, unknown>>,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.freeze(),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
   const unfreeze = async (
@@ -368,10 +292,15 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.unfreeze() as Promise<GenericPolymeshTransaction<unknown, unknown>>,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.unfreeze(),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
   const linkTicker = async ({
@@ -385,12 +314,15 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.linkTicker({
-        ticker,
-      }) as Promise<GenericPolymeshTransaction<unknown, unknown>>,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.linkTicker({ ticker }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
   const setVenueFiltering = async ({
@@ -405,15 +337,19 @@ const useAssetActions = (
       notifyError('Asset not available');
       return;
     }
-
-    await executeTransaction(
-      asset.setVenueFiltering({
-        enabled,
-        allowedVenues,
-        disallowedVenues,
-      }) as Promise<GenericPolymeshTransaction<unknown, unknown>>,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.setVenueFiltering({
+          enabled,
+          allowedVenues,
+          disallowedVenues,
+        }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
   const transferOwnership = async ({
@@ -427,12 +363,15 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.transferOwnership({
-        target,
-      }) as Promise<GenericPolymeshTransaction<unknown, unknown>>,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.transferOwnership({ target }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
   const unlinkTicker = async (
@@ -443,21 +382,19 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.unlinkTicker() as Promise<
-        GenericPolymeshTransaction<unknown, unknown>
-      >,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.unlinkTicker(),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
-  // Asset modification wrapper functions
-
-  /**
-   * Modify the asset's name
-   */
   const modifyAssetName = async (
-    name: string,
+    assetName: string,
     onTransactionRunning?: () => void | Promise<void>,
   ) => {
     if (!asset) {
@@ -465,17 +402,17 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.modify({ name }) as Promise<
-        GenericPolymeshTransaction<unknown, unknown>
-      >,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.modify({ name: assetName }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
-  /**
-   * Modify the asset's type
-   */
   const modifyAssetType = async (
     assetType: KnownAssetType | string | BigNumber,
     onTransactionRunning?: () => void | Promise<void>,
@@ -485,17 +422,17 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.modify({ assetType }) as Promise<
-        GenericPolymeshTransaction<unknown, unknown>
-      >,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.modify({ assetType }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
-  /**
-   * Modify the asset's funding round
-   */
   const modifyFundingRound = async (
     fundingRound: string,
     onTransactionRunning?: () => void | Promise<void>,
@@ -504,18 +441,17 @@ const useAssetActions = (
       notifyError('Asset not available');
       return;
     }
-
-    await executeTransaction(
-      asset.modify({ fundingRound }) as Promise<
-        GenericPolymeshTransaction<unknown, unknown>
-      >,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.modify({ fundingRound }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
-  /**
-   * Modify the asset's identifiers
-   */
   const modifyAssetIdentifiers = async (
     identifiers: SecurityIdentifier[],
     onTransactionRunning?: () => void | Promise<void>,
@@ -524,18 +460,17 @@ const useAssetActions = (
       notifyError('Asset not available');
       return;
     }
-
-    await executeTransaction(
-      asset.modify({ identifiers }) as Promise<
-        GenericPolymeshTransaction<unknown, unknown>
-      >,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.modify({ identifiers }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
-  /**
-   * Make the asset divisible (only for fungible assets)
-   */
   const makeAssetDivisible = async (
     onTransactionRunning?: () => void | Promise<void>,
   ) => {
@@ -544,17 +479,17 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.modify({ makeDivisible: true }) as Promise<
-        GenericPolymeshTransaction<unknown, unknown>
-      >,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.modify({ makeDivisible: true }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
-  /**
-   * Modify multiple asset properties at once
-   */
   const modifyAssetProperties = async (
     params: ModifyAssetParams,
     onTransactionRunning?: () => void | Promise<void>,
@@ -563,38 +498,17 @@ const useAssetActions = (
       notifyError('Asset not available');
       return;
     }
-
-    await executeTransaction(
-      asset.modify(params) as Promise<
-        GenericPolymeshTransaction<unknown, unknown>
-      >,
-      onTransactionRunning,
-    );
-  };
-
-  /**
-   * Create a custom asset type
-   */
-  const createCustomAssetType = async (
-    name: string,
-    onTransactionRunning?: () => void | Promise<void>,
-  ) => {
-    if (!sdk) {
-      notifyError('SDK not available');
-      return undefined;
+    try {
+      await executeTransaction(
+        asset.modify(params),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
-
-    return executeTransaction(
-      sdk.assets.registerCustomAssetType({ name }) as Promise<
-        GenericPolymeshTransaction<unknown, unknown>
-      >,
-      onTransactionRunning,
-    );
   };
 
-  /**
-   * Pause compliance requirements
-   */
   const pauseCompliance = async (
     onTransactionRunning?: () => void | Promise<void>,
   ) => {
@@ -602,18 +516,17 @@ const useAssetActions = (
       notifyError('Asset not available');
       return;
     }
-
-    await executeTransaction(
-      asset.compliance.requirements.pause() as Promise<
-        GenericPolymeshTransaction<unknown, unknown>
-      >,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.compliance.requirements.pause(),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
-  /**
-   * Unpause (resume) compliance requirements
-   */
   const unpauseCompliance = async (
     onTransactionRunning?: () => void | Promise<void>,
   ) => {
@@ -621,38 +534,36 @@ const useAssetActions = (
       notifyError('Asset not available');
       return;
     }
-
-    await executeTransaction(
-      asset.compliance.requirements.unpause() as Promise<
-        GenericPolymeshTransaction<unknown, unknown>
-      >,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.compliance.requirements.unpause(),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
-  /**
-   * Remove trusted claim issuers
-   */
   const removeTrustedClaimIssuers = async (
-    claimIssuers: Array<string>,
+    claimIssuers: string[],
     onTransactionRunning?: () => void | Promise<void>,
   ) => {
     if (!asset) {
       notifyError('Asset not available');
       return;
     }
-
-    await executeTransaction(
-      asset.compliance.trustedClaimIssuers.remove({ claimIssuers }) as Promise<
-        GenericPolymeshTransaction<unknown, unknown>
-      >,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.compliance.trustedClaimIssuers.remove({ claimIssuers }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
-  /**
-   * Remove asset agent
-   */
   const removeAssetAgent = async (
     agentId: string,
     onTransactionRunning?: () => void | Promise<void>,
@@ -662,12 +573,15 @@ const useAssetActions = (
       return;
     }
 
-    await executeTransaction(
-      asset.permissions.removeAgent({ target: agentId }) as Promise<
-        GenericPolymeshTransaction<unknown, unknown>
-      >,
-      onTransactionRunning,
-    );
+    try {
+      await executeTransaction(
+        asset.permissions.removeAgent({ target: agentId }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
   };
 
   return {
@@ -689,12 +603,11 @@ const useAssetActions = (
     modifyAssetIdentifiers,
     makeAssetDivisible,
     modifyAssetProperties,
-    createCustomAssetType,
-    transactionInProcess,
     pauseCompliance,
     unpauseCompliance,
     removeTrustedClaimIssuers,
     removeAssetAgent,
+    transactionInProcess,
   };
 };
 

@@ -1,7 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import {
   NoArgsProcedureMethod,
-  UnsubCallback,
   DistributionWithDetails,
   DividendDistribution,
 } from '@polymeshassociation/polymesh-sdk/types';
@@ -9,7 +8,7 @@ import { useSearchParams } from 'react-router-dom';
 import { DistributionsContext } from '~/context/DistributionsContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { AccountContext } from '~/context/AccountContext';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { Icon } from '~/components';
 import {
   StyledSelectionWrapper,
@@ -22,7 +21,6 @@ import {
   DistributionsPlaceholder,
 } from './styles';
 import { DistributionItem } from '../DistributionItem';
-import { notifyError } from '~/helpers/notifications';
 import { ESortOptions } from '../../types';
 import { SkeletonLoader } from '~/components/UiKit';
 import { useWindowWidth } from '~/hooks/utility';
@@ -43,11 +41,14 @@ export const DistributionsList: React.FC<IDistributionsListProps> = ({
   const { isExternalConnection } = useContext(AccountContext);
   const { pendingDistributions, distributionsLoading, refreshDistributions } =
     useContext(DistributionsContext);
-  const { handleStatusChange } = useTransactionStatus();
+  const {
+    executeTransaction,
+    executeBatchTransaction,
+    isTransactionInProgress,
+  } = useTransactionStatusContext();
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
   const typeRef = useRef<string | null>(null);
-  const [actionInProgress, setActionInProgress] = useState(false);
   const { isMobile, isTablet } = useWindowWidth();
 
   const isSmallScreen = isMobile || isTablet;
@@ -98,33 +99,24 @@ export const DistributionsList: React.FC<IDistributionsListProps> = ({
   ) => {
     if (!sdk) return;
 
-    let unsubCb: UnsubCallback | undefined;
     try {
-      setActionInProgress(true);
-      let tx;
       if (Array.isArray(action)) {
-        const transactions = await Promise.all(
-          action.map(async (method) => method()),
-        );
-        tx = await sdk.createTransactionBatch({
-          transactions,
+        const transactionPromises = action.map(async (method) => method());
+        await executeBatchTransaction(transactionPromises, {
+          onSuccess: () => {
+            refreshDistributions();
+          },
         });
       } else {
-        tx = await action();
+        await executeTransaction(action(), {
+          onSuccess: () => {
+            refreshDistributions();
+          },
+        });
       }
-
-      unsubCb = await tx.onStatusChange((transaction) =>
-        handleStatusChange(transaction),
-      );
-      await tx.run();
-      refreshDistributions();
     } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      setActionInProgress(false);
-      if (unsubCb) {
-        unsubCb();
-      }
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -161,7 +153,7 @@ export const DistributionsList: React.FC<IDistributionsListProps> = ({
         {!!selectedItems.length && (
           <StyledButtonWrapper>
             <StyledActionButton
-              disabled={actionInProgress || isExternalConnection}
+              disabled={isTransactionInProgress || isExternalConnection}
               onClick={() =>
                 executeAction(selectedItems.map(({ claim }) => claim))
               }
@@ -195,7 +187,7 @@ export const DistributionsList: React.FC<IDistributionsListProps> = ({
                   ({ id }) => id.toString() === distribution.id.toString(),
                 )}
                 executeAction={executeAction}
-                actionInProgress={actionInProgress}
+                actionInProgress={isTransactionInProgress}
               />
             ))
           ) : (

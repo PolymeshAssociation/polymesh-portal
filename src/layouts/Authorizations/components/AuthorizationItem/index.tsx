@@ -2,7 +2,6 @@ import { HumanReadable } from '@polymeshassociation/polymesh-sdk/api/entities/Au
 import {
   AuthorizationRequest,
   NoArgsProcedureMethod,
-  UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { ReactElement, useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -20,8 +19,7 @@ import {
 import { formatExpiry, renderDetails } from './helpers';
 import { formatDid, splitCamelCase } from '~/helpers/formatters';
 import { toParsedDateTime } from '~/helpers/dateTime';
-import { notifyError } from '~/helpers/notifications';
-import { useTransactionStatus } from '~/hooks/polymesh';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { AccountContext } from '~/context/AccountContext';
 import { useWindowWidth } from '~/hooks/utility';
 import { AssetDetailsModal } from '~/components/AssetDetailsModal';
@@ -41,11 +39,10 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
 }) => {
   const [details, setDetails] = useState<ReactElement | null>(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
-  const [acceptInProgress, setAcceptInProgress] = useState(false);
-  const [rejectInProgress, setRejectInProgress] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
-  const { handleStatusChange } = useTransactionStatus();
+  const { executeTransaction, isTransactionInProgress } =
+    useTransactionStatusContext();
   const { refreshAccountIdentity, isExternalConnection } =
     useContext(AccountContext);
   const [searchParams] = useSearchParams();
@@ -81,42 +78,31 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
   const handleAccept = async () => {
     if (!accept) return;
 
-    let unsubCb: UnsubCallback | undefined;
     try {
-      setAcceptInProgress(true);
-      const acceptTx = await (accept as NoArgsProcedureMethod<void, void>)();
-      unsubCb = await acceptTx.onStatusChange((transaction) =>
-        handleStatusChange(transaction),
+      await executeTransaction(
+        (accept as NoArgsProcedureMethod<void, void>)(),
+        {
+          onSuccess: () => {
+            refreshAccountIdentity();
+          },
+        },
       );
-      await acceptTx.run();
-      refreshAccountIdentity();
     } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      setAcceptInProgress(false);
-      if (unsubCb) {
-        unsubCb();
-      }
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
   const handleReject = async () => {
-    let unsubCb: UnsubCallback | undefined;
     try {
-      setRejectInProgress(true);
-      const rejectTx = await reject();
-      unsubCb = await rejectTx.onStatusChange((transaction) =>
-        handleStatusChange(transaction),
-      );
-      await rejectTx.run();
-      refreshAccountIdentity();
+      await executeTransaction(reject(), {
+        onSuccess: () => {
+          refreshAccountIdentity();
+        },
+      });
     } catch (error) {
-      notifyError((error as Error).message);
-    } finally {
-      setRejectInProgress(false);
-      if (unsubCb) {
-        unsubCb();
-      }
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -173,7 +159,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
           <>
             <Button
               onClick={handleReject}
-              disabled={rejectInProgress || isExternalConnection}
+              disabled={isTransactionInProgress || isExternalConnection}
             >
               <Icon name="CloseIcon" size="24px" />
               Reject
@@ -181,7 +167,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
             <Button
               variant="success"
               onClick={handleAccept}
-              disabled={acceptInProgress || isExternalConnection}
+              disabled={isTransactionInProgress || isExternalConnection}
             >
               <Icon name="Check" size="24px" />
               Approve
@@ -191,7 +177,7 @@ export const AuthorizationItem: React.FC<IAuthorizationItemProps> = ({
           <Button
             variant="secondary"
             onClick={handleReject}
-            disabled={rejectInProgress || isExternalConnection}
+            disabled={isTransactionInProgress || isExternalConnection}
           >
             Cancel
           </Button>
