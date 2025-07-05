@@ -4,6 +4,7 @@ import { useAssetDetails } from '~/hooks/polymesh/useAssetDetails';
 import { LoadingFallback } from '~/components';
 import { AssetSnapshot } from './components/AssetSnapshot';
 import { AssetTabsContainer } from './components/AssetTabsContainer';
+import { AssetActionsProvider } from './context';
 import { Container } from './styles';
 import NotFound from '~/layouts/NotFound';
 
@@ -21,15 +22,16 @@ export const AssetControlCenter = () => {
   }
 
   return (
-    <Container>
-      <AssetSnapshot
-        asset={assetDetails}
-        assetInstance={asset}
-        onRefresh={reloadAssetDetails}
-        isLoading={assetDetailsLoading}
-      />
-      <AssetTabsContainer asset={assetDetails} />
-    </Container>
+    <AssetActionsProvider
+      assetInstance={asset}
+      onTransactionSuccess={reloadAssetDetails}
+      refreshAssetDetails={reloadAssetDetails}
+    >
+      <Container>
+        <AssetSnapshot asset={assetDetails} isLoading={assetDetailsLoading} />
+        <AssetTabsContainer asset={assetDetails} />
+      </Container>
+    </AssetActionsProvider>
   );
 };
 

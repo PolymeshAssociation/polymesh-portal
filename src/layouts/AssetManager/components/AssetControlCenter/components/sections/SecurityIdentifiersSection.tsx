@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Icon } from '~/components';
 import { SecurityIdentifiersTable } from '../SecurityIdentifiersTable';
 import { ComingSoonModal } from '../modals';
+import { useAssetActionsContext } from '../../context';
 import type { TabProps, SecurityIdentifier } from '../../types';
 import {
   TabSection,
@@ -22,6 +23,9 @@ export const SecurityIdentifiersSection: React.FC<
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
 
+  const { modifyAssetIdentifiers, transactionInProcess } =
+    useAssetActionsContext();
+
   const handleAddSecurityIdentifier = () => {
     setComingSoonFeature('add security identifier');
     setComingSoonModalOpen(true);
@@ -34,11 +38,21 @@ export const SecurityIdentifiersSection: React.FC<
     console.log('Edit identifier:', identifierId);
   };
 
-  const handleRemoveSecurityIdentifier = (identifierId: string) => {
-    setComingSoonFeature('remove security identifier');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Remove identifier:', identifierId);
+  const handleRemoveSecurityIdentifier = async (identifierId: string) => {
+    if (!asset?.details?.assetIdentifiers) {
+      return;
+    }
+
+    // Parse the identifierId to find the index to remove
+    const indexToRemove = parseInt(identifierId.split('-').pop() || '0', 10);
+
+    // Filter out the identifier to remove
+    const remainingIdentifiers = asset.details.assetIdentifiers.filter(
+      (_, index) => index !== indexToRemove,
+    );
+
+    // Call the asset action to update identifiers
+    await modifyAssetIdentifiers(remainingIdentifiers);
   };
 
   // Extract security identifiers from asset details
@@ -54,7 +68,10 @@ export const SecurityIdentifiersSection: React.FC<
       <TabSection>
         <SectionHeader>
           <SectionTitle>Security Identifiers</SectionTitle>
-          <AddButton onClick={handleAddSecurityIdentifier}>
+          <AddButton
+            onClick={handleAddSecurityIdentifier}
+            disabled={transactionInProcess}
+          >
             <Icon name="Plus" size="16px" />
             Add Identifier
           </AddButton>
@@ -65,6 +82,7 @@ export const SecurityIdentifiersSection: React.FC<
               identifiers={securityIdentifiers}
               onEditIdentifier={handleEditSecurityIdentifier}
               onRemoveIdentifier={handleRemoveSecurityIdentifier}
+              disabled={transactionInProcess}
             />
           ) : (
             <EmptyState>

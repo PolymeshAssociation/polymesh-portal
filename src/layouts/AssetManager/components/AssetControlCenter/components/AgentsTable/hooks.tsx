@@ -13,14 +13,15 @@ export const useAgentsTable = (
   agents: AgentWithGroup[],
   onEditAgent: (agentDid: string) => void,
   onRemoveAgent: (agentDid: string) => void,
+  disabled: boolean = false,
 ) => {
   const [tableData, setTableData] = useState<IAgentTableItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Memoize the columns to prevent unnecessary re-renders
   const columns = useMemo(
-    () => createAgentColumns(onEditAgent, onRemoveAgent),
-    [onEditAgent, onRemoveAgent],
+    () => createAgentColumns(onEditAgent, onRemoveAgent, disabled),
+    [onEditAgent, onRemoveAgent, disabled],
   );
 
   useEffect(() => {

@@ -7,17 +7,20 @@ interface IAgentsTableProps {
   agents: AgentWithGroup[];
   onEditAgent: (agentDid: string) => void;
   onRemoveAgent: (agentDid: string) => void;
+  disabled?: boolean;
 }
 
 export const AgentsTable: React.FC<IAgentsTableProps> = ({
   agents,
   onEditAgent,
   onRemoveAgent,
+  disabled = false,
 }) => {
   const { table, loading, totalItems } = useAgentsTable(
     agents,
     onEditAgent,
     onRemoveAgent,
+    disabled,
   );
 
   return (

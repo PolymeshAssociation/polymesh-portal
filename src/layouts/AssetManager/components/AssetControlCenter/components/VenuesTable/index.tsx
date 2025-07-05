@@ -6,13 +6,19 @@ import { useVenuesTable } from './hooks';
 interface IVenuesTableProps {
   venues: Venue[];
   onRemoveVenue?: (venueId: string) => void;
+  disabled?: boolean;
 }
 
 export const VenuesTable: React.FC<IVenuesTableProps> = ({
   venues,
   onRemoveVenue,
+  disabled = false,
 }) => {
-  const { table, loading, totalItems } = useVenuesTable(venues, onRemoveVenue);
+  const { table, loading, totalItems } = useVenuesTable(
+    venues,
+    onRemoveVenue,
+    disabled,
+  );
 
   return (
     <Table

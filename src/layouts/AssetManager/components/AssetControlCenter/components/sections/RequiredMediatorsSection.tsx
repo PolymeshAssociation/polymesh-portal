@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Icon, CopyToClipboard } from '~/components';
 import { formatUuid } from '~/helpers/formatters';
 import { ComingSoonModal } from '../modals';
+import { useAssetActionsContext } from '../../context';
 import type { TabProps, RequiredMediator } from '../../types';
 import {
   TabSection,
@@ -28,17 +29,18 @@ export const RequiredMediatorsSection: React.FC<
 > = ({ asset }) => {
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const { removeRequiredMediators, transactionInProcess } =
+    useAssetActionsContext();
 
   const handleManageMediators = () => {
     setComingSoonFeature('add required mediator');
     setComingSoonModalOpen(true);
   };
 
-  const handleDeleteMediator = (mediatorId: string) => {
-    setComingSoonFeature('delete required mediator');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Delete mediator:', mediatorId);
+  const handleDeleteMediator = async (mediatorId: string) => {
+    await removeRequiredMediators({
+      mediators: [mediatorId],
+    });
   };
 
   const requiredMediators: RequiredMediator[] =
@@ -51,7 +53,10 @@ export const RequiredMediatorsSection: React.FC<
       <TabSection>
         <SectionHeader>
           <SectionTitle>Required Mediators</SectionTitle>
-          <AddButton onClick={handleManageMediators}>
+          <AddButton
+            onClick={handleManageMediators}
+            disabled={transactionInProcess}
+          >
             <Icon name="Plus" size="16px" />
             Add Mediator
           </AddButton>
@@ -74,6 +79,7 @@ export const RequiredMediatorsSection: React.FC<
                         </DetailValue>
                         <ActionButton
                           onClick={() => handleDeleteMediator(mediator.id)}
+                          disabled={transactionInProcess}
                         >
                           <Icon name="Delete" size="14px" />
                         </ActionButton>

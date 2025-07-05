@@ -1,13 +1,10 @@
 // TypeScript interfaces for Asset Control Center components
 
-import { Asset } from '@polymeshassociation/polymesh-sdk/types';
 import { IAssetDetails } from '~/context/AssetContext/constants';
 
 // Asset Snapshot props
 export interface AssetSnapshotProps {
   asset: IAssetDetails;
-  assetInstance?: Asset;
-  onRefresh: () => void | Promise<void>;
   isLoading?: boolean;
 }
 

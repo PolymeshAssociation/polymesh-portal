@@ -6,6 +6,7 @@ import { ActionButton } from '../../styles';
 
 export const createVenueColumns = (
   onRemoveVenue?: (venueId: string) => void,
+  disabled?: boolean,
 ): ColumnDef<IVenueTableItem>[] => {
   const columns: ColumnDef<IVenueTableItem>[] = [
     {
@@ -62,6 +63,7 @@ export const createVenueColumns = (
                 onRemoveVenue(venue.id);
               }}
               title="Remove Venue"
+              disabled={disabled}
             >
               <Icon name="Delete" size="14px" />
             </ActionButton>

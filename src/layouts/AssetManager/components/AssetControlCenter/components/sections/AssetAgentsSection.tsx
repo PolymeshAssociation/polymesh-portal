@@ -3,7 +3,9 @@ import { AgentWithGroup } from '@polymeshassociation/polymesh-sdk/types';
 import { Icon } from '~/components';
 import { AgentsTable } from '../AgentsTable';
 import { ComingSoonModal } from '../modals';
+import { useAssetActionsContext } from '../../context';
 import type { TabProps } from '../../types';
+import { notifyError } from '~/helpers/notifications';
 import {
   TabSection,
   SectionHeader,
@@ -22,6 +24,7 @@ export const AssetAgentsSection: React.FC<AssetAgentsSectionProps> = ({
 }) => {
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const { removeAssetAgent, transactionInProcess } = useAssetActionsContext();
 
   // Extract agents directly from asset details
   const agents: AgentWithGroup[] = asset?.details?.agentsWithGroups || [];
@@ -31,11 +34,12 @@ export const AssetAgentsSection: React.FC<AssetAgentsSectionProps> = ({
     setComingSoonModalOpen(true);
   };
 
-  const handleRemoveAgent = (agentDid: string) => {
-    setComingSoonFeature('remove asset agent');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Remove agent:', agentDid);
+  const handleRemoveAgent = async (agentDid: string) => {
+    try {
+      await removeAssetAgent(agentDid);
+    } catch (error) {
+      notifyError(`Error removing asset agent: ${(error as Error).message}`);
+    }
   };
 
   const handleEditAgent = (agentDid: string) => {
@@ -50,7 +54,10 @@ export const AssetAgentsSection: React.FC<AssetAgentsSectionProps> = ({
       <TabSection>
         <SectionHeader>
           <SectionTitle>Asset Agents</SectionTitle>
-          <AddButton onClick={handleManageAgents}>
+          <AddButton
+            onClick={handleManageAgents}
+            disabled={transactionInProcess}
+          >
             <Icon name="Plus" size="16px" />
             Add Agents
           </AddButton>
@@ -61,6 +68,7 @@ export const AssetAgentsSection: React.FC<AssetAgentsSectionProps> = ({
               agents={agents}
               onRemoveAgent={handleRemoveAgent}
               onEditAgent={handleEditAgent}
+              disabled={transactionInProcess}
             />
           ) : (
             <EmptyState>

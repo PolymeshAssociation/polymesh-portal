@@ -8,6 +8,7 @@ import {
   Claim,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { Icon, CopyToClipboard } from '~/components';
+import { useAssetActionsContext } from '../../context';
 import type { TabProps } from '../../types';
 import {
   TabSection,
@@ -110,14 +111,27 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
 
+  const { pauseCompliance, unpauseCompliance, transactionInProcess } =
+    useAssetActionsContext();
+
   const handleManageComplianceRules = () => {
     setComingSoonFeature('add compliance rule');
     setComingSoonModalOpen(true);
   };
 
-  const handlePauseCompliance = () => {
-    setComingSoonFeature('pause/resume compliance');
-    setComingSoonModalOpen(true);
+  const handlePauseCompliance = async () => {
+    const compliancePaused = asset?.details?.compliancePaused ?? false;
+
+    try {
+      if (compliancePaused) {
+        await unpauseCompliance();
+      } else {
+        await pauseCompliance();
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error toggling compliance:', error);
+    }
   };
 
   const handleEditRule = (ruleIndex: number) => {
@@ -317,11 +331,17 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
         <SectionHeader>
           <SectionTitle>Compliance Rules</SectionTitle>
           <HeaderButtons>
-            <AddButton onClick={handlePauseCompliance}>
+            <AddButton
+              onClick={handlePauseCompliance}
+              disabled={transactionInProcess}
+            >
               <Icon name="ClockIcon" size="16px" />
               {compliancePaused ? 'Resume All Rules' : 'Pause All Rules'}
             </AddButton>
-            <AddButton onClick={handleManageComplianceRules}>
+            <AddButton
+              onClick={handleManageComplianceRules}
+              disabled={transactionInProcess}
+            >
               <Icon name="Plus" size="16px" />
               Add Rules
             </AddButton>
@@ -353,12 +373,14 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
                       <ActionButton
                         onClick={() => handleEditRule(rule.ruleIndex)}
                         title="Edit Rule"
+                        disabled={transactionInProcess}
                       >
                         <Icon name="Edit" size="14px" />
                       </ActionButton>
                       <ActionButton
                         onClick={() => handleDeleteRule(rule.ruleIndex)}
                         title="Delete Rule"
+                        disabled={transactionInProcess}
                       >
                         <Icon name="Delete" size="14px" />
                       </ActionButton>

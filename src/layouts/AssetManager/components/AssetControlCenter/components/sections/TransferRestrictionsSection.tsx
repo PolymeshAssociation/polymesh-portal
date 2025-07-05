@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Icon, CopyToClipboard } from '~/components';
 import { formatDid } from '~/helpers/formatters';
+import { useAssetActionsContext } from '../../context';
 import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
 import type { TabProps } from '../../types';
 import {
@@ -118,6 +119,7 @@ const getRestrictionTypeDescription = (
 export const TransferRestrictionsSection: React.FC<
   TransferRestrictionsSectionProps
 > = ({ asset }) => {
+  const { transactionInProcess } = useAssetActionsContext();
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
 
@@ -244,7 +246,10 @@ export const TransferRestrictionsSection: React.FC<
       <TabSection>
         <SectionHeader>
           <SectionTitle>Transfer Restrictions</SectionTitle>
-          <AddButton onClick={handleManageTransferRestrictions}>
+          <AddButton
+            onClick={handleManageTransferRestrictions}
+            disabled={transactionInProcess}
+          >
             <Icon name="Plus" size="16px" />
             Add Restrictions
           </AddButton>
@@ -270,12 +275,14 @@ export const TransferRestrictionsSection: React.FC<
                       <ActionButton
                         onClick={() => handleEditRestriction(restriction.id)}
                         title="Edit Restriction"
+                        disabled={transactionInProcess}
                       >
                         <Icon name="Edit" size="14px" />
                       </ActionButton>
                       <ActionButton
                         onClick={() => handleDeleteRestriction(restriction.id)}
                         title="Delete Restriction"
+                        disabled={transactionInProcess}
                       >
                         <Icon name="Delete" size="14px" />
                       </ActionButton>
@@ -351,6 +358,7 @@ export const TransferRestrictionsSection: React.FC<
                                 onClick={() =>
                                   handleDeleteExemption(restriction.id, did)
                                 }
+                                disabled={transactionInProcess}
                               >
                                 <Icon name="Delete" size="14px" />
                               </ActionButton>

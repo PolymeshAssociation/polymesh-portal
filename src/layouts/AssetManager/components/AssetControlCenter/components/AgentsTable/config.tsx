@@ -8,6 +8,7 @@ const columnHelper = createColumnHelper<IAgentTableItem>();
 export const createAgentColumns = (
   onEditAgent: (agentDid: string) => void,
   onRemoveAgent: (agentDid: string) => void,
+  disabled: boolean = false,
 ) => [
   columnHelper.accessor('agentDid', {
     header: 'Agent DID',
@@ -27,6 +28,7 @@ export const createAgentColumns = (
         agentDid={info.row.original.agentDid}
         onEdit={onEditAgent}
         onRemove={onRemoveAgent}
+        disabled={disabled}
       />
     ),
   }),

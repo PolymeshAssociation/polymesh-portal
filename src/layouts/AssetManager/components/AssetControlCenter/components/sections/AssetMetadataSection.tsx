@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Icon } from '~/components';
 import { ComingSoonModal } from '../modals';
+import { useAssetActionsContext } from '../../context';
 import type { TabProps, AssetMetadata } from '../../types';
 import {
   TabSection,
@@ -28,6 +29,7 @@ interface AssetMetadataSectionProps {
 export const AssetMetadataSection: React.FC<AssetMetadataSectionProps> = ({
   asset,
 }) => {
+  const { transactionInProcess } = useAssetActionsContext();
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
 
@@ -77,7 +79,10 @@ export const AssetMetadataSection: React.FC<AssetMetadataSectionProps> = ({
       <TabSection>
         <SectionHeader>
           <SectionTitle>Asset Metadata</SectionTitle>
-          <AddButton onClick={handleAddMetadata}>
+          <AddButton
+            onClick={handleAddMetadata}
+            disabled={transactionInProcess}
+          >
             <Icon name="Plus" size="16px" />
             Add Metadata
           </AddButton>
@@ -100,11 +105,13 @@ export const AssetMetadataSection: React.FC<AssetMetadataSectionProps> = ({
                     <GroupActions>
                       <ActionButton
                         onClick={() => handleEditMetadata(metadata.id)}
+                        disabled={transactionInProcess}
                       >
                         <Icon name="Edit" size="14px" />
                       </ActionButton>
                       <ActionButton
                         onClick={() => handleDeleteMetadata(metadata.id)}
+                        disabled={transactionInProcess}
                       >
                         <Icon name="Delete" size="14px" />
                       </ActionButton>

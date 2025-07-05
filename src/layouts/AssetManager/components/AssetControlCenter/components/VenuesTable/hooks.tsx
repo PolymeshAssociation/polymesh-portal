@@ -12,14 +12,15 @@ import { IVenueTableItem } from './constants';
 export const useVenuesTable = (
   venues: Venue[],
   onRemoveVenue?: (venueId: string) => void,
+  disabled?: boolean,
 ) => {
   const [tableData, setTableData] = useState<IVenueTableItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Memoize the columns to prevent unnecessary re-renders
   const columns = useMemo(
-    () => createVenueColumns(onRemoveVenue),
-    [onRemoveVenue],
+    () => createVenueColumns(onRemoveVenue, disabled),
+    [onRemoveVenue, disabled],
   );
 
   useEffect(() => {

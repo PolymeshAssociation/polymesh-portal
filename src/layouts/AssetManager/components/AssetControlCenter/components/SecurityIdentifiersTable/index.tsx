@@ -7,15 +7,22 @@ interface ISecurityIdentifiersTableProps {
   identifiers: SecurityIdentifier[];
   onEditIdentifier: (identifierId: string) => void;
   onRemoveIdentifier: (identifierId: string) => void;
+  disabled?: boolean;
 }
 
 export const SecurityIdentifiersTable: React.FC<
   ISecurityIdentifiersTableProps
-> = ({ identifiers, onEditIdentifier, onRemoveIdentifier }) => {
+> = ({
+  identifiers,
+  onEditIdentifier,
+  onRemoveIdentifier,
+  disabled = false,
+}) => {
   const { table, loading, totalItems } = useSecurityIdentifiersTable(
     identifiers,
     onEditIdentifier,
     onRemoveIdentifier,
+    disabled,
   );
 
   return (

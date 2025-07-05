@@ -395,10 +395,16 @@ export const ActionButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
+  &:hover:enabled {
     background-color: ${({ theme }) => theme.colors.hoverBackground};
     border-color: ${({ theme }) => theme.colors.textPrimary};
     color: ${({ theme }) => theme.colors.textPrimary};
+  }
+
+  &:disabled {
+    border: 1px solid ${({ theme }) => theme.colors.textDisabled};
+    color: ${({ theme }) => theme.colors.textDisabled};
+    cursor: not-allowed;
   }
 `;
 
@@ -426,7 +432,7 @@ export const AddButton = styled.button`
   cursor: pointer;
   transition: all ${({ theme }) => theme.transition.normal};
 
-  &:hover {
+  &:hover:enabled {
     background: ${({ theme }) =>
       theme.mode === 'light' ? '#f2efff' : theme.colors.lightAccent};
   }
@@ -434,6 +440,13 @@ export const AddButton = styled.button`
   &:active {
     background: ${({ theme }) =>
       theme.mode === 'light' ? '#dcd3ff' : theme.colors.hoverBackground};
+  }
+
+  &:disabled {
+    color: ${({ theme }) => theme.colors.textDisabled};
+    background: none;
+    border-color: ${({ theme }) => theme.colors.textDisabled};
+    cursor: not-allowed;
   }
 
   @media screen and (max-width: 768px) {

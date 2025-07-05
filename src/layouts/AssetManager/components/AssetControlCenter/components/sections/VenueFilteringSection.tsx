@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Icon } from '~/components';
 import { ComingSoonModal } from '../modals';
+import { useAssetActionsContext } from '../../context';
 import type { TabProps, VenueConfig } from '../../types';
 import { VenuesTable } from '../VenuesTable';
 import {
@@ -12,6 +13,7 @@ import {
   EmptyState,
   VenueStatusBadge,
 } from '../../styles';
+import { notifyError } from '~/helpers/notifications';
 
 interface VenueFilteringSectionProps {
   asset: TabProps['asset'];
@@ -22,10 +24,18 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
 }) => {
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const { setVenueFiltering, transactionInProcess } = useAssetActionsContext();
 
-  const handleToggleVenueFiltering = () => {
-    setComingSoonFeature('toggle venue filtering');
-    setComingSoonModalOpen(true);
+  const handleToggleVenueFiltering = async () => {
+    try {
+      await setVenueFiltering({
+        enabled: !asset?.details?.venueFilteringEnabled,
+      });
+    } catch (error) {
+      notifyError(
+        `Error toggling venue filtering: ${(error as Error).message}`,
+      );
+    }
   };
 
   const handleManageVenues = () => {
@@ -57,14 +67,20 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
             </VenueStatusBadge>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
-            <AddButton onClick={handleToggleVenueFiltering}>
+            <AddButton
+              onClick={handleToggleVenueFiltering}
+              disabled={transactionInProcess}
+            >
               <Icon
                 name={venueConfig.isEnabled ? 'CloseIcon' : 'Check'}
                 size="16px"
               />
               {venueConfig.isEnabled ? 'Disable' : 'Enable'}
             </AddButton>
-            <AddButton onClick={handleManageVenues}>
+            <AddButton
+              onClick={handleManageVenues}
+              disabled={transactionInProcess}
+            >
               <Icon name="Plus" size="16px" />
               Add Venue
             </AddButton>
@@ -75,6 +91,7 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
             <VenuesTable
               venues={permittedVenues}
               onRemoveVenue={handleRemoveVenue}
+              disabled={transactionInProcess}
             />
           )}
           {permittedVenues.length === 0 && (

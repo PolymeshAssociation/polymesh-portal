@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Icon } from '~/components';
 import { ComingSoonModal } from '../modals';
+import { useAssetActionsContext } from '../../context';
 import type { TabProps, AssetDocument } from '../../types';
 import {
   TabSection,
@@ -28,6 +29,7 @@ interface AssetDocumentsSectionProps {
 export const AssetDocumentsSection: React.FC<AssetDocumentsSectionProps> = ({
   asset,
 }) => {
+  const { transactionInProcess } = useAssetActionsContext();
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
 
@@ -66,7 +68,10 @@ export const AssetDocumentsSection: React.FC<AssetDocumentsSectionProps> = ({
       <TabSection>
         <SectionHeader>
           <SectionTitle>Asset Documents</SectionTitle>
-          <AddButton onClick={handleAddDocument}>
+          <AddButton
+            onClick={handleAddDocument}
+            disabled={transactionInProcess}
+          >
             <Icon name="Plus" size="16px" />
             Add Document
           </AddButton>
@@ -89,11 +94,13 @@ export const AssetDocumentsSection: React.FC<AssetDocumentsSectionProps> = ({
                     <GroupActions>
                       <ActionButton
                         onClick={() => handleEditDocument(document.id)}
+                        disabled={transactionInProcess}
                       >
                         <Icon name="Edit" size="14px" />
                       </ActionButton>
                       <ActionButton
                         onClick={() => handleDeleteDocument(document.id)}
+                        disabled={transactionInProcess}
                       >
                         <Icon name="Delete" size="14px" />
                       </ActionButton>

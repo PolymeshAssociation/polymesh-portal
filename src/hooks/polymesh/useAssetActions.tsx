@@ -592,6 +592,84 @@ const useAssetActions = (
     );
   };
 
+  /**
+   * Pause compliance requirements
+   */
+  const pauseCompliance = async (
+    onTransactionRunning?: () => void | Promise<void>,
+  ) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    await executeTransaction(
+      asset.compliance.requirements.pause() as Promise<
+        GenericPolymeshTransaction<unknown, unknown>
+      >,
+      onTransactionRunning,
+    );
+  };
+
+  /**
+   * Unpause (resume) compliance requirements
+   */
+  const unpauseCompliance = async (
+    onTransactionRunning?: () => void | Promise<void>,
+  ) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    await executeTransaction(
+      asset.compliance.requirements.unpause() as Promise<
+        GenericPolymeshTransaction<unknown, unknown>
+      >,
+      onTransactionRunning,
+    );
+  };
+
+  /**
+   * Remove trusted claim issuers
+   */
+  const removeTrustedClaimIssuers = async (
+    claimIssuers: Array<string>,
+    onTransactionRunning?: () => void | Promise<void>,
+  ) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    await executeTransaction(
+      asset.compliance.trustedClaimIssuers.remove({ claimIssuers }) as Promise<
+        GenericPolymeshTransaction<unknown, unknown>
+      >,
+      onTransactionRunning,
+    );
+  };
+
+  /**
+   * Remove asset agent
+   */
+  const removeAssetAgent = async (
+    agentId: string,
+    onTransactionRunning?: () => void | Promise<void>,
+  ) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    await executeTransaction(
+      asset.permissions.removeAgent({ target: agentId }) as Promise<
+        GenericPolymeshTransaction<unknown, unknown>
+      >,
+      onTransactionRunning,
+    );
+  };
+
   return {
     issueTokens,
     redeemTokens,
@@ -613,6 +691,10 @@ const useAssetActions = (
     modifyAssetProperties,
     createCustomAssetType,
     transactionInProcess,
+    pauseCompliance,
+    unpauseCompliance,
+    removeTrustedClaimIssuers,
+    removeAssetAgent,
   };
 };
 

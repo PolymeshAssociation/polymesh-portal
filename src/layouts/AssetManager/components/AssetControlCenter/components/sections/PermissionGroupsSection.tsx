@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import type { AgentWithGroup } from '@polymeshassociation/polymesh-sdk/types';
 import { Icon } from '~/components';
 import { ComingSoonModal } from '../modals';
+import { useAssetActionsContext } from '../../context';
 import type { TabProps, IPermissionGroup } from '../../types';
 import {
   TabSection,
@@ -34,6 +35,7 @@ interface PermissionGroupsSectionProps {
 export const PermissionGroupsSection: React.FC<
   PermissionGroupsSectionProps
 > = ({ asset }) => {
+  const { transactionInProcess } = useAssetActionsContext();
   // State for processed permission groups
   const [processedPermissionGroups, setProcessedPermissionGroups] = useState<
     IPermissionGroup[]
@@ -184,7 +186,10 @@ export const PermissionGroupsSection: React.FC<
       <TabSection>
         <SectionHeader>
           <SectionTitle>Permission Groups</SectionTitle>
-          <AddButton onClick={handleCreatePermissionGroup}>
+          <AddButton
+            onClick={handleCreatePermissionGroup}
+            disabled={transactionInProcess}
+          >
             <Icon name="Plus" size="16px" />
             Create Group
           </AddButton>
@@ -210,6 +215,7 @@ export const PermissionGroupsSection: React.FC<
                       <GroupActions>
                         <ActionButton
                           onClick={() => handleEditPermissionGroup(group.id)}
+                          disabled={transactionInProcess}
                         >
                           <Icon name="Edit" size="14px" />
                         </ActionButton>

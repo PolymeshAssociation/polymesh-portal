@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Icon, CopyToClipboard } from '~/components';
 import { Button, RefreshButton } from '~/components/UiKit';
 import { formatDid, formatUuid } from '~/helpers/formatters';
+import { useAssetActionsContext } from '../context';
 import type { AssetSnapshotProps } from '../types';
 import { IssueTokensModal } from './modals/IssueTokensModal';
 import { MoreActionsModal } from './modals/MoreActionsModal';
@@ -30,12 +31,9 @@ import {
   DetailLabel,
   DetailValue,
 } from '../styles';
-import { useAssetActions } from '~/hooks/polymesh';
 
 export const AssetSnapshot: React.FC<AssetSnapshotProps> = ({
   asset,
-  assetInstance,
-  onRefresh,
   isLoading = false,
 }) => {
   const [isIssueModalOpen, setIsIssueModalOpen] = useState(false);
@@ -68,7 +66,8 @@ export const AssetSnapshot: React.FC<AssetSnapshotProps> = ({
     modifyFundingRound,
     createCustomAssetType,
     transactionInProcess,
-  } = useAssetActions(assetInstance, onRefresh);
+    refreshAssetDetails,
+  } = useAssetActionsContext();
 
   const handleEditName = () => {
     setIsEditNameModalOpen(true);
@@ -166,7 +165,10 @@ export const AssetSnapshot: React.FC<AssetSnapshotProps> = ({
               More Actions
             </Button>
 
-            <RefreshButton onClick={onRefresh} disabled={isLoading} />
+            <RefreshButton
+              onClick={refreshAssetDetails || (() => {})}
+              disabled={isLoading || !refreshAssetDetails}
+            />
           </StatusActions>
         </RightSection>
       </HeaderBar>

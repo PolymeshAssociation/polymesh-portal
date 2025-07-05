@@ -7,6 +7,7 @@ const columnHelper = createColumnHelper<ISecurityIdentifierTableItem>();
 export const createSecurityIdentifierColumns = (
   onEditIdentifier: (identifierId: string) => void,
   onRemoveIdentifier: (identifierId: string) => void,
+  disabled: boolean = false,
 ) => [
   columnHelper.accessor('type', {
     header: 'Type',
@@ -26,6 +27,7 @@ export const createSecurityIdentifierColumns = (
         identifierId={info.row.original.id}
         onEdit={onEditIdentifier}
         onRemove={onRemoveIdentifier}
+        disabled={disabled}
       />
     ),
   }),

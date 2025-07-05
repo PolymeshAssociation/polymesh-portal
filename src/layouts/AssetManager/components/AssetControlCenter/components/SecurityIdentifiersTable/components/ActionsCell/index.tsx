@@ -6,12 +6,14 @@ interface IActionsCellProps {
   identifierId: string;
   onEdit: (identifierId: string) => void;
   onRemove: (identifierId: string) => void;
+  disabled?: boolean;
 }
 
 export const ActionsCell: React.FC<IActionsCellProps> = ({
   identifierId,
   onEdit,
   onRemove,
+  disabled = false,
 }) => {
   return (
     <div style={{ display: 'flex', gap: '8px' }}>
@@ -21,6 +23,7 @@ export const ActionsCell: React.FC<IActionsCellProps> = ({
           onEdit(identifierId);
         }}
         title="Edit Security Identifier"
+        disabled={disabled}
       >
         <Icon name="Edit" size="14px" />
       </ActionButton>
@@ -30,6 +33,7 @@ export const ActionsCell: React.FC<IActionsCellProps> = ({
           onRemove(identifierId);
         }}
         title="Remove Security Identifier"
+        disabled={disabled}
       >
         <Icon name="Delete" size="14px" />
       </ActionButton>

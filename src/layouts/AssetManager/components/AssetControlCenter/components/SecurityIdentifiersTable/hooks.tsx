@@ -13,6 +13,7 @@ export const useSecurityIdentifiersTable = (
   identifiers: SecurityIdentifier[],
   onEditIdentifier: (identifierId: string) => void,
   onRemoveIdentifier: (identifierId: string) => void,
+  disabled: boolean = false,
 ) => {
   const [tableData, setTableData] = useState<ISecurityIdentifierTableItem[]>(
     [],
@@ -21,8 +22,13 @@ export const useSecurityIdentifiersTable = (
 
   // Memoize the columns to prevent unnecessary re-renders
   const columns = useMemo(
-    () => createSecurityIdentifierColumns(onEditIdentifier, onRemoveIdentifier),
-    [onEditIdentifier, onRemoveIdentifier],
+    () =>
+      createSecurityIdentifierColumns(
+        onEditIdentifier,
+        onRemoveIdentifier,
+        disabled,
+      ),
+    [onEditIdentifier, onRemoveIdentifier, disabled],
   );
 
   useEffect(() => {

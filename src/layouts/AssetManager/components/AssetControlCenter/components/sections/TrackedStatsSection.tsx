@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Icon, CopyToClipboard } from '~/components';
 import { ComingSoonModal } from '../modals';
+import { useAssetActionsContext } from '../../context';
 import { formatDid } from '~/helpers/formatters';
 
 import {
@@ -22,6 +23,7 @@ import {
 import type { TabProps } from '../../types';
 
 export const TrackedStatsSection: React.FC<TabProps> = ({ asset }) => {
+  const { transactionInProcess } = useAssetActionsContext();
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
 
@@ -53,7 +55,10 @@ export const TrackedStatsSection: React.FC<TabProps> = ({ asset }) => {
       <TabSection>
         <SectionHeader>
           <SectionTitle>Tracked Stats</SectionTitle>
-          <AddButton onClick={handleAddTrackedStat}>
+          <AddButton
+            onClick={handleAddTrackedStat}
+            disabled={transactionInProcess}
+          >
             <Icon name="Plus" size="16px" />
             Add Tracked Stat
           </AddButton>
@@ -71,10 +76,16 @@ export const TrackedStatsSection: React.FC<TabProps> = ({ asset }) => {
                   </InlineRow>
                 </GroupTitleSection>
                 <GroupActions>
-                  <ActionButton onClick={handleEditStat}>
+                  <ActionButton
+                    onClick={handleEditStat}
+                    disabled={transactionInProcess}
+                  >
                     <Icon name="Edit" size="14px" />
                   </ActionButton>
-                  <ActionButton onClick={handleDeleteStat}>
+                  <ActionButton
+                    onClick={handleDeleteStat}
+                    disabled={transactionInProcess}
+                  >
                     <Icon name="Delete" size="14px" />
                   </ActionButton>
                 </GroupActions>
@@ -100,10 +111,16 @@ export const TrackedStatsSection: React.FC<TabProps> = ({ asset }) => {
                   </InlineRow>
                 </GroupTitleSection>
                 <GroupActions>
-                  <ActionButton onClick={handleEditStat}>
+                  <ActionButton
+                    onClick={handleEditStat}
+                    disabled={transactionInProcess}
+                  >
                     <Icon name="Edit" size="14px" />
                   </ActionButton>
-                  <ActionButton onClick={handleDeleteStat}>
+                  <ActionButton
+                    onClick={handleDeleteStat}
+                    disabled={transactionInProcess}
+                  >
                     <Icon name="Delete" size="14px" />
                   </ActionButton>
                 </GroupActions>
@@ -142,10 +159,16 @@ export const TrackedStatsSection: React.FC<TabProps> = ({ asset }) => {
                       </InlineRow>
                     </GroupTitleSection>
                     <GroupActions>
-                      <ActionButton onClick={handleEditStat}>
+                      <ActionButton
+                        onClick={handleEditStat}
+                        disabled={transactionInProcess}
+                      >
                         <Icon name="Edit" size="14px" />
                       </ActionButton>
-                      <ActionButton onClick={handleDeleteStat}>
+                      <ActionButton
+                        onClick={handleDeleteStat}
+                        disabled={transactionInProcess}
+                      >
                         <Icon name="Delete" size="14px" />
                       </ActionButton>
                     </GroupActions>
@@ -209,10 +232,16 @@ export const TrackedStatsSection: React.FC<TabProps> = ({ asset }) => {
                       </InlineRow>
                     </GroupTitleSection>
                     <GroupActions>
-                      <ActionButton onClick={handleEditStat}>
+                      <ActionButton
+                        onClick={handleEditStat}
+                        disabled={transactionInProcess}
+                      >
                         <Icon name="Edit" size="14px" />
                       </ActionButton>
-                      <ActionButton onClick={handleDeleteStat}>
+                      <ActionButton
+                        onClick={handleDeleteStat}
+                        disabled={transactionInProcess}
+                      >
                         <Icon name="Delete" size="14px" />
                       </ActionButton>
                     </GroupActions>
@@ -265,10 +294,16 @@ export const TrackedStatsSection: React.FC<TabProps> = ({ asset }) => {
                     </InlineRow>
                   </GroupTitleSection>
                   <GroupActions>
-                    <ActionButton onClick={handleEditStat}>
+                    <ActionButton
+                      onClick={handleEditStat}
+                      disabled={transactionInProcess}
+                    >
                       <Icon name="Edit" size="14px" />
                     </ActionButton>
-                    <ActionButton onClick={handleDeleteStat}>
+                    <ActionButton
+                      onClick={handleDeleteStat}
+                      disabled={transactionInProcess}
+                    >
                       <Icon name="Delete" size="14px" />
                     </ActionButton>
                   </GroupActions>
@@ -296,10 +331,16 @@ export const TrackedStatsSection: React.FC<TabProps> = ({ asset }) => {
                     </InlineRow>
                   </GroupTitleSection>
                   <GroupActions>
-                    <ActionButton onClick={handleEditStat}>
+                    <ActionButton
+                      onClick={handleEditStat}
+                      disabled={transactionInProcess}
+                    >
                       <Icon name="Edit" size="14px" />
                     </ActionButton>
-                    <ActionButton onClick={handleDeleteStat}>
+                    <ActionButton
+                      onClick={handleDeleteStat}
+                      disabled={transactionInProcess}
+                    >
                       <Icon name="Delete" size="14px" />
                     </ActionButton>
                   </GroupActions>

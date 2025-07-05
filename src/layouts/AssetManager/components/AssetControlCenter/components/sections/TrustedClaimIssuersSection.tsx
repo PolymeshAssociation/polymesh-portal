@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Icon, CopyToClipboard } from '~/components';
 import { formatUuid } from '~/helpers/formatters';
 import { ComingSoonModal } from '../modals';
+import { useAssetActionsContext } from '../../context';
 import type { TabProps, TrustedClaimIssuer } from '../../types';
 import {
   TabSection,
@@ -30,6 +31,8 @@ export const TrustedClaimIssuersSection: React.FC<
 > = ({ asset }) => {
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const { removeTrustedClaimIssuers, transactionInProcess } =
+    useAssetActionsContext();
 
   // Helper function to format claim types for display
   const formatClaimTypes = (trustedFor: string[] | null): string => {
@@ -58,11 +61,8 @@ export const TrustedClaimIssuersSection: React.FC<
     setComingSoonModalOpen(true);
   };
 
-  const handleDeleteTrustedIssuer = (issuerId: string) => {
-    setComingSoonFeature('delete trusted claim issuer');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Delete trusted issuer:', issuerId);
+  const handleDeleteTrustedIssuer = async (issuerId: string) => {
+    await removeTrustedClaimIssuers([issuerId]);
   };
 
   const trustedClaimIssuers: TrustedClaimIssuer[] = useMemo(() => {
@@ -83,7 +83,10 @@ export const TrustedClaimIssuersSection: React.FC<
       <TabSection>
         <SectionHeader>
           <SectionTitle>Default Trusted Claim Issuers</SectionTitle>
-          <AddButton onClick={handleManageTrustedIssuers}>
+          <AddButton
+            onClick={handleManageTrustedIssuers}
+            disabled={transactionInProcess}
+          >
             <Icon name="Plus" size="16px" />
             Add Trusted Claim Issuer
           </AddButton>
@@ -113,11 +116,13 @@ export const TrustedClaimIssuersSection: React.FC<
                     <GroupActions>
                       <ActionButton
                         onClick={() => handleDeleteTrustedIssuer(issuer.id)}
+                        disabled={transactionInProcess}
                       >
                         <Icon name="Delete" size="14px" />
                       </ActionButton>
                       <ActionButton
                         onClick={() => handleManageTrustedIssuers()}
+                        disabled={transactionInProcess}
                       >
                         <Icon name="Edit" size="14px" />
                       </ActionButton>
