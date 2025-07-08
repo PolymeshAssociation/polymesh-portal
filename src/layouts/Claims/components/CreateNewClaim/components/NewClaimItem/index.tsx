@@ -2,7 +2,7 @@ import {
   ClaimType,
   CountryCode,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Toggler, Text, DropdownSelect } from '~/components/UiKit';
 import { ISelectedClaimItem } from '../../constants';
 import { StyledInput, StyledInputWrapper, StyledLabel } from '../../styles';
@@ -28,50 +28,62 @@ export const NewClaimItem: React.FC<INewClaimItem> = ({
   const [countryCodeError, setCountryCodeError] = useState<string>('');
   const [expiry, setExpiry] = useState<Date | null>(null);
 
-  const handleToggle = (toggleState: boolean) => {
-    setIsSelected(toggleState);
-    if (toggleState && value !== ClaimType.Jurisdiction) {
-      handleAdd({ claimType: value, expiry });
-    } else if (toggleState && value === ClaimType.Jurisdiction) {
-      handleAdd({ claimType: value, expiry, code: countryCode });
-    } else if (!toggleState && value === ClaimType.Jurisdiction) {
-      setCountryCode(null);
-      handleDelete(value);
-      setExpiry(null);
-    } else {
-      handleDelete(value);
-      setExpiry(null);
-    }
-  };
+  const countryNameLookup = useMemo(() => {
+    return new Map(countryCodes.map(({ name, code }) => [name, code]));
+  }, []);
 
-  const handleDateChange: React.ChangeEventHandler<HTMLInputElement> = ({
-    target,
-  }) => {
-    const date = removeTimezoneOffset(target.valueAsDate);
+  const handleToggle = useCallback(
+    (toggleState: boolean) => {
+      setIsSelected(toggleState);
+      if (toggleState && value !== ClaimType.Jurisdiction) {
+        handleAdd({ claimType: value, expiry });
+      } else if (toggleState && value === ClaimType.Jurisdiction) {
+        handleAdd({ claimType: value, expiry, code: countryCode });
+      } else if (!toggleState && value === ClaimType.Jurisdiction) {
+        setCountryCode(null);
+        handleDelete(value);
+        setExpiry(null);
+      } else {
+        handleDelete(value);
+        setExpiry(null);
+      }
+    },
+    [value, expiry, countryCode, handleAdd, handleDelete],
+  );
 
-    setExpiry(date);
+  const handleDateChange: React.ChangeEventHandler<HTMLInputElement> =
+    useCallback(
+      ({ target }) => {
+        const date = removeTimezoneOffset(target.valueAsDate);
 
-    if (value === ClaimType.Jurisdiction) {
-      handleAdd({ claimType: value, expiry: date, code: countryCode });
-    } else {
-      handleAdd({ claimType: value, expiry: date });
-    }
-  };
+        setExpiry(date);
 
-  const handleCountryChange = (option: string | null) => {
-    const isoCode = countryCodes.find(({ name }) => name === option)?.code;
-    if (!isoCode) {
-      setCountryCodeError('Country is required');
-      return;
-    }
-    const code = `${isoCode.charAt(0)}${isoCode
-      .slice(1)
-      .toLowerCase()}` as CountryCode;
+        if (value === ClaimType.Jurisdiction) {
+          handleAdd({ claimType: value, expiry: date, code: countryCode });
+        } else {
+          handleAdd({ claimType: value, expiry: date });
+        }
+      },
+      [value, countryCode, handleAdd],
+    );
 
-    setCountryCode(code);
-    setCountryCodeError('');
-    handleAdd({ claimType: value, code, expiry });
-  };
+  const handleCountryChange = useCallback(
+    (option: string | null) => {
+      const isoCode = countryNameLookup.get(option || '');
+      if (!isoCode) {
+        setCountryCodeError('Country is required');
+        return;
+      }
+      const code = `${isoCode.charAt(0)}${isoCode
+        .slice(1)
+        .toLowerCase()}` as CountryCode;
+
+      setCountryCode(code);
+      setCountryCodeError('');
+      handleAdd({ claimType: value, code, expiry });
+    },
+    [countryNameLookup, value, expiry, handleAdd],
+  );
 
   return (
     <StyledWrapper>

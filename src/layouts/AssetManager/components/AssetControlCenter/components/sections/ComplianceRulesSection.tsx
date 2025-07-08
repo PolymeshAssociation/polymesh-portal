@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   ConditionType,
   ConditionTarget,
@@ -114,14 +114,16 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
   const { pauseCompliance, unpauseCompliance, transactionInProcess } =
     useAssetActionsContext();
 
-  const handleManageComplianceRules = () => {
+  const handleManageComplianceRules = useCallback(() => {
     setComingSoonFeature('add compliance rule');
     setComingSoonModalOpen(true);
-  };
+  }, []);
 
-  const handlePauseCompliance = async () => {
-    const compliancePaused = asset?.details?.compliancePaused ?? false;
+  const compliancePaused = useMemo(() => {
+    return asset?.details?.compliancePaused ?? false;
+  }, [asset?.details?.compliancePaused]);
 
+  const handlePauseCompliance = useCallback(async () => {
     try {
       if (compliancePaused) {
         await unpauseCompliance();
@@ -132,114 +134,121 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
       // eslint-disable-next-line no-console
       console.error('Error toggling compliance:', error);
     }
-  };
+  }, [compliancePaused, pauseCompliance, unpauseCompliance]);
 
-  const handleEditRule = (ruleIndex: number) => {
+  const handleEditRule = useCallback((ruleIndex: number) => {
     setComingSoonFeature('edit compliance rule');
     setComingSoonModalOpen(true);
     // eslint-disable-next-line no-console
     console.log('Edit rule:', ruleIndex);
-  };
+  }, []);
 
-  const handleDeleteRule = (ruleIndex: number) => {
+  const handleDeleteRule = useCallback((ruleIndex: number) => {
     setComingSoonFeature('delete compliance rule');
     setComingSoonModalOpen(true);
     // eslint-disable-next-line no-console
     console.log('Delete rule:', ruleIndex);
-  };
+  }, []);
+
+  const countryLookupMap = useMemo(() => {
+    return new Map(
+      countryCodes.map((country) => [country.code.toUpperCase(), country.name]),
+    );
+  }, []);
 
   // Helper function to format claim display text
-  const formatClaimDisplayText = (claim: Claim): ParsedClaim => {
-    let displayText = '';
-    let scope: ParsedClaim['scope'];
+  const formatClaimDisplayText = useCallback(
+    (claim: Claim): ParsedClaim => {
+      let displayText = '';
+      let scope: ParsedClaim['scope'];
 
-    if (claim.type === ClaimType.Jurisdiction && 'code' in claim) {
-      const country = countryCodes.find(
-        (c: { code: string; name: string }) =>
-          c.code === claim.code.toUpperCase(),
-      );
-      displayText = `${splitCamelCase(claim.type)} - ${country?.name || claim.code}`;
-    } else if (
-      claim.type === ClaimType.Custom &&
-      'customClaimTypeId' in claim
-    ) {
-      const claimId = claim.customClaimTypeId.toString();
-      displayText = `Custom - ID ${claimId}`;
-    } else {
-      displayText = splitCamelCase(claim.type);
-    }
-
-    if ('scope' in claim && claim.scope) {
-      const scopeDisplayValue =
-        claim.scope.type === ScopeType.Identity ||
-        claim.scope.type === ScopeType.Asset
-          ? formatDid(claim.scope.value, 8, 8)
-          : claim.scope.value;
-
-      scope = {
-        type: claim.scope.type,
-        value: claim.scope.value,
-        displayText: `${claim.scope.type}: ${scopeDisplayValue}`,
-      };
-    }
-
-    return {
-      type: claim.type,
-      displayText,
-      scope,
-      customClaimId:
+      if (claim.type === ClaimType.Jurisdiction && 'code' in claim) {
+        const countryName = countryLookupMap.get(claim.code.toUpperCase());
+        displayText = `${splitCamelCase(claim.type)} - ${countryName || claim.code}`;
+      } else if (
+        claim.type === ClaimType.Custom &&
         'customClaimTypeId' in claim
-          ? claim.customClaimTypeId?.toString()
-          : undefined,
-      jurisdictionCode: 'code' in claim ? claim.code : undefined,
-    };
-  };
+      ) {
+        const claimId = claim.customClaimTypeId.toString();
+        displayText = `Custom - ID ${claimId}`;
+      } else {
+        displayText = splitCamelCase(claim.type);
+      }
+
+      if ('scope' in claim && claim.scope) {
+        const scopeDisplayValue =
+          claim.scope.type === ScopeType.Identity ||
+          claim.scope.type === ScopeType.Asset
+            ? formatDid(claim.scope.value, 8, 8)
+            : claim.scope.value;
+
+        scope = {
+          type: claim.scope.type,
+          value: claim.scope.value,
+          displayText: `${claim.scope.type}: ${scopeDisplayValue}`,
+        };
+      }
+
+      return {
+        type: claim.type,
+        displayText,
+        scope,
+        customClaimId:
+          'customClaimTypeId' in claim
+            ? claim.customClaimTypeId?.toString()
+            : undefined,
+        jurisdictionCode: 'code' in claim ? claim.code : undefined,
+      };
+    },
+    [countryLookupMap],
+  );
 
   // Helper function to format condition display text
-  const formatConditionDisplayText = (
-    condition: Condition,
-  ): ParsedCondition => {
-    const baseLabel =
-      conditionTypeLabels[condition.type as ConditionType] || condition.type;
-    const targetLabel =
-      targetLabels[condition.target as ConditionTarget] || condition.target;
+  const formatConditionDisplayText = useCallback(
+    (condition: Condition): ParsedCondition => {
+      const baseLabel =
+        conditionTypeLabels[condition.type as ConditionType] || condition.type;
+      const targetLabel =
+        targetLabels[condition.target as ConditionTarget] || condition.target;
 
-    let displayText = `${targetLabel} ${baseLabel}`;
-    let parsedClaims: ParsedClaim[] = [];
+      let displayText = `${targetLabel} ${baseLabel}`;
+      let parsedClaims: ParsedClaim[] = [];
 
-    if (
-      condition.type === ConditionType.IsIdentity &&
-      'identity' in condition
-    ) {
-      displayText = `${targetLabel} ${conditionTypeLabels[ConditionType.IsIdentity]}: ${formatDid(condition.identity.did, 8, 8)}`;
-    } else if (condition.type === ConditionType.IsExternalAgent) {
-      displayText = `${targetLabel} ${conditionTypeLabels[ConditionType.IsExternalAgent]}`;
-    } else if ('claim' in condition && condition.claim) {
-      // Single claim condition (IsPresent/IsAbsent)
-      parsedClaims = [formatClaimDisplayText(condition.claim)];
-    } else if ('claims' in condition && condition.claims?.length > 0) {
-      // Multi-claim condition (IsAnyOf/IsNoneOf)
-      parsedClaims = condition.claims.map(formatClaimDisplayText);
-    }
+      if (
+        condition.type === ConditionType.IsIdentity &&
+        'identity' in condition
+      ) {
+        displayText = `${targetLabel} ${conditionTypeLabels[ConditionType.IsIdentity]}: ${formatDid(condition.identity.did, 8, 8)}`;
+      } else if (condition.type === ConditionType.IsExternalAgent) {
+        displayText = `${targetLabel} ${conditionTypeLabels[ConditionType.IsExternalAgent]}`;
+      } else if ('claim' in condition && condition.claim) {
+        // Single claim condition (IsPresent/IsAbsent)
+        parsedClaims = [formatClaimDisplayText(condition.claim)];
+      } else if ('claims' in condition && condition.claims?.length > 0) {
+        // Multi-claim condition (IsAnyOf/IsNoneOf)
+        parsedClaims = condition.claims.map(formatClaimDisplayText);
+      }
 
-    return {
-      type: condition.type,
-      target: condition.target,
-      displayText,
-      claims: parsedClaims,
-      identity: 'identity' in condition ? condition.identity?.did : undefined,
-      trustedClaimIssuers:
-        'trustedClaimIssuers' in condition
-          ? (condition.trustedClaimIssuers || []).map((issuer) => ({
-              identity: issuer.identity.did,
-              trustedFor: issuer.trustedFor,
-            }))
-          : [],
-    };
-  };
+      return {
+        type: condition.type,
+        target: condition.target,
+        displayText,
+        claims: parsedClaims,
+        identity: 'identity' in condition ? condition.identity?.did : undefined,
+        trustedClaimIssuers:
+          'trustedClaimIssuers' in condition
+            ? (condition.trustedClaimIssuers || []).map((issuer) => ({
+                identity: issuer.identity.did,
+                trustedFor: issuer.trustedFor,
+              }))
+            : [],
+      };
+    },
+    [formatClaimDisplayText],
+  );
 
   // Parse compliance rules from SDK data and group IsPresent conditions
-  const parseComplianceRules = (): ParsedComplianceRule[] => {
+  const complianceRules = useMemo((): ParsedComplianceRule[] => {
     const requirements =
       asset?.details?.complianceRequirements?.requirements || [];
 
@@ -300,9 +309,24 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
         groupedConditions,
       };
     });
-  };
+  }, [
+    asset?.details?.complianceRequirements?.requirements,
+    formatConditionDisplayText,
+  ]);
 
-  const renderScopeWithCopy = (scope: ParsedClaim['scope']) => {
+  // Helper functions to generate stable keys for render loops
+  const generateConditionKey = useCallback(
+    (groupedCondition: GroupedCondition) => {
+      return `${groupedCondition.type}-${groupedCondition.target}-${groupedCondition.displayText}`;
+    },
+    [],
+  );
+
+  const generateClaimKey = useCallback((claim: ParsedClaim) => {
+    return `${claim.type}-${claim.displayText}-${claim.scope?.value || 'no-scope'}`;
+  }, []);
+
+  const renderScopeWithCopy = useCallback((scope: ParsedClaim['scope']) => {
     if (!scope) return null;
 
     const shouldShowCopy =
@@ -320,10 +344,7 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
         )}
       </ClaimScope>
     );
-  };
-
-  const complianceRules = parseComplianceRules();
-  const compliancePaused = asset?.details?.compliancePaused ?? false;
+  }, []);
 
   return (
     <>
@@ -395,7 +416,7 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
                       <ConditionsContainer>
                         {rule.groupedConditions.map((groupedCondition) => (
                           <ConditionCard
-                            key={`${groupedCondition.type}-${groupedCondition.target}-${groupedCondition.displayText}`}
+                            key={generateConditionKey(groupedCondition)}
                           >
                             <ConditionText>
                               {groupedCondition.type === 'single' &&
@@ -419,9 +440,7 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
                                 <ClaimsContainer>
                                   <ClaimsHeader>Claims:</ClaimsHeader>
                                   {groupedCondition.claims.map((claim) => (
-                                    <ClaimItem
-                                      key={`${claim.type}-${claim.displayText}-${claim.scope?.value || 'no-scope'}`}
-                                    >
+                                    <ClaimItem key={generateClaimKey(claim)}>
                                       • {claim.displayText}
                                       {claim.scope &&
                                         renderScopeWithCopy(claim.scope)}

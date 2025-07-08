@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useContext } from 'react';
+import { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { AccountContext } from '~/context/AccountContext';
 import { Icon } from '~/components';
 import {
@@ -36,6 +36,35 @@ const WalletSelect: React.FC<ISelectProps> = ({
   const [selectedKeyName, setSelectedKeyName] = useState('');
   const [truncateLength, setTruncateLength] = useState<number | undefined>();
   const [filter, setFilter] = useState('');
+
+  // Memoize sorted accounts to avoid expensive sorting on every render
+  const sortedAccounts = useMemo(() => {
+    return allAccountsWithMeta.sort((a, b) => {
+      // place selected key first
+      if (a.address === selectedAccount) return -1;
+      if (b.address === selectedAccount) return 1;
+      // place primary key of selected key identity next
+      if (a.address === primaryKey) return -1;
+      if (b.address === primaryKey) return 1;
+      // place secondary keys next of selected key identity next
+      if (secondaryKeys.includes(a.address)) return -1;
+      if (secondaryKeys.includes(b.address)) return 1;
+
+      return 0;
+    });
+  }, [allAccountsWithMeta, selectedAccount, primaryKey, secondaryKeys]);
+
+  // Memoize filtered accounts based on search filter
+  const filteredAccounts = useMemo(() => {
+    if (!filter) return sortedAccounts;
+
+    const filterLower = filter.toLowerCase();
+    return sortedAccounts.filter(
+      (account) =>
+        account.address.toLowerCase().includes(filterLower) ||
+        account.meta.name?.toLowerCase().includes(filterLower),
+    );
+  }, [sortedAccounts, filter]);
 
   useEffect(() => {
     if (!selectedAccount) {
@@ -131,57 +160,36 @@ const WalletSelect: React.FC<ISelectProps> = ({
               placeholder="Search.."
             />
           </StyledFilter>
-          {allAccountsWithMeta
-            .sort((a, b) => {
-              // place selected key first
-              if (a.address === selectedAccount) return -1;
-              if (b.address === selectedAccount) return 1;
-              // place primary key of selected key identity next
-              if (a.address === primaryKey) return -1;
-              if (b.address === primaryKey) return 1;
-              // place secondary keys next of selected key identity next
-              if (secondaryKeys.includes(a.address)) return -1;
-              if (secondaryKeys.includes(b.address)) return 1;
-
-              return 0;
-            })
-            .filter(
-              (account) =>
-                account.address.toLowerCase().includes(filter.toLowerCase()) ||
-                account.meta.name
-                  ?.toLocaleLowerCase()
-                  .includes(filter.toLowerCase()),
-            )
-            .map(({ address, meta }) => (
-              <StyledLabel
-                key={address}
-                htmlFor={address}
-                selected={selectedAccount === address}
-                $placement={placement}
+          {filteredAccounts.map(({ address, meta }) => (
+            <StyledLabel
+              key={address}
+              htmlFor={address}
+              selected={selectedAccount === address}
+              $placement={placement}
+            >
+              <span>
+                <span className="meta">{meta.name || ''}</span>
+                <span className="key">{formatKey(address, 8, 7)}</span>
+              </span>
+              <StyledKeyLabel
+                $primary={keyIdentityRelationships[address] === 'Primary'}
+                $selectedId={
+                  address === selectedAccount ||
+                  address === primaryKey ||
+                  secondaryKeys.includes(address)
+                }
               >
-                <span>
-                  <span className="meta">{meta.name || ''}</span>
-                  <span className="key">{formatKey(address, 8, 7)}</span>
-                </span>
-                <StyledKeyLabel
-                  $primary={keyIdentityRelationships[address] === 'Primary'}
-                  $selectedId={
-                    address === selectedAccount ||
-                    address === primaryKey ||
-                    secondaryKeys.includes(address)
-                  }
-                >
-                  {keyIdentityRelationships[address]}
-                </StyledKeyLabel>
-                <StyledInput
-                  type="radio"
-                  name="key"
-                  value={address}
-                  id={address}
-                  onChange={handleAccountChange}
-                />
-              </StyledLabel>
-            ))}
+                {keyIdentityRelationships[address]}
+              </StyledKeyLabel>
+              <StyledInput
+                type="radio"
+                name="key"
+                value={address}
+                id={address}
+                onChange={handleAccountChange}
+              />
+            </StyledLabel>
+          ))}
           {showExternal &&
             lastExternalKey &&
             lastExternalKey.toLowerCase().includes(filter.toLowerCase()) &&

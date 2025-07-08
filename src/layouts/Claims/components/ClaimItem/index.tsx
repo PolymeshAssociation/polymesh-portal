@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo, useCallback } from 'react';
 import {
   Claim,
   ClaimData,
@@ -41,6 +41,15 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
   const { isMobile } = useWindowWidth();
   const { claim } = claimData;
 
+  const countryLookup = useMemo(() => {
+    return new Map(
+      countryCodes.map(({ code, name }) => [
+        code.toUpperCase(),
+        name.split(',')[0],
+      ]),
+    );
+  }, []);
+
   const handleRevoke = async () => {
     if (type === EClaimsType.RECEIVED || !sdk) return;
 
@@ -61,12 +70,12 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
     }
   };
 
-  const getCountryName = (countryCode: CountryCode) => {
-    const country = countryCodes.find(
-      ({ code }) => code === countryCode.toUpperCase(),
-    );
-    return country ? country.name.split(',')[0] : '';
-  };
+  const getCountryName = useCallback(
+    (countryCode: CountryCode) => {
+      return countryLookup.get(countryCode.toUpperCase()) || '';
+    },
+    [countryLookup],
+  );
 
   return (
     <StyledClaimWrapper>

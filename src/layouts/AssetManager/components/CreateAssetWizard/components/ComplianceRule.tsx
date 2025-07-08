@@ -5,6 +5,7 @@ import React, {
   useRef,
   useContext,
   useState,
+  useMemo,
 } from 'react';
 import {
   Control,
@@ -144,6 +145,10 @@ const ComplianceRule = React.forwardRef<ComplianceRuleRef, ComplianceRuleProps>(
       api: { sdk },
     } = useContext(PolymeshContext);
 
+    const countryLookup = useMemo(() => {
+      return new Map(countryCodes.map(({ code, name }) => [code, name]));
+    }, []);
+
     useEffect(() => {
       const fetchClaimNames = async () => {
         if (!conditions) return;
@@ -190,8 +195,8 @@ const ComplianceRule = React.forwardRef<ComplianceRuleRef, ComplianceRuleProps>(
       let subLabel: React.ReactNode = '';
 
       if (claim.type === ClaimType.Jurisdiction && claim.code) {
-        const country = countryCodes.find((c) => c.code === claim.code);
-        mainLabel = `${splitCamelCase(claim.type)} - ${country?.name || claim.code}`;
+        const countryName = countryLookup.get(claim.code);
+        mainLabel = `${splitCamelCase(claim.type)} - ${countryName || claim.code}`;
       } else if (claim.type === ClaimType.Custom && claim.customClaimTypeId) {
         const claimId = claim.customClaimTypeId.toString();
         const claimName =

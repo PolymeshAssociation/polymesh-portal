@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   ClaimType,
   ConditionTarget,
@@ -58,6 +58,10 @@ const getConditionTypeDescription = (
 };
 
 const ViewOnlyCondition: React.FC<ViewOnlyConditionProps> = ({ condition }) => {
+  const countryLookupMap = useMemo(() => {
+    return new Map(countryCodes.map((country) => [country.code, country.name]));
+  }, []);
+
   const targetDescription = getTargetDescription(condition.target);
   const typeDescription = getConditionTypeDescription(
     condition.type,
@@ -104,8 +108,8 @@ const ViewOnlyCondition: React.FC<ViewOnlyConditionProps> = ({ condition }) => {
           let subLabel: React.ReactNode = '';
 
           if (claim.type === ClaimType.Jurisdiction && claim.code) {
-            const country = countryCodes.find((c) => c.code === claim.code);
-            mainLabel = `${splitCamelCase(claim.type)} - ${country?.name || claim.code}`;
+            const countryName = countryLookupMap.get(claim.code);
+            mainLabel = `${splitCamelCase(claim.type)} - ${countryName || claim.code}`;
           } else if (
             claim.type === ClaimType.Custom &&
             claim.customClaimTypeId

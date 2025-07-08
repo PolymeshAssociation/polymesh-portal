@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Icon, CopyToClipboard } from '~/components';
 import { formatDid } from '~/helpers/formatters';
 import { useAssetActionsContext } from '../../context';
@@ -90,14 +90,6 @@ const getClaimDetailDescription = (
   }
 };
 
-// Helper function to get jurisdiction country name
-const getJurisdictionCountryName = (countryCode: string): string => {
-  const country = countryCodes.find(
-    (c: { code: string; name: string }) => c.code === countryCode.toUpperCase(),
-  );
-  return country?.name || countryCode;
-};
-
 // Helper function to get better restriction type descriptions
 const getRestrictionTypeDescription = (
   restriction: DisplayRestriction,
@@ -123,34 +115,49 @@ export const TransferRestrictionsSection: React.FC<
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
 
-  const handleManageTransferRestrictions = () => {
-    setComingSoonFeature('add transfer restriction');
-    setComingSoonModalOpen(true);
+  // Create lookup map for O(1) country code access
+  const countryLookup = useMemo(() => {
+    return new Map(
+      countryCodes.map((c: { code: string; name: string }) => [
+        c.code.toUpperCase(),
+        c.name,
+      ]),
+    );
+  }, []);
+
+  // Optimized jurisdiction country name lookup
+  const getJurisdictionCountryName = (countryCode: string): string => {
+    return countryLookup.get(countryCode.toUpperCase()) || countryCode;
   };
 
-  const handleEditRestriction = (restrictionId: string) => {
+  const handleManageTransferRestrictions = useCallback(() => {
+    setComingSoonFeature('add transfer restriction');
+    setComingSoonModalOpen(true);
+  }, []);
+
+  const handleEditRestriction = useCallback((restrictionId: string) => {
     setComingSoonFeature('edit transfer restriction');
     setComingSoonModalOpen(true);
     // eslint-disable-next-line no-console
     console.log('Edit restriction:', restrictionId);
-  };
+  }, []);
 
-  const handleDeleteRestriction = (restrictionId: string) => {
+  const handleDeleteRestriction = useCallback((restrictionId: string) => {
     setComingSoonFeature('delete transfer restriction');
     setComingSoonModalOpen(true);
     // eslint-disable-next-line no-console
     console.log('Delete restriction:', restrictionId);
-  };
+  }, []);
 
-  const handleDeleteExemption = (
-    restrictionId: string,
-    exemptedDid: string,
-  ) => {
-    setComingSoonFeature('delete transfer restriction exemption');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Delete exemption:', restrictionId, exemptedDid);
-  };
+  const handleDeleteExemption = useCallback(
+    (restrictionId: string, exemptedDid: string) => {
+      setComingSoonFeature('delete transfer restriction exemption');
+      setComingSoonModalOpen(true);
+      // eslint-disable-next-line no-console
+      console.log('Delete exemption:', restrictionId, exemptedDid);
+    },
+    [],
+  );
 
   // Extract and format transfer restrictions from asset data
   const restrictions: DisplayRestriction[] = [];
