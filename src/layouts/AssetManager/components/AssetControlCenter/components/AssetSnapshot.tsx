@@ -203,7 +203,7 @@ export const AssetSnapshot: React.FC<AssetSnapshotProps> = ({
           </DetailItem>
           <DetailItem>
             <DetailLabel>Asset Type</DetailLabel>
-            <DetailValue>{asset.details?.assetType}</DetailValue>
+            <DetailValue>{asset.details?.assetType || ''}</DetailValue>
           </DetailItem>
           <DetailItem>
             <DetailLabel>Owner DID</DetailLabel>

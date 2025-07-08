@@ -1,17 +1,5 @@
 import { Nft } from '@polymeshassociation/polymesh-sdk/internal';
-import { IPFS_PROVIDER_URL } from '~/context/PolymeshContext/constants';
-
-export const convertIpfsLink = (uri: string): string => {
-  const rawIpfsUrl: string =
-    JSON.parse(localStorage.getItem('ipfsProviderUrl') || '') ||
-    IPFS_PROVIDER_URL;
-  const ipfsUrl =
-    rawIpfsUrl.charAt(rawIpfsUrl.length - 1) === '/'
-      ? rawIpfsUrl
-      : `${rawIpfsUrl}/`;
-
-  return uri.startsWith('ipfs://') ? `${uri.replace('ipfs://', ipfsUrl)}` : uri;
-};
+import { convertIpfsLink } from '~/helpers/security';
 
 export const getNftTokenUri = async (nft: Nft): Promise<string | null> => {
   const tokenUri = await nft.getTokenUri();
@@ -31,8 +19,14 @@ export const getExternalNftImageUrl = async (
   }
 
   const rawData = await response.text();
-  const parsedData = JSON.parse(rawData);
-  return parsedData.image ? convertIpfsLink(parsedData.image) : null;
+
+  try {
+    const parsedData = JSON.parse(rawData);
+    return parsedData.image ? convertIpfsLink(parsedData.image) : null;
+  } catch {
+    // Invalid JSON from external source
+    return null;
+  }
 };
 
 export const getNftImageUrl = async (

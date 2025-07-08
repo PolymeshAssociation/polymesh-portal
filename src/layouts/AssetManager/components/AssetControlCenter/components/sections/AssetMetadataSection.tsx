@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Icon } from '~/components';
+import { Icon, SafeLink } from '~/components';
 import { ComingSoonModal } from '../modals';
 import { useAssetActionsContext } from '../../context';
 import type { TabProps, AssetMetadata } from '../../types';
@@ -124,13 +124,9 @@ export const AssetMetadataSection: React.FC<AssetMetadataSectionProps> = ({
                       <InlineLabel>Value</InlineLabel>
                       <InlineValue>
                         {metadata.value.startsWith('http') ? (
-                          <a
-                            href={metadata.value}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          <SafeLink href={metadata.value}>
                             {metadata.value}
-                          </a>
+                          </SafeLink>
                         ) : (
                           metadata.value
                         )}

@@ -15,3 +15,4 @@ export { default as LoadingFallback } from './LoadingFallback';
 export { default as AssetForm } from './AssetForm';
 export { default as UserAuth } from './UserAuth';
 export * from './AssetForm/components/MemoField';
+export { SafeLink } from './SafeLink';

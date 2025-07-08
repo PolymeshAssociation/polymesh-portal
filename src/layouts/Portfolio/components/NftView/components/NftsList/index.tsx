@@ -2,6 +2,7 @@ import { Icon } from '~/components';
 import { SkeletonLoader } from '~/components/UiKit';
 import { INftListItem } from '../../constants';
 import { handleImgUrlClick } from '../../helpers';
+import { isValidHttpUrl } from '~/helpers/security';
 import { NftStatusLabel } from '../NftStatusLabel';
 import {
   StyledNftsList,
@@ -32,8 +33,8 @@ export const NftsList: React.FC<INftsListProps> = ({
         <StyledNftCard key={nft.id} onClick={() => handleNftClick(nft.id)}>
           <StyledNftImage>
             {nft.isLocked && <NftStatusLabel />}
-            {nft.ticker.imgUrl ? (
-              <img src={nft.ticker.imgUrl} alt={nft.ticker.imgUrl} />
+            {nft.ticker.imgUrl && isValidHttpUrl(nft.ticker.imgUrl) ? (
+              <img src={nft.ticker.imgUrl} alt={`NFT ${nft.id}`} />
             ) : (
               <Icon name="Coins" />
             )}

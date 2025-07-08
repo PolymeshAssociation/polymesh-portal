@@ -1,5 +1,5 @@
 import Tooltip from '~/components/UiKit/Tooltip';
-import { Icon, CopyToClipboard } from '~/components';
+import { Icon, CopyToClipboard, SafeLink } from '~/components';
 import {
   StyledInfoBlockItem,
   StyledInfoBlockDescription,
@@ -32,11 +32,9 @@ export const PropertiesItem: React.FC<IPropertiesItemProps> = ({
 }) => {
   const renderValue = () =>
     propUrl ? (
-      <a href={propUrl} target="_blank" rel="noopener noreferrer">
-        {propValue}
-      </a>
+      <SafeLink href={propUrl}>{propValue?.toString() || ''}</SafeLink>
     ) : (
-      propValue?.toString()
+      propValue?.toString() || ''
     );
 
   return (

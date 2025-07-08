@@ -140,44 +140,48 @@ export const getNftDetails = async (
       const reader = body.pipeThrough(new TextDecoderStream()).getReader();
       const rawData = await reader?.read();
       if (rawData.value) {
-        const parsedData = JSON.parse(rawData.value);
-        const {
-          image: imageUri,
-          attributes: rawAttributes,
-          properties: rawProperties,
-          name: rawName,
-          description: rawDescription,
-          ...rawOtherProperties
-        } = parsedData;
+        try {
+          const parsedData = JSON.parse(rawData.value);
+          const {
+            image: imageUri,
+            attributes: rawAttributes,
+            properties: rawProperties,
+            name: rawName,
+            description: rawDescription,
+            ...rawOtherProperties
+          } = parsedData;
 
-        parsedNft.imgUrl = (await getNftImageUrl(nft, imageUri)) || '';
+          parsedNft.imgUrl = (await getNftImageUrl(nft, imageUri)) || '';
 
-        if (rawAttributes) {
-          const attributes = processProperties(rawAttributes);
-          parsedNft.offChainDetails = parsedNft.offChainDetails
-            ? parsedNft.offChainDetails.concat(attributes)
-            : attributes;
-        }
+          if (rawAttributes) {
+            const attributes = processProperties(rawAttributes);
+            parsedNft.offChainDetails = parsedNft.offChainDetails
+              ? parsedNft.offChainDetails.concat(attributes)
+              : attributes;
+          }
 
-        if (rawProperties) {
-          const properties = processProperties(rawProperties);
-          parsedNft.offChainDetails = parsedNft.offChainDetails
-            ? parsedNft.offChainDetails.concat(properties)
-            : properties;
-        }
+          if (rawProperties) {
+            const properties = processProperties(rawProperties);
+            parsedNft.offChainDetails = parsedNft.offChainDetails
+              ? parsedNft.offChainDetails.concat(properties)
+              : properties;
+          }
 
-        if (rawOtherProperties) {
-          const otherProperties = processProperties(rawOtherProperties);
-          parsedNft.offChainDetails = parsedNft.offChainDetails
-            ? parsedNft.offChainDetails.concat(otherProperties)
-            : otherProperties;
-        }
+          if (rawOtherProperties) {
+            const otherProperties = processProperties(rawOtherProperties);
+            parsedNft.offChainDetails = parsedNft.offChainDetails
+              ? parsedNft.offChainDetails.concat(otherProperties)
+              : otherProperties;
+          }
 
-        if (rawName) {
-          parsedNft.name = rawName;
-        }
-        if (rawDescription) {
-          parsedNft.description = rawDescription;
+          if (rawName) {
+            parsedNft.name = rawName;
+          }
+          if (rawDescription) {
+            parsedNft.description = rawDescription;
+          }
+        } catch {
+          // Invalid JSON from external source, skip off-chain metadata
         }
       }
     }

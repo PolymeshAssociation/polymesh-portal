@@ -1,4 +1,5 @@
 import React from 'react';
+import { SafeLink } from '~/components';
 import type { TabProps } from '../../types';
 import {
   TabSection,
@@ -71,13 +72,9 @@ export const NftCollectionKeysSection: React.FC<
                     <InlineRow>
                       <InlineLabel>URL</InlineLabel>
                       <InlineValue>
-                        <a
-                          href={key.specs.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
+                        <SafeLink href={key.specs.url}>
                           {key.specs.url}
-                        </a>
+                        </SafeLink>
                       </InlineValue>
                     </InlineRow>
                   )}

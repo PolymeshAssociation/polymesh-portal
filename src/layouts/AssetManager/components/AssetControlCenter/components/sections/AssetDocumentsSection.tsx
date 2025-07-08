@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Icon } from '~/components';
+import { Icon, SafeLink } from '~/components';
 import { ComingSoonModal } from '../modals';
 import { useAssetActionsContext } from '../../context';
 import type { TabProps, AssetDocument } from '../../types';
@@ -118,13 +118,9 @@ export const AssetDocumentsSection: React.FC<AssetDocumentsSectionProps> = ({
                       <InlineLabel>URI</InlineLabel>
                       <InlineValue>
                         {document.uri ? (
-                          <a
-                            href={document.uri}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          <SafeLink href={document.uri}>
                             {document.uri}
-                          </a>
+                          </SafeLink>
                         ) : (
                           'Not specified'
                         )}
