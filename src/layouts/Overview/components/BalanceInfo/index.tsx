@@ -1,19 +1,19 @@
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { Icon } from '~/components';
-import { Text, Heading, Button, SkeletonLoader } from '~/components/UiKit';
-import { TransferPolyx } from './components/TransferPolyx';
-import { ReceivePolyx } from './components/ReceivePolyx';
+import { Button, Heading, SkeletonLoader, Text } from '~/components/UiKit';
+import { AccountContext } from '~/context/AccountContext';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { formatBalance } from '~/helpers/formatters';
+import { notifyGlobalError } from '~/helpers/notifications';
 import { GetPolyx } from './components/GetPolyx';
+import { ReceivePolyx } from './components/ReceivePolyx';
+import { TransferPolyx } from './components/TransferPolyx';
 import {
-  StyledWrapper,
   StyledAsset,
   StyledButtonGroup,
   StyledTotalBalance,
+  StyledWrapper,
 } from './styles';
-import { formatBalance } from '~/helpers/formatters';
-import { AccountContext } from '~/context/AccountContext';
-import { notifyGlobalError } from '~/helpers/notifications';
-import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 
 const validateBanxaUrl = (url: string): boolean => {
   try {
@@ -47,8 +47,13 @@ export const BalanceInfo = () => {
 
   const banxaUrl = import.meta.env.VITE_BANXA_URL;
 
+  const isBanxaAvailable = useMemo(
+    () => banxaUrl && banxaUrl !== 'undefined' && validateBanxaUrl(banxaUrl),
+    [banxaUrl],
+  );
+
   const handleGetPolyxClick = () => {
-    if (!banxaUrl || !validateBanxaUrl(banxaUrl)) {
+    if (!isBanxaAvailable) {
       notifyGlobalError('Invalid Banxa URL configuration');
       setGetPolyxModalOpen(false);
       return;
@@ -124,7 +129,7 @@ export const BalanceInfo = () => {
             <Icon name="ArrowBottomLeft" />
             Receive
           </Button>
-          {banxaUrl && (
+          {isBanxaAvailable && (
             <Button
               variant="secondary"
               onClick={handleGetPolyxClick}
