@@ -1,46 +1,47 @@
-import React, { useState, useMemo, useCallback } from 'react';
 import {
-  ConditionType,
-  ConditionTarget,
-  ClaimType,
-  ScopeType,
-  Condition,
   Claim,
+  ClaimType,
+  Condition,
+  ConditionTarget,
+  ConditionType,
+  ScopeType,
+  TrustedFor,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { Icon, CopyToClipboard } from '~/components';
+import React, { useCallback, useMemo, useState } from 'react';
+import { CopyToClipboard, Icon } from '~/components';
+import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
+import { formatDid, splitCamelCase } from '~/helpers/formatters';
 import { useAssetActionsContext } from '../../context';
-import type { TabProps } from '../../types';
 import {
-  TabSection,
-  SectionHeader,
-  SectionTitle,
-  SectionContent,
+  ActionButton,
+  AddButton,
+  ButtonsContainer,
+  ClaimItem,
+  ClaimsContainer,
+  ClaimScope,
+  ClaimsHeader,
+  ComplianceStatus,
+  ConditionCard,
+  ConditionsContainer,
+  ConditionText,
   DataItem,
   DataLabel,
-  ActionButton,
   EmptyState,
-  AddButton,
   GridDataList,
-  ConditionCard,
+  HeaderButtons,
+  InlineWithCopy,
   RuleContainer,
   RuleHeader,
-  ClaimsContainer,
-  ClaimItem,
-  ClaimScope,
-  TrustedIssuersContainer,
-  TrustedIssuerItem,
+  SectionContent,
+  SectionHeader,
+  SectionTitle,
+  TabSection,
   TrustedIssuerDetails,
-  ConditionText,
-  InlineWithCopy,
-  ClaimsHeader,
+  TrustedIssuerItem,
+  TrustedIssuersContainer,
   TrustedIssuersHeader,
-  ComplianceStatus,
-  ButtonsContainer,
-  HeaderButtons,
-  ConditionsContainer,
 } from '../../styles';
-import { splitCamelCase, formatDid } from '~/helpers/formatters';
-import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
+import type { TabProps } from '../../types';
 import { ComingSoonModal } from '../modals';
 
 interface ComplianceRulesSectionProps {
@@ -62,7 +63,7 @@ interface GroupedCondition {
   identity?: string;
   trustedClaimIssuers?: Array<{
     identity: string;
-    trustedFor: ClaimType[] | null;
+    trustedFor: TrustedFor[] | null;
   }>;
 }
 
@@ -74,7 +75,7 @@ interface ParsedCondition {
   identity?: string;
   trustedClaimIssuers?: Array<{
     identity: string;
-    trustedFor: ClaimType[] | null;
+    trustedFor: TrustedFor[] | null;
   }>;
 }
 
@@ -476,7 +477,15 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
                                           {issuer.trustedFor === null
                                             ? 'All claim types'
                                             : issuer.trustedFor
-                                                .map(splitCamelCase)
+                                                .map((claim: TrustedFor) => {
+                                                  if (
+                                                    typeof claim === 'object' &&
+                                                    'type' in claim
+                                                  ) {
+                                                    return `Custom ID ${claim.customClaimTypeId.toString()}`;
+                                                  }
+                                                  return splitCamelCase(claim);
+                                                })
                                                 .join(', ')}
                                         </TrustedIssuerDetails>
                                       </TrustedIssuerItem>

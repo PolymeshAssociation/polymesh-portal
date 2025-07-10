@@ -3,9 +3,9 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { notifyError } from '~/helpers/notifications';
 import { AccountContext } from '../AccountContext';
 import { PolymeshContext } from '../PolymeshContext';
+import { ScopeItem } from './constants';
 import ClaimsContext from './context';
 import { getScopesFromClaims } from './helpers';
-import { ScopeItem } from './constants';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -44,15 +44,18 @@ const ClaimsProvider = ({ children }: IProviderProps) => {
         const { data: targeting } = await sdk.claims.getTargetingClaims({
           target: identity,
         });
+
         const targetingClaims = targeting.flatMap(({ claims }) => claims);
         setReceivedClaims(targetingClaims);
 
         const { data: issued } = await sdk.claims.getIssuedClaims({
           target: identity,
         });
+
         setIssuedClaims(issued);
 
         setReceivedScopes(getScopesFromClaims(targetingClaims));
+
         setIssuedScopes(getScopesFromClaims(issued));
       } catch (error) {
         notifyError((error as Error).message);

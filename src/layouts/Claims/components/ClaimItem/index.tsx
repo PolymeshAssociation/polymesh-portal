@@ -1,28 +1,28 @@
-import { useContext, useMemo, useCallback } from 'react';
 import {
   Claim,
   ClaimData,
   ClaimType,
   CountryCode,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { useCallback, useContext, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CopyToClipboard, Icon } from '~/components';
 import { Text } from '~/components/UiKit';
-import { ClaimsContext } from '~/context/ClaimsContext';
+import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
 import { AccountContext } from '~/context/AccountContext';
+import { ClaimsContext } from '~/context/ClaimsContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { toParsedDate } from '~/helpers/dateTime';
 import { formatDid, splitCamelCase } from '~/helpers/formatters';
-import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { useWindowWidth } from '~/hooks/utility';
 import { EClaimsType } from '../../constants';
 import {
+  RevokeButton,
   StyledClaimItem,
   StyledClaimWrapper,
   StyledDidWrapper,
-  RevokeButton,
 } from './styles';
-import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
-import { useWindowWidth } from '~/hooks/utility';
 
 interface IClaimItemProps {
   claimData: ClaimData<Claim>;
@@ -85,6 +85,17 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
           {splitCamelCase(claim.type)}
         </Text>
       </StyledClaimItem>
+      {claim.type === ClaimType.Custom &&
+        'customClaimTypeId' in claim &&
+        claim.customClaimTypeId && (
+          <StyledClaimItem>
+            Custom Claim ID
+            <Text bold size="large">
+              {claim.customClaimTypeId.toString()}
+            </Text>
+          </StyledClaimItem>
+        )}
+
       {type === EClaimsType.RECEIVED ? (
         <StyledClaimItem>
           Issued by

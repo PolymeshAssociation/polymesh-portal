@@ -1,14 +1,14 @@
-import { useState, useEffect, useContext, useMemo, useCallback } from 'react';
+import type { Option } from '@polkadot/types-codec';
+import type { PalletStakingActiveEraInfo } from '@polkadot/types/lookup';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   u32ToBigNumber,
   u64ToBigNumber,
 } from '@polymeshassociation/polymesh-sdk/utils/conversion';
-import { PalletStakingActiveEraInfo } from '@polymeshassociation/polymesh-sdk/polkadot/types-lookup';
-import type { Option } from '@polkadot/types-codec';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { notifyError } from '~/helpers/notifications';
 import { StakingContext } from '~/context/StakingContext';
+import { notifyError } from '~/helpers/notifications';
 
 interface EraRelatedConstants {
   epochDurationBlocks: BigNumber | null;

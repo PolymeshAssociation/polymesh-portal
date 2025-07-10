@@ -1,3 +1,9 @@
+import type { SubmittableExtrinsic } from '@polkadot/api-base/types';
+import type { ISubmittableResult } from '@polkadot/types/types';
+import {
+  TransactionStatus,
+  UnsubCallback,
+} from '@polymeshassociation/polymesh-sdk/types';
 import {
   useCallback,
   useContext,
@@ -6,54 +12,45 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  TransactionStatus,
-  UnsubCallback,
-} from '@polymeshassociation/polymesh-sdk/types';
-import type { SubmittableExtrinsic } from '@polkadot/api-base/types';
-import type { ISubmittableResult } from '@polkadot/types/types';
-import { StakingContext } from '~/context/StakingContext';
+import { Icon, Modal } from '~/components';
+import { Heading, SkeletonLoader } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { useWindowWidth } from '~/hooks/utility';
-import { Icon, Modal } from '~/components';
-import { SkeletonLoader, Heading } from '~/components/UiKit';
-import { StakingButtonOptions } from './components/StakingButtonOptions';
+import { StakingContext } from '~/context/StakingContext';
 import { AccountDetails } from './components/AccountDetails';
-import { NoIdentityInfo } from './components/NoIdentityInfo';
-import { NoStakingInfo } from './components/NoStakingInfo';
-import { StakingButtons } from './components/StakingButtons';
-import { StakeModal } from './components/StakeModal';
 import { BondMoreModal } from './components/BondMoreModal';
-import { UnbondModal } from './components/UnbondModal';
 import { ChangeControllerModal } from './components/ChangeControllerModal';
 import { ChangeDestinationModal } from './components/ChangeDestinationModal';
 import { ChangeNominationsModal } from './components/ChangeNominationsModal';
+import { NoStakingInfo } from './components/NoStakingInfo';
 import { RebondModal } from './components/RebondModal';
+import { StakeModal } from './components/StakeModal';
+import { StakingButtonOptions } from './components/StakingButtonOptions';
+import { StakingButtons } from './components/StakingButtons';
+import { UnbondModal } from './components/UnbondModal';
+import {
+  EModalActions,
+  EModalOptions,
+  IStakeArgs,
+  IStakeTransaction,
+  PAYMENT_DESTINATION,
+  TStakeArgs,
+} from './constants';
 import { useStakeStatusChange } from './hooks';
 import {
-  EModalOptions,
-  EModalActions,
-  PAYMENT_DESTINATION,
-  IStakeTransaction,
-  TStakeArgs,
-  IStakeArgs,
-} from './constants';
-import {
-  StyledWrapper,
   StyledButtonWrapper,
+  StyledLink,
+  StyledMessageGroup,
   StyledModalContent,
   StyledStakingMessage,
-  StyledMessageGroup,
-  StyledLink,
+  StyledWrapper,
 } from './styles';
 
 export const StakingAccountInfo = () => {
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identityLoading, identity, selectedAccount, isExternalConnection } =
-    useContext(AccountContext);
+  const { selectedAccount, isExternalConnection } = useContext(AccountContext);
   const {
     api: { polkadotApi },
   } = useContext(PolymeshContext);
@@ -81,7 +78,6 @@ export const StakingAccountInfo = () => {
     nominatedEra,
     currentEraStakedOperators,
   } = stakingAccountInfo;
-  const { isMobile } = useWindowWidth();
 
   const [cardWidth, setCardWidth] = useState<number>(0);
   const [optionsExpanded, setOptionsExpanded] = useState(false);
@@ -505,15 +501,5 @@ export const StakingAccountInfo = () => {
     );
   };
 
-  return (
-    <StyledWrapper ref={ref}>
-      {identityLoading && <SkeletonLoader height="100%" />}
-      {!identityLoading &&
-        (identity ? (
-          stakingAccountDetails()
-        ) : (
-          <NoIdentityInfo cardWidth={cardWidth} isMobile={isMobile} />
-        ))}
-    </StyledWrapper>
-  );
+  return <StyledWrapper ref={ref}>{stakingAccountDetails()}</StyledWrapper>;
 };

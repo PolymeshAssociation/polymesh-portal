@@ -1,17 +1,17 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useForm, ValidationMode } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   balanceToBigNumber,
   u32ToBigNumber,
 } from '@polymeshassociation/polymesh-sdk/utils/conversion';
-import { PolymeshContext } from '~/context/PolymeshContext';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useForm, ValidationMode } from 'react-hook-form';
+import * as yup from 'yup';
 import { AccountContext } from '~/context/AccountContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { StakingContext } from '~/context/StakingContext';
 import { EModalOptions, PAYMENT_DESTINATION } from '../../constants';
 import { IFieldValues, INPUT_NAMES } from './constants';
-import { StakingContext } from '~/context/StakingContext';
 
 export const useModalForm = (modalType: EModalOptions | null, max?: number) => {
   const configRef = useRef({
@@ -32,38 +32,6 @@ export const useModalForm = (modalType: EModalOptions | null, max?: number) => {
       const isValid = sdk.accountManagement.isValidAddress({ address });
       return isValid;
     } catch (error) {
-      return false;
-    }
-  };
-
-  const isIdentityHasCddClaim = async (address: string) => {
-    if (!sdk) return false;
-    try {
-      const acc = await sdk?.accountManagement.getAccount({
-        address,
-      });
-      const identity = await acc.getIdentity();
-      if (!identity) {
-        return false;
-      }
-      const validClaim = await identity.hasValidCdd();
-      return validClaim;
-    } catch (_error) {
-      return false;
-    }
-  };
-
-  const isMultiSigSigner = async (address: string) => {
-    if (!sdk) {
-      return false;
-    }
-    try {
-      const acc = await sdk?.accountManagement.getAccount({
-        address,
-      });
-      const { relation } = await acc.getTypeInfo();
-      return relation === 'MultiSigSigner';
-    } catch (_error) {
       return false;
     }
   };
@@ -100,22 +68,6 @@ export const useModalForm = (modalType: EModalOptions | null, max?: number) => {
       async (value) => {
         const isValid = isValidAddress(value);
         return isValid;
-      },
-    )
-    .test(
-      'has-valid-cdd',
-      'The Controller Address should have a valid identity claim',
-      async (value) => {
-        const hasValidClaim = await isIdentityHasCddClaim(value);
-        return hasValidClaim;
-      },
-    )
-    .test(
-      'is-multisig',
-      'Controller Address can not be a MultiSigSigner',
-      async (value) => {
-        const isSigner = await isMultiSigSigner(value);
-        return !isSigner;
       },
     )
     .test(
@@ -162,22 +114,6 @@ export const useModalForm = (modalType: EModalOptions | null, max?: number) => {
             async (value) => {
               const isValid = isValidAddress(value);
               return isValid;
-            },
-          )
-          .test(
-            'has-valid-cdd',
-            'The Destination Address should have a valid identity claim',
-            async (value) => {
-              const hasValidClaim = await isIdentityHasCddClaim(value);
-              return hasValidClaim;
-            },
-          )
-          .test(
-            'is-multisig',
-            'Destination Address can not be a MultiSigSigner',
-            async (value) => {
-              const isSigner = await isMultiSigSigner(value);
-              return !isSigner;
             },
           ),
       otherwise: (schema) => schema.optional().nullable(),

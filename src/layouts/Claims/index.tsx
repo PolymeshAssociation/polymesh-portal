@@ -45,10 +45,10 @@ const Claims = () => {
             {sortScopesBySortOption(
               scopeTypes[type as EClaimsType] || [],
               sortBy,
-            ).map(({ scope }, idx) => (
+            ).map((scopeItem, idx) => (
               <ScopeItem
-                key={(scope?.value || 'unscoped') + idx.toString()}
-                scope={scope}
+                key={(scopeItem.scope?.value || 'unscoped') + idx.toString()}
+                scopeItem={scopeItem}
               />
             ))}
           </StyledClaimsList>

@@ -1,32 +1,32 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useContext,
-  useRef,
-} from 'react';
 import {
   FungibleAsset,
   NftCollection,
 } from '@polymeshassociation/polymesh-sdk/internal';
 import {
   Asset,
-  MetadataLockStatus,
   GlobalMetadataKey,
+  MetadataLockStatus,
 } from '@polymeshassociation/polymesh-sdk/types';
-import AssetContext from './context';
-import { PolymeshContext } from '../PolymeshContext';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { notifyError, notifyGlobalError } from '~/helpers/notifications';
 import { AccountContext } from '../AccountContext';
-import { notifyGlobalError, notifyError } from '~/helpers/notifications';
+import { PolymeshContext } from '../PolymeshContext';
 import {
   AssetWithDetails,
   IAssetDetails,
   TickerReservationWithDetails,
 } from './constants';
+import AssetContext from './context';
 
-import { splitCamelCase } from '~/helpers/formatters';
 import { toFormattedTimestamp } from '~/helpers/dateTime';
+import { splitCamelCase } from '~/helpers/formatters';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -105,14 +105,8 @@ const AssetProvider = ({ children }: IProviderProps) => {
           permissionGroups,
           complianceRequirements,
           compliancePaused,
-          transferRestrictionCount,
-          transferRestrictionPercentage,
-          transferRestrictionClaimCount,
-          transferRestrictionClaimPercentage,
-          transferRestrictionCountStat,
-          transferRestrictionPercentageStat,
-          transferRestrictionClaimCountStat,
-          transferRestrictionClaimPercentageStat,
+          transferRestrictions,
+          trackedStatistics,
         ] = await Promise.all([
           asset.details(),
           asset instanceof NftCollection ? asset.getCollectionId() : undefined,
@@ -131,28 +125,11 @@ const AssetProvider = ({ children }: IProviderProps) => {
           asset.compliance.requirements.get(),
           asset.compliance.requirements.arePaused(),
           asset instanceof FungibleAsset
-            ? asset.transferRestrictions.count.get()
+            ? asset.transferRestrictions.getRestrictions()
             : undefined,
+
           asset instanceof FungibleAsset
-            ? asset.transferRestrictions.percentage.get()
-            : undefined,
-          asset instanceof FungibleAsset
-            ? asset.transferRestrictions.claimCount.get()
-            : undefined,
-          asset instanceof FungibleAsset
-            ? asset.transferRestrictions.claimPercentage.get()
-            : undefined,
-          asset instanceof FungibleAsset
-            ? asset.transferRestrictions.count.getStat()
-            : undefined,
-          asset instanceof FungibleAsset
-            ? asset.transferRestrictions.percentage.getStat()
-            : undefined,
-          asset instanceof FungibleAsset
-            ? asset.transferRestrictions.claimCount.getStat()
-            : undefined,
-          asset instanceof FungibleAsset
-            ? asset.transferRestrictions.claimPercentage.getStat()
+            ? asset.transferRestrictions.getValues()
             : undefined,
         ]);
 
@@ -212,14 +189,8 @@ const AssetProvider = ({ children }: IProviderProps) => {
             permissionGroups,
             complianceRequirements,
             compliancePaused,
-            transferRestrictionCount,
-            transferRestrictionPercentage,
-            transferRestrictionClaimCount,
-            transferRestrictionClaimPercentage,
-            transferRestrictionCountStat,
-            transferRestrictionPercentageStat,
-            transferRestrictionClaimCountStat,
-            transferRestrictionClaimPercentageStat,
+            transferRestrictions,
+            trackedStatistics,
           },
           docs: docs.data,
         };

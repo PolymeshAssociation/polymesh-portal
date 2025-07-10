@@ -1,26 +1,38 @@
-/* eslint-disable no-prototype-builtins */
 import {
   Claim,
   ClaimData,
-  Scope,
   ScopedClaim,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { ScopeItem } from '~/context/ClaimsContext/constants';
 import { EClaimSortOptions } from '../../constants';
+
+// Type guard to check if a claim is a ScopedClaim
+const isScopedClaim = (claim: Claim): claim is ScopedClaim => {
+  return 'scope' in claim && claim.scope !== undefined && claim.scope !== null;
+};
 
 export const filterClaimsByScope = (
   claims: ClaimData<Claim>[],
-  scope: Scope | null,
+  scopeItem: ScopeItem,
   sortBy: EClaimSortOptions,
 ) => {
-  const filteredClaims = scope
-    ? claims
-        .filter(({ claim }) => claim.hasOwnProperty('scope'))
-        .filter(
-          ({ claim }) =>
-            (claim as ScopedClaim).scope.type === scope.type &&
-            (claim as ScopedClaim).scope.value === scope.value,
-        )
-    : claims.filter(({ claim }) => !claim.hasOwnProperty('scope'));
+  const { scope } = scopeItem;
+
+  let filteredClaims: ClaimData<Claim>[];
+
+  if (scope) {
+    filteredClaims = claims
+      .filter(({ claim }) => isScopedClaim(claim))
+      .filter(({ claim }) => {
+        const scopedClaim = claim as ScopedClaim;
+        return (
+          scopedClaim.scope.type === scope.type &&
+          scopedClaim.scope.value === scope.value
+        );
+      });
+  } else {
+    filteredClaims = claims.filter(({ claim }) => !isScopedClaim(claim));
+  }
 
   if (sortBy === EClaimSortOptions.EXPIRY_DATE) {
     const noExpiryClaims = filteredClaims.filter(({ expiry }) => !expiry);
@@ -28,15 +40,13 @@ export const filterClaimsByScope = (
 
     return [
       ...claimsWithExpiry.sort(
-        (a, b) =>
-          (a.expiry as Date).getMilliseconds() -
-          (b.expiry as Date).getMilliseconds(),
+        (a, b) => (a.expiry as Date).getTime() - (b.expiry as Date).getTime(),
       ),
       ...noExpiryClaims,
     ];
   }
 
   return filteredClaims.sort(
-    (a, b) => a.issuedAt.getMilliseconds() - b.issuedAt.getMilliseconds(),
+    (a, b) => a.issuedAt.getTime() - b.issuedAt.getTime(),
   );
 };

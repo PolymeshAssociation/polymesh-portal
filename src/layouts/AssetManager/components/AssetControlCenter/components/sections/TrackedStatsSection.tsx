@@ -1,40 +1,72 @@
-import React, { useState } from 'react';
-import { Icon, CopyToClipboard } from '~/components';
-import { ComingSoonModal } from '../modals';
-import { useAssetActionsContext } from '../../context';
-import { formatDid } from '~/helpers/formatters';
-
+import type { TrustedFor } from '@polymeshassociation/polymesh-sdk/types';
 import {
-  TabSection,
-  SectionHeader,
-  SectionTitle,
+  ClaimType,
+  TransferRestrictionStatValues,
+} from '@polymeshassociation/polymesh-sdk/types';
+import React, { useState } from 'react';
+import { CopyToClipboard, Icon } from '~/components';
+import { formatDid } from '~/helpers/formatters';
+import { useAssetActionsContext } from '../../context';
+import {
+  ActionButton,
   AddButton,
-  GridDataList,
   DataItem,
+  EmptyState,
+  GridDataList,
+  GroupActions,
   GroupHeader,
   GroupTitleSection,
-  GroupActions,
-  ActionButton,
-  InlineRow,
   InlineLabel,
+  InlineRow,
   InlineValue,
-  EmptyState,
+  SectionHeader,
+  SectionTitle,
+  TabSection,
 } from '../../styles';
 import type { TabProps } from '../../types';
+import { ComingSoonModal } from '../modals';
 
 export const TrackedStatsSection: React.FC<TabProps> = ({ asset }) => {
   const { transactionInProcess } = useAssetActionsContext();
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
 
-  const {
-    transferRestrictionCountStat,
-    transferRestrictionPercentageStat,
-    transferRestrictionClaimCountStat,
-    transferRestrictionClaimPercentageStat,
-  } = asset.details || {};
+  const trackedStatsWithValues = asset.details?.trackedStatistics || [];
 
-  // Placeholder handlers
+  const getStatTypeDisplayName = (stat: TransferRestrictionStatValues) => {
+    switch (stat.type) {
+      case 'Count':
+        return 'Holder Count';
+      case 'Balance':
+        return 'Total Holder Balance';
+      case 'ScopedCount':
+        return 'Claim Holder Count';
+      case 'ScopedBalance':
+        return 'Claim Holder Balance';
+      default:
+        return 'Unknown Type';
+    }
+  };
+
+  const getStatKey = (stat: TransferRestrictionStatValues) => {
+    if (stat.claim) {
+      const { claimType, issuer } = stat.claim;
+      const claimTypeKey =
+        typeof claimType === 'object' && 'customClaimTypeId' in claimType
+          ? `Custom-${claimType.customClaimTypeId.toString()}`
+          : claimType;
+      return `${stat.type}-${claimTypeKey}-${issuer.did}`;
+    }
+    return `${stat.type}`;
+  };
+
+  const formatClaimTypeForDisplay = (claimType: TrustedFor): string => {
+    if (typeof claimType === 'object' && 'customClaimTypeId' in claimType) {
+      return `Custom ID ${claimType.customClaimTypeId.toString()}`;
+    }
+    return claimType as string;
+  };
+
   const handleAddTrackedStat = () => {
     setComingSoonFeature('add tracked stat');
     setComingSoonModalOpen(true);
@@ -49,6 +81,108 @@ export const TrackedStatsSection: React.FC<TabProps> = ({ asset }) => {
     setComingSoonFeature('delete tracked stat');
     setComingSoonModalOpen(true);
   };
+
+  function renderStatDetails(stat: TransferRestrictionStatValues) {
+    const { claim, value } = stat;
+
+    if (!claim) {
+      return (
+        <InlineRow>
+          <InlineLabel>Current Value</InlineLabel>
+          <InlineValue>{value.toString()}</InlineValue>
+        </InlineRow>
+      );
+    }
+
+    const { claimType } = claim;
+    const claimValue = claim.value;
+
+    const claimInfo = (
+      <>
+        <InlineRow>
+          <InlineLabel>Claim Type</InlineLabel>
+          <InlineValue>
+            {formatClaimTypeForDisplay(claim.claimType)}
+          </InlineValue>
+        </InlineRow>
+        <InlineRow>
+          <InlineLabel>Claim Issuer</InlineLabel>
+          <InlineValue>
+            {formatDid(claim.issuer.did)}
+            <CopyToClipboard value={claim.issuer.did} />
+          </InlineValue>
+        </InlineRow>
+      </>
+    );
+
+    if (claimType === ClaimType.Jurisdiction && Array.isArray(claimValue)) {
+      return (
+        <>
+          {claimInfo}
+          {claimValue.length > 0 ? (
+            claimValue.map((jv) => (
+              <InlineRow key={jv.countryCode ?? 'no-jurisdiction'}>
+                <InlineLabel>
+                  {jv.countryCode
+                    ? `Jurisdiction: ${jv.countryCode}`
+                    : 'No Jurisdiction'}
+                </InlineLabel>
+                <InlineValue>{jv.value.toString()}</InlineValue>
+              </InlineRow>
+            ))
+          ) : (
+            <InlineRow>
+              <InlineLabel>Current Value</InlineLabel>
+              <InlineValue>No Tracked Holders</InlineValue>
+            </InlineRow>
+          )}
+          <InlineRow>
+            <InlineLabel>Combined Total</InlineLabel>
+            <InlineValue>{value.toString()}</InlineValue>
+          </InlineRow>
+        </>
+      );
+    }
+
+    if (claimValue && !Array.isArray(claimValue)) {
+      return (
+        <>
+          {claimInfo}
+          <InlineRow>
+            <InlineLabel>With Claim</InlineLabel>
+            <InlineValue>{claimValue.withClaim.toString()}</InlineValue>
+          </InlineRow>
+          <InlineRow>
+            <InlineLabel>Without Claim</InlineLabel>
+            <InlineValue>{claimValue.withoutClaim.toString()}</InlineValue>
+          </InlineRow>
+          <InlineRow>
+            <InlineLabel>Combined Total</InlineLabel>
+            <InlineValue>{value.toString()}</InlineValue>
+          </InlineRow>
+        </>
+      );
+    }
+
+    // Other claim types without full chain support
+    return (
+      <>
+        {claimInfo}
+        <InlineRow>
+          <InlineLabel>With Claim</InlineLabel>
+          <InlineValue>Not Supported</InlineValue>
+        </InlineRow>
+        <InlineRow>
+          <InlineLabel>Without Claim</InlineLabel>
+          <InlineValue>Not Supported</InlineValue>
+        </InlineRow>
+        <InlineRow>
+          <InlineLabel>Combined Total</InlineLabel>
+          <InlineValue>{value.toString()}</InlineValue>
+        </InlineRow>
+      </>
+    );
+  }
 
   return (
     <>
@@ -65,232 +199,17 @@ export const TrackedStatsSection: React.FC<TabProps> = ({ asset }) => {
         </SectionHeader>
 
         <GridDataList>
-          {/* Count Stat */}
-          {transferRestrictionCountStat?.isSet && (
-            <DataItem>
-              <GroupHeader>
-                <GroupTitleSection>
-                  <InlineRow>
-                    <InlineLabel>Type</InlineLabel>
-                    <InlineValue>Holder Count</InlineValue>
-                  </InlineRow>
-                </GroupTitleSection>
-                <GroupActions>
-                  <ActionButton
-                    onClick={handleEditStat}
-                    disabled={transactionInProcess}
-                  >
-                    <Icon name="Edit" size="14px" />
-                  </ActionButton>
-                  <ActionButton
-                    onClick={handleDeleteStat}
-                    disabled={transactionInProcess}
-                  >
-                    <Icon name="Delete" size="14px" />
-                  </ActionButton>
-                </GroupActions>
-              </GroupHeader>
-              <InlineRow>
-                <InlineLabel>Current Value</InlineLabel>
-                <InlineValue>
-                  {/* TODO: Replace with actual value from SDK */}
-                  Coming Soon...
-                </InlineValue>
-              </InlineRow>
-            </DataItem>
-          )}
+          {trackedStatsWithValues.map((stat) => {
+            const statKey = getStatKey(stat);
+            const displayName = getStatTypeDisplayName(stat);
 
-          {/* Percentage Stat */}
-          {transferRestrictionPercentageStat?.isSet && (
-            <DataItem>
-              <GroupHeader>
-                <GroupTitleSection>
-                  <InlineRow>
-                    <InlineLabel>Type</InlineLabel>
-                    <InlineValue>Total Holder Balance</InlineValue>
-                  </InlineRow>
-                </GroupTitleSection>
-                <GroupActions>
-                  <ActionButton
-                    onClick={handleEditStat}
-                    disabled={transactionInProcess}
-                  >
-                    <Icon name="Edit" size="14px" />
-                  </ActionButton>
-                  <ActionButton
-                    onClick={handleDeleteStat}
-                    disabled={transactionInProcess}
-                  >
-                    <Icon name="Delete" size="14px" />
-                  </ActionButton>
-                </GroupActions>
-              </GroupHeader>
-              <InlineRow>
-                <InlineLabel>Current Value</InlineLabel>
-                <InlineValue>
-                  {/* TODO: Replace with actual value from SDK */}
-                  Coming Soon...
-                </InlineValue>
-              </InlineRow>
-            </DataItem>
-          )}
-
-          {/* Claim Count Stats - individual cards for each tracked claim */}
-          {transferRestrictionClaimCountStat?.isSet &&
-            transferRestrictionClaimCountStat.claims?.map((claim) => {
-              // For jurisdiction claims, we need to handle the jurisdiction code
-              const isJurisdictionClaim =
-                claim.claimType === 'Jurisdiction' && 'code' in claim;
-              const jurisdictionCode = isJurisdictionClaim
-                ? (claim as { code: string }).code
-                : null;
-              const keyBase = `claim-count-${claim.claimType}-${claim.issuer.did}`;
-              const cardKey = jurisdictionCode
-                ? `${keyBase}-${jurisdictionCode}`
-                : keyBase;
-
-              return (
-                <DataItem key={cardKey}>
-                  <GroupHeader>
-                    <GroupTitleSection>
-                      <InlineRow>
-                        <InlineLabel>Type</InlineLabel>
-                        <InlineValue>Claim Holder Count</InlineValue>
-                      </InlineRow>
-                    </GroupTitleSection>
-                    <GroupActions>
-                      <ActionButton
-                        onClick={handleEditStat}
-                        disabled={transactionInProcess}
-                      >
-                        <Icon name="Edit" size="14px" />
-                      </ActionButton>
-                      <ActionButton
-                        onClick={handleDeleteStat}
-                        disabled={transactionInProcess}
-                      >
-                        <Icon name="Delete" size="14px" />
-                      </ActionButton>
-                    </GroupActions>
-                  </GroupHeader>
-                  <InlineRow>
-                    <InlineLabel>Claim Type</InlineLabel>
-                    <InlineValue>{claim.claimType}</InlineValue>
-                  </InlineRow>
-                  <InlineRow>
-                    <InlineLabel>Claim Issuer</InlineLabel>
-                    <InlineValue>
-                      {formatDid(claim.issuer.did)}
-                      <CopyToClipboard value={claim.issuer.did} />
-                    </InlineValue>
-                  </InlineRow>
-                  {jurisdictionCode && (
-                    <InlineRow>
-                      <InlineLabel>Jurisdiction</InlineLabel>
-                      <InlineValue>{jurisdictionCode}</InlineValue>
-                    </InlineRow>
-                  )}
-                  <InlineRow>
-                    <InlineLabel>With Claim</InlineLabel>
-                    <InlineValue>
-                      {/* TODO: Replace with actual value from SDK */}
-                      Coming Soon...
-                    </InlineValue>
-                  </InlineRow>
-                  <InlineRow>
-                    <InlineLabel>Without Claim</InlineLabel>
-                    <InlineValue>
-                      {/* TODO: Replace with actual value from SDK */}
-                      Coming Soon...
-                    </InlineValue>
-                  </InlineRow>
-                </DataItem>
-              );
-            })}
-
-          {/* Claim Percentage Stats - individual cards for each tracked claim */}
-          {transferRestrictionClaimPercentageStat?.isSet &&
-            transferRestrictionClaimPercentageStat.claims?.map((claim) => {
-              // For jurisdiction claims, we need to handle the jurisdiction code
-              const isJurisdictionClaim =
-                claim.claimType === 'Jurisdiction' && 'code' in claim;
-              const jurisdictionCode = isJurisdictionClaim
-                ? (claim as { code: string }).code
-                : null;
-              const keyBase = `claim-percentage-${claim.claimType}-${claim.issuer.did}`;
-              const cardKey = jurisdictionCode
-                ? `${keyBase}-${jurisdictionCode}`
-                : keyBase;
-
-              return (
-                <DataItem key={cardKey}>
-                  <GroupHeader>
-                    <GroupTitleSection>
-                      <InlineRow>
-                        <InlineLabel>Type</InlineLabel>
-                        <InlineValue>Claim Holder Balance</InlineValue>
-                      </InlineRow>
-                    </GroupTitleSection>
-                    <GroupActions>
-                      <ActionButton
-                        onClick={handleEditStat}
-                        disabled={transactionInProcess}
-                      >
-                        <Icon name="Edit" size="14px" />
-                      </ActionButton>
-                      <ActionButton
-                        onClick={handleDeleteStat}
-                        disabled={transactionInProcess}
-                      >
-                        <Icon name="Delete" size="14px" />
-                      </ActionButton>
-                    </GroupActions>
-                  </GroupHeader>
-                  <InlineRow>
-                    <InlineLabel>Claim Type</InlineLabel>
-                    <InlineValue>{claim.claimType}</InlineValue>
-                  </InlineRow>
-                  <InlineRow>
-                    <InlineLabel>Claim Issuer</InlineLabel>
-                    <InlineValue>
-                      {formatDid(claim.issuer.did)}
-                      <CopyToClipboard value={claim.issuer.did} />
-                    </InlineValue>
-                  </InlineRow>
-                  {jurisdictionCode && (
-                    <InlineRow>
-                      <InlineLabel>Jurisdiction</InlineLabel>
-                      <InlineValue>{jurisdictionCode}</InlineValue>
-                    </InlineRow>
-                  )}
-                  <InlineRow>
-                    <InlineLabel>With Claim</InlineLabel>
-                    <InlineValue>
-                      {/* TODO: Replace with actual value from SDK */}
-                      Coming Soon...
-                    </InlineValue>
-                  </InlineRow>
-                  <InlineRow>
-                    <InlineLabel>Without Claim</InlineLabel>
-                    <InlineValue>
-                      {/* TODO: Replace with actual value from SDK */}
-                      Coming Soon...
-                    </InlineValue>
-                  </InlineRow>
-                </DataItem>
-              );
-            })}
-
-          {/* Show fallback cards if claim stats are tracked but no claims configured */}
-          {transferRestrictionClaimCountStat?.isSet &&
-            (!transferRestrictionClaimCountStat.claims ||
-              transferRestrictionClaimCountStat.claims.length === 0) && (
-              <DataItem>
+            return (
+              <DataItem key={statKey}>
                 <GroupHeader>
                   <GroupTitleSection>
                     <InlineRow>
                       <InlineLabel>Type</InlineLabel>
-                      <InlineValue>Holder Count (Claim-based)</InlineValue>
+                      <InlineValue>{displayName}</InlineValue>
                     </InlineRow>
                   </GroupTitleSection>
                   <GroupActions>
@@ -308,62 +227,19 @@ export const TrackedStatsSection: React.FC<TabProps> = ({ asset }) => {
                     </ActionButton>
                   </GroupActions>
                 </GroupHeader>
-                <InlineRow>
-                  <InlineLabel>Status</InlineLabel>
-                  <InlineValue>
-                    Tracking enabled, no specific claims configured
-                  </InlineValue>
-                </InlineRow>
-              </DataItem>
-            )}
 
-          {transferRestrictionClaimPercentageStat?.isSet &&
-            (!transferRestrictionClaimPercentageStat.claims ||
-              transferRestrictionClaimPercentageStat.claims.length === 0) && (
-              <DataItem>
-                <GroupHeader>
-                  <GroupTitleSection>
-                    <InlineRow>
-                      <InlineLabel>Type</InlineLabel>
-                      <InlineValue>
-                        Total Percentage Ownership (Claim-based)
-                      </InlineValue>
-                    </InlineRow>
-                  </GroupTitleSection>
-                  <GroupActions>
-                    <ActionButton
-                      onClick={handleEditStat}
-                      disabled={transactionInProcess}
-                    >
-                      <Icon name="Edit" size="14px" />
-                    </ActionButton>
-                    <ActionButton
-                      onClick={handleDeleteStat}
-                      disabled={transactionInProcess}
-                    >
-                      <Icon name="Delete" size="14px" />
-                    </ActionButton>
-                  </GroupActions>
-                </GroupHeader>
-                <InlineRow>
-                  <InlineLabel>Status</InlineLabel>
-                  <InlineValue>
-                    Tracking enabled, no specific claims configured
-                  </InlineValue>
-                </InlineRow>
+                {renderStatDetails(stat)}
               </DataItem>
-            )}
+            );
+          })}
         </GridDataList>
 
         {/* Show message when no stats are tracked */}
-        {!transferRestrictionCountStat?.isSet &&
-          !transferRestrictionPercentageStat?.isSet &&
-          !transferRestrictionClaimCountStat?.isSet &&
-          !transferRestrictionClaimPercentageStat?.isSet && (
-            <EmptyState>
-              No statistics are currently being tracked for this asset.
-            </EmptyState>
-          )}
+        {(!trackedStatsWithValues || trackedStatsWithValues.length === 0) && (
+          <EmptyState>
+            No statistics are currently being tracked for this asset.
+          </EmptyState>
+        )}
       </TabSection>
 
       <ComingSoonModal

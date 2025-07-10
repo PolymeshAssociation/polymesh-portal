@@ -1,35 +1,35 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useContext } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import {
   MetadataLockStatus,
-  RegisterMetadataParams,
   MetadataType,
+  RegisterMetadataParams,
 } from '@polymeshassociation/polymesh-sdk/types';
+import React, { useContext } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import { Icon } from '~/components';
+import { AssetContext } from '~/context/AssetContext';
+import StepNavigation from '../components/StepNavigation';
 import {
-  FormContainer,
-  FieldLabel,
-  FieldInput,
-  FieldSelect,
   Button,
-  FieldRow,
   DescriptionText,
-  NavigationWrapper,
-  IconWrapper,
-  HeaderRow,
+  FieldInput,
+  FieldLabel,
+  FieldRow,
+  FieldSelect,
   FieldTextarea,
+  FieldWrapper,
+  FormContainer,
+  HeaderRow,
+  IconWrapper,
+  NavigationWrapper,
+  StyledErrorMessage,
   StyledForm,
   StyledFormSection,
-  StyledErrorMessage,
-  FieldWrapper,
   StyledLink,
 } from '../styles';
 import { WizardData, WizardStepProps } from '../types';
-import StepNavigation from '../components/StepNavigation';
-import { Icon } from '~/components';
-import { AssetContext } from '~/context/AssetContext';
 
 type FormMetadataEntry = Omit<RegisterMetadataParams, 'details'> & {
   details?: {
@@ -403,7 +403,7 @@ const MetadataStep: React.FC<WizardStepProps> = ({
                   </FieldLabel>
                   <FieldInput
                     id={`metadata.${index}.value`}
-                    placeholder="Enter value (optional)"
+                    placeholder="Enter value"
                     {...register(`metadata.${index}.value` as const, {
                       required: true,
                     })}

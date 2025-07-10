@@ -1,5 +1,6 @@
 // TypeScript interfaces for Asset Control Center components
 
+import { TrustedFor } from '@polymeshassociation/polymesh-sdk/types';
 import { IAssetDetails } from '~/context/AssetContext/constants';
 
 // Asset Snapshot props
@@ -61,7 +62,7 @@ export interface RequiredMediator {
 // Trusted Claim Issuer data structure
 export interface TrustedClaimIssuer {
   id: string; // Identity DID
-  trustedFor: string[] | null; // Array of ClaimType strings, or null for "trusted for all"
+  trustedFor: TrustedFor[] | null; // Array of ClaimType strings, or null for "trusted for all"
 }
 
 // Transfer Restriction data structures - based on Polymesh SDK types

@@ -1,26 +1,27 @@
+import { TrustedFor } from '@polymeshassociation/polymesh-sdk/types';
 import React, { useMemo, useState } from 'react';
-import { Icon, CopyToClipboard } from '~/components';
+import { CopyToClipboard, Icon } from '~/components';
 import { formatUuid } from '~/helpers/formatters';
-import { ComingSoonModal } from '../modals';
 import { useAssetActionsContext } from '../../context';
-import type { TabProps, TrustedClaimIssuer } from '../../types';
 import {
-  TabSection,
-  SectionHeader,
-  SectionTitle,
-  SectionContent,
-  DataList,
+  ActionButton,
+  AddButton,
   DataItem,
   DataLabel,
+  DataList,
   DataValue,
-  ActionButton,
   EmptyState,
-  AddButton,
-  GroupHeader,
-  GroupTitleSection,
   GroupActions,
   GroupContent,
+  GroupHeader,
+  GroupTitleSection,
+  SectionContent,
+  SectionHeader,
+  SectionTitle,
+  TabSection,
 } from '../../styles';
+import type { TabProps, TrustedClaimIssuer } from '../../types';
+import { ComingSoonModal } from '../modals';
 
 interface TrustedClaimIssuersSectionProps {
   asset: TabProps['asset'];
@@ -35,7 +36,7 @@ export const TrustedClaimIssuersSection: React.FC<
     useAssetActionsContext();
 
   // Helper function to format claim types for display
-  const formatClaimTypes = (trustedFor: string[] | null): string => {
+  const formatClaimTypes = (trustedFor: TrustedFor[] | null): string => {
     if (trustedFor === null) {
       return 'All Claim Types';
     }
@@ -43,14 +44,16 @@ export const TrustedClaimIssuersSection: React.FC<
       return 'No Claim Types';
     }
 
-    // Format each claim type for display
     const formattedClaims = trustedFor.map((claimType) => {
-      if (claimType === 'Custom') {
-        // TODO: Custom claim types are broken in SDK - doesn't return associated custom claim ID
-        return 'Custom Claim (ID not available)';
+      if (
+        typeof claimType === 'object' &&
+        claimType.type === 'Custom' &&
+        'customClaimTypeId' in claimType
+      ) {
+        return `Custom ID ${claimType.customClaimTypeId.toString()}`;
       }
-      // Convert camelCase to readable format
-      return claimType.replace(/([A-Z])/g, ' $1').trim();
+      // Convert camelCase to readable format for standard claim types
+      return (claimType as string).replace(/([A-Z])/g, ' $1').trim();
     });
 
     return formattedClaims.join(', ');

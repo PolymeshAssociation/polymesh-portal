@@ -1,28 +1,28 @@
-import { FormProvider } from 'react-hook-form';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { useContext, useEffect, useRef, useState } from 'react';
+import { FormProvider } from 'react-hook-form';
+import { Icon } from '~/components';
 import { Button, Text } from '~/components/UiKit';
+import { AccountContext } from '~/context/AccountContext';
 import {
-  PAYMENT_DESTINATION,
   EModalActions,
   EModalOptions,
   IStakeForm,
-  TStakeArgs,
+  PAYMENT_DESTINATION,
   TDestination,
+  TStakeArgs,
 } from '../../constants';
-import { useModalForm } from '../ModalForm/hooks';
-import { NOMINATIONS_MAX_LENGTH } from '../ModalForm/constants';
 import {
   AccountsDropdown,
   AmountInput,
-  DestinationDropdown,
   ButtonContainer,
+  DestinationDropdown,
   DurationInfo,
   OperatorSelect,
 } from '../ModalForm';
-import { StyledExpansionToggle, StyledSelect, StyledAutoStake } from './styles';
-import { Icon } from '~/components';
-import { AccountContext } from '~/context/AccountContext';
+import { NOMINATIONS_MAX_LENGTH } from '../ModalForm/constants';
+import { useModalForm } from '../ModalForm/hooks';
+import { StyledAutoStake, StyledExpansionToggle, StyledSelect } from './styles';
 
 interface IStakeModalProps {
   executeAction: (action: EModalActions, args: TStakeArgs) => void;

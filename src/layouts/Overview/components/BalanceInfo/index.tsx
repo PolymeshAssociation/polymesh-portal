@@ -29,13 +29,8 @@ const validateBanxaUrl = (url: string): boolean => {
 };
 
 export const BalanceInfo = () => {
-  const {
-    identityHasValidCdd,
-    accountIsMultisigSigner,
-    selectedAccountBalance,
-    balanceIsLoading,
-    isExternalConnection,
-  } = useContext(AccountContext);
+  const { selectedAccountBalance, balanceIsLoading, isExternalConnection } =
+    useContext(AccountContext);
   const { isTransactionInProgress } = useTransactionStatusContext();
   const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [receiveModalOpen, setReceiveModalOpen] = useState(false);
@@ -111,30 +106,17 @@ export const BalanceInfo = () => {
         <StyledButtonGroup>
           <Button
             onClick={toggleTransferModal}
-            disabled={
-              !identityHasValidCdd ||
-              accountIsMultisigSigner ||
-              isExternalConnection ||
-              isTransactionInProgress
-            }
+            disabled={isExternalConnection || isTransactionInProgress}
           >
             <Icon name="ArrowTopRight" />
             Send
           </Button>
-          <Button
-            variant="secondary"
-            onClick={toggleReceiveModal}
-            disabled={!identityHasValidCdd || accountIsMultisigSigner}
-          >
+          <Button variant="secondary" onClick={toggleReceiveModal}>
             <Icon name="ArrowBottomLeft" />
             Receive
           </Button>
           {isBanxaAvailable && (
-            <Button
-              variant="secondary"
-              onClick={handleGetPolyxClick}
-              disabled={!identityHasValidCdd || accountIsMultisigSigner}
-            >
+            <Button variant="secondary" onClick={handleGetPolyxClick}>
               <Icon name="Coins" />
               Get POLYX
             </Button>

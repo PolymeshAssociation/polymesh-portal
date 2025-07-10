@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
-import { CopyToClipboard as BaseCopyToClipboard } from 'react-copy-to-clipboard';
 import { Icon } from '~/components';
+import { useCopyToClipboard } from '~/hooks/utility/';
 import { StyledCopyWrapper } from './styles';
 
 interface ICopyProps {
@@ -8,48 +7,26 @@ interface ICopyProps {
 }
 
 const CopyToClipboard: React.FC<ICopyProps> = ({ value }) => {
-  const [success, setSuccess] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
+  const { copy, isCopied, copySuccess } = useCopyToClipboard(350);
 
-  // prevent event bubbling
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
+    copy(value);
   };
-
-  const handleCopy = (_: unknown, result: boolean) => {
-    setSuccess(result);
-  };
-
-  // Show and hide successful copy notification
-  useEffect(() => {
-    if (!success) return undefined;
-
-    setShowNotification(true);
-    const id = setTimeout(() => {
-      setSuccess(false);
-      setShowNotification(false);
-    }, 350);
-
-    return () => {
-      clearTimeout(id);
-    };
-  }, [showNotification, success]);
 
   return (
     <div onClick={handleClick} role="presentation">
-      <BaseCopyToClipboard text={value as string} onCopy={handleCopy}>
-        <StyledCopyWrapper>
-          {showNotification ? (
-            <Icon
-              name={value ? 'Check' : 'CloseIcon'}
-              className={`check-icon ${value ? 'success' : 'failure'}`}
-              size="16px"
-            />
-          ) : (
-            <Icon name="CopyIcon" className="copy-icon" />
-          )}
-        </StyledCopyWrapper>
-      </BaseCopyToClipboard>
+      <StyledCopyWrapper>
+        {isCopied ? (
+          <Icon
+            name={copySuccess ? 'Check' : 'CloseIcon'}
+            className={`check-icon ${copySuccess ? 'success' : 'failure'}`}
+            size="16px"
+          />
+        ) : (
+          <Icon name="CopyIcon" className="copy-icon" />
+        )}
+      </StyledCopyWrapper>
     </div>
   );
 };

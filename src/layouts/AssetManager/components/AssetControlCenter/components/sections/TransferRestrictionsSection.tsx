@@ -1,31 +1,31 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { Icon, CopyToClipboard } from '~/components';
+import React, { useCallback, useMemo, useState } from 'react';
+import { CopyToClipboard, Icon } from '~/components';
+import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
 import { formatDid } from '~/helpers/formatters';
 import { useAssetActionsContext } from '../../context';
-import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
-import type { TabProps } from '../../types';
 import {
-  TabSection,
-  SectionHeader,
-  SectionTitle,
-  SectionContent,
-  GridDataList,
-  DataItem,
   ActionButton,
-  EmptyState,
   AddButton,
+  DataItem,
+  DataLabel,
   DetailValue,
-  MediatorItem,
-  MediatorContainer,
-  GroupHeader,
-  GroupTitleSection,
+  EmptyState,
+  GridDataList,
   GroupActions,
   GroupContent,
-  InlineRow,
+  GroupHeader,
+  GroupTitleSection,
   InlineLabel,
+  InlineRow,
   InlineValue,
-  DataLabel,
+  MediatorContainer,
+  MediatorItem,
+  SectionContent,
+  SectionHeader,
+  SectionTitle,
+  TabSection,
 } from '../../styles';
+import type { TabProps } from '../../types';
 import { ComingSoonModal } from '../modals';
 
 interface TransferRestrictionsSectionProps {
@@ -159,94 +159,65 @@ export const TransferRestrictionsSection: React.FC<
     [],
   );
 
-  // Extract and format transfer restrictions from asset data
+  // Extract and format transfer restrictions from asset data (new SDK structure)
   const restrictions: DisplayRestriction[] = [];
+  const sdkRestrictions =
+    asset?.details?.transferRestrictions?.restrictions || [];
 
-  // Process Count Transfer Restrictions
-  if (asset?.details?.transferRestrictionCount?.restrictions) {
-    asset.details.transferRestrictionCount.restrictions.forEach(
-      (restriction, index) => {
-        const exemptedDids = restriction.exemptedIds || [];
+  sdkRestrictions.forEach((restriction, index) => {
+    switch (restriction.type) {
+      case 'Count':
         restrictions.push({
           id: `count-${index}`,
           type: 'Count',
-          maxLimit: restriction.count.toString(),
-          exemptions: exemptedDids.length,
-          exemptedDids,
+          maxLimit: restriction.value.toString(),
+          exemptions: 0,
+          exemptedDids: [],
         });
-      },
-    );
-  }
-
-  // Process Percentage Transfer Restrictions
-  if (asset?.details?.transferRestrictionPercentage?.restrictions) {
-    asset.details.transferRestrictionPercentage.restrictions.forEach(
-      (restriction, index) => {
-        const exemptedDids = restriction.exemptedIds || [];
+        break;
+      case 'Percentage':
         restrictions.push({
           id: `percentage-${index}`,
           type: 'Percentage',
-          maxLimit: `${restriction.percentage.toString()}%`,
-          exemptions: exemptedDids.length,
-          exemptedDids,
+          maxLimit: `${restriction.value.toString()}%`,
+          exemptions: 0,
+          exemptedDids: [],
         });
-      },
-    );
-  }
-
-  // Process Claim Count Transfer Restrictions
-  if (asset?.details?.transferRestrictionClaimCount?.restrictions) {
-    asset.details.transferRestrictionClaimCount.restrictions.forEach(
-      (restriction, index) => {
-        const claimType = restriction.claim?.type || 'Unknown';
-        const issuerDid =
-          typeof restriction.issuer === 'string'
-            ? restriction.issuer
-            : restriction.issuer?.did || 'Unknown';
-        const exemptedDids = restriction.exemptedIds || [];
-        const claimDetails = extractClaimDetails(restriction.claim);
-
+        break;
+      case 'ClaimCount': {
+        const { min, max, issuer, claim } = restriction.value;
         restrictions.push({
           id: `claim-count-${index}`,
           type: 'ClaimCount',
-          minLimit: restriction.min.toString(),
-          maxLimit: restriction.max ? restriction.max.toString() : undefined,
-          exemptions: exemptedDids.length,
-          exemptedDids,
-          claimType,
-          claimIssuer: issuerDid,
-          claimDetails,
+          minLimit: min.toString(),
+          maxLimit: max ? max.toString() : undefined,
+          exemptions: 0,
+          exemptedDids: [],
+          claimType: claim.type,
+          claimIssuer: issuer.did,
+          claimDetails: extractClaimDetails(claim),
         });
-      },
-    );
-  }
-
-  // Process Claim Percentage Transfer Restrictions
-  if (asset?.details?.transferRestrictionClaimPercentage?.restrictions) {
-    asset.details.transferRestrictionClaimPercentage.restrictions.forEach(
-      (restriction, index) => {
-        const claimType = restriction.claim?.type || 'Unknown';
-        const issuerDid =
-          typeof restriction.issuer === 'string'
-            ? restriction.issuer
-            : restriction.issuer?.did || 'Unknown';
-        const exemptedDids = restriction.exemptedIds || [];
-        const claimDetails = extractClaimDetails(restriction.claim);
-
+        break;
+      }
+      case 'ClaimPercentage': {
+        const { min, max, issuer, claim } = restriction.value;
         restrictions.push({
           id: `claim-percentage-${index}`,
           type: 'ClaimPercentage',
-          minLimit: `${restriction.min.toString()}%`,
-          maxLimit: `${restriction.max.toString()}%`,
-          exemptions: exemptedDids.length,
-          exemptedDids,
-          claimType,
-          claimIssuer: issuerDid,
-          claimDetails,
+          minLimit: `${min.toString()}%`,
+          maxLimit: `${max.toString()}%`,
+          exemptions: 0,
+          exemptedDids: [],
+          claimType: claim.type,
+          claimIssuer: issuer.did,
+          claimDetails: extractClaimDetails(claim),
         });
-      },
-    );
-  }
+        break;
+      }
+      default:
+        break;
+    }
+  });
 
   return (
     <>

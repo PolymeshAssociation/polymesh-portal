@@ -1,12 +1,15 @@
-import { Scope, ScopeType } from '@polymeshassociation/polymesh-sdk/types';
+import { ScopeType } from '@polymeshassociation/polymesh-sdk/types';
 import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CopyToClipboard, Icon } from '~/components';
+import { AssetDetailsModal } from '~/components/AssetDetailsModal';
 import { Button } from '~/components/UiKit';
 import { ClaimsContext } from '~/context/ClaimsContext';
+import { ScopeItem as ScopeItemType } from '~/context/ClaimsContext/constants';
 import { formatDid, stringToColor } from '~/helpers/formatters';
+import { useWindowWidth } from '~/hooks/utility';
+import { EClaimSortOptions, EClaimsType } from '../../constants';
 import { ClaimItem } from '../ClaimItem';
-import { EClaimsType, EClaimSortOptions } from '../../constants';
 import { filterClaimsByScope } from './helpers';
 import {
   StyledActionsWrapper,
@@ -19,14 +22,12 @@ import {
   StyledSort,
   StyledSortSelect,
 } from './styles';
-import { useWindowWidth } from '~/hooks/utility';
-import { AssetDetailsModal } from '~/components/AssetDetailsModal';
 
 interface IScopeItemProps {
-  scope: Scope | null;
+  scopeItem: ScopeItemType;
 }
 
-export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
+export const ScopeItem: React.FC<IScopeItemProps> = ({ scopeItem }) => {
   const { receivedClaims, issuedClaims } = useContext(ClaimsContext);
   const [scopeExpanded, setScopeExpanded] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -46,48 +47,56 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
     setModalOpen(false);
   };
 
+  const { scope } = scopeItem;
+
   return (
     <StyledScopeItem>
       <StyledScopeWrapper>
-        {scope ? (
-          <StyledScopeInfo>
-            Scope - {scope.type}
-            <StyledScopeLabel>
-              {scope.type === ScopeType.Asset && (
-                <>
-                  <StyledClickableWrapper onClick={() => setModalOpen(true)}>
-                    <StyledIconWrapper $color={stringToColor(scope.value)}>
-                      <Icon name="Coins" size="12px" />
-                    </StyledIconWrapper>
-                    {scope.value}
-                  </StyledClickableWrapper>
-                  <CopyToClipboard value={scope.value} />
-                  {isModalOpen && (
-                    <AssetDetailsModal
-                      asset={scope.value}
-                      toggleModal={toggleModal}
-                    />
+        {(() => {
+          if (scope) {
+            return (
+              <StyledScopeInfo>
+                Scope - {scope.type}
+                <StyledScopeLabel>
+                  {scope.type === ScopeType.Asset && (
+                    <>
+                      <StyledClickableWrapper
+                        onClick={() => setModalOpen(true)}
+                      >
+                        <StyledIconWrapper $color={stringToColor(scope.value)}>
+                          <Icon name="Coins" size="12px" />
+                        </StyledIconWrapper>
+                        {scope.value}
+                      </StyledClickableWrapper>
+                      <CopyToClipboard value={scope.value} />
+                      {isModalOpen && (
+                        <AssetDetailsModal
+                          asset={scope.value}
+                          toggleModal={toggleModal}
+                        />
+                      )}
+                    </>
                   )}
-                </>
-              )}
-              {scope.type === ScopeType.Identity && (
-                <>
-                  {formatDid(
-                    scope.value,
-                    isMobile || isSmallDesktop ? 5 : 10,
-                    isMobile || isSmallDesktop ? 6 : 11,
+                  {scope.type === ScopeType.Identity && (
+                    <>
+                      {formatDid(
+                        scope.value,
+                        isMobile || isSmallDesktop ? 5 : 10,
+                        isMobile || isSmallDesktop ? 6 : 11,
+                      )}
+                      <CopyToClipboard value={scope.value} />
+                    </>
                   )}
-                  <CopyToClipboard value={scope.value} />
-                </>
-              )}
-              {scope.type !== ScopeType.Asset &&
-                scope.type !== ScopeType.Identity &&
-                scope.value}
-            </StyledScopeLabel>
-          </StyledScopeInfo>
-        ) : (
-          <StyledScopeInfo>Unscoped claims</StyledScopeInfo>
-        )}
+                  {scope.type !== ScopeType.Asset &&
+                    scope.type !== ScopeType.Identity &&
+                    scope.value}
+                </StyledScopeLabel>
+              </StyledScopeInfo>
+            );
+          }
+
+          return <StyledScopeInfo>Unscoped claims</StyledScopeInfo>;
+        })()}
         <StyledActionsWrapper $expanded={scopeExpanded}>
           {!isMobile && (
             <StyledSort>
@@ -142,7 +151,7 @@ export const ScopeItem: React.FC<IScopeItemProps> = ({ scope }) => {
           )}
           {filterClaimsByScope(
             claimTypes[type as EClaimsType],
-            scope,
+            scopeItem,
             sortBy,
           ).map((claim, idx) => (
             <ClaimItem

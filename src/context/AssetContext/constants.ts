@@ -1,21 +1,17 @@
 import {
+  ActiveTransferRestrictions,
+  AgentWithGroup,
   Asset,
   AssetDetails,
-  TickerReservation,
-  TickerReservationDetails,
-  GlobalMetadataKey,
   AssetDocument,
   CollectionKey,
-  SecurityIdentifier,
-  PermissionGroups,
-  AgentWithGroup,
   ComplianceRequirements,
-  ActiveTransferRestrictions,
-  PercentageTransferRestriction,
-  CountTransferRestriction,
-  ClaimCountTransferRestriction,
-  ClaimPercentageTransferRestriction,
-  ActiveStats,
+  GlobalMetadataKey,
+  PermissionGroups,
+  SecurityIdentifier,
+  TickerReservation,
+  TickerReservationDetails,
+  TransferRestrictionStatValues,
   Venue,
 } from '@polymeshassociation/polymesh-sdk/types';
 
@@ -52,14 +48,8 @@ export interface IDetails {
   permissionGroups?: PermissionGroups;
   complianceRequirements?: ComplianceRequirements;
   compliancePaused: boolean;
-  transferRestrictionCount?: ActiveTransferRestrictions<CountTransferRestriction>;
-  transferRestrictionPercentage?: ActiveTransferRestrictions<PercentageTransferRestriction>;
-  transferRestrictionClaimCount?: ActiveTransferRestrictions<ClaimCountTransferRestriction>;
-  transferRestrictionClaimPercentage?: ActiveTransferRestrictions<ClaimPercentageTransferRestriction>;
-  transferRestrictionCountStat?: ActiveStats;
-  transferRestrictionPercentageStat?: ActiveStats;
-  transferRestrictionClaimCountStat?: ActiveStats;
-  transferRestrictionClaimPercentageStat?: ActiveStats;
+  transferRestrictions?: ActiveTransferRestrictions;
+  trackedStatistics?: TransferRestrictionStatValues[];
 }
 export interface IAssetDetails {
   assetId: string;

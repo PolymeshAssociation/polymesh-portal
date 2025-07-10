@@ -1,5 +1,4 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { CopyToClipboard as ReactCopyToClipboard } from 'react-copy-to-clipboard';
 import QRCode from 'react-qr-code';
 import { Icon } from '~/components';
 import { Heading, Text } from '~/components/UiKit';
@@ -11,7 +10,7 @@ import {
   NETKI_IDENTITY_PROVIDER,
 } from '~/context/AuthContext/constants';
 import { formatDid } from '~/helpers/formatters';
-import { useWindowWidth } from '~/hooks/utility';
+import { useCopyToClipboard, useWindowWidth } from '~/hooks/utility';
 import {
   IDENTITY_PROVIDERS,
   IDENTITY_PROVIDER_FINCLUSIVE_KYB,
@@ -47,6 +46,7 @@ export const ProviderInfo = ({
     useContext(AccountContext);
   const { setIdentityPopup } = useAuthContext();
   const { isMobile } = useWindowWidth();
+  const { copy } = useCopyToClipboard();
 
   let provider;
   if (providerName === MOCKID_IDENTITY_PROVIDER) {
@@ -143,13 +143,11 @@ export const ProviderInfo = ({
         </StyledProviderInfo>
         {providerName !== MOCKID_IDENTITY_PROVIDER && providerLink && (
           <StyledQRCodeContainer>
-            <ReactCopyToClipboard text={providerLink}>
-              <StyledQRCode>
-                {providerLink && (
-                  <QRCode size={128} value={providerLink} level="L" />
-                )}
-              </StyledQRCode>
-            </ReactCopyToClipboard>
+            <StyledQRCode onClick={() => copy(providerLink)}>
+              {providerLink && (
+                <QRCode size={128} value={providerLink} level="L" />
+              )}
+            </StyledQRCode>
             <Text centered>
               Scan this QR code with your phone
               {(isMobile || providerName !== NETKI_IDENTITY_PROVIDER) && (

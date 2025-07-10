@@ -1,46 +1,44 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useContext, useState, useEffect } from 'react';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { ClaimType } from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import {
-  FormContainer,
-  FieldLabel,
-  FieldInput,
-  Button,
-  DescriptionText,
-  NavigationWrapper,
-  TrustedClaimTypesContainer,
-  HeaderRow,
-  IconWrapper,
-  FieldRow,
-  TrustedCheckboxLabel,
-  StyledForm,
-  StyledFormSection,
-  FieldWrapper,
-  StyledErrorMessage,
-  CheckboxRow,
-  ThemedCheckbox,
-  ChipContainer,
-  VenueSelectRow,
-  CheckboxGrid,
-  StyledLink,
-} from '../styles';
-import Chip from '../components/Chip';
-import { WizardStepProps } from '../types';
-import { splitCamelCase } from '~/helpers/formatters';
-import StepNavigation from '../components/StepNavigation';
+import { ClaimType, TrustedFor } from '@polymeshassociation/polymesh-sdk/types';
+import React, { useContext, useEffect, useState } from 'react';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import * as yup from 'yup';
 import { Icon } from '~/components';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { splitCamelCase } from '~/helpers/formatters';
 import { notifyError } from '~/helpers/notifications';
-import CreateCustomClaimModal from '../components/CreateCustomClaimModal';
 import { useCustomClaims } from '~/hooks/polymesh/useCustomClaims';
+import Chip from '../components/Chip';
+import CreateCustomClaimModal from '../components/CreateCustomClaimModal';
+import StepNavigation from '../components/StepNavigation';
+import {
+  Button,
+  CheckboxGrid,
+  CheckboxRow,
+  ChipContainer,
+  DescriptionText,
+  FieldInput,
+  FieldLabel,
+  FieldRow,
+  FieldWrapper,
+  FormContainer,
+  HeaderRow,
+  IconWrapper,
+  NavigationWrapper,
+  StyledErrorMessage,
+  StyledForm,
+  StyledFormSection,
+  StyledLink,
+  ThemedCheckbox,
+  TrustedCheckboxLabel,
+  TrustedClaimTypesContainer,
+  VenueSelectRow,
+} from '../styles';
+import { WizardStepProps } from '../types';
 
-type CustomClaimType = { type: ClaimType.Custom; customClaimTypeId: BigNumber };
-type ClaimTypeValue = ClaimType | CustomClaimType;
-type FormTrustedFor = ClaimTypeValue[] | null;
+type FormTrustedFor = TrustedFor[] | null;
 
 interface FormClaimIssuer {
   identity: string;
@@ -48,7 +46,7 @@ interface FormClaimIssuer {
 }
 
 const isCustomClaim = (
-  claim: ClaimTypeValue,
+  claim: TrustedFor,
 ): claim is { type: ClaimType.Custom; customClaimTypeId: BigNumber } => {
   return (
     typeof claim === 'object' &&
@@ -212,8 +210,8 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
   };
 
   const handleAddCustomClaim = async (
-    onChange: (value: ClaimTypeValue[] | null) => void,
-    currentValue: ClaimTypeValue[] | null,
+    onChange: (value: TrustedFor[] | null) => void,
+    currentValue: TrustedFor[] | null,
     issuerIndex: number,
   ) => {
     const issuerId = `issuer-${issuerIndex}`;
@@ -244,7 +242,7 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
           [issuerId]: '',
         }));
 
-        const customClaimValue: ClaimTypeValue = {
+        const customClaimValue: TrustedFor = {
           type: ClaimType.Custom,
           customClaimTypeId: newClaim.id,
         };
@@ -273,7 +271,7 @@ const ClaimIssuersStep: React.FC<WizardStepProps> = ({
       [issuerId]: '',
     }));
 
-    const customClaimValue: ClaimTypeValue = {
+    const customClaimValue: TrustedFor = {
       type: ClaimType.Custom,
       customClaimTypeId: validClaim.id,
     };

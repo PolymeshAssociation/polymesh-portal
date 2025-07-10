@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table } from '~/components';
-import { useRewardTable } from './hooks';
+import { AccountContext } from '~/context/AccountContext';
 import { ERewardTableTabs, maxQuerySize } from './constants';
+import { useRewardTable } from './hooks';
 
 export const RewardsTable = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { identity } = useContext(AccountContext);
 
   // Set tab provided in URL search parameters or default to account
   const initialTab = useMemo(() => {
@@ -85,7 +87,11 @@ export const RewardsTable = () => {
     tab && (
       <Table
         data={{ table, tab }}
-        tabs={Object.values(ERewardTableTabs)}
+        tabs={
+          identity
+            ? Object.values(ERewardTableTabs)
+            : [ERewardTableTabs.ACCOUNT_REWARDS]
+        }
         setTab={setTab}
         title="Staking Rewards"
         loading={tableLoading}

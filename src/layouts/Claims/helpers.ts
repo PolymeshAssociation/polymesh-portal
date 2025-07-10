@@ -1,8 +1,9 @@
-import { Scope, ScopeType } from '@polymeshassociation/polymesh-sdk/types';
+import { ScopeType } from '@polymeshassociation/polymesh-sdk/types';
+import { ScopeItem } from '~/context/ClaimsContext/constants';
 import { EScopeSortOptions } from './constants';
 
 export const sortScopesBySortOption = (
-  scopes: { scope: Scope | null }[],
+  scopes: ScopeItem[],
   option: EScopeSortOptions,
 ) => {
   switch (option) {

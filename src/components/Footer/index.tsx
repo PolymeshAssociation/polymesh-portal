@@ -1,10 +1,10 @@
-import {
-  StyledFooter,
-  StyledContainer,
-  StyledLinkList,
-  StyledLink,
-} from './styles';
 import { Text } from '~/components/UiKit';
+import {
+  StyledContainer,
+  StyledFooter,
+  StyledLink,
+  StyledLinkList,
+} from './styles';
 
 interface IFooterProps {
   isLandingPage: boolean;
@@ -15,8 +15,7 @@ const Footer: React.FC<IFooterProps> = ({ isLandingPage }) => {
     <StyledFooter $isLandingPage={isLandingPage}>
       <StyledContainer $isLandingPage={isLandingPage}>
         <Text color="secondary">
-          © {new Date().getFullYear()} Polymesh Association. All rights
-          reserved
+          © {new Date().getFullYear()} Polymesh Labs Ltd. All rights reserved
         </Text>
         <StyledLinkList>
           <li>

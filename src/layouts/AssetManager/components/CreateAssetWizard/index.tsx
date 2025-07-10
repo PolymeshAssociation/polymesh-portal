@@ -1,32 +1,37 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { useContext, useEffect, useState, useMemo } from 'react';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   GenericPolymeshTransaction,
   InputStatType,
   MetadataType,
   StatType,
+  TransferRestrictionClaimCountInput,
+  TransferRestrictionInputClaimPercentage,
+  TransferRestrictionInputCount,
+  TransferRestrictionInputPercentage,
+  TransferRestrictionType,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WizardSidebar from './components/WizardSidebar';
 import BasicInfoStep from './steps/BasicInfoStep';
-import SecurityIdentifiersStep from './steps/SecurityIdentifiersStep';
+import ClaimIssuersStep from './steps/ClaimIssuersStep';
+import CollectionKeysStep from './steps/CollectionKeysStep';
+import ComplianceRulesStep from './steps/ComplianceRulesStep';
 import DocumentsStep from './steps/DocumentsStep';
 import MetadataStep from './steps/MetadataStep';
-import ClaimIssuersStep from './steps/ClaimIssuersStep';
-import ComplianceRulesStep from './steps/ComplianceRulesStep';
-import CollectionKeysStep from './steps/CollectionKeysStep';
+import SecurityIdentifiersStep from './steps/SecurityIdentifiersStep';
 // import TransferRestrictionsStep from './steps/TransferRestrictionsStep';
-import SettlementRestrictionsStep from './steps/SettlementRestrictionsStep';
-import IssuanceStep from './steps/IssuanceStep';
-import { WizardContainer, StepContainer } from './styles';
-import { initialWizardData, WizardData } from './types';
+import { PATHS } from '~/constants/routes';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { notifyError } from '~/helpers/notifications';
 import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { notifyError } from '~/helpers/notifications';
 import { useWindowWidth } from '~/hooks/utility';
-import { PATHS } from '~/constants/routes';
+import IssuanceStep from './steps/IssuanceStep';
+import SettlementRestrictionsStep from './steps/SettlementRestrictionsStep';
+import { StepContainer, WizardContainer } from './styles';
+import { initialWizardData, WizardData } from './types';
 
 const CreateAssetWizard = () => {
   const {
@@ -154,85 +159,62 @@ const CreateAssetWizard = () => {
               }),
             );
 
-            const addRestrictionsPromises = transferRestrictions.map(
-              async (restriction) => {
+            // Map your UI's transferRestrictions to the SDK's input format
+            const restrictionInputs = await Promise.all(
+              transferRestrictions.map(async (restriction) => {
                 switch (restriction.type) {
-                  case StatType.Count:
-                    return nextAsset.transferRestrictions.count.addRestriction(
-                      {
-                        count: restriction.max,
-                        exemptedIdentities: restriction.exemptedIdentities,
-                        skipStatIsEnabledCheck: true,
-                      },
-                      {
-                        skipChecks: {
-                          agentPermissions: true,
-                        },
-                      },
-                    );
-
-                  case StatType.Balance:
-                    return nextAsset.transferRestrictions.percentage.addRestriction(
-                      {
-                        percentage: restriction.max,
-                        exemptedIdentities: restriction.exemptedIdentities,
-                        skipStatIsEnabledCheck: true,
-                      },
-                      {
-                        skipChecks: {
-                          agentPermissions: true,
-                        },
-                      },
-                    );
-
-                  case StatType.ScopedCount:
-                    return nextAsset.transferRestrictions.claimCount.addRestriction(
-                      {
-                        claim: restriction.claimType,
-                        issuer: await sdk.identities.getIdentity({
-                          did: restriction.issuer,
-                        }),
-                        max: restriction.max,
-                        min: restriction.min,
-                        exemptedIdentities: restriction.exemptedIdentities,
-                        skipStatIsEnabledCheck: true,
-                      },
-                      {
-                        skipChecks: {
-                          agentPermissions: true,
-                        },
-                      },
-                    );
-
-                  case StatType.ScopedBalance:
-                    return nextAsset.transferRestrictions.claimPercentage.addRestriction(
-                      {
-                        claim: restriction.claimType,
-                        issuer: await sdk.identities.getIdentity({
-                          did: restriction.issuer,
-                        }),
-                        max: restriction.max,
-                        min: restriction.min,
-                        exemptedIdentities: restriction.exemptedIdentities,
-                        skipStatIsEnabledCheck: true,
-                      },
-                      {
-                        skipChecks: {
-                          agentPermissions: true,
-                        },
-                      },
-                    );
-
+                  case StatType.Count: {
+                    return {
+                      type: TransferRestrictionType.Count,
+                      count: restriction.max,
+                    } satisfies TransferRestrictionInputCount;
+                  }
+                  case StatType.Balance: {
+                    return {
+                      type: TransferRestrictionType.Percentage,
+                      percentage: restriction.max,
+                    } satisfies TransferRestrictionInputPercentage;
+                  }
+                  case StatType.ScopedCount: {
+                    return {
+                      type: TransferRestrictionType.ClaimCount,
+                      min: restriction.min,
+                      max: restriction.max,
+                      issuer: await sdk.identities.getIdentity({
+                        did: restriction.issuer,
+                      }),
+                      claim: restriction.claimType,
+                    } satisfies TransferRestrictionClaimCountInput;
+                  }
+                  case StatType.ScopedBalance: {
+                    return {
+                      type: TransferRestrictionType.ClaimPercentage,
+                      min: restriction.min,
+                      max: restriction.max,
+                      issuer: await sdk.identities.getIdentity({
+                        did: restriction.issuer,
+                      }),
+                      claim: restriction.claimType,
+                    } satisfies TransferRestrictionInputClaimPercentage;
+                  }
                   default:
                     throw new Error('Unsupported restriction type');
                 }
-              },
+              }),
             );
 
-            const addRestrictionTxs = await Promise.all(
-              addRestrictionsPromises,
-            );
-            batchCalls.push(...addRestrictionTxs);
+            const setRestrictionsTx =
+              await nextAsset.transferRestrictions.setRestrictions(
+                {
+                  restrictions: restrictionInputs,
+                },
+                {
+                  skipChecks: {
+                    agentPermissions: true,
+                  },
+                },
+              );
+            batchCalls.push(setRestrictionsTx);
           }
 
           const createFungibleAssetTx = await sdk.assets.createAsset({
@@ -267,8 +249,6 @@ const CreateAssetWizard = () => {
           const claimIssuerTx =
             await nextAsset.compliance.trustedClaimIssuers.add(
               {
-                // TODO: remove once support for custom claims is fixed
-                // @ts-expect-error customClaim objects not yet supported
                 claimIssuers,
               },
               {

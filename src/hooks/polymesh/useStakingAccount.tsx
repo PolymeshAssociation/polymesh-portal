@@ -1,16 +1,16 @@
-import { useState, useEffect, useContext, useRef, useCallback } from 'react';
+import type { Vec, u32 } from '@polkadot/types-codec';
+import type { AccountId32 } from '@polkadot/types/interfaces';
+import type { PalletStakingUnlockChunk } from '@polkadot/types/lookup';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   balanceToBigNumber,
   u32ToBigNumber,
 } from '@polymeshassociation/polymesh-sdk/utils/conversion';
-import type { AccountId32 } from '@polkadot/types/interfaces';
-import type { Vec, u32 } from '@polkadot/types-codec';
-import { PalletStakingUnlockChunk } from '@polymeshassociation/polymesh-sdk/polkadot/types-lookup';
-import { PolymeshContext } from '~/context/PolymeshContext';
-import { notifyError } from '~/helpers/notifications';
-import { StakingContext } from '~/context/StakingContext';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { AccountContext } from '~/context/AccountContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { StakingContext } from '~/context/StakingContext';
+import { notifyError } from '~/helpers/notifications';
 
 interface StakingDetails {
   isController: boolean;

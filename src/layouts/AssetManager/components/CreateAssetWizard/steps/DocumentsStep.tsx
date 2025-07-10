@@ -1,28 +1,28 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
-import { AssetDocument } from '@polymeshassociation/polymesh-sdk/types';
-import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { AssetDocument } from '@polymeshassociation/polymesh-sdk/types';
+import React from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import { Icon } from '~/components';
+import StepNavigation from '../components/StepNavigation';
 import {
-  FormContainer,
-  FieldLabel,
-  FieldInput,
   Button,
-  FieldRow,
   DescriptionText,
-  NavigationWrapper,
-  IconWrapper,
+  FieldInput,
+  FieldLabel,
+  FieldRow,
+  FieldWrapper,
+  FormContainer,
   HeaderRow,
+  IconWrapper,
+  NavigationWrapper,
+  StyledErrorMessage,
   StyledForm,
   StyledFormSection,
-  StyledErrorMessage,
-  FieldWrapper,
   StyledLink,
 } from '../styles';
-import { Icon } from '~/components';
 import { WizardStepProps } from '../types';
-import StepNavigation from '../components/StepNavigation';
 
 type WizardAssetDocument = Omit<AssetDocument, 'filedAt'> & {
   filedAt?: string;
@@ -100,8 +100,8 @@ const DocumentsStep: React.FC<WizardStepProps> = ({
       <DescriptionText>
         Link essential documentation to your asset, such as prospectuses,
         agreements and more. A hash of the document can be recorded to create an
-        immutable audit trail of asset documentation on the Polymesh
-        blockchain.For more information, visit the{' '}
+        immutable audit trail of asset documentation on the Polymesh blockchain.
+        For more information, visit the{' '}
         <StyledLink
           href="https://developers.polymesh.network/core/assets/#document-references"
           target="_blank"

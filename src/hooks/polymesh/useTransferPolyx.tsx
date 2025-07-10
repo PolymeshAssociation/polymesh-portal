@@ -1,10 +1,10 @@
-import { useContext, useState, useEffect } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { UnsubCallback } from '@polymeshassociation/polymesh-sdk/types';
-import { PolymeshContext } from '~/context/PolymeshContext';
+import { useContext, useEffect, useState } from 'react';
 import { AccountContext } from '~/context/AccountContext';
-import { notifyError } from '~/helpers/notifications';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { notifyError } from '~/helpers/notifications';
 
 export interface ITransfer {
   amount: string;
@@ -33,11 +33,19 @@ const useTransferPolyx = () => {
     if (!sdk || !selectedAccount) return undefined;
 
     let unsubCb: UnsubCallback | null = null;
-    try {
-      (async () => {
+    let isMounted = true;
+
+    const setupSubscription = async () => {
+      try {
         unsubCb = await sdk.accountManagement.getAccountBalance(
           { account: selectedAccount },
           async (balance) => {
+            // Check if component is still mounted and account hasn't changed
+            if (!isMounted) {
+              if (unsubCb) unsubCb();
+              return;
+            }
+
             setAvailableBalance(balance.free);
 
             const getMaxTransferablePolyx = async (
@@ -48,10 +56,12 @@ const useTransferPolyx = () => {
                 to: selectedAccount,
                 memo: withMemo ? 'Dummy memo' : undefined,
               });
+
               const transferFees = await transferTx.getTotalFees();
               const transferFee = transferFees.fees.total;
               const payingAccount =
                 transferFees.payingAccountData.account.address;
+
               // check if the account is subsidised
               const max =
                 payingAccount === selectedAccount
@@ -60,8 +70,10 @@ const useTransferPolyx = () => {
                       new BigNumber(0),
                     )
                   : balance.free;
+
               return max;
             };
+
             try {
               const [maxTransferable, maxTransferableWithMemo] =
                 await Promise.all([
@@ -69,24 +81,38 @@ const useTransferPolyx = () => {
                   getMaxTransferablePolyx(true),
                 ]);
 
-              setMaxTransferablePolyx(maxTransferable);
-              setMaxTransferablePolyxWithMemo(maxTransferableWithMemo);
+              if (isMounted) {
+                setMaxTransferablePolyx(maxTransferable);
+                setMaxTransferablePolyxWithMemo(maxTransferableWithMemo);
+              }
             } catch (error) {
-              setMaxTransferablePolyx(balance.free);
-              setMaxTransferablePolyxWithMemo(balance.free);
-              notifyError(
-                'Error estimating transaction fee. The max transferable amount does not account for transaction fees',
-              );
+              if (isMounted) {
+                setMaxTransferablePolyx(balance.free);
+                setMaxTransferablePolyxWithMemo(balance.free);
+
+                notifyError(
+                  'Error estimating transaction fee. The max transferable amount does not account for transaction fees',
+                );
+              }
             }
           },
         );
-      })();
-    } catch (error) {
-      notifyError((error as Error).message);
-    }
+      } catch (error) {
+        if (isMounted) {
+          notifyError((error as Error).message);
+        }
+      }
+    };
 
-    return () => (unsubCb ? unsubCb() : undefined);
-  }, [sdk, selectedAccount]);
+    setupSubscription();
+
+    return () => {
+      isMounted = false;
+      if (unsubCb) {
+        unsubCb();
+      }
+    };
+  }, [sdk, selectedAccount, isTransactionInProgress]);
 
   const checkAddressValidity = (address: string) => {
     if (!sdk) return false;

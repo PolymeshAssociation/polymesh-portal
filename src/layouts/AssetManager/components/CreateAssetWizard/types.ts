@@ -1,21 +1,22 @@
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   AssetDocument,
+  ClaimType,
   CollectionKeyInput,
+  ConditionTarget,
+  ConditionType,
+  CountryCode,
+  InputStatClaim,
+  InputTrustedClaimIssuer,
   KnownAssetType,
   MetadataType,
   RegisterMetadataParams,
-  SecurityIdentifier,
-  SetVenueFilteringParams,
-  ConditionTarget,
-  ConditionType,
-  ClaimType,
   ScopeType,
-  CountryCode,
-  StatType,
-  InputStatClaim,
-  InputTrustedClaimIssuer,
+  SecurityIdentifier,
   SetAssetRequirementsParams,
+  SetVenueFilteringParams,
+  StatType,
+  TrustedFor,
 } from '@polymeshassociation/polymesh-sdk/types';
 
 export interface WizardStepProps {
@@ -56,9 +57,7 @@ export interface WizardData {
   metadata: (RegisterMetadataParams & { id?: number; type: MetadataType })[];
   claimIssuers: {
     identity: string;
-    trustedFor:
-      | (ClaimType | { type: ClaimType.Custom; customClaimTypeId: BigNumber })[]
-      | null;
+    trustedFor: TrustedFor[] | null;
   }[];
   complianceRules: SetAssetRequirementsParams;
   initialSupply?: BigNumber;

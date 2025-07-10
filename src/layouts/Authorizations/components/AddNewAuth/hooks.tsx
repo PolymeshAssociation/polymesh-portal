@@ -1,3 +1,13 @@
+import { yupResolver } from '@hookform/resolvers/yup';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import {
+  Asset,
+  AuthorizationType,
+  CustomPermissionGroup,
+  KnownPermissionGroup,
+  PermissionGroupType,
+  TickerReservation,
+} from '@polymeshassociation/polymesh-sdk/types';
 import {
   useCallback,
   useContext,
@@ -7,29 +17,19 @@ import {
   useState,
 } from 'react';
 import { FieldValues, useForm, ValidationMode } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import {
-  AuthorizationType,
-  CustomPermissionGroup,
-  KnownPermissionGroup,
-  PermissionGroupType,
-  TickerReservation,
-  Asset,
-} from '@polymeshassociation/polymesh-sdk/types';
-import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import { AuthorizationsContext } from '~/context/AuthorizationsContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { PortfolioContext } from '~/context/PortfolioContext';
-import { AuthorizationsContext } from '~/context/AuthorizationsContext';
 import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { removeTimezoneOffset } from '~/helpers/dateTime';
 import { notifyError, notifyWarning } from '~/helpers/notifications';
 import {
-  INPUT_NAMES,
-  IFieldValues,
-  disabledAuthTypes,
   AllowedAuthTypes,
+  disabledAuthTypes,
+  IFieldValues,
+  INPUT_NAMES,
 } from './constants';
-import { removeTimezoneOffset } from '~/helpers/dateTime';
 
 export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
   const {
@@ -422,6 +422,13 @@ export const useSubmitHandler = () => {
         return;
       }
 
+      // Check if portfolio is a NumberedPortfolio (not default portfolio)
+      if (!('id' in portfolioEntity)) {
+        notifyError(
+          'Portfolio custody can only be transferred for numbered portfolios, not default portfolios',
+        );
+        return;
+      }
       const expiry = utcExpiry
         ? removeTimezoneOffset(new Date(utcExpiry))
         : null;
@@ -639,13 +646,18 @@ export const useSubmitHandler = () => {
     },
   };
 
+  // Filter portfolios to exclude default portfolio for PortfolioCustody
+  const filteredPortfolios = useMemo(() => {
+    return allPortfolios.filter((portfolio) => portfolio.id !== 'default');
+  }, [allPortfolios]);
+
   return {
     submitHandler,
     entityData: {
       [AuthorizationType.TransferTicker]: tickerReservations,
       [AuthorizationType.TransferAssetOwnership]: heldAssets,
       [AuthorizationType.BecomeAgent]: heldAssets,
-      [AuthorizationType.PortfolioCustody]: allPortfolios,
+      [AuthorizationType.PortfolioCustody]: filteredPortfolios,
     },
     typesWithRequiredEntityData: [
       AuthorizationType.TransferTicker,
