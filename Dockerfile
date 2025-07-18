@@ -6,7 +6,7 @@ ARG DEBIAN_VERSION=bookworm
 
 ################################################################
 
-ARG NODE_VERSION=hydrogen
+ARG NODE_VERSION=22
 ARG NODE_CONTAINER_TAG=${NODE_VERSION}-${DEBIAN_VERSION}-slim
 
 ################################################################
@@ -18,8 +18,7 @@ FROM node:${NODE_CONTAINER_TAG} as builder
 ################################################################
 
 USER root
-RUN npm i -g npm && \
-    npm i -g yarn --force && \
+RUN corepack enable && \
     npm i -g node-gyp
 
 ################################################################
@@ -38,13 +37,13 @@ WORKDIR /srv
 RUN chown -R node:node /srv/ && \
     chmod 0750 /srv/
 
-COPY --chown=node:node package.json yarn.lock /srv/
-RUN chmod 0640 /srv/package.json /srv/yarn.lock
+COPY --chown=node:node package.json yarn.lock .yarnrc.yml /srv/
+RUN chmod 0640 /srv/package.json /srv/yarn.lock /srv/.yarnrc.yml
 
 ################################################################
 
 USER node
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 ################################################################
 
@@ -59,7 +58,7 @@ RUN cat /srv/.env.production | \
 ################################################################
 ################################################################
 
-FROM nginx:stable-bullseye
+FROM nginx:stable-bookworm
 
 ################################################################
 

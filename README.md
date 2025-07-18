@@ -89,10 +89,20 @@ The Polymesh Portal is open source. Contribute through bug reports, feature requ
    cd polymesh-portal
    ```
 
-3. Install dependencies using Yarn:
+3. Ensure you are using a compatible version of Node.js and Corepack is enabled:
 
    ```shell
-   yarn
+   corepack enable
+   nvm install 22
+   nvm use 22
+   node --version # should show v22.x.x
+   yarn --version # should show v4.x.x or higher
+   ```
+
+4. Install dependencies using Yarn:
+
+   ```shell
+   yarn install
    ```
 
 ## Configuration
