@@ -119,9 +119,10 @@ export const DidInfo = () => {
     if (!activeIdentity) {
       return (
         <Text size="small">
-          Complete onboarding to link this key to a new Polymesh identity. If
-          you have already completed onboarding and want to assign this key to
-          an existing account,{' '}
+          You must be onboarded to execute identity and asset related
+          transactions. Complete onboarding to link this key to a new Polymesh
+          identity. If you have already completed onboarding and want to assign
+          this key to an existing account,{' '}
           <StyledLink
             href={import.meta.env.VITE_ASSIGN_KEY_URL}
             target="_blank"

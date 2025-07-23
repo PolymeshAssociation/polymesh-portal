@@ -333,7 +333,7 @@ export const StakingAccountInfo = () => {
     if (nominations.length === 0) {
       return (
         <StyledStakingMessage>
-          You must nomination at least one operator to begin staking.
+          You must nominate at least one operator to begin staking.
         </StyledStakingMessage>
       );
     }
