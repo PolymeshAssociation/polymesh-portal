@@ -1,10 +1,10 @@
 import { useContext } from 'react';
 import { AccountContext } from '~/context/AccountContext';
 import { useAuthContext } from '~/context/AuthContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import { ViewUnverified } from './components/ViewUnverified';
 import { ViewVerified } from './components/ViewVerified';
 import { StyledAuthContainer } from './styles';
-import { PolymeshContext } from '~/context/PolymeshContext';
 
 const UserAuth = () => {
   const { selectedAccount, identity, identityLoading } =

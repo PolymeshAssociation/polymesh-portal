@@ -1,39 +1,40 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import {
   NetworkInfo,
   UnsubCallback,
 } from '@polymeshassociation/browser-extension-signing-manager/types';
-import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
-import { PolymeshContext } from '~/context/PolymeshContext';
-import { useNotifications } from '~/hooks/polymesh';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { CopyToClipboard, Icon, Modal } from '~/components';
+import { NAV_LINKS } from '~/constants/routes';
+import { AccountContext } from '~/context/AccountContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { formatBalance, formatDid } from '~/helpers/formatters';
+import { notifyError } from '~/helpers/notifications';
+import { useNotifications } from '~/hooks/polymesh';
+import { useWindowWidth } from '~/hooks/utility';
 import {
+  Heading,
   NotificationCounter,
-  WarningLabel,
   SkeletonLoader,
   Text,
+  WarningLabel,
 } from '../UiKit';
+import { NewsletterSignup } from '../UserAuth/components/NewsletterSignup';
 import {
-  StyledSidebar,
-  MenuButton,
-  StyledNetworkWrapper,
-  StyledNetworkStatus,
-  StatusDot,
-  StyledNavList,
-  StyledNavLink,
   ExpandedLinks,
-  StyledExpandedLink,
+  MenuButton,
   SoonLabel,
-  WarningLabelWrapper,
-  StyledCloseMenuButton,
+  StatusDot,
   StyledAccountInfo,
+  StyledCloseMenuButton,
+  StyledExpandedLink,
+  StyledNavLink,
+  StyledNavList,
+  StyledNetworkStatus,
+  StyledNetworkWrapper,
+  StyledSidebar,
+  WarningLabelWrapper,
 } from './styles';
-import { NAV_LINKS } from '~/constants/routes';
-import { notifyError } from '~/helpers/notifications';
-import { useWindowWidth } from '~/hooks/utility';
-import { formatBalance, formatDid } from '~/helpers/formatters';
-import { AccountContext } from '~/context/AccountContext';
-import { NewsModal } from './components/NewsModal';
 
 interface ISidebarProps {
   mobileMenuOpen: boolean;
@@ -296,7 +297,10 @@ const Sidebar: React.FC<ISidebarProps> = ({
           handleClose={() => setNewsModal(false)}
           customWidth="fit-content"
         >
-          <NewsModal />
+          <Heading type="h4" marginBottom={32}>
+            Stay Connected
+          </Heading>
+          <NewsletterSignup variant="modal" />
         </Modal>
       )}
     </StyledSidebar>

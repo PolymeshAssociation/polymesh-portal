@@ -1,26 +1,26 @@
-import { useEffect, useState, useContext } from 'react';
 import { Identity } from '@polymeshassociation/polymesh-sdk/types';
-import { PolymeshContext } from '~/context/PolymeshContext';
+import { useContext, useEffect, useState } from 'react';
+import { CopyToClipboard, DidSelect, Icon } from '~/components';
+import { Button, SkeletonLoader, Text } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
-import { useAuthContext } from '~/context/AuthContext';
 import { EKeyIdentityStatus } from '~/context/AccountContext/constants';
-import { Icon, CopyToClipboard, DidSelect } from '~/components';
-import { Text, Button, SkeletonLoader } from '~/components/UiKit';
-import {
-  StyledWrapper,
-  IconWrapper,
-  StyledTopInfo,
-  StyledVerifiedLabel,
-  StyledDidWrapper,
-  StyledBottomInfo,
-  StyledButtonWrapper,
-  Separator,
-  StyledLink,
-} from './styles';
+import { useAuthContext } from '~/context/AuthContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import { formatDid } from '~/helpers/formatters';
+import { useWindowWidth } from '~/hooks/utility';
 import { Details } from './components/Details';
 import { systematicCddProviders } from './constants';
-import { useWindowWidth } from '~/hooks/utility';
+import {
+  IconWrapper,
+  Separator,
+  StyledBottomInfo,
+  StyledButtonWrapper,
+  StyledDidWrapper,
+  StyledLink,
+  StyledTopInfo,
+  StyledVerifiedLabel,
+  StyledWrapper,
+} from './styles';
 
 export const DidInfo = () => {
   const {
@@ -119,10 +119,10 @@ export const DidInfo = () => {
     if (!activeIdentity) {
       return (
         <Text size="small">
-          You must be onboarded to execute identity and asset related
-          transactions. Complete onboarding to link this key to a new Polymesh
-          identity. If you have already completed onboarding and want to assign
-          this key to an existing account,{' '}
+          A DID is required to execute identity and asset related transactions.
+          Complete onboarding to link this key to a new Polymesh identity. If
+          you have already completed onboarding and want to assign this key to
+          an existing account,{' '}
           <StyledLink
             href={import.meta.env.VITE_ASSIGN_KEY_URL}
             target="_blank"

@@ -4,7 +4,7 @@ import connectBackground from '~/assets/connect-bg.svg';
 export const StyledAuthContainer = styled.section`
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 16px;
   border-radius: 24px;
   padding: 24px;
   background: black;
@@ -36,5 +36,13 @@ export const StyledCloseButton = styled.button`
   transition: opacity 250ms ease-out;
   &:hover {
     opacity: 0.8;
+  }
+`;
+
+export const StyledAuthButtons = styled.div`
+  display: flex;
+  gap: 16px;
+  @media screen and (max-width: 520px) {
+    flex-direction: column;
   }
 `;

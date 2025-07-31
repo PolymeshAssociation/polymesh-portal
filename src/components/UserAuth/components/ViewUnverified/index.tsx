@@ -1,13 +1,20 @@
 import { useContext } from 'react';
+import { Icon } from '~/components';
+import { Text } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
-import { PolymeshContext } from '~/context/PolymeshContext';
-import { useAuthContext } from '~/context/AuthContext';
 import { EKeyIdentityStatus } from '~/context/AccountContext/constants';
+import { useAuthContext } from '~/context/AuthContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import { EActionButtonStatus } from '../../constants';
+import {
+  StyledAuthButtons,
+  StyledAuthHeader,
+  StyledAuthHeaderWrap,
+  StyledCloseButton,
+} from '../../styles';
 import { ActionButton } from '../ActionButton';
+import { NewsletterSignup } from '../NewsletterSignup';
 import { PopupWelcome } from '../PopupWelcome';
-import { StyledAuthHeaderWrap, StyledAuthHeader } from '../../styles';
-import { StyledAuthButtons } from './styles';
 
 export const ViewUnverified = () => {
   const {
@@ -15,7 +22,7 @@ export const ViewUnverified = () => {
   } = useContext(PolymeshContext);
   const { selectedAccount, keyCddVerificationInfo } =
     useContext(AccountContext);
-  const { setConnectPopup, setIdentityPopup } = useAuthContext();
+  const { setConnectPopup, setIdentityPopup, setShowAuth } = useAuthContext();
 
   const getIdentityButtonStatus = () => {
     if (
@@ -38,7 +45,18 @@ export const ViewUnverified = () => {
 
       <StyledAuthHeaderWrap>
         <StyledAuthHeader>Get Started with Polymesh</StyledAuthHeader>
+        {selectedAccount && (
+          <StyledCloseButton
+            onClick={() => setShowAuth(false)}
+            data-event-category="onboarding"
+            data-event-action="close"
+            data-event-name="unverified-view"
+          >
+            <Icon name="CloseCircledIcon" size="24px" />
+          </StyledCloseButton>
+        )}
       </StyledAuthHeaderWrap>
+
       <StyledAuthButtons>
         <ActionButton
           title={selectedAccount ? 'Step 1 (Complete)' : 'Step 1'}
@@ -62,7 +80,7 @@ export const ViewUnverified = () => {
               ? 'Step 2 (In Progress)'
               : 'Step 2'
           }
-          label="Verify Identity"
+          label="Verify Identity*"
           icon="ConnectIdentityIcon"
           status={getIdentityButtonStatus()}
           data-event-category="onboarding"
@@ -81,6 +99,17 @@ export const ViewUnverified = () => {
           }
         />
       </StyledAuthButtons>
+
+      {selectedAccount && (
+        <Text size="medium" marginBottom={8}>
+          <strong>* Identity verification is optional:</strong> You can send and
+          receive POLYX and participate in staking, as a nominator, without
+          Identity verification. Identity verification is required for assets
+          and identity-related features.
+        </Text>
+      )}
+
+      {selectedAccount && <NewsletterSignup variant="inline" compact />}
     </>
   );
 };
