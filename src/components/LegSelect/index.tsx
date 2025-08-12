@@ -1,26 +1,26 @@
-import { useState, useMemo, useContext, useCallback } from 'react';
 import {
   FungibleAsset,
   Identity,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { DropdownSelect, SkeletonLoader } from '~/components/UiKit';
+import { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { TSelectedAsset } from '~/components/AssetForm/constants';
+import { DropdownSelect, SkeletonLoader } from '~/components/UiKit';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { IPortfolioData } from '~/context/PortfolioContext/constants';
+import { notifyError } from '~/helpers/notifications';
+import AssetForm from '../AssetForm';
+import { INonFungibleAsset, MAX_NFTS_PER_LEG } from '../AssetForm/constants';
+import { useAssetForm } from '../AssetForm/hooks';
+import { checkAvailableBalance, getPortfolioDataFromIdentity } from './helpers';
 import {
-  InputWrapper,
-  StyledLabel,
-  StyledInput,
-  StyledPlaceholder,
-  StyledError,
   FlexWrapper,
+  InputWrapper,
+  StyledError,
+  StyledInput,
+  StyledLabel,
+  StyledPlaceholder,
 } from './styles';
 import { TSelectedLeg } from './types';
-import { IPortfolioData } from '~/context/PortfolioContext/constants';
-import { PolymeshContext } from '~/context/PolymeshContext';
-import { getPortfolioDataFromIdentity, checkAvailableBalance } from './helpers';
-import { notifyError } from '~/helpers/notifications';
-import { useAssetForm } from '../AssetForm/hooks';
-import { INonFungibleAsset, MAX_NFTS_PER_LEG } from '../AssetForm/constants';
-import AssetForm from '../AssetForm';
 
 interface ILegSelectProps {
   index: number;
@@ -82,6 +82,15 @@ const LegSelect: React.FC<ILegSelectProps> = ({
   const selectedLeg = useMemo(() => {
     return selectedLegs.find((leg) => leg.index === index);
   }, [selectedLegs, index]);
+
+  // Keep a ref of latest selectedLegs to avoid stale closures in callbacks
+  const selectedLegsRef = useRef<TSelectedLeg[]>(selectedLegs);
+  selectedLegsRef.current = selectedLegs;
+
+  // Helper to retrieve the most up-to-date leg for this index
+  const getCurrentLeg = useCallback((): TSelectedLeg | undefined => {
+    return selectedLegsRef.current.find((leg) => leg.index === index);
+  }, [index]);
 
   // Helper function to validate the DID input and identity existence
   const validateDid = useCallback(
@@ -192,21 +201,23 @@ const LegSelect: React.FC<ILegSelectProps> = ({
   // Helper function to handle an invalid identity scenario
   const handleInvalidIdentity = useCallback(
     (role: 'sender' | 'receiver') => {
-      if (selectedLeg) {
-        const updatedLeg = removePropertiesFromLeg(selectedLeg, role);
+      const currentLeg = getCurrentLeg();
+      if (currentLeg) {
+        const updatedLeg = removePropertiesFromLeg(currentLeg, role);
         handleUpdateLeg(Number(index), updatedLeg as TSelectedLeg);
       }
 
       setRoleSpecificState(role, null, true, []);
     },
-    [handleUpdateLeg, index, selectedLeg],
+    [getCurrentLeg, handleUpdateLeg, index],
   );
 
   // Helper function to handle an invalid portfolio scenario
   const handleInvalidPortfolio = useCallback(
     (role: 'sender' | 'receiver') => {
-      if (selectedLeg) {
-        const updatedLeg = removePropertiesFromLeg(selectedLeg, role);
+      const currentLeg = getCurrentLeg();
+      if (currentLeg) {
+        const updatedLeg = removePropertiesFromLeg(currentLeg, role);
         handleUpdateLeg(Number(index), updatedLeg as TSelectedLeg);
       }
       const identity = role === 'sender' ? senderIdentity : receiverIdentity;
@@ -216,11 +227,11 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       setRoleSpecificState(role, identity, false, portfolios);
     },
     [
+      getCurrentLeg,
       handleUpdateLeg,
       index,
       receiverIdentity,
       receiverPortfolios,
-      selectedLeg,
       senderIdentity,
       senderPortfolios,
     ],
@@ -239,8 +250,9 @@ const LegSelect: React.FC<ILegSelectProps> = ({
 
         setRoleSpecificState(role, identity, false, portfolios);
 
-        if (selectedLeg) {
-          const updatedLeg = removePropertiesFromLeg(selectedLeg, role);
+        const currentLeg = getCurrentLeg();
+        if (currentLeg) {
+          const updatedLeg = removePropertiesFromLeg(currentLeg, role);
           handleUpdateLeg(Number(index), updatedLeg as TSelectedLeg);
         }
       } catch (error) {
@@ -249,7 +261,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
         setPortfolioLoading((prev) => ({ ...prev, [role]: false }));
       }
     },
-    [handleUpdateLeg, index, sdk, selectedLeg],
+    [getCurrentLeg, handleUpdateLeg, index, sdk],
   );
 
   const isSenderEqualReceiver = useCallback(
@@ -332,8 +344,10 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           });
           if (selectedSendingPortfolio) {
             setSelectedSenderPortfolio(selectedSendingPortfolio);
+            // Use a function to get the most current selectedLegs state
+            const currentLeg = getCurrentLeg() || { index };
             const updatedLeg = {
-              ...selectedLeg,
+              ...currentLeg,
               from: selectedSendingPortfolio.portfolio,
             } as TSelectedLeg;
             handleUpdateLeg(index, updatedLeg);
@@ -348,8 +362,10 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           });
           if (selectedReceivingPortfolio) {
             setSelectedReceiverPortfolio(selectedReceivingPortfolio);
+            // Use a function to get the most current selectedLegs state
+            const currentLeg = getCurrentLeg() || { index };
             const updatedLeg = {
-              ...selectedLeg,
+              ...currentLeg,
               to: selectedReceivingPortfolio.portfolio,
             } as TSelectedLeg;
             handleUpdateLeg(index, updatedLeg);
@@ -366,7 +382,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       handleInvalidPortfolio,
       index,
       receiverPortfolios,
-      selectedLeg,
+      getCurrentLeg,
       senderPortfolios,
     ],
   );

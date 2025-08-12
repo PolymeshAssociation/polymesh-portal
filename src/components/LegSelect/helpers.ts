@@ -1,16 +1,16 @@
-import {
-  Identity,
-  NumberedPortfolio,
-  DefaultPortfolio,
-  FungibleAsset,
-} from '@polymeshassociation/polymesh-sdk/types';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   DefaultPortfolio as DefaultPortfolioInstance,
   NumberedPortfolio as NumberedPortfolioInstance,
 } from '@polymeshassociation/polymesh-sdk/internal';
+import {
+  DefaultPortfolio,
+  FungibleAsset,
+  Identity,
+  NumberedPortfolio,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
-import { TSelectedLeg, ISelectedLegFungible } from './types';
+import { ISelectedLegFungible, TSelectedLeg } from './types';
 
 export const getPortfolioDataFromIdentity = async (
   identity: Identity,
@@ -76,6 +76,10 @@ export const getTotalSelectedInSamePortfolio = ({
   assetIndex: number;
 }) => {
   const totalSameAssets = selectedLegs.filter((leg) => {
+    if (!leg.from || !leg.asset) {
+      return false;
+    }
+
     return (
       leg.asset === asset.id &&
       (leg.from as DefaultPortfolio | NumberedPortfolio).owner.did === sender
@@ -84,7 +88,7 @@ export const getTotalSelectedInSamePortfolio = ({
 
   return (totalSameAssets as ISelectedLegFungible[]).reduce(
     (acc, { from, amount, index }) => {
-      if (index === assetIndex) {
+      if (!from || !amount || index === assetIndex) {
         return acc;
       }
       if (
