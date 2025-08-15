@@ -6,6 +6,7 @@ export const StyledButton = styled.button<{
   $marginTop?: number;
   $marginBottom?: number;
   $round?: boolean;
+  $square?: boolean;
 }>`
   ${({ $variant, $marginTop, $marginBottom, theme }) => css`
     display: inline-flex;
@@ -110,6 +111,18 @@ export const StyledButton = styled.button<{
           }
         `
       : ''}
+    ${$variant === EButtonVariants.OUTLINE
+      ? css`
+          color: inherit;
+          background: transparent;
+          border-color: ${theme.colors.textSecondary};
+
+          &:hover:enabled,
+          &:focus:enabled {
+            background: ${theme.colors.hoverBackground};
+          }
+        `
+      : ''}
   ${$variant === EButtonVariants.SUCCESS
       ? css`
           color: ${theme.colors.textSuccess};
@@ -140,8 +153,19 @@ export const StyledButton = styled.button<{
         `
       : ''}
 
+  ${({ $square, theme }) =>
+    $square
+      ? css`
+          min-width: 48px;
+          width: 48px;
+          height: 48px;
+          border-radius: ${theme.borderRadius.small};
+          padding: 0;
+        `
+      : ''}
+
   @media screen and (min-width: 480px) {
-    ${({ $round }) => ($round ? '' : 'min-width: 128px;')}
+    ${({ $round, $square }) => ($round || $square ? '' : 'min-width: 128px;')}
     gap: 10px;
     height: 48px;
   }

@@ -1,4 +1,7 @@
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="24" height="24" rx="12" fill="#1E1E1E"/>
-<path d="M12.75 6.75V11.25H13.6275L12 12.8775L10.3725 11.25H11.25V6.75H12.75ZM14.25 5.25H9.75V9.75H6.75L12 15L17.25 9.75H14.25V5.25ZM17.25 16.5H6.75V18H17.25V16.5Z" fill="white"/>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+	<g stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="miter" stroke-linecap="square" shape-rendering="geometricPrecision">
+		<path d="M10 4H14V10H16.2L12 14.4L7.8 10H10V4Z" />
+		<line x1="6" y1="18" x2="18" y2="18" />
+	</g>
 </svg>
+

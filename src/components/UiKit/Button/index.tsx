@@ -10,6 +10,7 @@ const Button: React.FC<IButtonProps> = ({
   disabled,
   className,
   round,
+  square,
   matomoData,
 }) => {
   return (
@@ -22,6 +23,7 @@ const Button: React.FC<IButtonProps> = ({
       disabled={disabled}
       className={className}
       $round={round}
+      $square={square}
       data-event-category={matomoData?.eventCategory}
       data-event-action={matomoData?.eventAction}
       data-event-name={matomoData?.eventName}

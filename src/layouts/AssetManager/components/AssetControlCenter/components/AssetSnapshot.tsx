@@ -1,36 +1,36 @@
 import React, { useState } from 'react';
-import { Icon, CopyToClipboard } from '~/components';
+import { CopyToClipboard, Icon } from '~/components';
 import { Button, RefreshButton } from '~/components/UiKit';
 import { formatDid, formatUuid } from '~/helpers/formatters';
 import { useAssetActionsContext } from '../context';
-import type { AssetSnapshotProps } from '../types';
-import { IssueTokensModal } from './modals/IssueTokensModal';
-import { MoreActionsModal } from './modals/MoreActionsModal';
-import { RedeemTokensModal } from './modals/RedeemTokensModal';
-import { ForceTransferModal } from './modals/ForceTransferModal';
-import { TransferOwnershipModal } from './modals/TransferOwnershipModal';
-import { EditNameModal } from './modals/EditNameModal';
-import { EditTypeModal } from './modals/EditTypeModal';
-import { SetFundingRoundModal } from './modals/SetFundingRoundModal';
-import { LinkTickerModal } from './modals/LinkTickerModal';
-import { MintNftsModal } from './modals/MintNftsModal';
 import {
-  SnapshotContainer,
+  AssetIdentifier,
+  AssetName,
+  AssetNameContainer,
+  DetailItem,
+  DetailLabel,
+  DetailsCard,
+  DetailsGrid,
+  DetailValue,
+  EditIcon,
   HeaderBar,
   LeftSection,
   RightSection,
-  AssetName,
-  AssetNameContainer,
-  EditIcon,
-  AssetIdentifier,
+  SnapshotContainer,
   StatusActions,
   StatusBadge,
-  DetailsCard,
-  DetailsGrid,
-  DetailItem,
-  DetailLabel,
-  DetailValue,
 } from '../styles';
+import type { AssetSnapshotProps } from '../types';
+import { EditNameModal } from './modals/EditNameModal';
+import { EditTypeModal } from './modals/EditTypeModal';
+import { ForceTransferModal } from './modals/ForceTransferModal';
+import { IssueTokensModal } from './modals/IssueTokensModal';
+import { LinkTickerModal } from './modals/LinkTickerModal';
+import { MintNftsModal } from './modals/MintNftsModal';
+import { MoreActionsModal } from './modals/MoreActionsModal';
+import { RedeemTokensModal } from './modals/RedeemTokensModal';
+import { SetFundingRoundModal } from './modals/SetFundingRoundModal';
+import { TransferOwnershipModal } from './modals/TransferOwnershipModal';
 
 export const AssetSnapshot: React.FC<AssetSnapshotProps> = ({
   asset,
@@ -59,6 +59,8 @@ export const AssetSnapshot: React.FC<AssetSnapshotProps> = ({
     issueTokens,
     redeemTokens,
     redeemNfts,
+    mintNft,
+    mintNftBatch,
     controllerTransfer,
     transferOwnership,
     modifyAssetName,
@@ -317,6 +319,9 @@ export const AssetSnapshot: React.FC<AssetSnapshotProps> = ({
       <MintNftsModal
         isOpen={isMintNftsModalOpen}
         onClose={() => setIsMintNftsModalOpen(false)}
+        asset={asset}
+        onMintNft={mintNft}
+        onMintNftBatch={mintNftBatch}
         transactionInProcess={transactionInProcess}
       />
     </SnapshotContainer>

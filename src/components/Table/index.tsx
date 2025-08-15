@@ -2,21 +2,21 @@ import { Table as ReactTable, flexRender } from '@tanstack/react-table';
 import { Dispatch, SetStateAction } from 'react';
 import { Icon, Pagination } from '~/components';
 import { useWindowWidth } from '~/hooks/utility';
-import { Button, Heading, DropdownSelect, SkeletonLoader } from '../UiKit';
+import { Button, DropdownSelect, Heading, SkeletonLoader } from '../UiKit';
 import {
-  StyledTableWrapper,
-  StyledTableHeader,
+  StyledLoaderPlaceholder,
+  StyledMobileCell,
+  StyledMobileRow,
+  StyledMobileTable,
+  StyledPerPageSelect,
+  StyledPerPageWrapper,
+  StyledTabItem,
   StyledTableBody,
   StyledTableFooter,
+  StyledTableHeader,
   StyledTablePlaceholder,
-  StyledLoaderPlaceholder,
+  StyledTableWrapper,
   StyledTabsWrapper,
-  StyledTabItem,
-  StyledPerPageWrapper,
-  StyledPerPageSelect,
-  StyledMobileTable,
-  StyledMobileRow,
-  StyledMobileCell,
 } from './styles';
 
 interface IDownloadButton {
@@ -235,7 +235,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
                     variant="primary"
                     disabled={downloadButton.disabled}
                   >
-                    <Icon name="DownloadIcon" className="download-icon" />
+                    <Icon name="DownloadIcon" />
                     {downloadButton.buttonText}
                   </Button>
                 )}

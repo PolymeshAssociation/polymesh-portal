@@ -1,26 +1,27 @@
-import { useContext } from 'react';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import type { NftMetadataInput } from '@polymeshassociation/polymesh-sdk/types';
 import {
   Asset,
-  FungibleAsset,
-  NftCollection,
-  IssueTokensParams,
-  RedeemTokensParams,
   AssetMediatorParams,
   ControllerTransferParams,
-  NftControllerTransferParams,
+  DefaultPortfolio,
+  FungibleAsset,
+  IssueTokensParams,
+  KnownAssetType,
   LinkTickerToAssetParams,
+  ModifyAssetParams,
+  NftCollection,
+  NftControllerTransferParams,
+  NumberedPortfolio,
+  RedeemTokensParams,
+  SecurityIdentifier,
   SetVenueFilteringParams,
   TransferAssetOwnershipParams,
-  ModifyAssetParams,
-  SecurityIdentifier,
-  KnownAssetType,
-  NumberedPortfolio,
-  DefaultPortfolio,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import { useContext } from 'react';
+import { PortfolioContext } from '~/context/PortfolioContext';
 import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { notifyError } from '~/helpers/notifications';
-import { PortfolioContext } from '~/context/PortfolioContext';
 
 const useAssetActions = (
   asset: Asset | undefined,
@@ -584,10 +585,76 @@ const useAssetActions = (
     }
   };
 
+  const mintNft = async ({
+    metadata,
+    portfolioId,
+    onTransactionRunning,
+  }: {
+    metadata: NftMetadataInput[];
+    portfolioId?: BigNumber;
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset || !('issue' in asset)) {
+      notifyError('Asset does not support NFT minting');
+      return;
+    }
+
+    try {
+      await executeTransaction(
+        asset.issue({ metadata, portfolioId }),
+        createOptions(onTransactionRunning, getPortfoliosData),
+      );
+    } catch (error) {
+      notifyError('Failed to mint NFT');
+      throw error;
+    }
+  };
+
+  const mintNftBatch = async ({
+    nftsMetadata,
+    portfolioId,
+    onTransactionRunning,
+  }: {
+    nftsMetadata: NftMetadataInput[][];
+    portfolioId?: BigNumber;
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset || !('issue' in asset)) {
+      notifyError('Asset does not support NFT minting');
+      return;
+    }
+
+    try {
+      if (nftsMetadata.length === 1) {
+        // Single NFT minting
+        await mintNft({
+          metadata: nftsMetadata[0],
+          portfolioId,
+          onTransactionRunning,
+        });
+      } else {
+        // Batch NFT minting - create multiple issue transactions
+        const batchCalls = nftsMetadata.map((metadata) =>
+          asset.issue({ metadata, portfolioId }),
+        );
+
+        await executeBatchTransaction(
+          batchCalls,
+          createOptions(onTransactionRunning, getPortfoliosData),
+        );
+      }
+    } catch (error) {
+      notifyError('Failed to mint NFTs');
+      throw error;
+    }
+  };
+
   return {
     issueTokens,
     redeemTokens,
     redeemNfts,
+    mintNft,
+    mintNftBatch,
     addRequiredMediators,
     removeRequiredMediators,
     controllerTransfer,

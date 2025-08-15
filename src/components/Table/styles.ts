@@ -155,26 +155,6 @@ export const StyledTableFooter = styled.div`
     margin-right: auto;
     margin-left: 24px;
     padding-right: 30px;
-
-    & .download-icon {
-      & svg path {
-        fill: ${({ theme }) => theme.colors.textPink};
-        transition: fill 0.3s;
-      }
-      & svg rect {
-        fill: transparent;
-      }
-      transform: scale(1.5);
-    }
-
-    &:hover:enabled .download-icon svg path,
-    &:focus:enabled .download-icon svg path {
-      fill: ${({ theme }) => theme.colors.pinkBackground};
-    }
-
-    &:disabled .download-icon svg path {
-      fill: ${({ theme }) => theme.colors.textDisabled};
-    }
   }
 `;
 

@@ -8,6 +8,7 @@ export enum EButtonVariants {
   MODAL_PRIMARY = 'modalPrimary',
   MODAL_SECONDARY = 'modalSecondary',
   SUCCESS = 'success',
+  OUTLINE = 'outline',
 }
 
 export interface IButtonProps {
@@ -19,5 +20,6 @@ export interface IButtonProps {
   disabled?: boolean;
   className?: string;
   round?: boolean;
+  square?: boolean;
   matomoData?: MatomoData;
 }

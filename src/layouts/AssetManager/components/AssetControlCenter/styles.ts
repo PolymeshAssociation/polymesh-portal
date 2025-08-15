@@ -106,9 +106,21 @@ export const StatusActions = styled.div`
   gap: 12px;
 
   @media screen and (max-width: 768px) {
-    flex-direction: column;
+    /* Two-row grid on mobile: 
+       Row 1: Primary button spans full width
+       Row 2: More Actions (1fr) + Refresh (auto) */
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-auto-rows: auto;
     width: 100%;
-    gap: 8px;
+    row-gap: 8px;
+    column-gap: 8px;
+
+    /* Primary button (first child) spans both columns */
+    & > *:first-child {
+      grid-column: 1 / -1;
+      width: 100%;
+    }
   }
 `;
 
