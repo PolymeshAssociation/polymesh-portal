@@ -128,15 +128,23 @@ export const StakingAccountInfo = () => {
     try {
       let tx: SubmittableExtrinsic<'promise', ISubmittableResult>;
       if (action === EModalActions.BOND) {
-        const transactions = [
-          polkadotApi.tx.staking.bond(
-            (args as IStakeArgs).controller,
-            (args as IStakeArgs).amount,
-            (args as IStakeArgs).payee,
-          ),
-          polkadotApi.tx.staking.nominate((args as IStakeArgs).nominators),
-        ];
-        tx = polkadotApi.tx.utility.batchAll(transactions);
+        const { controller, amount, payee, nominators } = args as IStakeArgs;
+        const { bond, nominate, setController } = polkadotApi.tx.staking;
+
+        if (selectedAccount === controller) {
+          tx = polkadotApi.tx.utility.batchAll([
+            bond(controller, amount, payee),
+            nominate(nominators),
+          ]);
+        } else {
+          // stash != controller
+          // controller should be set after initial nominations
+          tx = polkadotApi.tx.utility.batchAll([
+            bond(selectedAccount, amount, payee),
+            nominate(nominators),
+            setController(controller),
+          ]);
+        }
       } else if (action === EModalActions.WITHDRAW) {
         const optSpans = await polkadotApi.query.staking.slashingSpans(
           stashAddress!,
