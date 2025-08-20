@@ -24,7 +24,9 @@ import SecurityIdentifiersStep from './steps/SecurityIdentifiersStep';
 // import TransferRestrictionsStep from './steps/TransferRestrictionsStep';
 import { PATHS } from '~/constants/routes';
 import { AccountContext } from '~/context/AccountContext';
+import { AssetContext } from '~/context/AssetContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { PortfolioContext } from '~/context/PortfolioContext';
 import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { notifyError } from '~/helpers/notifications';
 import { useWindowWidth } from '~/hooks/utility';
@@ -38,6 +40,8 @@ const CreateAssetWizard = () => {
     api: { sdk },
   } = useContext(PolymeshContext);
   const { account } = useContext(AccountContext);
+  const { refreshAssets } = useContext(AssetContext);
+  const { getPortfoliosData } = useContext(PortfolioContext);
   const { isMobile } = useWindowWidth();
   const { executeBatchTransaction } = useTransactionStatusContext();
   const [currentStep, setCurrentStep] = useState(0);
@@ -335,6 +339,8 @@ const CreateAssetWizard = () => {
           );
           await executeBatchTransaction(transactionPromises, {
             onSuccess: () => {
+              refreshAssets();
+              getPortfoliosData();
               navigate(`${PATHS.ASSET_MANAGER}/${nextAssetId}`);
             },
           });
