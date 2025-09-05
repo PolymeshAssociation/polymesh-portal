@@ -45,11 +45,21 @@ export const StyledLinkList = styled.ul`
   gap: 24px;
 `;
 
-export const StyledLink = styled.a`
+export const StyledFooterLink = styled.a`
   display: inline-block;
   padding: 16px 0;
   font-weight: 500;
   font-size: 14px;
+  text-decoration: none;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.textPrimary};
+  }
 
   @media screen and (max-width: 1023px) {
     padding: 8px 0;

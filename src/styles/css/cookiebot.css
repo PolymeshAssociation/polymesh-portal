@@ -1,0 +1,151 @@
+/* Force Poppins font on all Cookiebot banner elements */
+#CybotCookiebotDialog,
+#CybotCookiebotDialog * {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+/* Cookiebot Dark Mode Theme Overrides */
+/* Uses CSS custom properties that are dynamically set by cookiebot.ts */
+
+/* Main dialog background */
+#CybotCookiebotDialog[data-theme='dark'] {
+  background-color: var(--cookiebot-modal-bg) !important;
+  color: var(--cookiebot-text-primary) !important;
+}
+
+/* Content wrapper */
+#CybotCookiebotDialog[data-theme='dark'] .CybotCookiebotDialogContentWrapper {
+  background-color: var(--cookiebot-modal-bg) !important;
+  color: var(--cookiebot-text-primary) !important;
+}
+
+/* Toggle switch sliders - fix contrast issue */
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogBodyLevelButtonSlider {
+  background-color: var(--cookiebot-input-border) !important;
+}
+
+/* Active/checked toggle sliders */
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogBodyLevelButton:checked
+  + .CybotCookiebotDialogBodyLevelButtonSlider {
+  background-color: var(--cookiebot-button-bg) !important;
+}
+
+/* Toggle switch slider wrapper for better contrast */
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogBodyLevelButtonSliderWrapper {
+  background-color: transparent !important;
+}
+
+/* Fix the fader overlays - use dark background instead of white */
+#CybotCookiebotDialog[data-theme='dark'] .CybotCookiebotFader {
+  background: linear-gradient(
+    90deg,
+    var(--cookiebot-modal-bg) 0%,
+    transparent 50%,
+    var(--cookiebot-modal-bg) 100%
+  ) !important;
+}
+
+#CybotCookiebotDialog[data-theme='dark'] .CybotCookiebotFaderLeft {
+  background: linear-gradient(
+    90deg,
+    var(--cookiebot-modal-bg) 0%,
+    transparent 100%
+  ) !important;
+}
+
+#CybotCookiebotDialog[data-theme='dark'] .CybotCookiebotFaderRight {
+  background: linear-gradient(
+    270deg,
+    var(--cookiebot-modal-bg) 0%,
+    transparent 100%
+  ) !important;
+}
+
+/* Text elements */
+#CybotCookiebotDialog[data-theme='dark'] * {
+  color: var(--cookiebot-text-primary) !important;
+}
+
+/* Headers and titles */
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogBodyContentHeading,
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogDetailBodyContentCookieInfoTitle {
+  color: var(--cookiebot-text-primary) !important;
+}
+
+/* Secondary text */
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogDetailBodyContentCookieInfoDescription,
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogDetailBodyContentCookieInfoFooterContent {
+  color: var(--cookiebot-text-secondary) !important;
+}
+
+/* Fix consent count visibility - make it more prominent */
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogDetailBulkConsentCount {
+  color: var(--cookiebot-text-primary) !important;
+  background-color: var(--cookiebot-button-bg) !important;
+  border: 1px solid var(--cookiebot-button-bg) !important;
+}
+
+/* Fix external link arrows - should match text color */
+#CybotCookiebotDialog[data-theme='dark'] .CybotExternalLinkArrow {
+  filter: invert(1) !important;
+}
+
+/* Fix expand arrows and pseudo-elements */
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogBodyLevelButtonIABContainerToggleHide,
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogBodyLevelButtonIABContainerToggleShow,
+#CybotCookiebotDialog[data-theme='dark'] a:after,
+#CybotCookiebotDialog[data-theme='dark'] a:before,
+#CybotCookiebotDialog[data-theme='dark'] button:after,
+#CybotCookiebotDialog[data-theme='dark'] button:before {
+  border-color: var(--cookiebot-text-primary) !important;
+}
+
+/* Additional arrow fixes for expand/collapse indicators */
+#CybotCookiebotDialog[data-theme='dark'] .CybotCookiebotDialogCollapsed:after,
+#CybotCookiebotDialog[data-theme='dark'] .CybotExpandLink:after {
+  border-color: var(--cookiebot-text-primary) !important;
+}
+
+/* Borders */
+#CybotCookiebotDialog[data-theme='dark'],
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogDetailBodyContentCookieContainerHeader,
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogDetailBodyContentCookieGroup {
+  border-color: var(--cookiebot-border) !important;
+}
+
+/* Buttons */
+#CybotCookiebotDialog[data-theme='dark'] .CybotCookiebotDialogBodyButton {
+  background-color: var(--cookiebot-button-bg) !important;
+  color: var(--cookiebot-button-text) !important;
+  border: 1px solid var(--cookiebot-button-bg) !important;
+}
+
+#CybotCookiebotDialog[data-theme='dark'] .CybotCookiebotDialogBodyButton:hover {
+  background-color: var(--cookiebot-button-hover-bg) !important;
+  color: var(--cookiebot-button-bg) !important;
+}
+
+/* Navigation items */
+#CybotCookiebotDialog[data-theme='dark'] .CybotCookiebotDialogNavItemLink {
+  color: var(--cookiebot-text-primary) !important;
+  border-color: var(--cookiebot-border) !important;
+}
+
+#CybotCookiebotDialog[data-theme='dark'] .CybotCookiebotDialogNavItemLink:hover,
+#CybotCookiebotDialog[data-theme='dark']
+  .CybotCookiebotDialogNavItemLink.CybotCookiebotDialogActive {
+  background-color: var(--cookiebot-hover-bg) !important;
+  color: var(--cookiebot-text-primary) !important;
+}

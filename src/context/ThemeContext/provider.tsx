@@ -4,12 +4,12 @@ import { Themes } from './constants';
 
 const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
 
-const isSystemThemeEnabled = (): boolean => {
+export const isSystemThemeEnabled = (): boolean => {
   const systemThemeEnabled = localStorage.getItem('useSystemTheme');
   return systemThemeEnabled === 'true';
 };
 
-const getSystemTheme = (): Themes => {
+export const getSystemTheme = (): Themes => {
   const isDarkTheme = darkThemeMq.matches;
   return isDarkTheme ? Themes.Dark : Themes.Light;
 };

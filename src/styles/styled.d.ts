@@ -42,6 +42,9 @@ declare module 'styled-components' {
       border: string;
       inputBorder: string;
       cardBackground: string;
+      shadeBackground: string;
+      mediumGrayText: string;
+      lightGrayBorder: string;
     };
     borderRadius: {
       small: string;

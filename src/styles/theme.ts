@@ -39,17 +39,17 @@ const light = {
   mode: 'light',
   colors: {
     landingBackground: '#FFFFFF',
-    dashboardBackground: '#F5F5F5',
+    dashboardBackground: '#F5F5F5', // Reverted from #FFFFFF
     modalBackground: '#FFFFFF',
     disabledBackground: '#F0F0F0',
     pinkBackground: '#FFEBF1',
     successBackground: '#D4F7E7',
     warningBackground: '#FFF3CD',
     errorBackground: '#F8D7DA',
-    textPrimary: '#1E1E1E',
+    textPrimary: '#1E1E1E', // Reverted from #212529
     textSecondary: '#727272',
     textBlue: '#170087',
-    textPink: '#FF2E72',
+    textPink: '#FF2E72', // Reverted from #E83E8C
     textPurple: '#43195B',
     textSuccess: '#00AA5E',
     textWarning: '#E3A30C',
@@ -63,15 +63,26 @@ const light = {
     warning: '#E3A30C',
     success: '#00AA5E',
     info: '#170087',
-    focusBorder: '#FF2E72',
+    focusBorder: '#FF2E72', // Reverted from #E83E8C
     buttonBackground: '#FFEBF1',
-    buttonHoverBackground: '#FF2E72',
+    buttonHoverBackground: '#FF2E72', // Reverted from #E83E8C
     buttonText: '#FFFFFF',
     hoverBackground: 'rgba(0, 0, 0, 0.05)',
     border: '#E0E0E0',
     inputBorder: '#8f8f8f',
     cardBackground: '#FFFFFF',
+    // Cookiebot-specific colors (preserved for banner styling):
+    shadeBackground: '#F8F9FA',
+    mediumGrayText: '#6C757D',
+    lightGrayBorder: '#DEE2E6',
   },
+  // Cookiebot-preferred color values (for potential banner-specific overrides):
+  // If you need to revert to Cookiebot-optimized colors:
+  // textPrimary: '#212529'
+  // textPink: '#E83E8C'
+  // dashboardBackground: '#FFFFFF'
+  // focusBorder: '#E83E8C'
+  // buttonHoverBackground: '#E83E8C'
 } as DefaultTheme;
 
 const dark = {
@@ -88,7 +99,7 @@ const dark = {
     warningBackground: '#FBF3D0',
     errorBackground: '#F5C6CB',
     textPrimary: '#FBFBFB',
-    textSecondary: '#C7C7C7;',
+    textSecondary: '#C7C7C7',
     textBlue: '#DCD3FF',
     textPink: '#FAD1DC',
     textPurple: '#97266D',
@@ -112,6 +123,9 @@ const dark = {
     border: '#666666',
     inputBorder: '#565656',
     cardBackground: '#3A3A3A',
+    shadeBackground: '#2A2A2A',
+    mediumGrayText: '#8A8A8A',
+    lightGrayBorder: '#565656',
   },
 } as DefaultTheme;
 
@@ -121,10 +135,10 @@ export const theme = {
 };
 
 export const GlobalStyle = createGlobalStyle`
-body {
+  body {
     background-color: ${({ theme: styledTheme }) =>
       styledTheme.colors.landingBackground};
-  color: ${({ theme: styledTheme }) => styledTheme.colors.textPrimary};
+    color: ${({ theme: styledTheme }) => styledTheme.colors.textPrimary};
   }
 
  input {

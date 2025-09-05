@@ -5,6 +5,10 @@ import ReactDOM from 'react-dom/client';
 import 'react-toastify/dist/ReactToastify.css';
 import App from './App';
 import './styles/css/index.css';
+import { loadCookiebotScript } from './utils/cookiebot';
+
+// Load Cookiebot script before rendering the app
+loadCookiebotScript();
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

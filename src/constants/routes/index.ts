@@ -118,7 +118,6 @@ export const ROUTES = [
     label: 'Asset Control Center',
     component: AssetControlCenter,
   },
-
   {
     path: PATHS.NOT_FOUND,
     label: null,

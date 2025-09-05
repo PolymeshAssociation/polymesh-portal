@@ -13,6 +13,7 @@ interface IModalProps {
   children: React.ReactNode;
   disableOverflow?: boolean;
   customWidth?: string;
+  flexLayout?: boolean;
 }
 
 const modalRoot = document.getElementById('modal-root') as Element;
@@ -22,6 +23,7 @@ const Modal: React.FC<IModalProps> = ({
   children,
   disableOverflow,
   customWidth,
+  flexLayout,
 }) => {
   const { isMobile } = useWindowWidth();
 
@@ -59,6 +61,7 @@ const Modal: React.FC<IModalProps> = ({
       <StyledModal
         $disableOverflow={disableOverflow}
         $customWidth={customWidth}
+        $flexLayout={flexLayout}
       >
         {isMobile && (
           <StyledCloseButton onClick={handleClose}>

@@ -30,9 +30,12 @@ export const StyledBackdrop = styled.div`
 export const StyledModal = styled.div<{
   $disableOverflow?: boolean;
   $customWidth?: string;
+  $flexLayout?: boolean;
 }>`
   position: relative;
   padding: 24px;
+  ${({ $flexLayout }) =>
+    $flexLayout ? 'display: flex; flex-direction: column;' : ''}
   @media screen and (max-width: 767px) {
     width: 100vw;
     height: 100vh;

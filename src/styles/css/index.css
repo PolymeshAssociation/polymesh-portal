@@ -1,4 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 @import './common.css';
 @import './typography.css';
-@import './toasts.css'
+@import './toasts.css';
+@import './cookiebot.css';
+
+/* Hide Cookiebot branding across all pages */
+#CybotCookiebotDialogPoweredbyCybot,
+#CybotCookiebotDialogPoweredByText,
+#CookiebotWidget .CookiebotWidget-body .CookiebotWidget-main-logo {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
