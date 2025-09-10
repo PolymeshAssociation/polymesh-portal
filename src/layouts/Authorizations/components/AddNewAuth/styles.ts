@@ -192,3 +192,15 @@ export const SoonLabel = styled.div`
   font-size: 12px;
   color: #43195b;
 `;
+
+export const StyledLink = styled.a`
+  display: 'inline';
+  font-size: 'inherit';
+  vertical-align: 'baseline';
+  text-decoration: underline;
+  cursor: pointer;
+  color: ${({ theme }) => theme.colors.textPink};
+  &:hover {
+    color: ${({ theme }) => theme.colors.textPurple};
+  }
+`;

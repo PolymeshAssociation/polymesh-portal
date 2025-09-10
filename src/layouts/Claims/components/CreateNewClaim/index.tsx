@@ -1,19 +1,16 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { useContext, useState } from 'react';
 import { ClaimType, ScopeType } from '@polymeshassociation/polymesh-sdk/types';
+import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { PolymeshContext } from '~/context/PolymeshContext';
 import { Modal } from '~/components';
-import { Heading, Button, Text, DropdownSelect } from '~/components/UiKit';
+import { Button, DropdownSelect, Heading, Text } from '~/components/UiKit';
+import { ClaimsContext } from '~/context/ClaimsContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { useWindowWidth } from '~/hooks/utility';
+import { DescriptionText } from '~/layouts/AssetManager/components/CreateAssetWizard/styles';
+import { StyledLink } from '~/layouts/Claims/components/CreateNewClaim/styles';
 import { NewClaimItem } from './components/NewClaimItem';
-import {
-  StyledScrollableWrapper,
-  StyledButtonsWrapper,
-  StyledInput,
-  StyledLabel,
-  StyledInputWrapper,
-  StyledErrorMessage,
-} from './styles';
 import {
   CLAIM_ITEMS,
   FORM_CONFIG,
@@ -21,9 +18,14 @@ import {
   ISelectedClaimItem,
 } from './constants';
 import { createClaimsData, createPlaceholderByScopeType } from './helpers';
-import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
-import { ClaimsContext } from '~/context/ClaimsContext';
-import { useWindowWidth } from '~/hooks/utility';
+import {
+  StyledButtonsWrapper,
+  StyledErrorMessage,
+  StyledInput,
+  StyledInputWrapper,
+  StyledLabel,
+  StyledScrollableWrapper,
+} from './styles';
 
 interface ICreateNewClaimProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -103,6 +105,20 @@ export const CreateNewClaim: React.FC<ICreateNewClaimProps> = ({
         Create New Claim
       </Heading>
       <StyledScrollableWrapper>
+        <DescriptionText>
+          Issue an attestation about another identity&apos;s compliance status
+          or characteristics. Claims can include KYC verification, accreditation
+          status, jurisdiction, or custom attestations. These claims are used by
+          asset issuers to enforce compliance rules for transfers.{' '}
+          <StyledLink
+            href="https://developers.polymesh.network/compliance/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Learn more
+          </StyledLink>
+          .
+        </DescriptionText>{' '}
         <StyledInputWrapper $marginBottom={16}>
           <StyledLabel htmlFor="targetDid">Target DID</StyledLabel>
           <StyledInput

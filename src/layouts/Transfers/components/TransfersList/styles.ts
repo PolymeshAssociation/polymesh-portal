@@ -187,7 +187,6 @@ export const StyledPerPageSelect = styled.div`
 
   & select {
     position: relative;
-    z-index: 1;
     appearance: none;
     display: flex;
     align-items: flex-end;

@@ -1,41 +1,43 @@
-import { useState, useEffect, useRef } from 'react';
 import { AuthorizationType } from '@polymeshassociation/polymesh-sdk/types';
-import { FieldValues, SubmitHandler, Controller } from 'react-hook-form';
+import { useEffect, useRef, useState } from 'react';
+import { Controller, FieldValues, SubmitHandler } from 'react-hook-form';
 import { Icon, Modal } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
+import { splitCamelCase } from '~/helpers/formatters';
+import { useWindowWidth } from '~/hooks/utility';
+import { DescriptionText } from '~/layouts/AssetManager/components/CreateAssetWizard/styles';
+import { StyledLink } from '~/layouts/Authorizations/components/AddNewAuth/styles';
 import {
-  StyledTypeSelectWrapper,
-  StyledButtonsWrapper,
-  StyledExpandedTypeSelect,
-  StyledTypeOption,
-  StyledTypeSelect,
-  StyledInputGroup,
-  InputWrapper,
-  StyledLabel,
-  StyledInput,
-  StyledSelect,
-  StyledSelectWrapper,
-  StyledErrorMessage,
-  SoonLabel,
-  StyledWarningMessage,
-} from './styles';
+  AllowedAuthTypes,
+  AuthTypesWithRequiredEntity,
+  disabledAuthTypes,
+  IFieldValues,
+  selectInputsDefaultValue,
+} from './constants';
 import {
   configureInputs,
-  renderParsedSelectedValue,
+  isAsset,
   isPortfolioData,
   isTickerReservation,
-  isAsset,
+  renderParsedSelectedValue,
 } from './helpers';
 import { useCustomForm, useSubmitHandler } from './hooks';
 import {
-  disabledAuthTypes,
-  selectInputsDefaultValue,
-  IFieldValues,
-  AllowedAuthTypes,
-  AuthTypesWithRequiredEntity,
-} from './constants';
-import { useWindowWidth } from '~/hooks/utility';
-import { splitCamelCase } from '~/helpers/formatters';
+  InputWrapper,
+  SoonLabel,
+  StyledButtonsWrapper,
+  StyledErrorMessage,
+  StyledExpandedTypeSelect,
+  StyledInput,
+  StyledInputGroup,
+  StyledLabel,
+  StyledSelect,
+  StyledSelectWrapper,
+  StyledTypeOption,
+  StyledTypeSelect,
+  StyledTypeSelectWrapper,
+  StyledWarningMessage,
+} from './styles';
 
 interface IAddNewAuthProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -136,6 +138,21 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
       <Heading type="h4" marginBottom={32}>
         Create New Authorization
       </Heading>
+      <DescriptionText>
+        Create a permission request that allows another identity or key to
+        perform specific actions on your behalf. The target party must accept
+        the authorization before it becomes active. Common uses include key
+        management, asset transfers, portfolio custody, and agent permissions.
+        <span> Learn more at </span>
+        <StyledLink
+          href="https://developers.polymesh.network/authorizations/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Authorizations Documentation
+        </StyledLink>
+        .
+      </DescriptionText>
       <Text bold marginBottom={3}>
         Authorization Type
       </Text>
