@@ -116,7 +116,8 @@ const watchThemeChanges = () => {
  */
 export const loadCookiebotScript = (): void => {
   const cookiebotId = import.meta.env.VITE_COOKIEBOT_ID;
-  const cookiebotEnabled = import.meta.env.VITE_COOKIEBOT_ENABLED === 'true';
+  const config = { enabled: import.meta.env.VITE_COOKIEBOT_ENABLED };
+  const cookiebotEnabled = config.enabled === 'true';
   const cookiebotGeoRegions = import.meta.env.VITE_COOKIEBOT_GEOREGIONS;
 
   // Skip loading if Cookiebot is disabled or ID is not set

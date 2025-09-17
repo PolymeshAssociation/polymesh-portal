@@ -22,7 +22,8 @@ const CookieDeclarationModal: React.FC<ICookieDeclarationModalProps> = ({
   const modalContentRef = useRef<HTMLDivElement>(null);
 
   const cookiebotId = import.meta.env.VITE_COOKIEBOT_ID;
-  const cookiebotEnabled = import.meta.env.VITE_COOKIEBOT_ENABLED === 'true';
+  const config = { enabled: import.meta.env.VITE_COOKIEBOT_ENABLED };
+  const cookiebotEnabled = config.enabled === 'true';
 
   useEffect(() => {
     // Set theme properties whenever theme changes
