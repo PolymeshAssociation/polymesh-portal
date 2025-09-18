@@ -2,13 +2,21 @@
  * Cookiebot utility functions for dynamic script loading
  */
 
+import { Themes } from '../context/ThemeContext/constants';
+import {
+  getSystemTheme,
+  isSystemThemeEnabled,
+} from '../context/ThemeContext/provider';
 import { theme as appTheme } from '../styles/theme';
 import { setCookiebotThemeProperties } from './cookiebotTheme';
-import {
-  isSystemThemeEnabled,
-  getSystemTheme,
-} from '../context/ThemeContext/provider';
-import { Themes } from '../context/ThemeContext/constants';
+
+/**
+ * Check if Cookiebot is enabled from environment variable
+ * Handles both boolean and string values, similar to isProviderEnabled pattern
+ */
+const isCookiebotEnabled = (envVar: string | undefined): boolean => {
+  return envVar?.toLowerCase() === 'true';
+};
 
 /**
  * Safely get item from localStorage with error handling
@@ -116,8 +124,9 @@ const watchThemeChanges = () => {
  */
 export const loadCookiebotScript = (): void => {
   const cookiebotId = import.meta.env.VITE_COOKIEBOT_ID;
-  const config = { enabled: import.meta.env.VITE_COOKIEBOT_ENABLED };
-  const cookiebotEnabled = config.enabled === 'true';
+  const cookiebotEnabled = isCookiebotEnabled(
+    import.meta.env.VITE_COOKIEBOT_ENABLED ?? 'false',
+  );
   const cookiebotGeoRegions = import.meta.env.VITE_COOKIEBOT_GEOREGIONS;
 
   // Skip loading if Cookiebot is disabled or ID is not set

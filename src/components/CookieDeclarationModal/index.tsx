@@ -6,6 +6,14 @@ import { setCookiebotThemeProperties } from '~/utils/cookiebotTheme';
 import { Button, Heading, Text } from '../UiKit';
 import { StyledButtonsWrapper, StyledModalContent } from './styles';
 
+/**
+ * Check if Cookiebot is enabled from environment variable
+ * Handles both boolean and string values, similar to isProviderEnabled pattern
+ */
+const isCookiebotEnabled = (envVar: string | undefined): boolean => {
+  return envVar?.toLowerCase() === 'true';
+};
+
 interface ICookieDeclarationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -22,8 +30,9 @@ const CookieDeclarationModal: React.FC<ICookieDeclarationModalProps> = ({
   const modalContentRef = useRef<HTMLDivElement>(null);
 
   const cookiebotId = import.meta.env.VITE_COOKIEBOT_ID;
-  const config = { enabled: import.meta.env.VITE_COOKIEBOT_ENABLED };
-  const cookiebotEnabled = config.enabled === 'true';
+  const cookiebotEnabled = isCookiebotEnabled(
+    import.meta.env.VITE_COOKIEBOT_ENABLED ?? 'false',
+  );
 
   useEffect(() => {
     // Set theme properties whenever theme changes
