@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
+import { SecurityIdentifier as SDKSecurityIdentifier } from '@polymeshassociation/polymesh-sdk/types';
 import { Icon } from '~/components';
 import { SecurityIdentifiersTable } from '../SecurityIdentifiersTable';
-import { ComingSoonModal } from '../modals';
+import {
+  AddSecurityIdentifierModal,
+  EditSecurityIdentifierModal,
+} from '../modals';
 import { useAssetActionsContext } from '../../context';
 import type { TabProps, SecurityIdentifier } from '../../types';
 import {
@@ -20,22 +24,34 @@ interface SecurityIdentifiersSectionProps {
 export const SecurityIdentifiersSection: React.FC<
   SecurityIdentifiersSectionProps
 > = ({ asset }) => {
-  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
-  const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [identifierToEdit, setIdentifierToEdit] =
+    useState<SecurityIdentifier | null>(null);
 
   const { modifyAssetIdentifiers, transactionInProcess } =
     useAssetActionsContext();
 
+  // Extract security identifiers from asset details
+  const securityIdentifiers: SecurityIdentifier[] =
+    asset?.details?.assetIdentifiers?.map((identifier, index) => ({
+      id: `${identifier.type}-${identifier.value}-${index}`,
+      type: identifier.type,
+      value: identifier.value,
+    })) || [];
+
   const handleAddSecurityIdentifier = () => {
-    setComingSoonFeature('add security identifier');
-    setComingSoonModalOpen(true);
+    setAddModalOpen(true);
   };
 
   const handleEditSecurityIdentifier = (identifierId: string) => {
-    setComingSoonFeature('edit security identifier');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Edit identifier:', identifierId);
+    const identifierFound = securityIdentifiers.find(
+      (identifier) => identifier.id === identifierId,
+    );
+    if (identifierFound) {
+      setIdentifierToEdit(identifierFound);
+      setEditModalOpen(true);
+    }
   };
 
   const handleRemoveSecurityIdentifier = async (identifierId: string) => {
@@ -55,13 +71,19 @@ export const SecurityIdentifiersSection: React.FC<
     await modifyAssetIdentifiers(remainingIdentifiers);
   };
 
-  // Extract security identifiers from asset details
-  const securityIdentifiers: SecurityIdentifier[] =
-    asset?.details?.assetIdentifiers?.map((identifier, index) => ({
-      id: `${identifier.type}-${identifier.value}-${index}`,
-      type: identifier.type,
-      value: identifier.value,
-    })) || [];
+  const handleAddIdentifierSubmit = async (
+    newIdentifiers: SDKSecurityIdentifier[],
+    onTransactionRunning?: () => void | Promise<void>,
+  ) => {
+    await modifyAssetIdentifiers(newIdentifiers, onTransactionRunning);
+  };
+
+  const handleEditIdentifierSubmit = async (
+    updatedIdentifiers: SDKSecurityIdentifier[],
+    onTransactionRunning?: () => void | Promise<void>,
+  ) => {
+    await modifyAssetIdentifiers(updatedIdentifiers, onTransactionRunning);
+  };
 
   return (
     <>
@@ -94,10 +116,24 @@ export const SecurityIdentifiersSection: React.FC<
         </SectionContent>
       </TabSection>
 
-      <ComingSoonModal
-        isOpen={comingSoonModalOpen}
-        onClose={() => setComingSoonModalOpen(false)}
-        feature={comingSoonFeature}
+      <AddSecurityIdentifierModal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        existingIdentifiers={securityIdentifiers}
+        onAddIdentifier={handleAddIdentifierSubmit}
+        transactionInProcess={transactionInProcess}
+      />
+
+      <EditSecurityIdentifierModal
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setIdentifierToEdit(null);
+        }}
+        identifierToEdit={identifierToEdit}
+        allIdentifiers={securityIdentifiers}
+        onEditIdentifier={handleEditIdentifierSubmit}
+        transactionInProcess={transactionInProcess}
       />
     </>
   );
