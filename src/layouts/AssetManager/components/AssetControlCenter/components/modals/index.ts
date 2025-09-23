@@ -1,6 +1,8 @@
+export { AddAgentModal } from './AddAgentModal';
 export { AddMediatorModal } from './AddMediatorModal';
 export { AddSecurityIdentifierModal } from './AddSecurityIdentifierModal';
 export { ComingSoonModal } from './ComingSoonModal';
+export { EditAgentModal } from './EditAgentModal';
 export { EditNameModal } from './EditNameModal';
 export { EditSecurityIdentifierModal } from './EditSecurityIdentifierModal';
 export { EditTypeModal } from './EditTypeModal';
