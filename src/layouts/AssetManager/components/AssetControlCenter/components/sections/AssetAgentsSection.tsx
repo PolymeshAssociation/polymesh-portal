@@ -1,19 +1,24 @@
-import React, { useState } from 'react';
-import { AgentWithGroup } from '@polymeshassociation/polymesh-sdk/types';
-import { Icon } from '~/components';
-import { AgentsTable } from '../AgentsTable';
-import { ComingSoonModal } from '../modals';
-import { useAssetActionsContext } from '../../context';
-import type { TabProps } from '../../types';
-import { notifyError } from '~/helpers/notifications';
 import {
-  TabSection,
+  AgentWithGroup,
+  CustomPermissionGroup,
+  Identity,
+  KnownPermissionGroup,
+} from '@polymeshassociation/polymesh-sdk/types';
+import React, { useState } from 'react';
+import { Icon } from '~/components';
+import { notifyError } from '~/helpers/notifications';
+import { useAssetActionsContext } from '../../context';
+import {
+  AddButton,
+  EmptyState,
+  SectionContent,
   SectionHeader,
   SectionTitle,
-  SectionContent,
-  EmptyState,
-  AddButton,
+  TabSection,
 } from '../../styles';
+import type { TabProps } from '../../types';
+import { AgentsTable } from '../AgentsTable';
+import { AddAgentModal, EditAgentModal } from '../modals';
 
 interface AssetAgentsSectionProps {
   asset: TabProps['asset'];
@@ -22,16 +27,22 @@ interface AssetAgentsSectionProps {
 export const AssetAgentsSection: React.FC<AssetAgentsSectionProps> = ({
   asset,
 }) => {
-  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
-  const [comingSoonFeature, setComingSoonFeature] = useState('');
-  const { removeAssetAgent, transactionInProcess } = useAssetActionsContext();
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [agentToEdit, setAgentToEdit] = useState<AgentWithGroup | null>(null);
+
+  const {
+    removeAssetAgent,
+    inviteAssetAgent,
+    modifyAgentPermissions,
+    transactionInProcess,
+  } = useAssetActionsContext();
 
   // Extract agents directly from asset details
-  const agents: AgentWithGroup[] = asset?.details?.agentsWithGroups || [];
+  const agents: AgentWithGroup[] = asset.details?.agentsWithGroups || [];
 
-  const handleManageAgents = () => {
-    setComingSoonFeature('add asset agent');
-    setComingSoonModalOpen(true);
+  const handleAddAgent = () => {
+    setAddModalOpen(true);
   };
 
   const handleRemoveAgent = async (agentDid: string) => {
@@ -43,10 +54,28 @@ export const AssetAgentsSection: React.FC<AssetAgentsSectionProps> = ({
   };
 
   const handleEditAgent = (agentDid: string) => {
-    setComingSoonFeature('edit asset agent');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Edit agent:', agentDid);
+    // Find the agent to get current group info
+    const agentWithGroup = agents.find((a) => a.agent.did === agentDid);
+
+    setAgentToEdit(agentWithGroup || null);
+    setEditModalOpen(true);
+  };
+
+  const handleAddAgentSubmit = async (params: {
+    target: string;
+    permissions: KnownPermissionGroup | CustomPermissionGroup;
+    expiry?: Date;
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    await inviteAssetAgent(params);
+  };
+
+  const handleEditAgentSubmit = async (params: {
+    agent: Identity;
+    group: KnownPermissionGroup | CustomPermissionGroup;
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    await modifyAgentPermissions(params);
   };
 
   return (
@@ -54,10 +83,7 @@ export const AssetAgentsSection: React.FC<AssetAgentsSectionProps> = ({
       <TabSection>
         <SectionHeader>
           <SectionTitle>Asset Agents</SectionTitle>
-          <AddButton
-            onClick={handleManageAgents}
-            disabled={transactionInProcess}
-          >
+          <AddButton onClick={handleAddAgent} disabled={transactionInProcess}>
             <Icon name="Plus" size="16px" />
             Add Agents
           </AddButton>
@@ -79,10 +105,24 @@ export const AssetAgentsSection: React.FC<AssetAgentsSectionProps> = ({
         </SectionContent>
       </TabSection>
 
-      <ComingSoonModal
-        isOpen={comingSoonModalOpen}
-        onClose={() => setComingSoonModalOpen(false)}
-        feature={comingSoonFeature}
+      <AddAgentModal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        permissionGroups={asset.details?.permissionGroups}
+        onAddAgent={handleAddAgentSubmit}
+        transactionInProcess={transactionInProcess}
+      />
+
+      <EditAgentModal
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setAgentToEdit(null);
+        }}
+        agentWithGroup={agentToEdit}
+        permissionGroups={asset.details?.permissionGroups}
+        onEditAgent={handleEditAgentSubmit}
+        transactionInProcess={transactionInProcess}
       />
     </>
   );
