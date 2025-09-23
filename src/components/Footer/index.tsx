@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Text } from '~/components/UiKit';
 import { CookieDeclarationModal } from '~/components';
+import { isCookiebotEnabled } from '~/utils/cookiebot';
 import {
   StyledContainer,
   StyledFooter,
@@ -14,6 +15,10 @@ interface IFooterProps {
 
 const Footer: React.FC<IFooterProps> = ({ isLandingPage }) => {
   const [isCookieModalOpen, setIsCookieModalOpen] = useState(false);
+
+  const cookiebotEnabled = isCookiebotEnabled(
+    import.meta.env.VITE_COOKIEBOT_ENABLED ?? 'false',
+  );
 
   const handleOpenCookieModal = () => {
     setIsCookieModalOpen(true);
@@ -49,19 +54,23 @@ const Footer: React.FC<IFooterProps> = ({ isLandingPage }) => {
                 Privacy Policy
               </StyledFooterLink>
             </li>
-            <li>
-              <StyledFooterLink as="button" onClick={handleOpenCookieModal}>
-                Cookie Declaration
-              </StyledFooterLink>
-            </li>
+            {cookiebotEnabled && (
+              <li>
+                <StyledFooterLink as="button" onClick={handleOpenCookieModal}>
+                  Cookie Declaration
+                </StyledFooterLink>
+              </li>
+            )}
           </StyledLinkList>
         </StyledContainer>
       </StyledFooter>
 
-      <CookieDeclarationModal
-        isOpen={isCookieModalOpen}
-        onClose={handleCloseCookieModal}
-      />
+      {cookiebotEnabled && (
+        <CookieDeclarationModal
+          isOpen={isCookieModalOpen}
+          onClose={handleCloseCookieModal}
+        />
+      )}
     </>
   );
 };

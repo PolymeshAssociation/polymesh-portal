@@ -3,16 +3,9 @@ import { useTheme } from 'styled-components';
 import Modal from '~/components/Modal';
 import { useWindowWidth } from '~/hooks/utility';
 import { setCookiebotThemeProperties } from '~/utils/cookiebotTheme';
-import { Button, Heading, Text } from '../UiKit';
+import { isCookiebotEnabled } from '~/utils/cookiebot';
+import { Button, Heading } from '../UiKit';
 import { StyledButtonsWrapper, StyledModalContent } from './styles';
-
-/**
- * Check if Cookiebot is enabled from environment variable
- * Handles both boolean and string values, similar to isProviderEnabled pattern
- */
-const isCookiebotEnabled = (envVar: string | undefined): boolean => {
-  return envVar?.toLowerCase() === 'true';
-};
 
 interface ICookieDeclarationModalProps {
   isOpen: boolean;
@@ -176,34 +169,6 @@ const CookieDeclarationModal: React.FC<ICookieDeclarationModalProps> = ({
   }, [isDeclarationReady]);
 
   if (!isOpen || !isDeclarationReady) return null;
-
-  // Show message if Cookiebot is disabled
-  if (
-    !cookiebotEnabled ||
-    !cookiebotId ||
-    cookiebotId === 'VITE_COOKIEBOT_ID_NOT_SET' ||
-    !/^[a-zA-Z0-9-]+$/.test(cookiebotId)
-  ) {
-    return (
-      <Modal handleClose={onClose} customWidth="600px">
-        <StyledModalContent>
-          <Heading type="h2" marginBottom={12}>
-            Cookie Declaration
-          </Heading>
-          <Text>
-            Cookie declaration is currently disabled or not configured.
-          </Text>
-        </StyledModalContent>
-        {!isMobile && (
-          <StyledButtonsWrapper>
-            <Button variant="modalSecondary" marginTop={40} onClick={onClose}>
-              Close
-            </Button>
-          </StyledButtonsWrapper>
-        )}
-      </Modal>
-    );
-  }
 
   return (
     <Modal

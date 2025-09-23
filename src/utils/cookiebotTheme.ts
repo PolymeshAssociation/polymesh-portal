@@ -49,7 +49,51 @@ const applyCookiebotButtonStyles = (): void => {
       color: var(--cookiebot-button3-text) !important;
       border: 2px solid var(--cookiebot-button3-border) !important;
     }
-    
+
+    /* Specific selector for the OK/Accept button */
+    #CybotCookiebotDialog #CybotCookiebotDialogBodyButtonAccept {
+      background-color: var(--cookiebot-button1-bg) !important;
+      color: var(--cookiebot-button1-text) !important;
+      border: 2px solid var(--cookiebot-button1-border) !important;
+    }
+
+    /* Active tab navigation styling */
+    #CybotCookiebotDialog .CybotCookiebotDialogActive,
+    #CybotCookiebotDialog #CybotCookiebotDialogNavDetails.CybotCookiebotDialogActive {
+      border-bottom-color: var(--cookiebot-button1-bg) !important;
+    }
+
+    /* Tab navigation pseudo-elements for active state */
+    #CybotCookiebotDialog .CybotCookiebotDialogActive::after,
+    #CybotCookiebotDialog #CybotCookiebotDialogNavDetails.CybotCookiebotDialogActive::after {
+      border-bottom-color: var(--cookiebot-button1-bg) !important;
+      background-color: var(--cookiebot-button1-bg) !important;
+    }
+
+    /* Toggle switches (checkboxes) when checked */
+    #CybotCookiebotDialog input[type="checkbox"]:checked + .CybotCookiebotDialogBodyLevelButtonSlider {
+      background-color: var(--cookiebot-button1-bg) !important;
+    }
+
+    /* Toggle switch knobs */
+    #CybotCookiebotDialog input[type="checkbox"]:checked + .CybotCookiebotDialogBodyLevelButtonSlider::before {
+      background-color: var(--cookiebot-button1-text) !important;
+    }
+
+    /* All links in the dialog */
+    #CybotCookiebotDialog a,
+    #CybotCookiebotDialog #CybotCookiebotDialogPoweredbyLink,
+    #CybotCookiebotDialog .CybotCookiebotDialogDetailBodyContentCookieLink {
+      color: var(--cookiebot-button1-bg) !important;
+    }
+
+    /* Link hover states */
+    #CybotCookiebotDialog a:hover,
+    #CybotCookiebotDialog #CybotCookiebotDialogPoweredbyLink:hover,
+    #CybotCookiebotDialog .CybotCookiebotDialogDetailBodyContentCookieLink:hover {
+      color: var(--cookiebot-button1-border) !important;
+    }
+
     /* Fix scrollbar containers in dark theme */
     #CybotCookiebotDialog .CybotCookiebotScrollbarContainer {
       background-color: var(--cookiebot-scrollbar-bg) !important;

@@ -14,7 +14,7 @@ import { setCookiebotThemeProperties } from './cookiebotTheme';
  * Check if Cookiebot is enabled from environment variable
  * Handles both boolean and string values, similar to isProviderEnabled pattern
  */
-const isCookiebotEnabled = (envVar: string | undefined): boolean => {
+export const isCookiebotEnabled = (envVar: string | undefined): boolean => {
   return envVar?.toLowerCase() === 'true';
 };
 
