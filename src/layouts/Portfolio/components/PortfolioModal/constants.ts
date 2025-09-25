@@ -6,11 +6,22 @@ export enum EModalType {
   EDIT = 'edit',
 }
 
-export const modalConfig = {
+interface IModalConfig {
+  name: string;
+  placeholder: string;
+  title: string;
+  description?: string;
+  link?: string;
+}
+
+export const modalConfig: Record<EModalType, IModalConfig> = {
   [EModalType.ADD]: {
     name: 'name',
     placeholder: 'Enter a name for new portfolio',
     title: 'Add Portfolio',
+    description:
+      'Portfolios organize asset balances under your identity. Portfolio control can be assigned to other identities, or secondary keys linked to your identity can be granted permissions to interact with specific portfolios.',
+    link: 'https://developers.polymesh.network/portfolios/',
   },
   [EModalType.EDIT]: {
     name: 'name',
