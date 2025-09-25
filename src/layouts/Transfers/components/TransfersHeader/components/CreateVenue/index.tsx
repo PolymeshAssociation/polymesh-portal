@@ -11,6 +11,8 @@ import { PolymeshContext } from '~/context/PolymeshContext';
 import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { InstructionsContext } from '~/context/InstructionsContext';
 import { useWindowWidth } from '~/hooks/utility';
+import { DescriptionText } from '~/layouts/AssetManager/components/CreateAssetWizard/styles';
+import { StyledLink } from '~/layouts/MultiSig/components/MultiSigItem/components/SignersDropdown/styles';
 
 interface ICreateVenueProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -58,6 +60,21 @@ export const CreateVenue: React.FC<ICreateVenueProps> = ({ toggleModal }) => {
       <Heading type="h4" marginBottom={32}>
         Create New Venue
       </Heading>
+      <DescriptionText>
+        Create an optional venue that provides a logical grouping of settlement
+        instructions. Venues provide a way to organize and control trading
+        activities, such as primary issuance, exchange trading, or fundraising
+        events.
+        <span> Learn more at </span>
+        <StyledLink
+          href="https://developers.polymesh.network/settlement/venues/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Venues Documentation
+        </StyledLink>
+        .
+      </DescriptionText>
       <InputWrapper $marginBottom={24}>
         <StyledLabel htmlFor="description">Description</StyledLabel>
         <StyledInput id="description" {...register('description')} />

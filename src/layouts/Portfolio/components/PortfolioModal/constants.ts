@@ -6,11 +6,35 @@ export enum EModalType {
   EDIT = 'edit',
 }
 
-export const modalConfig = {
+interface IBaseModalConfig {
+  name: string;
+  placeholder: string;
+  title: string;
+}
+
+interface IAddModalConfig extends IBaseModalConfig {
+  description: string;
+  link: string;
+}
+
+interface IEditModalConfig extends IBaseModalConfig {
+  description?: never;
+  link?: never;
+}
+
+type TModalConfig = {
+  [EModalType.ADD]: IAddModalConfig;
+  [EModalType.EDIT]: IEditModalConfig;
+};
+
+export const modalConfig: TModalConfig = {
   [EModalType.ADD]: {
     name: 'name',
-    placeholder: 'Enter a name for new portfolio',
+    placeholder: 'Enter a name for new portfolio ',
     title: 'Add Portfolio',
+    description:
+      'Create a new portfolio to organize assets underneath your identity, and to flexibly assign key permissions and custody. A particular asset can have different balances across portfolios within the same identity.',
+    link: 'https://developers.polymesh.network/portfolios/',
   },
   [EModalType.EDIT]: {
     name: 'name',
@@ -18,6 +42,8 @@ export const modalConfig = {
     title: 'Edit Portfolio Name',
   },
 };
+
+// ...existing code for createFormConfig remains the same...
 
 export const createFormConfig = (nameValue: string) => {
   return {

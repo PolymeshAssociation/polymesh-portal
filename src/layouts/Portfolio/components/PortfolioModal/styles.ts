@@ -27,3 +27,15 @@ export const StyledError = styled.p`
   font-weight: 500;
   color: #db2c3e;
 `;
+
+export const StyledLink = styled.a`
+  display: inline;
+  font-size: inherit;
+  vertical-align: baseline;
+  text-decoration: underline;
+  cursor: pointer;
+  color: ${({ theme }) => theme.colors.textPink};
+  &:hover {
+    color: ${({ theme }) => theme.colors.textPurple};
+  }
+`;
