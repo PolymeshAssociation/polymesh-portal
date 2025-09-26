@@ -1,25 +1,25 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { useContext, useEffect, useState, useMemo, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
 import { Venue, VenueDetails } from '@polymeshassociation/polymesh-sdk/types';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import AssetForm from '~/components/AssetForm';
+import { MAX_NFTS_PER_LEG } from '~/components/AssetForm/constants';
+import { useAssetForm } from '~/components/AssetForm/hooks';
 import { Button, DropdownSelect } from '~/components/UiKit';
 import { InstructionsContext } from '~/context/InstructionsContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import { PortfolioContext } from '~/context/PortfolioContext';
+import { IPortfolioData } from '~/context/PortfolioContext/constants';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { useWindowWidth } from '~/hooks/utility';
 import {
   StyledButtonsWrapper,
   StyledInput,
   StyledLabel,
 } from '../../../styles';
 import { InputWrapper, StyledErrorMessage } from '../../styles';
-import { IBasicFieldValues, BASIC_FORM_CONFIG } from '../config';
-import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { BASIC_FORM_CONFIG, IBasicFieldValues } from '../config';
 import { createBasicInstructionParams } from '../helpers';
-import { useWindowWidth } from '~/hooks/utility';
-import AssetForm from '~/components/AssetForm';
-import { useAssetForm } from '~/components/AssetForm/hooks';
-import { MAX_NFTS_PER_LEG } from '~/components/AssetForm/constants';
-import { IPortfolioData } from '~/context/PortfolioContext/constants';
-import { PolymeshContext } from '~/context/PolymeshContext';
 
 interface IBasicFormProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -147,21 +147,13 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     if (!selectedPortfolio || !sdk) return;
 
     try {
-      const transactionPromise = !selectedVenue
-        ? sdk.settlements.addInstruction(
-            createBasicInstructionParams({
-              selectedAssets: Object.values(selectedAssets),
-              selectedPortfolio,
-              formData,
-            }),
-          )
-        : selectedVenue.addInstruction(
-            createBasicInstructionParams({
-              selectedAssets: Object.values(selectedAssets),
-              selectedPortfolio,
-              formData,
-            }),
-          );
+      const transactionPromise = sdk.settlements.addInstruction(
+        createBasicInstructionParams({
+          selectedAssets: Object.values(selectedAssets),
+          selectedPortfolio,
+          formData,
+        }),
+      );
 
       await executeTransaction(transactionPromise, {
         onTransactionRunning: () => {

@@ -1,31 +1,31 @@
-import {
-  useState,
-  useEffect,
-  useMemo,
-  useContext,
-  useCallback,
-  useRef,
-} from 'react';
-import {
-  Account,
-  MultiSig,
-  Identity,
-  UnsubCallback,
-} from '@polymeshassociation/polymesh-sdk/types';
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
+import {
+  AccountIdentityRelation,
+  AccountKeyType,
+} from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
 import { MultiSig as MultiSigInstance } from '@polymeshassociation/polymesh-sdk/internal';
 import {
-  AccountKeyType,
-  AccountIdentityRelation,
-} from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
-import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
+  Account,
+  Identity,
+  MultiSig,
+  UnsubCallback,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
-import { PolymeshContext } from '../PolymeshContext';
-import AccountContext from './context';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { notifyGlobalError } from '~/helpers/notifications';
-import { IInfoByKey, IKeyCddState } from './constants';
-import { useLocalStorage } from '~/hooks/utility';
 import { useBalance } from '~/hooks/polymesh';
+import { useLocalStorage } from '~/hooks/utility';
+import { PolymeshContext } from '../PolymeshContext';
+import { IInfoByKey, IKeyCddState } from './constants';
+import AccountContext from './context';
 import { fetchCddApplicationStatus } from './helpers';
 
 interface IProviderProps {
@@ -213,7 +213,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
             await sdk.setSigningManager(signingManager);
             connectedSigningManagerRef.current = signingManager;
           }
-          await sdk.setSigningAccount(accountRef.current);
+          sdk.setSigningAccount(accountRef.current);
         } else {
           // if the key is not in all accounts (the signingManager)
           // ensure there is no signing manager attached to the SDK

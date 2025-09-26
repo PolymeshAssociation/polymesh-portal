@@ -1593,16 +1593,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymeshassociation/polymesh-sdk@npm:^28.0.0":
-  version: 28.0.0
-  resolution: "@polymeshassociation/polymesh-sdk@npm:28.0.0"
+"@polymeshassociation/polymesh-sdk@npm:^29.1.0-beta.5":
+  version: 29.1.0-beta.5
+  resolution: "@polymeshassociation/polymesh-sdk@npm:29.1.0-beta.5"
   dependencies:
     "@apollo/client": "npm:^3.8.1"
     "@polkadot/api": "npm:11.2.1"
     "@polkadot/util": "npm:12.6.2"
     "@polkadot/util-crypto": "npm:12.6.2"
+    "@polymeshassociation/polymesh-types": "npm:^6.2.0"
     bignumber.js: "npm:9.0.1"
-    bluebird: "npm:^3.7.2"
     cross-fetch: "npm:^4.0.0"
     dayjs: "npm:1.11.9"
     graphql: "npm:^16.8.0"
@@ -1613,7 +1613,7 @@ __metadata:
     semver: "npm:^7.5.4"
     ts-morph: "npm:^25.0.1"
     websocket: "npm:^1.0.34"
-  checksum: 10c0/71e36966ae20cf62bb9c5ff96f7e56f93a22e37d028334df0ef5e8b22a8f3f1768938e5ad447421dd6c221b2f043cba2d20527a06fcb204d122cfc4fe000f72c
+  checksum: 10c0/950979064fb3a21fc57bb34bb28ecf5d6df33983e541f2725c1a78c6f2bdff6c864f43c821a7dc67bbb77ffcd65297da32b36d5d19fcd4675c47a020dcc10be1
   languageName: node
   linkType: hard
 
@@ -3043,13 +3043,6 @@ __metadata:
   version: 9.0.1
   resolution: "bignumber.js@npm:9.0.1"
   checksum: 10c0/1d1aade64dc5d6cf1ebd226ef3030ebdb505d40d74f20e35069150007d1e747c8f746601a3452330ac88105f4288644236d7f4925654777e8511d5ebb9fbf760
-  languageName: node
-  linkType: hard
-
-"bluebird@npm:^3.7.2":
-  version: 3.7.2
-  resolution: "bluebird@npm:3.7.2"
-  checksum: 10c0/680de03adc54ff925eaa6c7bb9a47a0690e8b5de60f4792604aae8ed618c65e6b63a7893b57ca924beaf53eee69c5af4f8314148c08124c550fe1df1add897d2
   languageName: node
   linkType: hard
 
@@ -6920,7 +6913,7 @@ __metadata:
     "@polkadot/util": "npm:12.6.2"
     "@polkadot/util-crypto": "npm:12.6.2"
     "@polymeshassociation/browser-extension-signing-manager": "npm:^2.3.0"
-    "@polymeshassociation/polymesh-sdk": "npm:^28.0.0"
+    "@polymeshassociation/polymesh-sdk": "npm:^29.1.0-beta.5"
     "@polymeshassociation/polymesh-types": "npm:^6.2.0"
     "@polymeshassociation/walletconnect-signing-manager": "npm:^1.0.0"
     "@tanstack/react-table": "npm:^8.20.5"
