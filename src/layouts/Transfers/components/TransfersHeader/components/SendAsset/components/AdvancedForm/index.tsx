@@ -1,10 +1,15 @@
 /* eslint-disable react/jsx-props-no-spreading */
+import { Venue, VenueDetails } from '@polymeshassociation/polymesh-sdk/types';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Venue, VenueDetails } from '@polymeshassociation/polymesh-sdk/types';
-import { LegSelect, Icon } from '~/components';
+import { Icon, LegSelect } from '~/components';
+import { MAX_NFTS_PER_LEG } from '~/components/AssetForm/constants';
+import { TSelectedLeg } from '~/components/LegSelect/types';
 import { Button, DropdownSelect, Text } from '~/components/UiKit';
 import { InstructionsContext } from '~/context/InstructionsContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { useWindowWidth } from '~/hooks/utility';
 import {
   StyledButtonsWrapper,
   StyledInput,
@@ -16,13 +21,8 @@ import {
   StyledAddButton,
   StyledErrorMessage,
 } from '../../styles';
-import { IAdvancedFieldValues, ADVANCED_FORM_CONFIG } from '../config';
-import { TSelectedLeg } from '~/components/LegSelect/types';
-import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
-import { MAX_NFTS_PER_LEG } from '~/components/AssetForm/constants';
+import { ADVANCED_FORM_CONFIG, IAdvancedFieldValues } from '../config';
 import { createAdvancedInstructionParams } from '../helpers';
-import { useWindowWidth } from '~/hooks/utility';
-import { PolymeshContext } from '~/context/PolymeshContext';
 
 interface IAdvancedFormProps {
   toggleModal: () => void | React.ReactEventHandler | React.ChangeEventHandler;
@@ -160,13 +160,9 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
       if (!isDataValid || !sdk) return;
 
       try {
-        const transactionPromise = !selectedVenue
-          ? sdk.settlements.addInstruction(
-              createAdvancedInstructionParams({ selectedLegs, formData }),
-            )
-          : selectedVenue.addInstruction(
-              createAdvancedInstructionParams({ selectedLegs, formData }),
-            );
+        const transactionPromise = sdk.settlements.addInstruction(
+          createAdvancedInstructionParams({ selectedLegs, formData }),
+        );
 
         await executeTransaction(transactionPromise, {
           onTransactionRunning: () => {
@@ -187,7 +183,6 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
       sdk,
       reset,
       toggleModal,
-      selectedVenue,
       refreshInstructions,
       selectedLegs,
       executeTransaction,
