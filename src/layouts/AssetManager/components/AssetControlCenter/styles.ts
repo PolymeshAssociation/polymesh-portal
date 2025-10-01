@@ -508,6 +508,7 @@ export const PermissionsContainer = styled.div`
   font-size: 12px;
   word-break: break-word;
   overflow-wrap: break-word;
+  width: 100%;
 `;
 
 export const PermissionItem = styled.div`
@@ -875,6 +876,15 @@ export const ErrorMessage = styled.div`
   margin-top: 4px;
 `;
 
+export const WarningMessage = styled.div`
+  align-self: flex-end;
+  font-size: 12px;
+  color: ${({ theme }) => theme.colors.textWarning};
+  margin-top: 4px;
+  margin-left: 12px;
+  margin-right: 12px;
+`;
+
 // =============================================================================
 // NFT TRANSFER MODAL STYLES
 // =============================================================================
@@ -946,4 +956,99 @@ export const NftLockedLabel = styled.div`
   font-size: 10px;
   color: ${({ theme }) => theme.colors.textSecondary};
   text-align: center;
+`;
+
+// =============================================================================
+// PERMISSION GROUP SELECTOR STYLES
+// =============================================================================
+
+export const TransactionGroupsContainer = styled.div`
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  padding: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: ${({ theme }) => theme.colors.landingBackground};
+`;
+
+export const GroupItem = styled.div`
+  margin-bottom: 4px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+export const GroupHeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+export const GroupCheckbox = styled.input.attrs({ type: 'checkbox' })`
+  margin-right: 12px;
+  accent-color: ${({ theme }) =>
+    theme.mode === 'dark'
+      ? theme.colors.buttonBackground
+      : theme.colors.textPink};
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+`;
+
+export const GroupLabel = styled.div`
+  font-weight: 500;
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.textPrimary};
+`;
+
+export const ExpandButton = styled.button<{ $isExpanded: boolean }>`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  border-radius: ${({ theme }) => theme.borderRadius.small};
+  transform: ${({ $isExpanded }) =>
+    $isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'};
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: ${({ theme }) => theme.colors.hoverBackground};
+    color: ${({ theme }) => theme.colors.textPrimary};
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+`;
+
+export const TransactionList = styled.div`
+  margin-top: 4px;
+`;
+
+export const TransactionItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 2px 24px;
+`;
+
+export const TransactionCheckbox = styled(GroupCheckbox)`
+  margin-right: 8px;
+  transform: scale(0.9);
+`;
+
+export const TransactionLabel = styled.span`
+  font-size: 12px;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  word-break: break-word;
 `;

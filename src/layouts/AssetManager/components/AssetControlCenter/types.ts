@@ -1,6 +1,10 @@
 // TypeScript interfaces for Asset Control Center components
 
-import { TrustedFor } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  TransactionPermissions,
+  TrustedFor,
+  TxGroup,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { IAssetDetails } from '~/context/AssetContext/constants';
 
 // Asset Snapshot props
@@ -107,11 +111,8 @@ export type TransferRestriction =
 
 // Permission Group Management interfaces - matching SDK structure
 export interface IPermissionGroupPermissions {
-  transactions?: {
-    type: 'Include' | 'Exclude';
-    values: string[];
-  } | null;
-  transactionGroups?: string[] | null;
+  transactions: TransactionPermissions | null;
+  transactionGroups: TxGroup[] | null;
 }
 
 export interface IPermissionGroup {

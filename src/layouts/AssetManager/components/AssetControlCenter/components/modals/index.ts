@@ -10,6 +10,10 @@ export { IssueTokensModal } from './IssueTokensModal';
 export { LinkTickerModal } from './LinkTickerModal';
 export { MintNftsModal } from './MintNftsModal';
 export { MoreActionsModal } from './MoreActionsModal';
+export {
+  CreatePermissionGroupModal,
+  EditPermissionGroupModal,
+} from './PermissionGroupModals';
 export { RedeemTokensModal } from './RedeemTokensModal';
 export { SetFundingRoundModal } from './SetFundingRoundModal';
 export { TransferOwnershipModal } from './TransferOwnershipModal';

@@ -24,10 +24,10 @@ export const StyledText = styled.p<{
     $transform,
     $truncateOverflow,
   }) => `
-        ${$width ? `width: ${$width}px;` : ''}
+        ${$width !== undefined ? `width: ${$width}px;` : ''}
         ${$centered ? 'text-align: center;' : ''}
-        ${$marginTop ? `margin-top: ${$marginTop}px;` : ''}
-        ${$marginBottom ? `margin-bottom: ${$marginBottom}px !important;` : ''}
+        ${$marginTop !== undefined ? `margin-top: ${$marginTop}px;` : ''}
+        ${$marginBottom !== undefined ? `margin-bottom: ${$marginBottom}px !important;` : ''}
         ${
           color === ETextColor.PRIMARY
             ? `color: ${theme.colors.textPrimary};`

@@ -1,32 +1,35 @@
-import React, { useMemo, useState, useEffect } from 'react';
 import type { AgentWithGroup } from '@polymeshassociation/polymesh-sdk/types';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Icon } from '~/components';
-import { ComingSoonModal } from '../modals';
 import { useAssetActionsContext } from '../../context';
-import type { TabProps, IPermissionGroup } from '../../types';
 import {
-  TabSection,
-  SectionHeader,
-  SectionTitle,
-  SectionContent,
-  DataList,
+  ActionButton,
+  AddButton,
+  AgentValue,
   DataItem,
   DataLabel,
-  ActionButton,
+  DataList,
   EmptyState,
-  AddButton,
-  GroupHeader,
-  GroupTitleSection,
-  GroupTitle,
   GroupActions,
   GroupContent,
-  PermissionsContainer,
-  PermissionItem,
+  GroupHeader,
+  GroupTitle,
+  GroupTitleSection,
   PermissionIcon,
+  PermissionItem,
+  PermissionsContainer,
   PermissionText,
-  AgentValue,
   PermissionValue,
+  SectionContent,
+  SectionHeader,
+  SectionTitle,
+  TabSection,
 } from '../../styles';
+import type { IPermissionGroup, TabProps } from '../../types';
+import {
+  CreatePermissionGroupModal,
+  EditPermissionGroupModal,
+} from '../modals';
 
 interface PermissionGroupsSectionProps {
   asset: TabProps['asset'];
@@ -35,24 +38,30 @@ interface PermissionGroupsSectionProps {
 export const PermissionGroupsSection: React.FC<
   PermissionGroupsSectionProps
 > = ({ asset }) => {
-  const { transactionInProcess } = useAssetActionsContext();
+  const { transactionInProcess, createPermissionGroup, editPermissionGroup } =
+    useAssetActionsContext();
   // State for processed permission groups
   const [processedPermissionGroups, setProcessedPermissionGroups] = useState<
     IPermissionGroup[]
   >([]);
-  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
-  const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const [createGroupModalOpen, setCreateGroupModalOpen] = useState(false);
+  const [editGroupModalOpen, setEditGroupModalOpen] = useState(false);
+  const [groupToEdit, setGroupToEdit] = useState<IPermissionGroup | null>(null);
 
   const handleCreatePermissionGroup = () => {
-    setComingSoonFeature('create permission group');
-    setComingSoonModalOpen(true);
+    setCreateGroupModalOpen(true);
   };
 
   const handleEditPermissionGroup = (groupId: string | number) => {
-    setComingSoonFeature('edit permission group');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Edit permission group:', groupId);
+    // Find the permission group to edit
+    const groupToEditData = processedPermissionGroups.find(
+      (group) => group.id === groupId,
+    );
+
+    if (groupToEditData && groupToEditData.type === 'custom') {
+      setGroupToEdit(groupToEditData);
+      setEditGroupModalOpen(true);
+    }
   };
 
   // Get asset agents and permission groups from asset data
@@ -325,10 +334,22 @@ export const PermissionGroupsSection: React.FC<
         </SectionContent>
       </TabSection>
 
-      <ComingSoonModal
-        isOpen={comingSoonModalOpen}
-        onClose={() => setComingSoonModalOpen(false)}
-        feature={comingSoonFeature}
+      <CreatePermissionGroupModal
+        isOpen={createGroupModalOpen}
+        onClose={() => setCreateGroupModalOpen(false)}
+        onCreateGroup={createPermissionGroup}
+        transactionInProcess={transactionInProcess}
+      />
+
+      <EditPermissionGroupModal
+        isOpen={editGroupModalOpen}
+        onClose={() => {
+          setEditGroupModalOpen(false);
+          setGroupToEdit(null);
+        }}
+        permissionGroup={groupToEdit}
+        onEditGroup={editPermissionGroup}
+        transactionInProcess={transactionInProcess}
       />
     </>
   );
