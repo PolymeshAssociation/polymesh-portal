@@ -1,38 +1,38 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useContext } from 'react';
-import { useForm, useFieldArray, FormProvider } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import {
-  StatType,
-  InputStatClaim,
-  CountryCode,
   ClaimType,
+  CountryCode,
+  InputStatClaim,
+  StatType,
 } from '@polymeshassociation/polymesh-sdk/types';
+import React, { useContext } from 'react';
+import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { Icon } from '~/components';
+import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import ExemptedIdentities from '../components/ExemptedIdentities';
+import StepNavigation from '../components/StepNavigation';
 import {
-  FormContainer,
-  DescriptionText,
-  NavigationWrapper,
-  FieldRow,
-  FieldWrapper,
-  FieldLabel,
-  FieldInput,
   Button,
-  StyledForm,
-  StyledFormSection,
+  DescriptionText,
+  FieldInput,
+  FieldLabel,
+  FieldRow,
+  FieldSelect,
+  FieldWrapper,
+  FormContainer,
   HeaderRow,
   IconWrapper,
-  FieldSelect,
+  NavigationWrapper,
   StyledErrorMessage,
+  StyledForm,
+  StyledFormSection,
   StyledLink,
 } from '../styles';
 import { WizardData, WizardStepProps } from '../types';
-import StepNavigation from '../components/StepNavigation';
-import { Icon } from '~/components';
-import ExemptedIdentities from '../components/ExemptedIdentities';
-import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
 
 const restrictionTypeLabels: Record<StatType, string> = {
   [StatType.Count]: 'Holder Count',
@@ -610,8 +610,10 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
                 exemptedIdentities: [],
               })
             }
+            disabled={fields.length >= 4}
           >
             Add Transfer Restriction
+            {fields.length >= 4 && ' (Maximum 4 reached)'}
           </Button>
         </StyledForm>
       </FormProvider>

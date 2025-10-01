@@ -13,15 +13,6 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import WizardSidebar from './components/WizardSidebar';
-import BasicInfoStep from './steps/BasicInfoStep';
-import ClaimIssuersStep from './steps/ClaimIssuersStep';
-import CollectionKeysStep from './steps/CollectionKeysStep';
-import ComplianceRulesStep from './steps/ComplianceRulesStep';
-import DocumentsStep from './steps/DocumentsStep';
-import MetadataStep from './steps/MetadataStep';
-import SecurityIdentifiersStep from './steps/SecurityIdentifiersStep';
-// import TransferRestrictionsStep from './steps/TransferRestrictionsStep';
 import { PATHS } from '~/constants/routes';
 import { AccountContext } from '~/context/AccountContext';
 import { AssetContext } from '~/context/AssetContext';
@@ -30,8 +21,17 @@ import { PortfolioContext } from '~/context/PortfolioContext';
 import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { notifyError } from '~/helpers/notifications';
 import { useWindowWidth } from '~/hooks/utility';
+import WizardSidebar from './components/WizardSidebar';
+import BasicInfoStep from './steps/BasicInfoStep';
+import ClaimIssuersStep from './steps/ClaimIssuersStep';
+import CollectionKeysStep from './steps/CollectionKeysStep';
+import ComplianceRulesStep from './steps/ComplianceRulesStep';
+import DocumentsStep from './steps/DocumentsStep';
 import IssuanceStep from './steps/IssuanceStep';
+import MetadataStep from './steps/MetadataStep';
+import SecurityIdentifiersStep from './steps/SecurityIdentifiersStep';
 import SettlementRestrictionsStep from './steps/SettlementRestrictionsStep';
+import TransferRestrictionsStep from './steps/TransferRestrictionsStep';
 import { StepContainer, WizardContainer } from './styles';
 import { initialWizardData, WizardData } from './types';
 
@@ -84,12 +84,12 @@ const CreateAssetWizard = () => {
       { component: MetadataStep, label: 'Metadata' },
       { component: ClaimIssuersStep, label: 'Claim Issuers' },
       { component: ComplianceRulesStep, label: 'Compliance Rules' },
-      { component: IssuanceStep, label: 'Issuance' },
+      { component: TransferRestrictionsStep, label: 'Transfer Restrictions' },
       {
         component: SettlementRestrictionsStep,
         label: 'Settlement Restrictions',
       },
-      // { component: TransferRestrictionsStep, label: 'Transfer Restrictions' },
+      { component: IssuanceStep, label: 'Issuance' },
     ];
   }, [assetData.fungibility]);
 

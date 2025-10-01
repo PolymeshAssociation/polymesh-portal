@@ -4,10 +4,14 @@ import {
   Asset,
   AssetMediatorParams,
   ControllerTransferParams,
+  CreateGroupParams,
+  CustomPermissionGroup,
   DefaultPortfolio,
   FungibleAsset,
+  Identity,
   IssueTokensParams,
   KnownAssetType,
+  KnownPermissionGroup,
   LinkTickerToAssetParams,
   ModifyAssetParams,
   NftCollection,
@@ -585,6 +589,64 @@ const useAssetActions = (
     }
   };
 
+  const inviteAssetAgent = async (
+    params: {
+      target: string;
+      permissions: KnownPermissionGroup | CustomPermissionGroup;
+      expiry?: Date;
+    } & {
+      onTransactionRunning?: () => void | Promise<void>;
+    },
+  ) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    const { onTransactionRunning, ...inviteParams } = params;
+
+    try {
+      await executeTransaction(
+        asset.permissions.inviteAgent(inviteParams),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
+  const modifyAgentPermissions = async (
+    params: {
+      agent: Identity;
+      group: KnownPermissionGroup | CustomPermissionGroup;
+    } & {
+      onTransactionRunning?: () => void | Promise<void>;
+    },
+  ) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    const { onTransactionRunning, agent, group } = params;
+
+    if (!group.asset.isEqual(asset)) {
+      notifyError('Agent does not belong to the specified asset');
+      return;
+    }
+
+    try {
+      await executeTransaction(
+        agent.assetPermissions.setGroup({ group }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
   const mintNft = async ({
     metadata,
     portfolioId,
@@ -649,6 +711,59 @@ const useAssetActions = (
     }
   };
 
+  const createPermissionGroup = async (
+    params: CreateGroupParams & {
+      onTransactionRunning?: () => void | Promise<void>;
+    },
+  ) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    const { onTransactionRunning, ...createParams } = params;
+
+    try {
+      await executeTransaction(
+        asset.permissions.createGroup(createParams),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
+  const editPermissionGroup = async (
+    params: {
+      groupId: BigNumber;
+      permissions: CreateGroupParams['permissions'];
+    } & {
+      onTransactionRunning?: () => void | Promise<void>;
+    },
+  ) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    const { onTransactionRunning, groupId, permissions } = params;
+
+    try {
+      // Get the custom permission group by ID
+      const permissionGroup = await asset.permissions.getGroup({ id: groupId });
+
+      // Set the new permissions on the group
+      await executeTransaction(
+        permissionGroup.setPermissions({ permissions }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
   return {
     issueTokens,
     redeemTokens,
@@ -674,6 +789,10 @@ const useAssetActions = (
     unpauseCompliance,
     removeTrustedClaimIssuers,
     removeAssetAgent,
+    inviteAssetAgent,
+    modifyAgentPermissions,
+    createPermissionGroup,
+    editPermissionGroup,
     transactionInProcess,
   };
 };
