@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Icon, CopyToClipboard } from '~/components';
 import { formatUuid } from '~/helpers/formatters';
-import { ComingSoonModal } from '../modals';
+import { AddMediatorModal } from '../modals';
 import { useAssetActionsContext } from '../../context';
 import type { TabProps, RequiredMediator } from '../../types';
 import {
@@ -27,14 +27,12 @@ interface RequiredMediatorsSectionProps {
 export const RequiredMediatorsSection: React.FC<
   RequiredMediatorsSectionProps
 > = ({ asset }) => {
-  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
-  const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const [addMediatorModalOpen, setAddMediatorModalOpen] = useState(false);
   const { removeRequiredMediators, transactionInProcess } =
     useAssetActionsContext();
 
   const handleManageMediators = () => {
-    setComingSoonFeature('add required mediator');
-    setComingSoonModalOpen(true);
+    setAddMediatorModalOpen(true);
   };
 
   const handleDeleteMediator = async (mediatorId: string) => {
@@ -98,10 +96,9 @@ export const RequiredMediatorsSection: React.FC<
         </SectionContent>
       </TabSection>
 
-      <ComingSoonModal
-        isOpen={comingSoonModalOpen}
-        onClose={() => setComingSoonModalOpen(false)}
-        feature={comingSoonFeature}
+      <AddMediatorModal
+        isOpen={addMediatorModalOpen}
+        onClose={() => setAddMediatorModalOpen(false)}
       />
     </>
   );

@@ -1,5 +1,6 @@
 export { ComingSoonModal } from './ComingSoonModal';
 export { EditNameModal } from './EditNameModal';
+export { AddMediatorModal } from './AddMediatorModal';
 export { EditTypeModal } from './EditTypeModal';
 export { ForceTransferModal } from './ForceTransferModal';
 export { IssueTokensModal } from './IssueTokensModal';
