@@ -1,31 +1,29 @@
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   GenericPolymeshTransaction,
   MultiSigProposal,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 
 // Shared transaction option types
 export interface BaseTransactionOptions {
   onTransactionRunning?: () => void | Promise<void>;
   onProcessedByMiddleware?: () => void | Promise<void>;
   onError?: (error: Error) => void | Promise<void>;
+  /**
+   * Controls whether the transaction should be submitted as a multisig proposal
+   * - 'auto': Automatically run as proposal if the signing key is a multisig signer (default)
+   * - 'always': Always run as a multisig proposal
+   * - 'never': Never run as a multisig proposal, always use regular .run()
+   */
+  runAsMultiSigProposal?: 'auto' | 'always' | 'never';
 }
 
 export interface TransactionOptions<T> extends BaseTransactionOptions {
-  onSuccess?: (result: T) => void | Promise<void>;
-}
-
-export interface ProposalOptions extends BaseTransactionOptions {
-  onSuccess?: () => void | Promise<void>;
+  onSuccess?: (result: T | MultiSigProposal) => void | Promise<void>;
 }
 
 export interface BatchTransactionOptions<T> extends BaseTransactionOptions {
-  onSuccess?: (results: T[]) => void | Promise<void>;
-  nonce?: () => BigNumber | BigNumber;
-}
-
-export interface BatchProposalOptions extends BaseTransactionOptions {
-  onSuccess?: () => void | Promise<void>;
+  onSuccess?: (results: T[] | MultiSigProposal) => void | Promise<void>;
   nonce?: () => BigNumber | BigNumber;
 }
 
@@ -45,28 +43,14 @@ export interface ITransactionStatusContext {
       GenericPolymeshTransaction<ReturnValue, TransformedReturnValue>
     >,
     options?: TransactionOptions<TransformedReturnValue>,
-  ) => Promise<TransformedReturnValue>;
+  ) => Promise<TransformedReturnValue | MultiSigProposal>;
 
   executeBatchTransaction: <ReturnValue, TransformedReturnValue>(
     transactionPromises: Promise<
       GenericPolymeshTransaction<ReturnValue, TransformedReturnValue>
     >[],
     options?: BatchTransactionOptions<TransformedReturnValue>,
-  ) => Promise<TransformedReturnValue[]>;
-
-  executeAsProposal: <ReturnValue, TransformedReturnValue>(
-    transactionPromise: Promise<
-      GenericPolymeshTransaction<ReturnValue, TransformedReturnValue>
-    >,
-    options?: ProposalOptions,
-  ) => Promise<MultiSigProposal>;
-
-  executeBatchAsProposal: <ReturnValue, TransformedReturnValue>(
-    transactionPromises: Promise<
-      GenericPolymeshTransaction<ReturnValue, TransformedReturnValue>
-    >[],
-    options?: BatchProposalOptions,
-  ) => Promise<MultiSigProposal>;
+  ) => Promise<TransformedReturnValue[] | MultiSigProposal>;
 
   isTransactionInProgress: boolean;
 }
@@ -78,7 +62,5 @@ export const initialState: ITransactionStatusContext = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   executeBatchTransaction: <ReturnValue, TransformedReturnValue>() =>
     Promise.resolve([] as TransformedReturnValue[]),
-  executeAsProposal: () => Promise.resolve({} as MultiSigProposal),
-  executeBatchAsProposal: () => Promise.resolve({} as MultiSigProposal),
   isTransactionInProgress: false,
 };

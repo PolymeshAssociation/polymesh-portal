@@ -1,25 +1,25 @@
-import { createElement, lazy, Suspense, useContext } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { ThemeProvider } from 'styled-components';
 import { ApolloProvider } from '@apollo/client';
-import { ToastContainer } from 'react-toastify';
+import { createElement, lazy, Suspense, useContext } from 'react';
 import { SkeletonTheme } from 'react-loading-skeleton';
-import { PolymeshProvider, PolymeshContext } from '~/context/PolymeshContext';
-import { TransactionStatusProvider } from '~/context/TransactionStatusContext';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import { ThemeProvider } from 'styled-components';
+import { LoadingFallback } from '~/components';
+import { ROUTES } from '~/constants/routes';
 import { AccountProvider } from '~/context/AccountContext';
-import { PortfolioProvider } from '~/context/PortfolioContext';
+import { AssetProvider } from '~/context/AssetContext';
+import { AuthProvider } from '~/context/AuthContext';
 import { AuthorizationsProvider } from '~/context/AuthorizationsContext';
 import { ClaimsProvider } from '~/context/ClaimsContext';
-import { InstructionsProvider } from '~/context/InstructionsContext';
 import { DistributionsProvider } from '~/context/DistributionsContext';
+import { InstructionsProvider } from '~/context/InstructionsContext';
 import { MultiSigProvider } from '~/context/MultiSigContext';
-import { AuthProvider } from '~/context/AuthContext';
+import { PolymeshContext, PolymeshProvider } from '~/context/PolymeshContext';
+import { PortfolioProvider } from '~/context/PortfolioContext';
 import { AppThemeProvider, ThemeContext } from '~/context/ThemeContext';
-import { ROUTES } from '~/constants/routes';
-import { theme, GlobalStyle } from '~/styles/theme';
-import { LoadingFallback } from '~/components';
+import { TransactionStatusProvider } from '~/context/TransactionStatusContext';
+import { GlobalStyle, theme } from '~/styles/theme';
 import { StakingProvider } from './context/StakingContext';
-import { AssetProvider } from '~/context/AssetContext';
 
 const SharedLayout = lazy(() => import('~/layouts/SharedLayout'));
 
@@ -68,8 +68,8 @@ const App = () => {
 const WrappedApp = () => {
   return (
     <PolymeshProvider>
-      <TransactionStatusProvider>
-        <AccountProvider>
+      <AccountProvider>
+        <TransactionStatusProvider>
           <PortfolioProvider>
             <AuthorizationsProvider>
               <AuthProvider>
@@ -93,8 +93,8 @@ const WrappedApp = () => {
               </AuthProvider>
             </AuthorizationsProvider>
           </PortfolioProvider>
-        </AccountProvider>
-      </TransactionStatusProvider>
+        </TransactionStatusProvider>
+      </AccountProvider>
     </PolymeshProvider>
   );
 };

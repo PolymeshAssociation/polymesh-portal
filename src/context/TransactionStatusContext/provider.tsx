@@ -1,19 +1,15 @@
-import { useState, useMemo, useContext, useCallback, useRef } from 'react';
 import {
   GenericPolymeshTransaction,
-  TransactionStatus,
   MultiSigProposal,
+  TransactionStatus,
 } from '@polymeshassociation/polymesh-sdk/types';
-import TransactionStatusContext from './context';
-import {
-  TransactionOptions,
-  ProposalOptions,
-  BatchTransactionOptions,
-  BatchProposalOptions,
-} from './constants';
+import { useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { useTransactionStatus } from '~/hooks/polymesh';
 import { notifyError } from '~/helpers/notifications';
+import { useTransactionStatus } from '~/hooks/polymesh';
+import { BatchTransactionOptions, TransactionOptions } from './constants';
+import TransactionStatusContext from './context';
 
 interface ITransactionStatusProviderProps {
   children: React.ReactNode;
@@ -27,6 +23,7 @@ const TransactionStatusProvider = ({
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
+  const { accountIsMultisigSigner } = useContext(AccountContext);
   const { handleStatusChange } = useTransactionStatus();
 
   const incrementActiveTransactions = useCallback(() => {
@@ -45,6 +42,22 @@ const TransactionStatusProvider = ({
       setIsTransactionInProgress(false);
     }
   }, []);
+
+  // Helper to determine if transaction should run as proposal
+  const shouldRunAsProposal = useCallback(
+    (runAsMultiSigProposal: 'auto' | 'always' | 'never' = 'auto'): boolean => {
+      switch (runAsMultiSigProposal) {
+        case 'always':
+          return true;
+        case 'never':
+          return false;
+        case 'auto':
+        default:
+          return accountIsMultisigSigner;
+      }
+    },
+    [accountIsMultisigSigner],
+  );
 
   // Helper function to set up middleware handling
   const setupMiddleware = useCallback(
@@ -171,12 +184,13 @@ const TransactionStatusProvider = ({
         GenericPolymeshTransaction<ProcedureReturnValue, ReturnValue>
       >,
       options: TransactionOptions<ReturnValue> = {},
-    ): Promise<ReturnValue> {
+    ): Promise<ReturnValue | MultiSigProposal> {
       const {
         onTransactionRunning,
         onProcessedByMiddleware,
         onSuccess,
         onError,
+        runAsMultiSigProposal = 'auto',
       } = options;
 
       if (!sdk) {
@@ -201,8 +215,11 @@ const TransactionStatusProvider = ({
           onProcessedByMiddleware,
         );
 
-        // Set up status change handler with unique but stable ID
+        // Determine if we should run as proposal
+        const isProposal = shouldRunAsProposal(runAsMultiSigProposal);
+
         const transactionId = `tx-${Date.now()}-${Math.random()}`;
+
         setupStatusHandler(
           transaction,
           transactionId,
@@ -210,9 +227,14 @@ const TransactionStatusProvider = ({
           onError,
           onTransactionRunning,
           { middlewareUnsubscribe, middlewarePromise },
+          isProposal,
         );
 
-        // Execute the transaction
+        // Execute based on context
+        if (isProposal) {
+          const proposal = await transaction.runAsProposal();
+          return proposal;
+        }
         const result = await transaction.run();
         return result;
       } catch (error) {
@@ -232,78 +254,7 @@ const TransactionStatusProvider = ({
       setupStatusHandler,
       incrementActiveTransactions,
       decrementActiveTransactions,
-    ],
-  );
-
-  // Method for executing transactions as proposals
-  const executeAsProposal = useCallback(
-    async function executeAsProposalImpl<ProcedureReturnValue, ReturnValue>(
-      transactionPromise: Promise<
-        GenericPolymeshTransaction<ProcedureReturnValue, ReturnValue>
-      >,
-      options: ProposalOptions = {},
-    ): Promise<MultiSigProposal> {
-      const {
-        onTransactionRunning,
-        onProcessedByMiddleware,
-        onSuccess,
-        onError,
-      } = options;
-
-      if (!sdk) {
-        const error = new Error('SDK not available');
-        notifyError(error.message);
-        if (onError) {
-          onError(error);
-        }
-        // Always decrement since status handler won't be called on exceptions
-        decrementActiveTransactions();
-        throw error;
-      }
-
-      incrementActiveTransactions();
-
-      try {
-        const transaction = await transactionPromise;
-
-        // Set up middleware handler
-        const { middlewareUnsubscribe, middlewarePromise } = setupMiddleware(
-          transaction,
-          onProcessedByMiddleware,
-        );
-
-        // Set up status change handler with unique but stable ID
-        const transactionId = `proposal-${Date.now()}-${Math.random()}`;
-        setupStatusHandler(
-          transaction,
-          transactionId,
-          onSuccess,
-          onError,
-          onTransactionRunning,
-          { middlewareUnsubscribe, middlewarePromise },
-          true, // isProposal = true
-        );
-
-        // Execute the transaction as a proposal
-        const proposal = await transaction.runAsProposal();
-        return proposal;
-      } catch (error) {
-        const err = error as Error;
-        notifyError(err.message);
-        if (onError) {
-          onError(err);
-        }
-        // Always decrement since status handler won't be called on exceptions
-        decrementActiveTransactions();
-        throw err;
-      }
-    },
-    [
-      sdk,
-      setupMiddleware,
-      setupStatusHandler,
-      incrementActiveTransactions,
-      decrementActiveTransactions,
+      shouldRunAsProposal,
     ],
   );
 
@@ -317,13 +268,14 @@ const TransactionStatusProvider = ({
         GenericPolymeshTransaction<ProcedureReturnValue, ReturnValue>
       >[],
       options: BatchTransactionOptions<ReturnValue> = {},
-    ): Promise<ReturnValue[]> {
+    ): Promise<ReturnValue[] | MultiSigProposal> {
       const {
         onTransactionRunning,
         onProcessedByMiddleware,
         onSuccess,
         onError,
         nonce,
+        runAsMultiSigProposal = 'auto',
       } = options;
 
       if (!sdk) {
@@ -357,8 +309,10 @@ const TransactionStatusProvider = ({
           onProcessedByMiddleware,
         );
 
-        // Set up status change handler with unique but stable ID
-        const transactionId = `batch-${Date.now()}-${Math.random()}`;
+        // Determine if we should run as proposal
+        const isProposal = shouldRunAsProposal(runAsMultiSigProposal);
+        const transactionId = `${isProposal ? 'batch-proposal' : 'batch'}-${Date.now()}-${Math.random()}`;
+
         setupStatusHandler(
           batchTransaction,
           transactionId,
@@ -366,9 +320,14 @@ const TransactionStatusProvider = ({
           onError,
           onTransactionRunning,
           { middlewareUnsubscribe, middlewarePromise },
+          isProposal,
         );
 
-        // Execute batch transaction
+        // Execute based on context
+        if (isProposal) {
+          const proposal = await batchTransaction.runAsProposal();
+          return proposal;
+        }
         const results = await batchTransaction.run();
         return results;
       } catch (error) {
@@ -388,91 +347,7 @@ const TransactionStatusProvider = ({
       setupStatusHandler,
       incrementActiveTransactions,
       decrementActiveTransactions,
-    ],
-  );
-
-  // Method for executing batch transactions as proposals
-  const executeBatchAsProposal = useCallback(
-    async function executeBatchAsProposalImpl<
-      ProcedureReturnValue,
-      ReturnValue,
-    >(
-      transactionPromises: Promise<
-        GenericPolymeshTransaction<ProcedureReturnValue, ReturnValue>
-      >[],
-      options: BatchProposalOptions = {},
-    ): Promise<MultiSigProposal> {
-      const {
-        onTransactionRunning,
-        onProcessedByMiddleware,
-        onSuccess,
-        onError,
-        nonce,
-      } = options;
-
-      if (!sdk) {
-        const error = new Error('SDK not available');
-        notifyError(error.message);
-        if (onError) {
-          onError(error);
-        }
-        // Always decrement since status handler won't be called on exceptions
-        decrementActiveTransactions();
-        throw error;
-      }
-
-      incrementActiveTransactions();
-
-      try {
-        // Resolve all transaction promises
-        const transactions = await Promise.all(transactionPromises);
-
-        // Create batch transaction with optional nonce
-        const batchTransaction = await sdk.createTransactionBatch(
-          {
-            transactions,
-          },
-          nonce ? { nonce } : undefined,
-        );
-
-        // Set up middleware handler
-        const { middlewareUnsubscribe, middlewarePromise } = setupMiddleware(
-          batchTransaction,
-          onProcessedByMiddleware,
-        );
-
-        // Set up status change handler with unique but stable ID
-        const transactionId = `batch-proposal-${Date.now()}-${Math.random()}`;
-        setupStatusHandler(
-          batchTransaction,
-          transactionId,
-          onSuccess,
-          onError,
-          onTransactionRunning,
-          { middlewareUnsubscribe, middlewarePromise },
-          true, // isProposal = true
-        );
-
-        // Execute batch transaction as a proposal
-        const proposal = await batchTransaction.runAsProposal();
-        return proposal;
-      } catch (error) {
-        const err = error as Error;
-        notifyError(err.message);
-        if (onError) {
-          onError(err);
-        }
-        // Always decrement since status handler won't be called on exceptions
-        decrementActiveTransactions();
-        throw err;
-      }
-    },
-    [
-      sdk,
-      setupMiddleware,
-      setupStatusHandler,
-      incrementActiveTransactions,
-      decrementActiveTransactions,
+      shouldRunAsProposal,
     ],
   );
 
@@ -480,17 +355,9 @@ const TransactionStatusProvider = ({
     () => ({
       executeTransaction,
       executeBatchTransaction,
-      executeAsProposal,
-      executeBatchAsProposal,
       isTransactionInProgress,
     }),
-    [
-      executeTransaction,
-      executeBatchTransaction,
-      executeAsProposal,
-      executeBatchAsProposal,
-      isTransactionInProgress,
-    ],
+    [executeTransaction, executeBatchTransaction, isTransactionInProgress],
   );
 
   return (
