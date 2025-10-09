@@ -1,36 +1,47 @@
-import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useTransferPolyx } from '~/hooks/polymesh';
+import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import { Icon, Modal } from '~/components';
-import { Heading, Button } from '~/components/UiKit';
-import {
-  StyledModalWrapper,
-  StyledButtonWrapper,
-  StyledInputWrapper,
-  StyledInput,
-  StyledLabel,
-  StyledCaption,
-  StyledMaxButton,
-  StyledErrorMessage,
-  InputWithButtonWrapper,
-  StyledIconWrapper,
-} from './styles';
+import { Button, Heading } from '~/components/UiKit';
 import { formatBalance } from '~/helpers/formatters';
-import { TRANSFER_INPUTS, createFormConfig } from './constants';
+import { useTransferPolyx } from '~/hooks/polymesh';
 import { ITransfer } from '~/hooks/polymesh/useTransferPolyx';
 import { useWindowWidth } from '~/hooks/utility';
+import { TRANSFER_INPUTS, createFormConfig } from './constants';
+import {
+  InputWithButtonWrapper,
+  StyledButtonWrapper,
+  StyledCaption,
+  StyledErrorMessage,
+  StyledIconWrapper,
+  StyledInput,
+  StyledInputWrapper,
+  StyledLabel,
+  StyledMaxButton,
+  StyledModalWrapper,
+} from './styles';
 
-export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
+interface ITransferPolyxProps {
+  toggleModal: () => void;
+  useMultisigAccount?: boolean;
+}
+
+export const TransferPolyx: React.FC<ITransferPolyxProps> = ({
   toggleModal,
+  useMultisigAccount = false,
 }) => {
   const {
     transferPolyx,
     transactionInProcess,
-    selectedAccount,
+    sourceAccount,
     checkAddressValidity,
     maxTransferablePolyx,
     maxTransferablePolyxWithMemo,
-  } = useTransferPolyx();
+  } = useTransferPolyx({ useMultisigAccount });
+
+  const modalTitle = useMultisigAccount
+    ? 'Send POLYX from MultiSig'
+    : 'Send POLYX';
+  const submitButtonText = useMultisigAccount ? 'Create Proposal' : 'Send';
   const {
     register,
     handleSubmit,
@@ -43,7 +54,7 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
     createFormConfig({
       maxAmount: maxTransferablePolyx.toNumber(),
       maxAmountWithMemo: maxTransferablePolyxWithMemo.toNumber(),
-      selectedAccount,
+      selectedAccount: sourceAccount,
       checkAddressValidity,
     }),
   );
@@ -98,9 +109,11 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
   };
 
   return (
-    <Modal handleClose={toggleModal}>
+    <Modal handleClose={toggleModal} customWidth="550px">
       <StyledModalWrapper>
-        <Heading type="h4">Send POLYX</Heading>
+        <Heading marginBottom={24} type="h4">
+          {modalTitle}
+        </Heading>
         {TRANSFER_INPUTS.map(
           ({ label, id, placeholder, withCaption, withButton }) => (
             <StyledInputWrapper key={id}>
@@ -161,7 +174,7 @@ export const TransferPolyx: React.FC<{ toggleModal: () => void }> = ({
             disabled={!isValid || transactionInProcess}
             onClick={handleSubmit(onSubmit)}
           >
-            Send
+            {submitButtonText}
           </Button>
         </StyledButtonWrapper>
       </StyledModalWrapper>

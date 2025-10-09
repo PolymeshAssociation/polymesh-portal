@@ -277,7 +277,7 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
 
   // Fetch the maximum number of transfer restrictions from chain
   useEffect(() => {
-    const fetchMaxRestrictions = async () => {
+    const fetchMaxRestrictions = () => {
       if (!polkadotApi) return;
 
       try {

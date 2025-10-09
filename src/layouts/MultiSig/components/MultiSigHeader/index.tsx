@@ -1,25 +1,22 @@
 import { useSearchParams } from 'react-router-dom';
-import { useMultiSigContext } from '~/context/MultiSigContext';
-import { useWindowWidth } from '~/hooks/utility';
+import { Icon } from '~/components';
 import {
   DropdownSelect,
-  SkeletonLoader,
   RefreshButton,
+  SkeletonLoader,
 } from '~/components/UiKit';
-import { Icon, CopyToClipboard } from '~/components';
-import { formatDid } from '~/helpers/formatters';
-import { ESortOptions, EMultiSigTypes } from '../../types';
+import { useMultiSigContext } from '~/context/MultiSigContext';
+import { useWindowWidth } from '~/hooks/utility';
+import { EMultiSigTypes, ESortOptions } from '../../types';
 import { TABS } from './constants';
 import {
+  StyledButtonsWrapper,
   StyledHeader,
   StyledLabelWrapper,
-  StyledMultisig,
   StyledNavLink,
   StyledNavList,
-  StyledSigners,
   StyledSort,
   StyledWrapper,
-  StyledButtonsWrapper,
 } from './styles';
 
 interface IMultiSigHeaderProps {
@@ -31,12 +28,8 @@ export const MultiSigHeader: React.FC<IMultiSigHeaderProps> = ({
   setSortBy,
   sortBy,
 }) => {
-  const {
-    multiSigAccountKey,
-    signers,
-    refreshProposals,
-    pendingProposalsLoading,
-  } = useMultiSigContext();
+  const { multiSigAccountKey, refreshProposals, pendingProposalsLoading } =
+    useMultiSigContext();
   const { isMobile } = useWindowWidth();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -87,28 +80,6 @@ export const MultiSigHeader: React.FC<IMultiSigHeaderProps> = ({
       )}
 
       <StyledWrapper>
-        <StyledLabelWrapper>
-          {!signers?.length ? (
-            <SkeletonLoader width={70} />
-          ) : (
-            <>
-              Signers:
-              <StyledSigners>{signers.length}</StyledSigners>
-            </>
-          )}
-        </StyledLabelWrapper>
-
-        <StyledLabelWrapper>
-          {!multiSigAccountKey ? (
-            <SkeletonLoader width={170} />
-          ) : (
-            <>
-              Multisig:
-              <StyledMultisig>{formatDid(multiSigAccountKey)}</StyledMultisig>
-              <CopyToClipboard value={multiSigAccountKey} />
-            </>
-          )}
-        </StyledLabelWrapper>
         {type === EMultiSigTypes.PENDING && (
           <StyledLabelWrapper>
             {!multiSigAccountKey ? (

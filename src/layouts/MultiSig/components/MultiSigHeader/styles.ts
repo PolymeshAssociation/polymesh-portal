@@ -22,13 +22,9 @@ export const StyledHeader = styled.div`
 export const StyledWrapper = styled.div`
   display: flex;
   align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
   margin-left: auto;
-
-  @media screen and (max-width: 767px) {
-    flex-wrap: wrap-reverse;
-    margin-left: 0;
-    gap: 16px;
-  }
 `;
 
 export const StyledNavList = styled.ul`

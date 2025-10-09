@@ -1,6 +1,7 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AccountContext } from '~/context/AccountContext';
+import { MultiSigBalanceCard } from './components/MultiSigBalanceCard';
 import { MultiSigHeader } from './components/MultiSigHeader';
 import { MultiSigList } from './components/MultiSigList';
 import { MultiSigTable } from './components/MultiSigTable';
@@ -38,6 +39,7 @@ const MultiSig = () => {
 
   return (
     <>
+      <MultiSigBalanceCard />
       <MultiSigHeader setSortBy={setSortBy} sortBy={sortBy} />
       {type === EMultiSigTypes.PENDING ? (
         <MultiSigList sortBy={sortBy} />

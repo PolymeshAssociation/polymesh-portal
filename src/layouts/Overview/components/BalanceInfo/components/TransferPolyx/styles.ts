@@ -71,18 +71,28 @@ export const StyledMaxButton = styled.button<{ $maxSet?: boolean }>`
   padding: 0px 10px;
   height: 28px;
   border-radius: 14px;
-  background-color: ${({ $maxSet }) => ($maxSet ? `transparent` : `#170087`)};
+  background-color: ${({ $maxSet, theme }) =>
+    $maxSet ? `transparent` : theme.colors.pinkBackground};
   font-size: 14px;
   color: ${({ $maxSet, theme }) =>
-    $maxSet ? theme.colors.textPrimary : 'white'};
+    $maxSet ? theme.colors.textPrimary : theme.colors.textPink};
   cursor: ${({ $maxSet }) => ($maxSet ? 'unset' : `pointer`)};
   border: 1px solid transparent;
+  transition-property: color, background;
+  transition-duration: ${({ theme }) => theme.transition.normal};
+  transition-timing-function: ease-out;
 
   &:hover:enabled {
-    background: ${({ $maxSet }) => ($maxSet ? `` : `#100255`)};
+    background: ${({ $maxSet, theme }) =>
+      $maxSet ? `` : theme.colors.textPink};
+    color: ${({ $maxSet, theme }) =>
+      $maxSet ? `` : theme.colors.pinkBackground};
   }
   &:active:enabled {
-    background-color: ${({ $maxSet }) => ($maxSet ? '' : `#170087`)};
+    background-color: ${({ $maxSet, theme }) =>
+      $maxSet ? '' : theme.colors.textPink};
+    color: ${({ $maxSet, theme }) =>
+      $maxSet ? `` : theme.colors.pinkBackground};
   }
 
   &:disabled {

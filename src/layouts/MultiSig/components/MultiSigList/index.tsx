@@ -2,9 +2,9 @@ import { useContext } from 'react';
 import { AccountContext } from '~/context/AccountContext';
 import { useMultiSigContext } from '~/context/MultiSigContext';
 import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
-import { ESortOptions, EProposalAction } from '../../types';
-import { MultiSigListItem } from '../MultiSigItem';
+import { EProposalAction, ESortOptions } from '../../types';
 import { ItemPlaceHolder } from '../ItemPlaceHolder';
+import { MultiSigListItem } from '../MultiSigItem';
 import { useMultiSigList } from './hooks';
 
 interface IMultiSigListProps {
@@ -28,6 +28,7 @@ export const MultiSigList: React.FC<IMultiSigListProps> = ({ sortBy }) => {
 
       // Execute transaction with global status handling including middleware
       await executeTransaction(Promise.resolve(tx), {
+        runAsMultiSigProposal: 'never', // always run as a signer
         onProcessedByMiddleware: () => {
           refreshProposals();
         },
