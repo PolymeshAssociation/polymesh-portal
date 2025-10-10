@@ -4,7 +4,7 @@ import {
   SecurityIdentifier as SDKSecurityIdentifier,
   SecurityIdentifierType,
 } from '@polymeshassociation/polymesh-sdk/types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
@@ -13,7 +13,7 @@ import { SecurityIdentifier } from '../../types';
 import { ModalActions, ModalContainer, ModalContent } from '../../styles';
 import {
   SecurityIdentifierFormFields,
-  securityIdentifierSchema,
+  createSecurityIdentifierSchema,
 } from './SecurityIdentifierModalBase';
 
 interface IAddSecurityIdentifierModalProps {
@@ -36,6 +36,16 @@ export const AddSecurityIdentifierModal: React.FC<
   onAddIdentifier,
   transactionInProcess,
 }) => {
+  // Create validation schema with duplicate checking
+  const validationSchema = useMemo(
+    () =>
+      createSecurityIdentifierSchema({
+        existingIdentifiers,
+        identifierToExclude: null,
+      }),
+    [existingIdentifiers],
+  );
+
   const {
     register,
     handleSubmit,
@@ -47,7 +57,7 @@ export const AddSecurityIdentifierModal: React.FC<
       type: SecurityIdentifierType.Isin,
       value: '',
     },
-    resolver: yupResolver(securityIdentifierSchema),
+    resolver: yupResolver(validationSchema),
   });
 
   const handleClose = useCallback(() => {

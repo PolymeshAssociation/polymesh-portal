@@ -21,6 +21,7 @@ import {
   StyledErrorMessage,
 } from '../../../CreateAssetWizard/styles';
 import { ModalActions, ModalContainer, ModalContent } from '../../styles';
+import { getPermissionGroupName, resolvePermissionGroup } from './helpers';
 
 interface IAddAgentForm {
   targetDid: string;
@@ -130,28 +131,12 @@ export const AddAgentModal: React.FC<IAddAgentModalProps> = ({
 
   const onSubmit = useCallback(
     async (formData: IAddAgentForm) => {
-      let permissions: KnownPermissionGroup | CustomPermissionGroup;
-
-      if (formData.permissionGroup === 'Custom') {
-        if (!formData.customGroupId) return;
-        // Find the custom group entity by ID
-        const selectedCustomGroup = customGroups.find(
-          (group) => group.id.toNumber().toString() === formData.customGroupId,
-        );
-        if (!selectedCustomGroup) {
-          throw new Error('Custom group entity not found');
-        }
-        permissions = selectedCustomGroup;
-      } else {
-        // Find the known group entity by type
-        const knownGroup = knownGroups.find(
-          (group) => group.type === formData.permissionGroup,
-        );
-        if (!knownGroup) {
-          throw new Error('Known permission group not found');
-        }
-        permissions = knownGroup;
-      }
+      const permissions = resolvePermissionGroup(
+        formData.permissionGroup,
+        formData.customGroupId,
+        customGroups,
+        knownGroups,
+      );
 
       await onAddAgent({
         target: formData.targetDid.trim(),
@@ -222,19 +207,11 @@ export const AddAgentModal: React.FC<IAddAgentModalProps> = ({
                 {...register('permissionGroup')}
               >
                 <option value="">Select permission group</option>
-                {knownGroups.map((group) => {
-                  let displayName: string = group.type;
-                  if (group.type === 'Full') {
-                    displayName = 'Full Permissions';
-                  } else if (group.type === 'PolymeshV1Pia') {
-                    displayName = 'Primary Issuance Agent';
-                  }
-                  return (
-                    <option key={group.type} value={group.type}>
-                      {displayName}
-                    </option>
-                  );
-                })}
+                {knownGroups.map((group) => (
+                  <option key={group.type} value={group.type}>
+                    {getPermissionGroupName(group.type)}
+                  </option>
+                ))}
                 <option value="Custom">Custom Group</option>
               </FieldSelect>
             </FieldRow>
@@ -260,7 +237,7 @@ export const AddAgentModal: React.FC<IAddAgentModalProps> = ({
                       {customGroups.map((group) => (
                         <option
                           key={group.id.toNumber()}
-                          value={group.id.toNumber().toString()}
+                          value={group.id.toString()}
                         >
                           {`Custom Group ID: ${group.id.toNumber()}`}
                         </option>

@@ -4,7 +4,7 @@ import {
   SecurityIdentifier as SDKSecurityIdentifier,
   SecurityIdentifierType,
 } from '@polymeshassociation/polymesh-sdk/types';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
@@ -13,7 +13,7 @@ import { SecurityIdentifier } from '../../types';
 import { ModalActions, ModalContainer, ModalContent } from '../../styles';
 import {
   SecurityIdentifierFormFields,
-  securityIdentifierSchema,
+  createSecurityIdentifierSchema,
 } from './SecurityIdentifierModalBase';
 
 interface IEditSecurityIdentifierModalProps {
@@ -38,19 +38,42 @@ export const EditSecurityIdentifierModal: React.FC<
   onEditIdentifier,
   transactionInProcess,
 }) => {
+  // Create validation schema with duplicate checking, excluding the current identifier
+  const validationSchema = useMemo(
+    () =>
+      createSecurityIdentifierSchema({
+        existingIdentifiers: allIdentifiers,
+        identifierToExclude: identifierToEdit,
+      }),
+    [allIdentifiers, identifierToEdit],
+  );
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<SDKSecurityIdentifier>({
     mode: 'onChange',
     defaultValues: {
       type: SecurityIdentifierType.Isin,
       value: '',
     },
-    resolver: yupResolver(securityIdentifierSchema),
+    resolver: yupResolver(validationSchema),
   });
+
+  // Watch form values to detect changes
+  const formValues = watch();
+
+  // Check if form values have changed from the original
+  const hasChanges = useMemo(() => {
+    if (!identifierToEdit) return false;
+    return (
+      formValues.type !== identifierToEdit.type ||
+      formValues.value !== identifierToEdit.value
+    );
+  }, [formValues, identifierToEdit]);
 
   const handleClose = useCallback(() => {
     reset();
@@ -120,7 +143,12 @@ export const EditSecurityIdentifierModal: React.FC<
             <Button
               variant="modalPrimary"
               onClick={handleSubmit(onSubmit)}
-              disabled={!!errors.type || !!errors.value || transactionInProcess}
+              disabled={
+                !!errors.type ||
+                !!errors.value ||
+                !hasChanges ||
+                transactionInProcess
+              }
             >
               Update Identifier
             </Button>

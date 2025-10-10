@@ -1,12 +1,6 @@
 import { AgentWithGroup } from '@polymeshassociation/polymesh-sdk/types';
+import { getPermissionGroupName } from '../modals/helpers';
 import { IAgentTableItem } from './constants';
-
-// Helper function to get group name
-export const getGroupName = (groupType: string): string => {
-  if (groupType === 'Full') return 'Full Permissions';
-  if (groupType === 'PolymeshV1Pia') return 'Primary Issuance Agent';
-  return groupType;
-};
 
 // Helper function to get group type string from agent
 export const getAgentGroupType = (agent: AgentWithGroup): string => {
@@ -25,7 +19,7 @@ export const parseAgentsData = (
 ): IAgentTableItem[] => {
   return agents.map((agent) => {
     const groupType = getAgentGroupType(agent);
-    const groupName = getGroupName(groupType);
+    const groupName = getPermissionGroupName(groupType);
 
     return {
       agentDid: agent.agent.did,

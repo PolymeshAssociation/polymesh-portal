@@ -7,12 +7,13 @@ import {
   InputStatClaim,
   StatType,
 } from '@polymeshassociation/polymesh-sdk/types';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { Icon } from '~/components';
 import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { notifyError } from '~/helpers/notifications';
 import ExemptedIdentities from '../components/ExemptedIdentities';
 import StepNavigation from '../components/StepNavigation';
 import {
@@ -267,8 +268,29 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
   isLoading,
 }) => {
   const {
-    api: { sdk },
+    api: { sdk, polkadotApi },
   } = useContext(PolymeshContext);
+
+  const [maxTransferRestrictions, setMaxTransferRestrictions] = useState<
+    number | null
+  >(null);
+
+  // Fetch the maximum number of transfer restrictions from chain
+  useEffect(() => {
+    const fetchMaxRestrictions = async () => {
+      if (!polkadotApi) return;
+
+      try {
+        const max = polkadotApi.consts.statistics.maxTransferConditionsPerAsset;
+        setMaxTransferRestrictions(max.toNumber());
+      } catch (error) {
+        // Fallback to default value if query fails
+        notifyError('Failed to fetch max transfer restrictions');
+      }
+    };
+
+    fetchMaxRestrictions();
+  }, [polkadotApi]);
 
   const methods = useForm<TransferRestrictionFormData>({
     defaultValues: {
@@ -610,10 +632,15 @@ const TransferRestrictionsStep: React.FC<WizardStepProps> = ({
                 exemptedIdentities: [],
               })
             }
-            disabled={fields.length >= 4}
+            disabled={
+              maxTransferRestrictions !== null &&
+              fields.length >= maxTransferRestrictions
+            }
           >
             Add Transfer Restriction
-            {fields.length >= 4 && ' (Maximum 4 reached)'}
+            {maxTransferRestrictions !== null &&
+              fields.length >= maxTransferRestrictions &&
+              ` (Maximum ${maxTransferRestrictions} reached)`}
           </Button>
         </StyledForm>
       </FormProvider>

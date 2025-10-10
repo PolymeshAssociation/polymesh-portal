@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
 import { SecurityIdentifier as SDKSecurityIdentifier } from '@polymeshassociation/polymesh-sdk/types';
+import React, { useState } from 'react';
 import { Icon } from '~/components';
+import { useAssetActionsContext } from '../../context';
+import {
+  AddButton,
+  EmptyState,
+  SectionContent,
+  SectionHeader,
+  SectionTitle,
+  TabSection,
+} from '../../styles';
+import type { SecurityIdentifier, TabProps } from '../../types';
 import { SecurityIdentifiersTable } from '../SecurityIdentifiersTable';
 import {
   AddSecurityIdentifierModal,
   EditSecurityIdentifierModal,
 } from '../modals';
-import { useAssetActionsContext } from '../../context';
-import type { TabProps, SecurityIdentifier } from '../../types';
-import {
-  TabSection,
-  SectionHeader,
-  SectionTitle,
-  SectionContent,
-  EmptyState,
-  AddButton,
-} from '../../styles';
 
 interface SecurityIdentifiersSectionProps {
   asset: TabProps['asset'];
@@ -34,8 +34,8 @@ export const SecurityIdentifiersSection: React.FC<
 
   // Extract security identifiers from asset details
   const securityIdentifiers: SecurityIdentifier[] =
-    asset?.details?.assetIdentifiers?.map((identifier, index) => ({
-      id: `${identifier.type}-${identifier.value}-${index}`,
+    asset?.details?.assetIdentifiers?.map((identifier) => ({
+      id: `${identifier.type}|${identifier.value}`,
       type: identifier.type,
       value: identifier.value,
     })) || [];
@@ -45,8 +45,11 @@ export const SecurityIdentifiersSection: React.FC<
   };
 
   const handleEditSecurityIdentifier = (identifierId: string) => {
+    // Parse identifierId to get type and value
+    const [type, value] = identifierId.split('|');
+
     const identifierFound = securityIdentifiers.find(
-      (identifier) => identifier.id === identifierId,
+      (identifier) => identifier.type === type && identifier.value === value,
     );
     if (identifierFound) {
       setIdentifierToEdit(identifierFound);
@@ -59,12 +62,12 @@ export const SecurityIdentifiersSection: React.FC<
       return;
     }
 
-    // Parse the identifierId to find the index to remove
-    const indexToRemove = parseInt(identifierId.split('-').pop() || '0', 10);
+    // Parse identifierId to get type and value
+    const [type, value] = identifierId.split('|');
 
     // Filter out the identifier to remove
     const remainingIdentifiers = asset.details.assetIdentifiers.filter(
-      (_, index) => index !== indexToRemove,
+      (identifier) => !(identifier.type === type && identifier.value === value),
     );
 
     // Call the asset action to update identifiers

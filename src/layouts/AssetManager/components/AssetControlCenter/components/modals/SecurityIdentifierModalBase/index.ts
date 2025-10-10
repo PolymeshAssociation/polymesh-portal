@@ -1,2 +1,2 @@
 export { SecurityIdentifierFormFields } from './SecurityIdentifierFormFields';
-export { securityIdentifierSchema } from './validation';
+export { createSecurityIdentifierSchema } from './validation';

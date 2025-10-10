@@ -13,6 +13,7 @@ import * as yup from 'yup';
 import { CopyToClipboard, Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
 import { formatDid } from '~/helpers/formatters';
+import { getPermissionGroupName, resolvePermissionGroup } from './helpers';
 
 import {
   FieldLabel,
@@ -123,28 +124,12 @@ export const EditAgentModal: React.FC<IEditAgentModalProps> = ({
     async (formData: IEditAgentForm) => {
       if (!agentWithGroup) return;
 
-      let group: KnownPermissionGroup | CustomPermissionGroup;
-
-      if (formData.permissionGroup === 'Custom') {
-        if (!formData.customGroupId) return;
-        // Find the custom group entity by ID
-        const selectedCustomGroup = customGroups.find(
-          (customGroup) => customGroup.id.toString() === formData.customGroupId,
-        );
-        if (!selectedCustomGroup) {
-          throw new Error('Custom group entity not found');
-        }
-        group = selectedCustomGroup;
-      } else {
-        // Find the known group entity by type
-        const knownGroup = knownGroups.find(
-          (groupEntity) => groupEntity.type === formData.permissionGroup,
-        );
-        if (!knownGroup) {
-          throw new Error('Known permission group not found');
-        }
-        group = knownGroup;
-      }
+      const group = resolvePermissionGroup(
+        formData.permissionGroup,
+        formData.customGroupId,
+        customGroups,
+        knownGroups,
+      );
 
       const params = {
         agent: agentWithGroup.agent,
@@ -196,19 +181,11 @@ export const EditAgentModal: React.FC<IEditAgentModalProps> = ({
               >
                 <option value="Custom">Custom Group</option>
 
-                {knownGroups.map((group) => {
-                  let displayName: string = group.type;
-                  if (group.type === 'Full') {
-                    displayName = 'Full Permissions';
-                  } else if (group.type === 'PolymeshV1Pia') {
-                    displayName = 'Primary Issuance Agent';
-                  }
-                  return (
-                    <option key={group.type} value={group.type}>
-                      {displayName}
-                    </option>
-                  );
-                })}
+                {knownGroups.map((group) => (
+                  <option key={group.type} value={group.type}>
+                    {getPermissionGroupName(group.type)}
+                  </option>
+                ))}
               </FieldSelect>
             </FieldRow>
             {errors.permissionGroup && (
@@ -233,7 +210,7 @@ export const EditAgentModal: React.FC<IEditAgentModalProps> = ({
                       {customGroups.map((group) => (
                         <option
                           key={group.id.toNumber()}
-                          value={group.id.toNumber().toString()}
+                          value={group.id.toString()}
                         >
                           {`Custom Group ID: ${group.id.toNumber()}`}
                         </option>

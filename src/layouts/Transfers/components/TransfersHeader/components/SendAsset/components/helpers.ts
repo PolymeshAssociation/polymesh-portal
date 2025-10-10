@@ -8,6 +8,17 @@ import { IAdvancedFieldValues, IBasicFieldValues } from './config';
 export const getAssetValue = (asset: TSelectedAsset | TSelectedLeg) =>
   'amount' in asset ? { amount: asset.amount } : { nfts: asset.nfts };
 
+/**
+ * Extracts venue ID from the formatted string "id / description"
+ * Returns undefined if venue is empty or not provided
+ */
+export const parseVenueId = (venue?: string): BigNumber | undefined => {
+  if (!venue || venue.trim() === '') {
+    return undefined;
+  }
+  return new BigNumber(venue.split('/')[0].trim());
+};
+
 export const createBasicInstructionParams = ({
   selectedAssets,
   selectedPortfolio,
@@ -19,12 +30,6 @@ export const createBasicInstructionParams = ({
 }): AddInstructionWithVenueIdParams => {
   const { recipient, memo } = formData;
 
-  // Extract venue ID from format "id / description" or handle empty/undefined
-  const venueId =
-    formData.venue && formData.venue.trim() !== ''
-      ? new BigNumber(formData.venue.split('/')[0].trim())
-      : undefined;
-
   const instructionParams = {
     legs: selectedAssets.map((selectedAsset) => ({
       ...getAssetValue(selectedAsset),
@@ -33,7 +38,7 @@ export const createBasicInstructionParams = ({
       to: recipient,
     })),
     memo,
-    venueId,
+    venueId: parseVenueId(formData.venue),
   } satisfies AddInstructionWithVenueIdParams;
 
   return instructionParams;
@@ -48,12 +53,6 @@ export const createAdvancedInstructionParams = ({
 }): AddInstructionWithVenueIdParams => {
   const { valueDate, tradeDate, memo } = formData;
 
-  // Extract venue ID from format "id / description" or handle empty/undefined
-  const venueId =
-    formData.venue && formData.venue.trim() !== ''
-      ? new BigNumber(formData.venue.split('/')[0].trim())
-      : undefined;
-
   const instructionParams = {
     legs: selectedLegs.map((selectedAsset) => ({
       ...getAssetValue(selectedAsset),
@@ -64,7 +63,7 @@ export const createAdvancedInstructionParams = ({
     valueDate: valueDate ?? undefined,
     tradeDate: tradeDate ?? undefined,
     memo,
-    venueId,
+    venueId: parseVenueId(formData.venue),
   } satisfies AddInstructionWithVenueIdParams;
 
   return instructionParams;

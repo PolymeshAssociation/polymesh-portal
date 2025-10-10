@@ -30,6 +30,7 @@ import {
   CreatePermissionGroupModal,
   EditPermissionGroupModal,
 } from '../modals';
+import { getPermissionGroupName } from '../modals/helpers';
 
 interface PermissionGroupsSectionProps {
   asset: TabProps['asset'];
@@ -71,13 +72,6 @@ export const PermissionGroupsSection: React.FC<
   );
   const permissionGroups = asset?.details?.permissionGroups;
 
-  // Helper function to get group name
-  const getGroupName = (groupType: string): string => {
-    if (groupType === 'Full') return 'Full Permissions';
-    if (groupType === 'PolymeshV1Pia') return 'Primary Issuance Agent';
-    return groupType;
-  };
-
   // Process permission groups with proper async handling
   useEffect(() => {
     // Helper function to get group type string from agent (moved inside useEffect)
@@ -111,7 +105,7 @@ export const PermissionGroupsSection: React.FC<
                 return {
                   id: knownGroup.type as string,
                   type: 'known' as const,
-                  name: getGroupName(knownGroup.type),
+                  name: getPermissionGroupName(knownGroup.type),
                   agentCount,
                   permissions: {
                     transactions: groupPermissions.transactions || undefined,
