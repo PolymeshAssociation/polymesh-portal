@@ -885,6 +885,13 @@ export const ErrorMessage = styled.div`
   margin-top: 4px;
 `;
 
+export const InfoMessage = styled.div`
+  align-self: flex-end;
+  font-size: 12px;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  margin-top: 4px;
+`;
+
 export const WarningMessage = styled.div`
   align-self: flex-end;
   font-size: 12px;

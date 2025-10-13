@@ -30,16 +30,6 @@ export interface SecurityIdentifier {
   value: string;
 }
 
-// Asset Document data structure
-export interface AssetDocument {
-  id: string;
-  name: string;
-  type: string;
-  contentHash?: string;
-  filedAt: Date;
-  uri?: string;
-}
-
 // Asset Metadata data structure
 export interface AssetMetadata {
   id: string;

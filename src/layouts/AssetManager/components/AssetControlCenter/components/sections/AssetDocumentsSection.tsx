@@ -1,26 +1,29 @@
-import React, { useState } from 'react';
-import { Icon, SafeLink } from '~/components';
-import { ComingSoonModal } from '../modals';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import { AssetDocument } from '@polymeshassociation/polymesh-sdk/types';
+import React, { useMemo, useState } from 'react';
+import { ConfirmationModal, Icon, SafeLink } from '~/components';
 import { useAssetActionsContext } from '../../context';
-import type { TabProps, AssetDocument } from '../../types';
 import {
-  TabSection,
-  SectionHeader,
-  SectionTitle,
-  SectionContent,
-  DataList,
-  DataItem,
   ActionButton,
-  EmptyState,
   AddButton,
-  GroupHeader,
-  GroupTitleSection,
+  DataItem,
+  DataList,
+  EmptyState,
   GroupActions,
   GroupContent,
-  InlineRow,
+  GroupHeader,
+  GroupTitleSection,
+  HeaderButtons,
   InlineLabel,
+  InlineRow,
   InlineValue,
+  SectionContent,
+  SectionHeader,
+  SectionTitle,
+  TabSection,
 } from '../../styles';
+import type { TabProps } from '../../types';
+import { AddDocumentModal } from '../modals';
 
 interface AssetDocumentsSectionProps {
   asset: TabProps['asset'];
@@ -29,57 +32,102 @@ interface AssetDocumentsSectionProps {
 export const AssetDocumentsSection: React.FC<AssetDocumentsSectionProps> = ({
   asset,
 }) => {
-  const { transactionInProcess } = useAssetActionsContext();
-  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
-  const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const { addAssetDocument, removeAssetDocuments, transactionInProcess } =
+    useAssetActionsContext();
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteAllConfirmOpen, setDeleteAllConfirmOpen] = useState(false);
+  const [documentIdToDelete, setDocumentIdToDelete] = useState<string | null>(
+    null,
+  );
 
   const handleAddDocument = () => {
-    setComingSoonFeature('add asset document');
-    setComingSoonModalOpen(true);
-  };
-
-  const handleEditDocument = (documentId: string) => {
-    setComingSoonFeature('edit asset document');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Edit document:', documentId);
+    setAddModalOpen(true);
   };
 
   const handleDeleteDocument = (documentId: string) => {
-    setComingSoonFeature('delete asset document');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Delete document:', documentId);
+    setDocumentIdToDelete(documentId);
+    setDeleteConfirmOpen(true);
   };
 
-  // Extract documents from asset data
-  const assetDocuments: AssetDocument[] =
-    asset?.docs?.map((doc, index) => ({
-      id: `doc-${index}`,
-      name: doc.name,
-      type: doc.type || 'Document',
-      contentHash: doc.contentHash || undefined,
-      filedAt: doc.filedAt || new Date(),
-      uri: doc.uri || '',
-    })) || [];
+  const confirmDeleteDocument = async () => {
+    if (documentIdToDelete) {
+      await removeAssetDocuments({
+        documentIds: [new BigNumber(documentIdToDelete)],
+      });
+      setDocumentIdToDelete(null);
+    }
+  };
+
+  const handleDeleteAllDocuments = () => {
+    if (!asset?.docs || asset.docs.length === 0) return;
+    setDeleteAllConfirmOpen(true);
+  };
+
+  const confirmDeleteAllDocuments = async () => {
+    if (!asset?.docs || asset.docs.length === 0) return;
+
+    // Extract all document IDs and remove them in a single transaction
+    const allDocumentIds = asset.docs.map((doc) => doc.id);
+    await removeAssetDocuments({
+      documentIds: allDocumentIds,
+    });
+  };
+
+  // Display documents with on-chain IDs, sorted by ID
+  const displayDocuments = useMemo(
+    () =>
+      asset?.docs
+        ?.sort((a, b) => a.id.comparedTo(b.id))
+        .map((doc) => ({
+          id: doc.id.toString(),
+          name: doc.name,
+          type: doc.type || 'Document',
+          contentHash: doc.contentHash || undefined,
+          filedAt: doc.filedAt || new Date(),
+          uri: doc.uri || '',
+        })) || [],
+    [asset?.docs],
+  );
+
+  const handleAddDocumentSubmit = async (
+    document: AssetDocument,
+    onTransactionRunning?: () => void | Promise<void>,
+  ) => {
+    await addAssetDocument({
+      document,
+      onTransactionRunning,
+    });
+  };
 
   return (
     <>
       <TabSection>
         <SectionHeader>
           <SectionTitle>Asset Documents</SectionTitle>
-          <AddButton
-            onClick={handleAddDocument}
-            disabled={transactionInProcess}
-          >
-            <Icon name="Plus" size="16px" />
-            Add Document
-          </AddButton>
+          <HeaderButtons>
+            <AddButton
+              onClick={handleAddDocument}
+              disabled={transactionInProcess}
+            >
+              <Icon name="Plus" size="16px" />
+              Add Document
+            </AddButton>
+            {displayDocuments.length > 1 && (
+              <AddButton
+                onClick={handleDeleteAllDocuments}
+                disabled={transactionInProcess}
+              >
+                <Icon name="Delete" size="16px" />
+                Delete All
+              </AddButton>
+            )}
+          </HeaderButtons>
         </SectionHeader>
         <SectionContent>
-          {assetDocuments.length > 0 ? (
+          {displayDocuments.length > 0 ? (
             <DataList className="two-column">
-              {assetDocuments.map((document) => (
+              {displayDocuments.map((document) => (
                 <DataItem key={document.id}>
                   {/* Header with document name and action buttons */}
                   <GroupHeader>
@@ -93,12 +141,6 @@ export const AssetDocumentsSection: React.FC<AssetDocumentsSectionProps> = ({
                     {/* Action buttons in top-right corner */}
                     <GroupActions>
                       <ActionButton
-                        onClick={() => handleEditDocument(document.id)}
-                        disabled={transactionInProcess}
-                      >
-                        <Icon name="Edit" size="14px" />
-                      </ActionButton>
-                      <ActionButton
                         onClick={() => handleDeleteDocument(document.id)}
                         disabled={transactionInProcess}
                       >
@@ -109,6 +151,11 @@ export const AssetDocumentsSection: React.FC<AssetDocumentsSectionProps> = ({
 
                   {/* Content section */}
                   <GroupContent>
+                    <InlineRow>
+                      <InlineLabel>Document ID</InlineLabel>
+                      <InlineValue>{document.id}</InlineValue>
+                    </InlineRow>
+
                     <InlineRow>
                       <InlineLabel>Type</InlineLabel>
                       <InlineValue>{document.type}</InlineValue>
@@ -153,10 +200,34 @@ export const AssetDocumentsSection: React.FC<AssetDocumentsSectionProps> = ({
         </SectionContent>
       </TabSection>
 
-      <ComingSoonModal
-        isOpen={comingSoonModalOpen}
-        onClose={() => setComingSoonModalOpen(false)}
-        feature={comingSoonFeature}
+      <AddDocumentModal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onAddDocument={handleAddDocumentSubmit}
+        transactionInProcess={transactionInProcess}
+      />
+
+      <ConfirmationModal
+        isOpen={deleteConfirmOpen}
+        onClose={() => {
+          setDeleteConfirmOpen(false);
+          setDocumentIdToDelete(null);
+        }}
+        onConfirm={confirmDeleteDocument}
+        title="Delete Document"
+        message="Are you sure you want to delete this document? This action cannot be undone."
+        confirmLabel="Delete Document"
+        isProcessing={transactionInProcess}
+      />
+
+      <ConfirmationModal
+        isOpen={deleteAllConfirmOpen}
+        onClose={() => setDeleteAllConfirmOpen(false)}
+        onConfirm={confirmDeleteAllDocuments}
+        title="Delete All Documents"
+        message="Are you sure you want to delete all documents? This will remove all documents associated with this asset. This action cannot be undone."
+        confirmLabel="Delete All"
+        isProcessing={transactionInProcess}
       />
     </>
   );

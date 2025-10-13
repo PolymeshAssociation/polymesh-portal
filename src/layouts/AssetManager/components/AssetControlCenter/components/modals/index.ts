@@ -1,4 +1,5 @@
 export { AddAgentModal } from './AddAgentModal';
+export { AddDocumentModal } from './AddDocumentModal';
 export { AddMediatorModal } from './AddMediatorModal';
 export { AddMetadataModal } from './AddMetadataModal';
 export { AddSecurityIdentifierModal } from './AddSecurityIdentifierModal';

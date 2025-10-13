@@ -2,6 +2,7 @@ import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import type { NftMetadataInput } from '@polymeshassociation/polymesh-sdk/types';
 import {
   Asset,
+  AssetDocument,
   AssetMediatorParams,
   ControllerTransferParams,
   CreateGroupParams,
@@ -160,6 +161,57 @@ const useAssetActions = (
       }
     } catch (error) {
       notifyError('Failed to redeem NFTs');
+      throw error;
+    }
+  };
+
+  const addAssetDocument = async ({
+    document,
+    onTransactionRunning,
+  }: {
+    document: AssetDocument;
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset) {
+      notifyError('Asset is not provided');
+      return;
+    }
+
+    try {
+      await executeTransaction(
+        asset.documents.add({ documents: [document] }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      notifyError('Failed to add asset document');
+      throw error;
+    }
+  };
+
+  const removeAssetDocuments = async ({
+    documentIds,
+    onTransactionRunning,
+  }: {
+    documentIds: BigNumber[];
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset) {
+      notifyError('Asset is not provided');
+      return;
+    }
+
+    if (documentIds.length === 0) {
+      notifyError('No document IDs provided');
+      return;
+    }
+
+    try {
+      await executeTransaction(
+        asset.documents.remove({ documentIds }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      notifyError('Failed to remove asset document(s)');
       throw error;
     }
   };
@@ -875,6 +927,8 @@ const useAssetActions = (
     setMetadata,
     clearMetadata,
     removeMetadata,
+    addAssetDocument,
+    removeAssetDocuments,
     controllerTransfer,
     freeze,
     unfreeze,

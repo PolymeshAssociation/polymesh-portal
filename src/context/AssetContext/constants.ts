@@ -3,7 +3,7 @@ import {
   AgentWithGroup,
   Asset,
   AssetDetails,
-  AssetDocument,
+  AssetDocumentWithId,
   CollectionKey,
   ComplianceRequirements,
   GlobalMetadataKey,
@@ -60,7 +60,7 @@ export interface IDetails {
 export interface IAssetDetails {
   assetId: string;
   details?: IDetails;
-  docs?: AssetDocument[];
+  docs?: AssetDocumentWithId[];
 }
 
 export type AssetWithDetails = Asset & AssetDetails;
