@@ -360,7 +360,7 @@ export const DataItem = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 8px;
   height: 100%;
-  min-height: 120px;
+  min-height: 100px;
 
   @media screen and (max-width: 900px) {
     height: fit-content;
@@ -583,19 +583,30 @@ export const InlineValue = styled.div`
   font-size: 14px;
   font-weight: 400;
   color: ${({ theme }) => theme.colors.textPrimary};
-  word-wrap: break-word;
+  word-break: break-word;
   overflow-wrap: break-word;
+  min-width: 160px;
   flex: 1;
 
   a {
     color: ${({ theme }) => theme.colors.textPink};
     text-decoration: none;
-    word-break: break-all;
+    word-break: break-word;
+    overflow-wrap: break-word;
 
     &:hover {
       text-decoration: underline;
     }
   }
+`;
+
+export const CollectionKeyBadge = styled.span`
+  padding: 2px 8px;
+  font-size: 10px;
+  border: 1px solid ${({ theme }) => theme.colors.textPink};
+  background: ${({ theme }) => theme.colors.cardBackground};
+  color: ${({ theme }) => theme.colors.textPink};
+  border-radius: 100px;
 `;
 
 // =============================================================================
@@ -779,8 +790,6 @@ export const ModalContainer = styled.div`
 `;
 
 export const ModalContent = styled.div`
-  padding: 0 24px 24px 24px;
-
   p {
     color: ${({ theme }) => theme.colors.textSecondary};
     margin-bottom: 24px;
@@ -883,6 +892,54 @@ export const WarningMessage = styled.div`
   margin-top: 4px;
   margin-left: 12px;
   margin-right: 12px;
+`;
+
+// =============================================================================
+// METADATA FILTER STYLES
+// =============================================================================
+
+export const FilterContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.small};
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    gap: 12px;
+  }
+`;
+
+export const FilterLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.textPrimary};
+  user-select: none;
+  transition: color ${({ theme }) => theme.transition.normal};
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.textPink};
+  }
+`;
+
+export const FilterCheckbox = styled.input.attrs({ type: 'checkbox' })`
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: ${({ theme }) =>
+    theme.mode === 'dark'
+      ? theme.colors.buttonBackground
+      : theme.colors.textPink};
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 `;
 
 // =============================================================================

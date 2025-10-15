@@ -1,10 +1,10 @@
 import { SecurityIdentifier } from '@polymeshassociation/polymesh-sdk/types';
+import { AssetMetadata, IDetails } from '~/context/AssetContext/constants';
+import { formatDid, splitCamelCase } from '~/helpers/formatters';
+import { getDateTime, isValidLink } from '../../helpers';
+import { MediatorList } from '../MediatorList';
 import { PropertiesDropdown } from '../PropertiesDropdown';
 import { PropertiesItem } from '../PropertiesItem';
-import { getDateTime, isValidLink } from '../../helpers';
-import { formatDid, splitCamelCase } from '~/helpers/formatters';
-import { MediatorList } from '../MediatorList';
-import { IDetails, IAssetMeta } from '~/context/AssetContext/constants';
 
 interface IDetailsProps {
   details: IDetails;
@@ -19,7 +19,7 @@ export const Details: React.FC<IDetailsProps> = ({ details }) => {
     holderCount,
     isDivisible,
     isNftCollection,
-    metaData,
+    metadata,
     name,
     owner,
     ticker,
@@ -81,18 +81,32 @@ export const Details: React.FC<IDetailsProps> = ({ details }) => {
           propCopy={owner}
           isPink
         />
-        {metaData.map((meta: IAssetMeta) => (
-          <PropertiesItem
-            key={meta.name}
-            propKey={meta.name}
-            propValue={meta.value}
-            propDescription={meta.description}
-            propIsLocked={meta.isLocked}
-            propLockedUntil={meta.lockedUntil}
-            propUrl={isValidLink(meta?.value)}
-            isPink={!!isValidLink(meta?.value)}
-          />
-        ))}
+        {metadata
+          .filter((meta: AssetMetadata) => meta.value)
+          .map((meta: AssetMetadata) => {
+            let isLocked: string | null = null;
+            if (meta.lockStatus === 'Locked') {
+              isLocked = 'Locked';
+            } else if (meta.lockStatus === 'LockedUntil') {
+              isLocked = 'Locked Until';
+            }
+            const lockedUntil = meta.lockedUntil
+              ? getDateTime(meta.lockedUntil)
+              : undefined;
+
+            return (
+              <PropertiesItem
+                key={`${meta.entry.type}-${meta.entry.id}`}
+                propKey={splitCamelCase(meta.details.name)}
+                propValue={meta.value}
+                propDescription={meta.details.specs?.description}
+                propIsLocked={isLocked}
+                propLockedUntil={lockedUntil}
+                propUrl={isValidLink(meta.value)}
+                isPink={!!isValidLink(meta.value)}
+              />
+            );
+          })}
         <PropertiesItem
           propKey="Transfers Frozen"
           propValue={isFrozen ? 'Yes' : 'No'}

@@ -5,7 +5,6 @@ import {
 import {
   Asset,
   GlobalMetadataKey,
-  MetadataLockStatus,
 } from '@polymeshassociation/polymesh-sdk/types';
 import React, {
   useCallback,
@@ -24,9 +23,6 @@ import {
   TickerReservationWithDetails,
 } from './constants';
 import AssetContext from './context';
-
-import { toFormattedTimestamp } from '~/helpers/dateTime';
-import { splitCamelCase } from '~/helpers/formatters';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -133,33 +129,32 @@ const AssetProvider = ({ children }: IProviderProps) => {
             : undefined,
         ]);
 
-        const metaData = (
+        // Fetch all metadata entries with their details and values (if set)
+        const metadata = (
           await Promise.all(
             meta.map(async (entry) => {
-              const value = await entry.value();
-              const metaDetails = await entry.details();
-              let lockedUntil: string | undefined;
-              if (value?.lockStatus === MetadataLockStatus.LockedUntil) {
-                lockedUntil = toFormattedTimestamp(
-                  value.lockedUntil,
-                  'YYYY-MM-DD / HH:mm:ss',
-                );
-              }
+              const [metaDetails, metaValue] = await Promise.all([
+                entry.details(),
+                entry.value(),
+              ]);
               return {
-                name: splitCamelCase(metaDetails.name),
-                description: metaDetails.specs.description,
-                expiry: value?.expiry
-                  ? toFormattedTimestamp(value.expiry, 'YYYY-MM-DD / HH:mm:ss')
-                  : null,
-                lockedUntil,
-                isLocked: value?.lockStatus
-                  ? splitCamelCase(value.lockStatus)
-                  : null,
-                value: value?.value || null,
+                entry,
+                details: metaDetails,
+                value: metaValue?.value,
+                lockStatus: metaValue?.lockStatus,
+                lockedUntil:
+                  metaValue?.lockStatus === 'LockedUntil'
+                    ? metaValue.lockedUntil
+                    : undefined,
+                expiry: metaValue?.expiry,
               };
             }),
           )
-        ).filter((entry) => entry.value !== null);
+        ).filter(
+          (metadataEntry) =>
+            metadataEntry.entry.type !== 'Global' ||
+            metadataEntry.value !== undefined,
+        ); // filter out global metadata without a value set
 
         const assetDetails: IAssetDetails = {
           assetId: asset.id,
@@ -173,7 +168,7 @@ const AssetProvider = ({ children }: IProviderProps) => {
             holderCount: assetHolderCount.toNumber(),
             isDivisible: details.isDivisible,
             isNftCollection: !!details.nonFungible,
-            metaData,
+            metadata,
             name: details.name,
             owner: details.owner.did,
             ticker: details.ticker || '',

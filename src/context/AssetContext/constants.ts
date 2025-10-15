@@ -7,6 +7,9 @@ import {
   CollectionKey,
   ComplianceRequirements,
   GlobalMetadataKey,
+  MetadataDetails,
+  MetadataEntry,
+  MetadataLockStatus,
   PermissionGroups,
   SecurityIdentifier,
   TickerReservation,
@@ -15,13 +18,16 @@ import {
   Venue,
 } from '@polymeshassociation/polymesh-sdk/types';
 
-export interface IAssetMeta {
-  name: string;
-  description?: string;
-  expiry?: Date | string | null;
-  isLocked?: string | null;
-  lockedUntil?: string;
-  value?: string | null;
+/**
+ * Metadata entry with details and optional value information.
+ */
+export interface AssetMetadata {
+  entry: MetadataEntry;
+  details: MetadataDetails;
+  value?: string;
+  lockStatus?: MetadataLockStatus;
+  lockedUntil?: Date;
+  expiry?: Date | null;
 }
 
 export interface IDetails {
@@ -33,7 +39,7 @@ export interface IDetails {
   holderCount: number;
   isDivisible: boolean;
   isNftCollection: boolean;
-  metaData: IAssetMeta[];
+  metadata: AssetMetadata[];
   name: string;
   owner: string;
   ticker?: string;

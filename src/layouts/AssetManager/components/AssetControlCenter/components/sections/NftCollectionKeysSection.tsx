@@ -1,20 +1,20 @@
 import React from 'react';
 import { SafeLink } from '~/components';
-import type { TabProps } from '../../types';
 import {
-  TabSection,
-  SectionHeader,
-  SectionTitle,
-  SectionContent,
-  DataList,
   DataItem,
+  DataList,
   EmptyState,
   GroupContent,
-  InlineRow,
-  InlineLabel,
-  InlineValue,
   InfoText,
+  InlineLabel,
+  InlineRow,
+  InlineValue,
+  SectionContent,
+  SectionHeader,
+  SectionTitle,
+  TabSection,
 } from '../../styles';
+import type { TabProps } from '../../types';
 
 interface NftCollectionKeysSectionProps {
   asset: TabProps['asset'];
@@ -52,13 +52,10 @@ export const NftCollectionKeysSection: React.FC<
                   </InlineRow>
 
                   <InlineRow>
-                    <InlineLabel>Type</InlineLabel>
-                    <InlineValue>{key.type}</InlineValue>
-                  </InlineRow>
-
-                  <InlineRow>
                     <InlineLabel>Key ID</InlineLabel>
-                    <InlineValue>{key.id.toString()}</InlineValue>
+                    <InlineValue>
+                      {key.type} - {key.id.toString()}
+                    </InlineValue>
                   </InlineRow>
 
                   {key.specs?.description && (

@@ -13,12 +13,16 @@ import {
   KnownAssetType,
   KnownPermissionGroup,
   LinkTickerToAssetParams,
+  MetadataEntry,
+  MetadataType,
   ModifyAssetParams,
   NftCollection,
   NftControllerTransferParams,
   NumberedPortfolio,
   RedeemTokensParams,
+  RegisterMetadataParams,
   SecurityIdentifier,
+  SetMetadataParams,
   SetVenueFilteringParams,
   TransferAssetOwnershipParams,
 } from '@polymeshassociation/polymesh-sdk/types';
@@ -196,6 +200,101 @@ const useAssetActions = (
     try {
       await executeTransaction(
         asset.removeRequiredMediators({ mediators }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
+  const registerMetadata = async (
+    params: RegisterMetadataParams & {
+      onTransactionRunning?: () => void | Promise<void>;
+    },
+  ) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    const { onTransactionRunning, ...metadataParams } = params;
+
+    try {
+      await executeTransaction(
+        asset.metadata.register(metadataParams),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
+  const setMetadata = async ({
+    id,
+    type,
+    params,
+    onTransactionRunning,
+  }: {
+    id?: BigNumber;
+    type?: MetadataType;
+    params: SetMetadataParams;
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    try {
+      let entry: MetadataEntry;
+
+      if (id !== undefined && type !== undefined) {
+        // Fetch the metadata entry using id and type
+        entry = await asset.metadata.getOne({ id, type });
+      } else {
+        throw new Error('Both id and type must be provided');
+      }
+
+      await executeTransaction(
+        entry.set(params),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
+  const clearMetadata = async ({
+    metadataEntry,
+    onTransactionRunning,
+  }: {
+    metadataEntry: MetadataEntry;
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    try {
+      await executeTransaction(
+        metadataEntry.clear(),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
+  const removeMetadata = async ({
+    metadataEntry,
+    onTransactionRunning,
+  }: {
+    metadataEntry: MetadataEntry;
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    try {
+      await executeTransaction(
+        metadataEntry.remove(),
         createOptions(onTransactionRunning),
       );
     } catch (error) {
@@ -772,6 +871,10 @@ const useAssetActions = (
     mintNftBatch,
     addRequiredMediators,
     removeRequiredMediators,
+    registerMetadata,
+    setMetadata,
+    clearMetadata,
+    removeMetadata,
     controllerTransfer,
     freeze,
     unfreeze,

@@ -103,6 +103,7 @@ export const FieldInput = styled.input<{ $hasError?: boolean }>`
   color: ${({ theme }) => theme.colors.textPrimary};
   font-size: 14px;
   color-scheme: ${({ theme }) => theme.mode};
+  transition: all 250ms ease-out;
 
   ${mediaQueries.mobile} {
     width: 100%;
@@ -121,6 +122,13 @@ export const FieldInput = styled.input<{ $hasError?: boolean }>`
     border-color: ${({ theme }) => theme.colors.textDisabled};
     cursor: not-allowed;
     -webkit-text-fill-color: ${({ theme }) => theme.colors.textDisabled};
+  }
+
+  &:read-only:not(:disabled) {
+    background-color: ${({ theme }) => theme.colors.disabledBackground};
+    color: ${({ theme }) => theme.colors.textPrimary};
+    border-color: ${({ theme }) => theme.colors.textSecondary};
+    cursor: default;
   }
 `;
 
@@ -195,6 +203,20 @@ export const FieldTextarea = styled.textarea`
     outline: none;
     border-color: ${({ theme }) => theme.colors.focusBorder};
     background: transparent;
+  }
+
+  &:disabled {
+    background-color: ${({ theme }) => theme.colors.disabledBackground};
+    color: ${({ theme }) => theme.colors.textDisabled};
+    border-color: ${({ theme }) => theme.colors.textDisabled};
+    cursor: not-allowed;
+  }
+
+  &:read-only:not(:disabled) {
+    background-color: ${({ theme }) => theme.colors.disabledBackground};
+    color: ${({ theme }) => theme.colors.textPrimary};
+    border-color: ${({ theme }) => theme.colors.textSecondary};
+    cursor: default;
   }
 `;
 
