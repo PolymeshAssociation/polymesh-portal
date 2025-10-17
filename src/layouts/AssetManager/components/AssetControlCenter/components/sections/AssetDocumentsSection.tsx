@@ -55,7 +55,6 @@ export const AssetDocumentsSection: React.FC<AssetDocumentsSectionProps> = ({
       await removeAssetDocuments({
         documentIds: [new BigNumber(documentIdToDelete)],
       });
-      setDocumentIdToDelete(null);
     }
   };
 

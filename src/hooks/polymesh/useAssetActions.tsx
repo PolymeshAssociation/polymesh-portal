@@ -160,8 +160,8 @@ const useAssetActions = (
         );
       }
     } catch (error) {
-      notifyError('Failed to redeem NFTs');
-      throw error;
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -183,8 +183,8 @@ const useAssetActions = (
         createOptions(onTransactionRunning),
       );
     } catch (error) {
-      notifyError('Failed to add asset document');
-      throw error;
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -211,8 +211,8 @@ const useAssetActions = (
         createOptions(onTransactionRunning),
       );
     } catch (error) {
-      notifyError('Failed to remove asset document(s)');
-      throw error;
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -289,8 +289,8 @@ const useAssetActions = (
     params,
     onTransactionRunning,
   }: {
-    id?: BigNumber;
-    type?: MetadataType;
+    id: BigNumber;
+    type: MetadataType;
     params: SetMetadataParams;
     onTransactionRunning?: () => void | Promise<void>;
   }) => {
@@ -300,14 +300,12 @@ const useAssetActions = (
     }
 
     try {
-      let entry: MetadataEntry;
-
-      if (id !== undefined && type !== undefined) {
-        // Fetch the metadata entry using id and type
-        entry = await asset.metadata.getOne({ id, type });
-      } else {
-        throw new Error('Both id and type must be provided');
+      if (!id || !type) {
+        notifyError('Both id and type must be provided');
+        return;
       }
+
+      const entry = await asset.metadata.getOne({ id, type });
 
       await executeTransaction(
         entry.set(params),
@@ -818,8 +816,8 @@ const useAssetActions = (
         createOptions(onTransactionRunning, getPortfoliosData),
       );
     } catch (error) {
-      notifyError('Failed to mint NFT');
-      throw error;
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 
@@ -857,8 +855,8 @@ const useAssetActions = (
         );
       }
     } catch (error) {
-      notifyError('Failed to mint NFTs');
-      throw error;
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
     }
   };
 

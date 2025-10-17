@@ -24,7 +24,7 @@ import {
 import { ModalActions, ModalContainer, ModalContent } from '../../styles';
 
 interface IEditMetadataForm {
-  value?: string;
+  value: string;
   expiry?: string;
   lockStatus?: MetadataLockStatus;
   lockedUntil?: string;

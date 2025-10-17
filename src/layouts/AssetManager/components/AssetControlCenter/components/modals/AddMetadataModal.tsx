@@ -29,8 +29,30 @@ import {
 } from '../../../CreateAssetWizard/styles';
 import { ModalActions, ModalContainer, ModalContent } from '../../styles';
 
-interface IAddMetadataForm {
-  keyType: 'global' | 'local';
+type IAddMetadataForm =
+  | {
+      keyType: 'global';
+      globalKeyId: string;
+      value: string;
+      expiry?: string;
+      lockedUntil?: string;
+      lockStatus?: MetadataLockStatus;
+    }
+  | {
+      keyType: 'local';
+      localKeyName: string;
+      localKeyDescription?: string;
+      localKeyTypeDef?: string;
+      localKeyUrl?: string;
+      value?: string;
+      expiry?: string;
+      lockedUntil?: string;
+      lockStatus?: MetadataLockStatus;
+    };
+
+// Helper type to access errors from both union variants
+type AllFormFields = {
+  keyType?: string;
   globalKeyId?: string;
   localKeyName?: string;
   localKeyDescription?: string;
@@ -40,7 +62,7 @@ interface IAddMetadataForm {
   expiry?: string;
   lockedUntil?: string;
   lockStatus?: MetadataLockStatus;
-}
+};
 
 interface IAddMetadataModalProps {
   isOpen: boolean;
@@ -107,7 +129,7 @@ export const AddMetadataModal: React.FC<IAddMetadataModalProps> = ({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors: formErrors },
     reset,
     watch,
     setValue,
@@ -115,7 +137,6 @@ export const AddMetadataModal: React.FC<IAddMetadataModalProps> = ({
     mode: 'onChange',
     defaultValues: {
       keyType: 'local',
-      globalKeyId: '',
       localKeyName: '',
       localKeyDescription: '',
       localKeyTypeDef: '',
@@ -124,7 +145,7 @@ export const AddMetadataModal: React.FC<IAddMetadataModalProps> = ({
       expiry: '',
       lockedUntil: '',
       lockStatus: MetadataLockStatus.Unlocked,
-    },
+    } as IAddMetadataForm,
     resolver: yupResolver(validationSchema),
   });
 
@@ -132,6 +153,11 @@ export const AddMetadataModal: React.FC<IAddMetadataModalProps> = ({
   const watchedValue = watch('value');
   const watchedGlobalKeyId = watch('globalKeyId');
   const watchedLockStatus = watch('lockStatus');
+
+  // Type-safe error access for discriminated union
+  const errors = formErrors as Partial<
+    Record<keyof AllFormFields, { message?: string }>
+  >;
 
   // Reset form fields when switching between local and global
   useEffect(() => {
@@ -182,9 +208,7 @@ export const AddMetadataModal: React.FC<IAddMetadataModalProps> = ({
               expiry: formData.expiry ? new Date(formData.expiry) : undefined,
             } as MetadataValueDetails)
           : undefined;
-
-        if (formData.keyType === 'global' && formData.globalKeyId) {
-          // For global metadata, use id and type to fetch and set the value
+        if (formData.keyType === 'global') {
           if (!trimmedValue) {
             throw new Error('Value is required for global metadata');
           }
@@ -205,7 +229,7 @@ export const AddMetadataModal: React.FC<IAddMetadataModalProps> = ({
           const trimmedUrl = formData.localKeyUrl?.trim();
 
           await onRegisterMetadata({
-            name: formData.localKeyName!.trim(),
+            name: formData.localKeyName.trim(),
             specs: {
               description: trimmedDescription,
               typeDef: trimmedTypeDef,
