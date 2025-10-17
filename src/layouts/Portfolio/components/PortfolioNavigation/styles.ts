@@ -6,8 +6,8 @@ export const StyledNavBar = styled.div`
   align-items: center;
   gap: 24px;
 
-   .skeleton-wrapper {
-    width: auto !important;
+  skeleton-wrapper {
+  width: auto !important;
   }
 
   @media screen and (max-width: 1023px) {
