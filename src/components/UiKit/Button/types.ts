@@ -21,5 +21,6 @@ export interface IButtonProps {
   className?: string;
   round?: boolean;
   square?: boolean;
+  title?: string;
   matomoData?: MatomoData;
 }

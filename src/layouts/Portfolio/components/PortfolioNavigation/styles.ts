@@ -4,15 +4,19 @@ export const StyledNavBar = styled.div`
   grid-area: nav;
   display: flex;
   align-items: center;
+  gap: 24px;
+
+  .skeleton-wrapper {
+    width: auto !important;
+  }
 
   @media screen and (max-width: 1023px) {
     width: 100%;
   }
 `;
 
-export const StyledMobileNavigation = styled.div`
-  position: relative;
-  width: 100%;
+export const StyledSelectWrapper = styled.div`
+  flex-grow: 1;
 `;
 
 export const StyledNavList = styled.ul`
@@ -45,30 +49,9 @@ export const StyledNavLink = styled.button`
   }
 `;
 
-export const AddPortfolioButton = styled.button`
+export const StyledActionsWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 173px;
-  height: 48px;
-  gap: 10px;
+  gap: 24px;
   margin-left: auto;
-  background-color: transparent;
-  font-weight: 500;
-  font-size: 14px;
-  color: #ff2e72;
-
-  &:disabled {
-    color: ${({ theme }) => theme.colors.textDisabled};
-  }
-
-  @media screen and (max-width: 1023px) {
-    width: 48px;
-  }
-`;
-
-export const AddPortfolioMobile = styled(AddPortfolioButton)`
-  position: absolute;
-  top: -64px;
-  right: -8px;
 `;

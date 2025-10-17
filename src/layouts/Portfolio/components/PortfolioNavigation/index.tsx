@@ -1,24 +1,25 @@
-import { useSearchParams } from 'react-router-dom';
 import { useContext, useEffect, useState } from 'react';
-import { PortfolioContext } from '~/context/PortfolioContext';
-import { AccountContext } from '~/context/AccountContext';
-import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
-import { PortfolioModal } from '../PortfolioModal';
 import {
-  StyledNavBar,
-  StyledMobileNavigation,
-  StyledNavList,
-  StyledNavLink,
-  AddPortfolioButton,
-  AddPortfolioMobile,
-} from './styles';
-import { useWindowWidth } from '~/hooks/utility';
-import {
+  Button,
   DropdownSelect,
   RefreshButton,
   SkeletonLoader,
 } from '~/components/UiKit';
+import { EButtonVariants } from '~/components/UiKit/Button/types';
+import { AccountContext } from '~/context/AccountContext';
+import { PortfolioContext } from '~/context/PortfolioContext';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { useWindowWidth } from '~/hooks/utility';
+import { PortfolioModal } from '../PortfolioModal';
+import {
+  StyledActionsWrapper,
+  StyledNavBar,
+  StyledNavLink,
+  StyledNavList,
+  StyledSelectWrapper,
+} from './styles';
 
 export const PortfolioNavigation = () => {
   const {
@@ -59,17 +60,7 @@ export const PortfolioNavigation = () => {
   const renderNavLinks = () => {
     if (isMobile)
       return (
-        <StyledMobileNavigation>
-          <AddPortfolioMobile
-            onClick={toggleModal}
-            disabled={
-              !identityHasValidCdd ||
-              isExternalConnection ||
-              isTransactionInProgress
-            }
-          >
-            <Icon name="Plus" />
-          </AddPortfolioMobile>
+        <StyledSelectWrapper>
           {portfolioLoading ? (
             <SkeletonLoader height="36px" />
           ) : (
@@ -98,7 +89,7 @@ export const PortfolioNavigation = () => {
               borderRadius={24}
             />
           )}
-        </StyledMobileNavigation>
+        </StyledSelectWrapper>
       );
 
     return portfolioLoading ? (
@@ -130,20 +121,27 @@ export const PortfolioNavigation = () => {
   return (
     <StyledNavBar>
       {renderNavLinks()}
-      {!isMobile && (
-        <AddPortfolioButton
+      <StyledActionsWrapper>
+        <Button
+          variant={EButtonVariants.MODAL_PRIMARY}
+          round={isTablet || isMobile}
           onClick={toggleModal}
           disabled={
             !identityHasValidCdd ||
             isExternalConnection ||
             isTransactionInProgress
           }
+          title="Create a new Portfolio"
         >
           <Icon name="Plus" />
-          {!isTablet && 'Add Portfolio'}
-        </AddPortfolioButton>
-      )}
-      <RefreshButton onClick={getPortfoliosData} disabled={portfolioLoading} />
+          {isTablet || isMobile ? '' : 'Add Portfolio'}
+        </Button>
+        <RefreshButton
+          onClick={getPortfoliosData}
+          disabled={portfolioLoading}
+        />
+      </StyledActionsWrapper>
+
       {addExpanded && <PortfolioModal type="add" toggleModal={toggleModal} />}
     </StyledNavBar>
   );
