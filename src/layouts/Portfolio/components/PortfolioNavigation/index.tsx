@@ -1,18 +1,26 @@
-import { useSearchParams } from 'react-router-dom';
 import { useContext, useEffect, useState } from 'react';
-import { PortfolioContext } from '~/context/PortfolioContext';
-import { AccountContext } from '~/context/AccountContext';
-import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
+import {
+  Button,
+  DropdownSelect,
+  RefreshButton,
+  SkeletonLoader,
+} from '~/components/UiKit';
+import { EButtonVariants } from '~/components/UiKit/Button/types';
+import { AccountContext } from '~/context/AccountContext';
+import { PortfolioContext } from '~/context/PortfolioContext';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { useWindowWidth } from '~/hooks/utility';
 import { PortfolioModal } from '../PortfolioModal';
 import {
+  StyledActionsWrapper,
   StyledNavBar,
-  StyledMobileNavigation,
-  StyledNavList,
   StyledNavLink,
-  AddPortfolioButton,
-  AddPortfolioMobile,
+  StyledNavList,
+  StyledSelectWrapper,
 } from './styles';
+import { EButtonVariants } from '~/components/UiKit/Button/types';
 import { useWindowWidth } from '~/hooks/utility';
 import {
   DropdownSelect,
@@ -61,6 +69,8 @@ export const PortfolioNavigation = () => {
       return (
         <StyledMobileNavigation>
           <AddPortfolioMobile
+            variant={EButtonVariants.MODAL_PRIMARY}
+            round
             onClick={toggleModal}
             disabled={
               !identityHasValidCdd ||
@@ -98,7 +108,7 @@ export const PortfolioNavigation = () => {
               borderRadius={24}
             />
           )}
-        </StyledMobileNavigation>
+        </StyledSelectWrapper>
       );
 
     return portfolioLoading ? (
@@ -132,18 +142,24 @@ export const PortfolioNavigation = () => {
       {renderNavLinks()}
       {!isMobile && (
         <AddPortfolioButton
+          variant={EButtonVariants.MODAL_PRIMARY}
           onClick={toggleModal}
           disabled={
             !identityHasValidCdd ||
             isExternalConnection ||
             isTransactionInProgress
           }
+          title="Create a new Portfolio"
         >
           <Icon name="Plus" />
-          {!isTablet && 'Add Portfolio'}
-        </AddPortfolioButton>
-      )}
-      <RefreshButton onClick={getPortfoliosData} disabled={portfolioLoading} />
+          {isTablet || isMobile ? '' : 'Add Portfolio'}
+        </Button>
+        <RefreshButton
+          onClick={getPortfoliosData}
+          disabled={portfolioLoading}
+        />
+      </StyledActionsWrapper>
+
       {addExpanded && <PortfolioModal type="add" toggleModal={toggleModal} />}
     </StyledNavBar>
   );
