@@ -14,11 +14,17 @@ export enum EHeadingCases {
   DEFAULT = 'default',
 }
 
+export enum EHeadingColor {
+  PRIMARY = 'primary',
+  SECONDARY = 'secondary',
+}
+
 export interface IHeadingProps {
   type?: `${EHeadingTypes}`;
   centered?: boolean;
   marginTop?: number;
   marginBottom?: number;
+  color?: `${EHeadingColor}`;
   transform?: `${EHeadingCases}`;
   children: React.ReactNode;
 }

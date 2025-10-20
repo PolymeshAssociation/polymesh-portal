@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { ETextColor, ETextTransform, ETextSize } from './types';
+import { ETextColor, ETextSize, ETextTransform } from './types';
 
 export const StyledText = styled.p<{
   $centered?: boolean;
@@ -18,7 +18,7 @@ export const StyledText = styled.p<{
     $marginTop,
     $marginBottom,
     $width,
-    color,
+    $color,
     $size = ETextSize.MEDIUM,
     $bold,
     $transform,
@@ -29,12 +29,12 @@ export const StyledText = styled.p<{
         ${$marginTop !== undefined ? `margin-top: ${$marginTop}px;` : ''}
         ${$marginBottom !== undefined ? `margin-bottom: ${$marginBottom}px !important;` : ''}
         ${
-          color === ETextColor.PRIMARY
+          $color === ETextColor.PRIMARY
             ? `color: ${theme.colors.textPrimary};`
             : ''
         }
         ${
-          color === ETextColor.SECONDARY
+          $color === ETextColor.SECONDARY
             ? `color: ${theme.colors.textSecondary};`
             : ''
         }

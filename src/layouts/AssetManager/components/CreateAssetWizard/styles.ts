@@ -307,7 +307,6 @@ export const ButtonRow = styled.div`
 
 export const WizardContainer = styled.div`
   display: flex;
-  height: 100%;
   gap: 24px;
 
   ${mediaQueries.mobile} {

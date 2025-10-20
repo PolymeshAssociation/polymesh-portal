@@ -1,12 +1,12 @@
 import { StyledText } from './styles';
-import { ITextProps, ETextSize, ETextColor } from './types';
+import { ETextSize, ITextProps } from './types';
 
 const Text: React.FC<ITextProps> = ({
   centered,
   marginTop,
   marginBottom,
   width,
-  color = ETextColor.PRIMARY,
+  color,
   size = ETextSize.MEDIUM,
   bold,
   transform,
