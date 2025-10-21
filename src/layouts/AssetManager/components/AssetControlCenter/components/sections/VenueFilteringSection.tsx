@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { Icon } from '~/components';
 import { ComingSoonModal } from '../modals';
 import { useAssetActionsContext } from '../../context';
@@ -43,10 +44,16 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
     setComingSoonModalOpen(true);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleRemoveVenue = (_venueId: string) => {
-    setComingSoonFeature('remove venue restriction');
-    setComingSoonModalOpen(true);
+  const handleRemoveVenue = async (venueId: string) => {
+    try {
+      await setVenueFiltering({
+        disallowedVenues: [new BigNumber(venueId)],
+      });
+    } catch (error) {
+      notifyError(
+        `Error removing venue restriction: ${(error as Error).message}`,
+      );
+    }
   };
 
   const venueConfig: VenueConfig = {
