@@ -118,10 +118,7 @@ export const TransferRestrictionsSection: React.FC<
   // Create lookup map for O(1) country code access
   const countryLookup = useMemo(() => {
     return new Map(
-      countryCodes.map((c: { code: string; name: string }) => [
-        c.code.toUpperCase(),
-        c.name,
-      ]),
+      countryCodes.map((c: { code: string; name: string }) => [c.code, c.name]),
     );
   }, []);
 

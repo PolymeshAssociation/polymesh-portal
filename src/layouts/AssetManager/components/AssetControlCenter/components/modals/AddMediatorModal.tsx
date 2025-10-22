@@ -115,7 +115,7 @@ export const AddMediatorModal: React.FC<IAddMediatorModalProps> = ({
             verification. Common examples include transfer agents, compliance
             validators, or regulatory oversight entities.
           </Text>
-          <Text marginTop={12}>
+          <Text marginTop={12} marginBottom={24}>
             <StyledLink
               href="https://developers.polymesh.network/settlement/mediators/"
               target="_blank"

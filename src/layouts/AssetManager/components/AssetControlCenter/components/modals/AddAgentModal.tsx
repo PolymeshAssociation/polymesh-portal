@@ -167,7 +167,7 @@ export const AddAgentModal: React.FC<IAddAgentModalProps> = ({
           <Heading type="h4" marginBottom={24}>
             Add Asset Agent
           </Heading>
-          <Text>
+          <Text marginBottom={24}>
             This will create an authorization request to invite the specified
             identity to become an agent of this asset. The target identity must
             accept this authorization before they become an active agent with

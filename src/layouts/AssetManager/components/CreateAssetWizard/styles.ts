@@ -51,6 +51,7 @@ export const FieldLabel = styled.label`
   font-size: 14px;
   color: ${({ theme }) => theme.colors.textPrimary};
   min-width: 150px;
+  pointer-events: none;
 
   ${mediaQueries.mobile} {
     margin-bottom: 8px;
@@ -237,9 +238,7 @@ export const Button = styled.button`
 
   ${mediaQueries.mobile} {
     width: 100%;
-    padding: 16px;
-    min-height: 48px; // Ensures good touch target
-    font-size: 16px;
+    padding: 10px 16px;
   }
 
   &:hover {
@@ -248,6 +247,7 @@ export const Button = styled.button`
   }
 
   &:disabled {
+    border: 1px solid ${({ theme }) => theme.colors.textDisabled};
     background-color: ${({ theme }) => theme.colors.disabledBackground};
     color: ${({ theme }) => theme.colors.textDisabled};
   }
@@ -416,7 +416,7 @@ export const TrustedClaimTypesContainer = styled.div`
   flex-direction: column;
   justify-content: space-between;
   padding: 16px;
-  background-color: ${({ theme }) => theme.colors.dashboardBackground};
+  border: 1px solid ${({ theme }) => theme.colors.textPrimary};
   border-radius: ${({ theme }) => theme.borderRadius.small};
 
   ${mediaQueries.mobile} {
@@ -587,6 +587,74 @@ export const StyledClaim = styled.div`
 
 export const StyledCondition = styled.div`
   padding-bottom: 6px;
+`;
+
+export const ConditionAccordion = styled.div<{ $isExpanded: boolean }>`
+  background: transparent;
+  border: ${({ theme, $isExpanded }) =>
+    $isExpanded
+      ? `2px solid ${theme.colors.focusBorder}`
+      : `1px solid ${theme.colors.textSecondary}`};
+  border-radius: ${({ theme }) => theme.borderRadius.small};
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+
+  ${mediaQueries.mobile} {
+    margin-bottom: 12px;
+  }
+`;
+
+export const ConditionHeader = styled.div<{
+  $isExpanded: boolean;
+  $isClickable: boolean;
+}>`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  cursor: ${({ $isExpanded, $isClickable }) => {
+    if (!$isClickable) return 'default';
+    return $isExpanded ? 'default' : 'pointer';
+  }};
+
+  &:hover {
+    background: ${({ theme, $isExpanded, $isClickable }) =>
+      $isExpanded || !$isClickable ? '' : theme.colors.dashboardBackground};
+  }
+
+  ${mediaQueries.mobile} {
+    padding: 12px;
+  }
+`;
+
+export const ConditionSummary = styled.div`
+  flex: 1;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-size: 14px;
+  line-height: 1.5;
+
+  strong {
+    color: ${({ theme }) => theme.colors.textPrimary};
+    font-weight: 500;
+  }
+
+  ${mediaQueries.mobile} {
+    font-size: 13px;
+  }
+`;
+
+export const ConditionContent = styled.div<{ $isExpanded: boolean }>`
+  padding: ${({ $isExpanded }) => ($isExpanded ? '0 16px 16px' : '0')};
+  max-height: ${({ $isExpanded }) => ($isExpanded ? '2000px' : '0')};
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease,
+    padding 0.3s ease;
+
+  ${mediaQueries.mobile} {
+    padding: ${({ $isExpanded }) => ($isExpanded ? '0 12px 12px' : '0')};
+  }
 `;
 
 export const StyledLink = styled.a`

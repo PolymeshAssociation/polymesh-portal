@@ -1,31 +1,31 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useState } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
 import {
   ConditionTarget,
   ConditionType,
 } from '@polymeshassociation/polymesh-sdk/types';
+import React, { useState } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { Icon } from '~/components';
+import { notifyError } from '~/helpers/notifications';
+import ComplianceRule from '../components/ComplianceRule';
+import StepNavigation from '../components/StepNavigation';
 import {
-  FormContainer,
+  Button,
   DescriptionText,
-  NavigationWrapper,
-  IconWrapper,
-  HeaderRow,
   FieldLabel,
+  FormContainer,
+  HeaderRow,
+  IconWrapper,
+  NavigationWrapper,
   StyledForm,
   StyledFormSection,
-  Button,
   StyledLink,
 } from '../styles';
-import { Icon } from '~/components';
-import ComplianceRule from '../components/ComplianceRule';
 import {
-  WizardStepProps,
-  FormComplianceRule,
   ComplianceRuleFormData,
+  FormComplianceRule,
+  WizardStepProps,
 } from '../types';
-import StepNavigation from '../components/StepNavigation';
-import { notifyError } from '~/helpers/notifications';
 import {
   convertFormRulesToSdk,
   convertSdkToFormFormat,
@@ -100,30 +100,16 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
   const validateActiveRule = async (): Promise<boolean> => {
     if (activeRuleIndex === null) return true;
 
+    // Check if there's an active condition that hasn't been finalized
+    if (activeConditionIndex !== null) {
+      notifyError('Please finalize the current condition before proceeding');
+      return false;
+    }
+
     const rule = rules[activeRuleIndex];
     if (!rule?.conditions?.length) {
       notifyError('A rule must have at least one condition');
       return false;
-    }
-
-    // Validate the active condition in the active rule
-    if (activeConditionIndex !== null) {
-      const ruleRef = complianceRuleRefs[activeRuleIndex];
-      if (ruleRef?.current) {
-        try {
-          const isConditionValid =
-            await ruleRef.current.validateActiveCondition();
-          if (!isConditionValid) {
-            notifyError(
-              'Please fix errors in the current condition before proceeding',
-            );
-            return false;
-          }
-        } catch (error) {
-          notifyError('Validation error occurred');
-          return false;
-        }
-      }
     }
 
     return true;

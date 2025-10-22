@@ -1,19 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useContext,
-  useState,
-  useMemo,
-} from 'react';
-import {
-  Control,
-  useFieldArray,
-  UseFormSetValue,
-  useWatch,
-  Path,
-} from 'react-hook-form';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   ClaimType,
   ConditionTarget,
@@ -21,32 +7,48 @@ import {
   CountryCode,
   ScopeType,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
+  Control,
+  Path,
+  useFieldArray,
+  UseFormSetValue,
+  useWatch,
+} from 'react-hook-form';
+import { CopyToClipboard, Icon } from '~/components';
+import { Text } from '~/components/UiKit';
+import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { formatDid, splitCamelCase } from '~/helpers/formatters';
+import { notifyError } from '~/helpers/notifications';
+import { validateDid } from '~/helpers/utils';
+import { useCustomClaims } from '~/hooks/polymesh/useCustomClaims';
+import {
+  Button,
+  ConditionAccordion,
+  ConditionContent,
+  ConditionHeader,
+  ConditionSummary,
+  FieldInput,
   FieldLabel,
   FieldRow,
-  FieldWrapper,
   FieldSelect,
-  FieldInput,
+  FieldWrapper,
   IconWrapper,
-  HeaderRow,
-  StyledClaimContainer,
   StyledClaim,
-  Button,
+  StyledClaimContainer,
   StyledErrorMessage,
-  StyledCondition,
 } from '../styles';
-import { Icon, CopyToClipboard } from '~/components';
-import { Text } from '~/components/UiKit';
+import { ComplianceRuleFormData, FormClaim, FormCondition } from '../types';
 import ClaimTypeSelector from './ClaimTypeSelector';
-import { ComplianceRuleFormData, FormCondition, FormClaim } from '../types';
-import { splitCamelCase, formatDid } from '~/helpers/formatters';
-import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
-import { notifyError } from '~/helpers/notifications';
-import { useCustomClaims } from '~/hooks/polymesh/useCustomClaims';
-import { validateDid } from '~/helpers/utils';
-import { PolymeshContext } from '~/context/PolymeshContext';
-import ViewOnlyCondition from './ViewOnlyCondition';
+import { ConditionSummaryText } from './ConditionSummaryText';
 
 interface ValidationErrors {
   identity?: string;
@@ -195,7 +197,7 @@ const ComplianceRule = React.forwardRef<ComplianceRuleRef, ComplianceRuleProps>(
       let subLabel: React.ReactNode = '';
 
       if (claim.type === ClaimType.Jurisdiction && claim.code) {
-        const countryName = countryLookup.get(claim.code);
+        const countryName = countryLookup.get(claim.code.toUpperCase());
         mainLabel = `${splitCamelCase(claim.type)} - ${countryName || claim.code}`;
       } else if (claim.type === ClaimType.Custom && claim.customClaimTypeId) {
         const claimId = claim.customClaimTypeId.toString();
@@ -441,11 +443,14 @@ const ComplianceRule = React.forwardRef<ComplianceRuleRef, ComplianceRuleProps>(
     }));
 
     const handleEditCondition = async (conditionIndex: number) => {
-      if (activeConditionIndex) {
+      if (
+        activeConditionIndex !== null &&
+        activeConditionIndex !== conditionIndex
+      ) {
         const isValid = await validateCondition(activeConditionIndex);
         if (!isValid) {
           notifyError(
-            'Please fix validation errors before editing an existing condition',
+            'Please fix validation errors in the current condition before editing another',
           );
           return;
         }
@@ -457,6 +462,20 @@ const ComplianceRule = React.forwardRef<ComplianceRuleRef, ComplianceRuleProps>(
         delete newErrors[conditionIndex];
         return newErrors;
       });
+    };
+
+    const handleFinalizeCondition = async () => {
+      if (activeConditionIndex === null) return;
+
+      const isValid = await validateCondition(activeConditionIndex);
+      if (!isValid) {
+        notifyError(
+          'Please fix validation errors before finalizing the condition',
+        );
+        return;
+      }
+
+      setActiveConditionIndex(null);
     };
 
     const handleAddNewCondition = async () => {
@@ -482,123 +501,133 @@ const ComplianceRule = React.forwardRef<ComplianceRuleRef, ComplianceRuleProps>(
           const isConditionActive =
             isActive && activeConditionIndex === condIndex;
           const errors = validationErrors[condIndex] || {};
+          const currentCondition = conditions[condIndex];
+
           return (
-            <StyledCondition key={condition.id}>
-              {isActive && (
-                <HeaderRow>
+            <ConditionAccordion
+              key={condition.id}
+              $isExpanded={isConditionActive}
+            >
+              <ConditionHeader
+                $isExpanded={isConditionActive}
+                $isClickable={isActive && !isConditionActive}
+                onClick={() =>
+                  !isConditionActive &&
+                  isActive &&
+                  handleEditCondition(condIndex)
+                }
+              >
+                <div style={{ flex: 1 }}>
                   <FieldLabel>Condition #{condIndex + 1}</FieldLabel>
-                  <div>
-                    {activeConditionIndex !== condIndex && (
-                      <IconWrapper
-                        onClick={() => handleEditCondition(condIndex)}
-                      >
-                        <Icon name="Edit" size="20px" />
-                      </IconWrapper>
-                    )}
-                    <IconWrapper
-                      onClick={() => {
-                        removeCondition(condIndex);
-                        setValidationErrors((prev) => {
-                          const newErrors = { ...prev };
-                          delete newErrors[condIndex];
-                          return newErrors;
-                        });
-                        if (activeConditionIndex === condIndex) {
-                          setActiveConditionIndex(null);
-                        } else if (
-                          activeConditionIndex !== null &&
-                          activeConditionIndex > condIndex
-                        ) {
-                          setActiveConditionIndex(activeConditionIndex - 1);
-                        }
-                      }}
-                    >
-                      <Icon name="Delete" size="20px" />
-                    </IconWrapper>
-                  </div>
-                </HeaderRow>
-              )}
-
-              {isConditionActive ? (
-                <>
-                  <FieldWrapper>
-                    <FieldRow>
-                      <FieldLabel>Applies to</FieldLabel>
-                      <FieldSelect
-                        {...control.register(`${baseName}.${condIndex}.target`)}
-                      >
-                        {targetOptions.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </FieldSelect>
-                    </FieldRow>
-                  </FieldWrapper>
-
-                  <FieldWrapper>
-                    <FieldRow>
-                      <FieldLabel>Condition Type</FieldLabel>
-                      <FieldSelect
-                        {...control.register(`${baseName}.${condIndex}.type`, {
-                          onChange: (e) =>
-                            handleConditionTypeChange(
-                              condIndex,
-                              e.target.value as ConditionType,
-                            ),
-                        })}
-                      >
-                        {conditionTypes.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </FieldSelect>
-                    </FieldRow>
-                  </FieldWrapper>
-
-                  {conditions?.[condIndex]?.type ===
-                    ConditionType.IsIdentity && (
-                    <FieldWrapper>
-                      <FieldRow>
-                        <FieldLabel>Identity DID</FieldLabel>
-                        <FieldInput
-                          placeholder="Enter identity DID"
-                          {...control.register(
-                            `${baseName}.${condIndex}.identity`,
-                          )}
-                          value={conditions?.[condIndex]?.identity || ''}
-                          $hasError={!!errors.identity}
-                        />
-                      </FieldRow>
-                      {errors.identity && (
-                        <StyledErrorMessage>
-                          {errors.identity}
-                        </StyledErrorMessage>
-                      )}
-                    </FieldWrapper>
-                  )}
-
-                  {[
-                    ConditionType.IsAnyOf,
-                    ConditionType.IsPresent,
-                    ConditionType.IsNoneOf,
-                  ].includes(
-                    conditions?.[condIndex]?.type as ConditionType,
-                  ) && (
-                    <>
-                      {renderClaimChips(condIndex)}
-                      <ClaimTypeSelector
-                        onAddClaim={(data) => handleAddClaim(condIndex, data)}
-                        nextAssetId={nextAssetId}
+                  {!isConditionActive && currentCondition && (
+                    <ConditionSummary>
+                      <ConditionSummaryText
+                        condition={currentCondition}
+                        claimNames={claimNames}
                       />
-                    </>
+                    </ConditionSummary>
                   )}
-                </>
-              ) : (
-                <ViewOnlyCondition condition={conditions[condIndex]} />
-              )}
-            </StyledCondition>
+                </div>
+                {isActive && conditionFields.length > 1 && (
+                  <IconWrapper
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeCondition(condIndex);
+                      setValidationErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors[condIndex];
+                        return newErrors;
+                      });
+                      if (activeConditionIndex === condIndex) {
+                        setActiveConditionIndex(null);
+                      } else if (
+                        activeConditionIndex !== null &&
+                        activeConditionIndex > condIndex
+                      ) {
+                        setActiveConditionIndex(activeConditionIndex - 1);
+                      }
+                    }}
+                  >
+                    <Icon name="Delete" size="20px" />
+                  </IconWrapper>
+                )}
+              </ConditionHeader>
+
+              <ConditionContent $isExpanded={isConditionActive}>
+                <FieldWrapper>
+                  <FieldRow>
+                    <FieldLabel>Applies to</FieldLabel>
+                    <FieldSelect
+                      {...control.register(`${baseName}.${condIndex}.target`)}
+                    >
+                      {targetOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </FieldSelect>
+                  </FieldRow>
+                </FieldWrapper>
+
+                <FieldWrapper>
+                  <FieldRow>
+                    <FieldLabel>Condition Type</FieldLabel>
+                    <FieldSelect
+                      {...control.register(`${baseName}.${condIndex}.type`, {
+                        onChange: (e) =>
+                          handleConditionTypeChange(
+                            condIndex,
+                            e.target.value as ConditionType,
+                          ),
+                      })}
+                    >
+                      {conditionTypes.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </FieldSelect>
+                  </FieldRow>
+                </FieldWrapper>
+
+                {conditions?.[condIndex]?.type === ConditionType.IsIdentity && (
+                  <FieldWrapper>
+                    <FieldRow>
+                      <FieldLabel>Identity DID</FieldLabel>
+                      <FieldInput
+                        placeholder="Enter identity DID"
+                        {...control.register(
+                          `${baseName}.${condIndex}.identity`,
+                        )}
+                        value={conditions?.[condIndex]?.identity || ''}
+                        $hasError={!!errors.identity}
+                      />
+                    </FieldRow>
+                    {errors.identity && (
+                      <StyledErrorMessage>{errors.identity}</StyledErrorMessage>
+                    )}
+                  </FieldWrapper>
+                )}
+
+                {[
+                  ConditionType.IsAnyOf,
+                  ConditionType.IsPresent,
+                  ConditionType.IsNoneOf,
+                ].includes(conditions?.[condIndex]?.type as ConditionType) && (
+                  <>
+                    {renderClaimChips(condIndex)}
+                    <ClaimTypeSelector
+                      onAddClaim={(data) => handleAddClaim(condIndex, data)}
+                      nextAssetId={nextAssetId}
+                    />
+                  </>
+                )}
+
+                <Button type="button" onClick={handleFinalizeCondition}>
+                  Done Editing
+                </Button>
+              </ConditionContent>
+            </ConditionAccordion>
           );
         })}
 

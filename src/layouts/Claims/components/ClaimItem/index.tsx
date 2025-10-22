@@ -43,10 +43,7 @@ export const ClaimItem: React.FC<IClaimItemProps> = ({ claimData }) => {
 
   const countryLookup = useMemo(() => {
     return new Map(
-      countryCodes.map(({ code, name }) => [
-        code.toUpperCase(),
-        name.split(',')[0],
-      ]),
+      countryCodes.map(({ code, name }) => [code, name.split(',')[0]]),
     );
   }, []);
 

@@ -792,7 +792,6 @@ export const ModalContainer = styled.div`
 export const ModalContent = styled.div`
   p {
     color: ${({ theme }) => theme.colors.textSecondary};
-    margin-bottom: 24px;
     line-height: 1.5;
   }
 `;

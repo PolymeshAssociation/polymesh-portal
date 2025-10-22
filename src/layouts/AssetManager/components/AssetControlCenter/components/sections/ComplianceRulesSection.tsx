@@ -4,11 +4,12 @@ import {
   Condition,
   ConditionTarget,
   ConditionType,
+  Requirement,
   ScopeType,
   TrustedFor,
 } from '@polymeshassociation/polymesh-sdk/types';
 import React, { useCallback, useMemo, useState } from 'react';
-import { CopyToClipboard, Icon } from '~/components';
+import { ConfirmationModal, CopyToClipboard, Icon } from '~/components';
 import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
 import { formatDid, splitCamelCase } from '~/helpers/formatters';
 import { useAssetActionsContext } from '../../context';
@@ -42,7 +43,7 @@ import {
   TrustedIssuersHeader,
 } from '../../styles';
 import type { TabProps } from '../../types';
-import { ComingSoonModal } from '../modals';
+import { AddComplianceRuleModal, EditComplianceRuleModal } from '../modals';
 
 interface ComplianceRulesSectionProps {
   asset: TabProps['asset'];
@@ -50,7 +51,6 @@ interface ComplianceRulesSectionProps {
 
 interface ParsedComplianceRule {
   id: string;
-  ruleIndex: number;
   groupedConditions: GroupedCondition[];
 }
 
@@ -109,15 +109,22 @@ const conditionTypeLabels = {
 export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
   asset,
 }) => {
-  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
-  const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const [addRuleModalOpen, setAddRuleModalOpen] = useState(false);
+  const [editRuleModalOpen, setEditRuleModalOpen] = useState(false);
+  const [deleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
+  const [selectedRule, setSelectedRule] = useState<Requirement | null>(null);
 
-  const { pauseCompliance, unpauseCompliance, transactionInProcess } =
-    useAssetActionsContext();
+  const {
+    pauseCompliance,
+    unpauseCompliance,
+    addComplianceRule,
+    modifyComplianceRule,
+    removeComplianceRule,
+    transactionInProcess,
+  } = useAssetActionsContext();
 
-  const handleManageComplianceRules = useCallback(() => {
-    setComingSoonFeature('add compliance rule');
-    setComingSoonModalOpen(true);
+  const handleAddRule = useCallback(() => {
+    setAddRuleModalOpen(true);
   }, []);
 
   const compliancePaused = useMemo(() => {
@@ -137,24 +144,49 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
     }
   }, [compliancePaused, pauseCompliance, unpauseCompliance]);
 
-  const handleEditRule = useCallback((ruleIndex: number) => {
-    setComingSoonFeature('edit compliance rule');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Edit rule:', ruleIndex);
-  }, []);
+  const handleEditRule = useCallback(
+    (ruleId: string) => {
+      const requirements =
+        asset?.details?.complianceRequirements?.requirements || [];
+      const rule = requirements.find((r) => r.id.toString() === ruleId);
+      if (rule) {
+        setSelectedRule(rule);
+        setEditRuleModalOpen(true);
+      }
+    },
+    [asset?.details?.complianceRequirements?.requirements],
+  );
 
-  const handleDeleteRule = useCallback((ruleIndex: number) => {
-    setComingSoonFeature('delete compliance rule');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Delete rule:', ruleIndex);
-  }, []);
+  const handleDeleteRule = useCallback(
+    (ruleId: string) => {
+      const requirements =
+        asset?.details?.complianceRequirements?.requirements || [];
+      const rule = requirements.find((r) => r.id.toString() === ruleId);
+      if (rule) {
+        setSelectedRule(rule);
+        setDeleteConfirmModalOpen(true);
+      }
+    },
+    [asset?.details?.complianceRequirements?.requirements],
+  );
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (selectedRule) {
+      try {
+        await removeComplianceRule({
+          requirement: selectedRule,
+        });
+        setDeleteConfirmModalOpen(false);
+        setSelectedRule(null);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error deleting rule:', error);
+      }
+    }
+  }, [selectedRule, removeComplianceRule]);
 
   const countryLookupMap = useMemo(() => {
-    return new Map(
-      countryCodes.map((country) => [country.code.toUpperCase(), country.name]),
-    );
+    return new Map(countryCodes.map((country) => [country.code, country.name]));
   }, []);
 
   // Helper function to format claim display text
@@ -253,7 +285,7 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
     const requirements =
       asset?.details?.complianceRequirements?.requirements || [];
 
-    return requirements.map((rule, index) => {
+    return requirements.map((rule) => {
       const parsedConditions = rule.conditions.map(formatConditionDisplayText);
 
       // Group IsPresent conditions by target
@@ -305,8 +337,7 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
       });
 
       return {
-        id: `rule-${index}`,
-        ruleIndex: index,
+        id: rule.id.toString(),
         groupedConditions,
       };
     });
@@ -360,12 +391,9 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
               <Icon name="ClockIcon" size="16px" />
               {compliancePaused ? 'Resume All Rules' : 'Pause All Rules'}
             </AddButton>
-            <AddButton
-              onClick={handleManageComplianceRules}
-              disabled={transactionInProcess}
-            >
+            <AddButton onClick={handleAddRule} disabled={transactionInProcess}>
               <Icon name="Plus" size="16px" />
-              Add Rules
+              Add Rule
             </AddButton>
           </HeaderButtons>
         </SectionHeader>
@@ -393,14 +421,14 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
                     {/* Edit/Delete buttons in top right corner */}
                     <ButtonsContainer>
                       <ActionButton
-                        onClick={() => handleEditRule(rule.ruleIndex)}
+                        onClick={() => handleEditRule(rule.id)}
                         title="Edit Rule"
                         disabled={transactionInProcess}
                       >
                         <Icon name="Edit" size="14px" />
                       </ActionButton>
                       <ActionButton
-                        onClick={() => handleDeleteRule(rule.ruleIndex)}
+                        onClick={() => handleDeleteRule(rule.id)}
                         title="Delete Rule"
                         disabled={transactionInProcess}
                       >
@@ -409,7 +437,7 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
                     </ButtonsContainer>
 
                     {/* Rule header */}
-                    <DataLabel>Rule #{rule.ruleIndex + 1}</DataLabel>
+                    <DataLabel>Rule ID: {rule.id}</DataLabel>
 
                     {/* Conditions in column layout */}
                     <RuleHeader>
@@ -511,10 +539,38 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
         </SectionContent>
       </TabSection>
 
-      <ComingSoonModal
-        isOpen={comingSoonModalOpen}
-        onClose={() => setComingSoonModalOpen(false)}
-        feature={comingSoonFeature}
+      <AddComplianceRuleModal
+        isOpen={addRuleModalOpen}
+        onClose={() => setAddRuleModalOpen(false)}
+        assetId={asset?.assetId || ''}
+        onAddRule={addComplianceRule}
+        transactionInProcess={transactionInProcess}
+      />
+
+      <EditComplianceRuleModal
+        isOpen={editRuleModalOpen}
+        onClose={() => {
+          setEditRuleModalOpen(false);
+          setSelectedRule(null);
+        }}
+        assetId={asset?.assetId || ''}
+        ruleToEdit={selectedRule}
+        onEditRule={modifyComplianceRule}
+        transactionInProcess={transactionInProcess}
+      />
+
+      <ConfirmationModal
+        isOpen={deleteConfirmModalOpen}
+        onClose={() => {
+          setDeleteConfirmModalOpen(false);
+          setSelectedRule(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Compliance Rule"
+        message={`Are you sure you want to delete the Rule with ID ${selectedRule !== null ? selectedRule.id : ''}? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        isProcessing={transactionInProcess}
       />
     </>
   );

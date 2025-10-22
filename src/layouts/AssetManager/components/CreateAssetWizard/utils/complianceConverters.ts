@@ -1,11 +1,13 @@
 import {
-  ConditionType,
-  ClaimType,
-  InputCondition,
-  SetAssetRequirementsParams,
   Claim,
+  ClaimType,
+  ConditionType,
+  InputCondition,
+  InputTrustedClaimIssuer,
+  SetAssetRequirementsParams,
+  TrustedFor,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { FormCondition, FormClaim, FormComplianceRule } from '../types';
+import { FormClaim, FormComplianceRule, FormCondition } from '../types';
 
 export const convertFormClaimToSdk = (formClaim: FormClaim): Claim => {
   const base = {
@@ -98,12 +100,51 @@ export const convertFormRulesToSdk = (
   });
 };
 
+// Helper function to convert SDK TrustedClaimIssuers to form format
+const convertTrustedClaimIssuers = (
+  trustedClaimIssuers?: Array<{
+    identity: { did: string } | string;
+    trustedFor: TrustedFor[] | null;
+  }>,
+): InputTrustedClaimIssuer[] | undefined => {
+  if (!trustedClaimIssuers || trustedClaimIssuers.length === 0) {
+    return undefined;
+  }
+
+  return trustedClaimIssuers.map((issuer) => ({
+    identity:
+      typeof issuer.identity === 'string'
+        ? issuer.identity
+        : issuer.identity.did,
+    trustedFor: issuer.trustedFor,
+  }));
+};
+
+// Helper function to create a simple grouping key for trustedClaimIssuers
+const getTrustedIssuersKey = (
+  trustedClaimIssuers?: InputTrustedClaimIssuer[],
+): string => {
+  if (!trustedClaimIssuers || trustedClaimIssuers.length === 0) {
+    return 'default-claim-issuers';
+  }
+
+  // Create a simple key based on issuer DIDs (sorted for consistency)
+  return trustedClaimIssuers
+    .map((issuer) => {
+      const trustedForKey =
+        issuer.trustedFor === null ? 'all' : JSON.stringify(issuer.trustedFor);
+      return `${issuer.identity}:${trustedForKey}`;
+    })
+    .sort()
+    .join('|');
+};
+
 export const convertSdkToFormFormat = (
   sdkRules: SetAssetRequirementsParams,
 ): FormComplianceRule[] => {
   const { requirements } = sdkRules;
   const formRules = requirements.map((rule: InputCondition[]) => {
-    // Group conditions by their type, target, and trusted claim issuers for consolidation
+    // Group conditions by their type, target, and trustedClaimIssuers for consolidation
     const groupedConditions = rule.reduce<{
       [key: string]: FormCondition;
     }>((acc, condition, index) => {
@@ -111,10 +152,13 @@ export const convertSdkToFormFormat = (
         condition.type === ConditionType.IsPresent ||
         condition.type === ConditionType.IsAbsent
       ) {
-        // For IsPresent/IsAbsent, group by target and trusted claim issuers
-        const key = `${condition.type}-${condition.target}-${JSON.stringify(
-          condition.trustedClaimIssuers || [],
-        )}`;
+        // Convert trustedClaimIssuers from SDK format to form format
+        const formTrustedIssuers = convertTrustedClaimIssuers(
+          condition.trustedClaimIssuers,
+        );
+
+        // For IsPresent/IsAbsent, group by target and trustedClaimIssuers
+        const key = `${condition.type}-${condition.target}-${getTrustedIssuersKey(formTrustedIssuers)}`;
         if (!acc[key]) {
           acc[key] = {
             type:
@@ -123,8 +167,8 @@ export const convertSdkToFormFormat = (
                 : ConditionType.IsNoneOf, // Use IsNoneOf for absent conditions
             target: condition.target,
             claims: [],
-            ...(condition.trustedClaimIssuers && {
-              trustedClaimIssuers: condition.trustedClaimIssuers,
+            ...(formTrustedIssuers && {
+              trustedClaimIssuers: formTrustedIssuers,
             }),
           };
         }
@@ -137,18 +181,22 @@ export const convertSdkToFormFormat = (
       // Handle other condition types individually
       switch (condition.type) {
         case ConditionType.IsAnyOf:
-        case ConditionType.IsNoneOf:
+        case ConditionType.IsNoneOf: {
+          const formTrustedIssuers = convertTrustedClaimIssuers(
+            condition.trustedClaimIssuers,
+          );
           return {
             ...acc,
             [index]: {
               type: condition.type,
               target: condition.target,
               claims: condition.claims || [],
-              ...(condition.trustedClaimIssuers && {
-                trustedClaimIssuers: condition.trustedClaimIssuers,
+              ...(formTrustedIssuers && {
+                trustedClaimIssuers: formTrustedIssuers,
               }),
             },
           };
+        }
 
         case ConditionType.IsIdentity:
           return {
@@ -156,7 +204,10 @@ export const convertSdkToFormFormat = (
             [index]: {
               type: condition.type,
               target: condition.target,
-              identity: condition.identity?.toString() || '',
+              identity:
+                typeof condition.identity === 'string'
+                  ? condition.identity
+                  : condition.identity?.did || '',
             },
           };
 

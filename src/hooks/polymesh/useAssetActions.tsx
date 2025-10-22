@@ -1,5 +1,9 @@
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import type { NftMetadataInput } from '@polymeshassociation/polymesh-sdk/types';
+import type {
+  InputCondition,
+  NftMetadataInput,
+  Requirement,
+} from '@polymeshassociation/polymesh-sdk/types';
 import {
   Asset,
   AssetDocument,
@@ -913,6 +917,80 @@ const useAssetActions = (
     }
   };
 
+  const addComplianceRule = async ({
+    conditions,
+    onTransactionRunning,
+  }: {
+    conditions: InputCondition[];
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    try {
+      await executeTransaction(
+        asset.compliance.requirements.add({ conditions }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
+  const modifyComplianceRule = async ({
+    id,
+    conditions,
+    onTransactionRunning,
+  }: {
+    id: BigNumber;
+    conditions: InputCondition[];
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    try {
+      await executeTransaction(
+        asset.compliance.requirements.modify({
+          id,
+          conditions,
+        }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
+  const removeComplianceRule = async ({
+    requirement,
+    onTransactionRunning,
+  }: {
+    requirement: BigNumber | Requirement;
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    try {
+      await executeTransaction(
+        asset.compliance.requirements.remove({ requirement }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
   return {
     issueTokens,
     redeemTokens,
@@ -948,6 +1026,9 @@ const useAssetActions = (
     modifyAgentPermissions,
     createPermissionGroup,
     editPermissionGroup,
+    addComplianceRule,
+    modifyComplianceRule,
+    removeComplianceRule,
     transactionInProcess,
   };
 };

@@ -1,10 +1,12 @@
 export { AddAgentModal } from './AddAgentModal';
+export { AddComplianceRuleModal } from './AddComplianceRuleModal';
 export { AddDocumentModal } from './AddDocumentModal';
 export { AddMediatorModal } from './AddMediatorModal';
 export { AddMetadataModal } from './AddMetadataModal';
 export { AddSecurityIdentifierModal } from './AddSecurityIdentifierModal';
 export { ComingSoonModal } from './ComingSoonModal';
 export { EditAgentModal } from './EditAgentModal';
+export { EditComplianceRuleModal } from './EditComplianceRuleModal';
 export { EditMetadataModal } from './EditMetadataModal';
 export { EditNameModal } from './EditNameModal';
 export { EditSecurityIdentifierModal } from './EditSecurityIdentifierModal';
