@@ -3,6 +3,7 @@ import type {
   InputCondition,
   NftMetadataInput,
   Requirement,
+  TrustedFor,
 } from '@polymeshassociation/polymesh-sdk/types';
 import {
   Asset,
@@ -703,6 +704,30 @@ const useAssetActions = (
     }
   };
 
+  const addTrustedClaimIssuers = async (params: {
+    claimIssuers: Array<{
+      identity: string;
+      trustedFor: TrustedFor[] | null;
+    }>;
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+    try {
+      await executeTransaction(
+        asset.compliance.trustedClaimIssuers.add({
+          claimIssuers: params.claimIssuers,
+        }),
+        createOptions(params.onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
   const removeTrustedClaimIssuers = async (
     claimIssuers: string[],
     onTransactionRunning?: () => void | Promise<void>,
@@ -1020,6 +1045,7 @@ const useAssetActions = (
     modifyAssetProperties,
     pauseCompliance,
     unpauseCompliance,
+    addTrustedClaimIssuers,
     removeTrustedClaimIssuers,
     removeAssetAgent,
     inviteAssetAgent,

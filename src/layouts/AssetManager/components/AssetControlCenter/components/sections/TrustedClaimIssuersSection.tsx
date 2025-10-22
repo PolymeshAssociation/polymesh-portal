@@ -1,6 +1,6 @@
 import { TrustedFor } from '@polymeshassociation/polymesh-sdk/types';
 import React, { useMemo, useState } from 'react';
-import { CopyToClipboard, Icon } from '~/components';
+import { ConfirmationModal, CopyToClipboard, Icon } from '~/components';
 import { formatUuid } from '~/helpers/formatters';
 import { useAssetActionsContext } from '../../context';
 import {
@@ -21,7 +21,7 @@ import {
   TabSection,
 } from '../../styles';
 import type { TabProps, TrustedClaimIssuer } from '../../types';
-import { ComingSoonModal } from '../modals';
+import { AddTrustedClaimIssuerModal } from '../modals';
 
 interface TrustedClaimIssuersSectionProps {
   asset: TabProps['asset'];
@@ -30,10 +30,14 @@ interface TrustedClaimIssuersSectionProps {
 export const TrustedClaimIssuersSection: React.FC<
   TrustedClaimIssuersSectionProps
 > = ({ asset }) => {
-  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
-  const [comingSoonFeature, setComingSoonFeature] = useState('');
-  const { removeTrustedClaimIssuers, transactionInProcess } =
-    useAssetActionsContext();
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [issuerToDelete, setIssuerToDelete] = useState<string | null>(null);
+  const {
+    addTrustedClaimIssuers,
+    removeTrustedClaimIssuers,
+    transactionInProcess,
+  } = useAssetActionsContext();
 
   // Helper function to format claim types for display
   const formatClaimTypes = (trustedFor: TrustedFor[] | null): string => {
@@ -59,13 +63,21 @@ export const TrustedClaimIssuersSection: React.FC<
     return formattedClaims.join(', ');
   };
 
-  const handleManageTrustedIssuers = () => {
-    setComingSoonFeature('manage trusted claim issuer');
-    setComingSoonModalOpen(true);
+  const handleAddTrustedIssuer = () => {
+    setAddModalOpen(true);
   };
 
-  const handleDeleteTrustedIssuer = async (issuerId: string) => {
-    await removeTrustedClaimIssuers([issuerId]);
+  const handleDeleteClick = (issuerId: string) => {
+    setIssuerToDelete(issuerId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (issuerToDelete) {
+      await removeTrustedClaimIssuers([issuerToDelete]);
+      setIssuerToDelete(null);
+      setDeleteConfirmOpen(false);
+    }
   };
 
   const trustedClaimIssuers: TrustedClaimIssuer[] = useMemo(() => {
@@ -87,7 +99,7 @@ export const TrustedClaimIssuersSection: React.FC<
         <SectionHeader>
           <SectionTitle>Default Trusted Claim Issuers</SectionTitle>
           <AddButton
-            onClick={handleManageTrustedIssuers}
+            onClick={handleAddTrustedIssuer}
             disabled={transactionInProcess}
           >
             <Icon name="Plus" size="16px" />
@@ -118,16 +130,10 @@ export const TrustedClaimIssuersSection: React.FC<
                     {/* Action buttons in top-right corner */}
                     <GroupActions>
                       <ActionButton
-                        onClick={() => handleDeleteTrustedIssuer(issuer.id)}
+                        onClick={() => handleDeleteClick(issuer.id)}
                         disabled={transactionInProcess}
                       >
                         <Icon name="Delete" size="14px" />
-                      </ActionButton>
-                      <ActionButton
-                        onClick={() => handleManageTrustedIssuers()}
-                        disabled={transactionInProcess}
-                      >
-                        <Icon name="Edit" size="14px" />
                       </ActionButton>
                     </GroupActions>
                   </GroupHeader>
@@ -150,10 +156,24 @@ export const TrustedClaimIssuersSection: React.FC<
         </SectionContent>
       </TabSection>
 
-      <ComingSoonModal
-        isOpen={comingSoonModalOpen}
-        onClose={() => setComingSoonModalOpen(false)}
-        feature={comingSoonFeature}
+      <AddTrustedClaimIssuerModal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onAddClaimIssuer={addTrustedClaimIssuers}
+        transactionInProcess={transactionInProcess}
+      />
+
+      <ConfirmationModal
+        isOpen={deleteConfirmOpen}
+        onClose={() => {
+          setDeleteConfirmOpen(false);
+          setIssuerToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Trusted Claim Issuer"
+        message={`Are you sure you want to remove this trusted claim issuer (${issuerToDelete ? formatUuid(issuerToDelete) : ''})? This action cannot be undone.`}
+        confirmLabel="Delete"
+        isProcessing={transactionInProcess}
       />
     </>
   );

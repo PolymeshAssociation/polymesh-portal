@@ -4,6 +4,7 @@ export { AddDocumentModal } from './AddDocumentModal';
 export { AddMediatorModal } from './AddMediatorModal';
 export { AddMetadataModal } from './AddMetadataModal';
 export { AddSecurityIdentifierModal } from './AddSecurityIdentifierModal';
+export { AddTrustedClaimIssuerModal } from './AddTrustedClaimIssuerModal';
 export { ComingSoonModal } from './ComingSoonModal';
 export { EditAgentModal } from './EditAgentModal';
 export { EditComplianceRuleModal } from './EditComplianceRuleModal';

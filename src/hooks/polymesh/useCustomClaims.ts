@@ -1,5 +1,5 @@
-import { useContext, useState, useCallback } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import { useCallback, useContext, useState } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { notifyError } from '~/helpers/notifications';
 
@@ -8,7 +8,7 @@ export interface CustomClaim {
   name: string;
 }
 
-interface UseCustomClaimsReturn {
+export interface UseCustomClaimsReturn {
   validateCustomClaim: (claimNameOrId: string) => Promise<CustomClaim | null>;
   createModalState: {
     isOpen: boolean;
