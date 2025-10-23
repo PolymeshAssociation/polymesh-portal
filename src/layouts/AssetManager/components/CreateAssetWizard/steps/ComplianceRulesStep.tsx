@@ -31,11 +31,6 @@ import {
   convertSdkToFormFormat,
 } from '../utils/complianceConverters';
 
-// Type definition for compliance rule component ref
-interface ComplianceRuleRef {
-  validateActiveCondition: () => Promise<boolean>;
-}
-
 // Constants for default rule configuration
 const DEFAULT_NEW_RULE: FormComplianceRule = {
   conditions: [
@@ -59,9 +54,6 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
   const [activeConditionIndex, setActiveConditionIndex] = useState<
     number | null
   >(null);
-  const [complianceRuleRefs, setComplianceRuleRefs] = useState<{
-    [key: number]: React.RefObject<ComplianceRuleRef>;
-  }>({});
 
   const {
     control,
@@ -85,17 +77,6 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
   });
 
   const rules = watch('complianceRules');
-
-  // Create and manage refs for ComplianceRule components
-  const getOrCreateRuleRef = (ruleIndex: number) => {
-    if (!complianceRuleRefs[ruleIndex]) {
-      setComplianceRuleRefs((prev) => ({
-        ...prev,
-        [ruleIndex]: React.createRef<ComplianceRuleRef>(),
-      }));
-    }
-    return complianceRuleRefs[ruleIndex];
-  };
 
   const validateActiveRule = async (): Promise<boolean> => {
     if (activeRuleIndex === null) return true;
@@ -154,29 +135,9 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
     setActiveConditionIndex(0);
   };
 
-  // Helper function to handle rule deletion with proper ref cleanup
+  // Helper function to handle rule deletion
   const handleDeleteRule = (ruleIndex: number) => {
     removeRule(ruleIndex);
-
-    // Clean up and reindex refs after deletion
-    setComplianceRuleRefs((prev) => {
-      const newRefs: typeof prev = {};
-
-      // Rebuild refs object with correct indices
-      Object.entries(prev).forEach(([oldIndex, ref]) => {
-        const oldIndexNum = parseInt(oldIndex, 10);
-        if (oldIndexNum < ruleIndex) {
-          // Rules before deleted rule keep same index
-          newRefs[oldIndexNum] = ref;
-        } else if (oldIndexNum > ruleIndex) {
-          // Rules after deleted rule shift down by 1
-          newRefs[oldIndexNum - 1] = ref;
-        }
-        // Skip the deleted rule's ref (oldIndexNum === ruleIndex)
-      });
-
-      return newRefs;
-    });
 
     // Update active indices appropriately
     if (activeRuleIndex === ruleIndex) {
@@ -233,7 +194,6 @@ const ComplianceRulesStep: React.FC<WizardStepProps> = ({
             </HeaderRow>
 
             <ComplianceRule
-              ref={getOrCreateRuleRef(ruleIndex)}
               control={control}
               setValue={setValue}
               baseName={`complianceRules.${ruleIndex}.conditions`}

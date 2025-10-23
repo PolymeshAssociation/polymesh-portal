@@ -4,7 +4,7 @@ import {
   ConditionType,
   InputCondition,
 } from '@polymeshassociation/polymesh-sdk/types';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
@@ -21,10 +21,6 @@ import {
 } from '../../../CreateAssetWizard/types';
 import { convertFormRulesToSdk } from '../../../CreateAssetWizard/utils/complianceConverters';
 import { ModalActions, ModalContainer, ModalContent } from '../../styles';
-
-interface ComplianceRuleRef {
-  validateActiveCondition: () => Promise<boolean>;
-}
 
 interface IAddComplianceRuleModalProps {
   isOpen: boolean;
@@ -57,7 +53,6 @@ export const AddComplianceRuleModal: React.FC<IAddComplianceRuleModalProps> = ({
   const [activeConditionIndex, setActiveConditionIndex] = useState<
     number | null
   >(0);
-  const complianceRuleRef = useRef<ComplianceRuleRef>(null);
 
   const { control, handleSubmit, setValue, reset } =
     useForm<ComplianceRuleFormData>({
@@ -140,7 +135,6 @@ export const AddComplianceRuleModal: React.FC<IAddComplianceRuleModalProps> = ({
             {ruleFields.map((rule, ruleIndex) => (
               <ComplianceRule
                 key={rule.id}
-                ref={complianceRuleRef}
                 control={control}
                 setValue={setValue}
                 baseName={`complianceRules.${ruleIndex}.conditions`}

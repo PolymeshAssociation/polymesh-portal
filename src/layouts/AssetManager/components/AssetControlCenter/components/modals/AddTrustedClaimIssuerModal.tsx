@@ -46,16 +46,41 @@ export const AddTrustedClaimIssuerModal: React.FC<
       .matches(/^0x[0-9a-fA-F]{64}$/, 'Issuer DID must be valid')
       .test(
         'is-valid-identity',
-        'Issuer DID does not exist',
+        'Issuer DID validation failed',
+        // eslint-disable-next-line react/no-this-in-sfc
         async function validateDid(value) {
           if (!value || !value.match(/^0x[0-9a-fA-F]{64}$/)) return true;
-          if (!sdk) return false;
+
+          if (!sdk) {
+            // eslint-disable-next-line react/no-this-in-sfc
+            return this.createError({
+              message:
+                'SDK not initialized. Please refresh the page and try again.',
+            });
+          }
+
           try {
-            return await sdk.identities.isIdentityValid({
+            const isValid = await sdk.identities.isIdentityValid({
               identity: value,
             });
+
+            if (!isValid) {
+              // eslint-disable-next-line react/no-this-in-sfc
+              return this.createError({
+                message: 'Issuer DID does not exist on-chain',
+              });
+            }
+
+            return true;
           } catch (error) {
-            return false;
+            // eslint-disable-next-line react/no-this-in-sfc
+            return this.createError({
+              message: `Unable to validate DID: ${
+                error instanceof Error
+                  ? error.message
+                  : 'Network error. Please try again.'
+              }`,
+            });
           }
         },
       ),

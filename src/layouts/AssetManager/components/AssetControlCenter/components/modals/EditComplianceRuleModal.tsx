@@ -6,7 +6,7 @@ import {
   InputCondition,
   Requirement,
 } from '@polymeshassociation/polymesh-sdk/types';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
@@ -26,10 +26,6 @@ import {
   convertSdkToFormFormat,
 } from '../../../CreateAssetWizard/utils/complianceConverters';
 import { ModalActions, ModalContainer, ModalContent } from '../../styles';
-
-interface ComplianceRuleRef {
-  validateActiveCondition: () => Promise<boolean>;
-}
 
 interface IEditComplianceRuleModalProps {
   isOpen: boolean;
@@ -67,7 +63,6 @@ export const EditComplianceRuleModal: React.FC<
   const [activeConditionIndex, setActiveConditionIndex] = useState<
     number | null
   >(null);
-  const complianceRuleRef = useRef<ComplianceRuleRef>(null);
 
   const { control, handleSubmit, setValue, reset } =
     useForm<ComplianceRuleFormData>({
@@ -110,7 +105,7 @@ export const EditComplianceRuleModal: React.FC<
       // Check if there's an active condition that hasn't been finalized
       if (activeConditionIndex !== null) {
         notifyError(
-          'Please finalize the current condition before saving the rule',
+          'Please finalize the current condition before submitting the rule',
         );
         return;
       }
@@ -175,7 +170,6 @@ export const EditComplianceRuleModal: React.FC<
             {ruleFields.map((rule, ruleIdx) => (
               <ComplianceRule
                 key={rule.id}
-                ref={complianceRuleRef}
                 control={control}
                 setValue={setValue}
                 baseName={`complianceRules.${ruleIdx}.conditions`}
