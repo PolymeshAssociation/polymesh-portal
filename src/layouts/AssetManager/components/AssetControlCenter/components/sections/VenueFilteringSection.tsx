@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { Icon } from '~/components';
-import { ComingSoonModal } from '../modals';
+import { AddVenueModal } from '../modals';
 import { useAssetActionsContext } from '../../context';
 import type { TabProps, VenueConfig } from '../../types';
 import { VenuesTable } from '../VenuesTable';
@@ -22,8 +23,7 @@ interface VenueFilteringSectionProps {
 export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
   asset,
 }) => {
-  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
-  const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const [addVenueModalOpen, setAddVenueModalOpen] = useState(false);
   const { setVenueFiltering, transactionInProcess } = useAssetActionsContext();
 
   const handleToggleVenueFiltering = async () => {
@@ -39,14 +39,23 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
   };
 
   const handleManageVenues = () => {
-    setComingSoonFeature('add venue restriction');
-    setComingSoonModalOpen(true);
+    setAddVenueModalOpen(true);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleRemoveVenue = (_venueId: string) => {
-    setComingSoonFeature('remove venue restriction');
-    setComingSoonModalOpen(true);
+  const handleRemoveVenue = async (venueId: string) => {
+    try {
+      const currentAllowedVenues = asset?.details?.permittedVenuesIds || [];
+      const newAllowedVenues = currentAllowedVenues
+        .filter((id) => id !== venueId)
+        .map((id) => new BigNumber(id));
+
+      await setVenueFiltering({
+        enabled: true,
+        allowedVenues: newAllowedVenues,
+      });
+    } catch (error) {
+      notifyError(`Error removing venue: ${(error as Error).message}`);
+    }
   };
 
   const venueConfig: VenueConfig = {
@@ -103,10 +112,10 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
         </SectionContent>
       </TabSection>
 
-      <ComingSoonModal
-        isOpen={comingSoonModalOpen}
-        onClose={() => setComingSoonModalOpen(false)}
-        feature={comingSoonFeature}
+      <AddVenueModal
+        isOpen={addVenueModalOpen}
+        onClose={() => setAddVenueModalOpen(false)}
+        currentAllowedVenues={asset?.details?.permittedVenuesIds || []}
       />
     </>
   );
