@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Icon } from '~/components';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import { ConfirmationModal, Icon } from '~/components';
 import { ComingSoonModal } from '../modals';
 import { useAssetActionsContext } from '../../context';
 import type { TabProps, VenueConfig } from '../../types';
@@ -24,6 +25,8 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
 }) => {
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
+  const [venueIdToRemove, setVenueIdToRemove] = useState<string | null>(null);
   const { setVenueFiltering, transactionInProcess } = useAssetActionsContext();
 
   const handleToggleVenueFiltering = async () => {
@@ -43,10 +46,24 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
     setComingSoonModalOpen(true);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleRemoveVenue = (_venueId: string) => {
-    setComingSoonFeature('remove venue restriction');
-    setComingSoonModalOpen(true);
+  const handleRemoveVenue = (venueId: string) => {
+    setVenueIdToRemove(venueId);
+    setRemoveConfirmOpen(true);
+  };
+
+  const confirmRemoveVenue = async () => {
+    if (venueIdToRemove) {
+      try {
+        await setVenueFiltering({
+          disallowedVenues: [new BigNumber(venueIdToRemove)],
+        });
+        setVenueIdToRemove(null);
+      } catch (error) {
+        notifyError(
+          `Error removing venue restriction: ${(error as Error).message}`,
+        );
+      }
+    }
   };
 
   const venueConfig: VenueConfig = {
@@ -107,6 +124,19 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
         isOpen={comingSoonModalOpen}
         onClose={() => setComingSoonModalOpen(false)}
         feature={comingSoonFeature}
+      />
+
+      <ConfirmationModal
+        isOpen={removeConfirmOpen}
+        onClose={() => {
+          setRemoveConfirmOpen(false);
+          setVenueIdToRemove(null);
+        }}
+        onConfirm={confirmRemoveVenue}
+        title="Remove Venue Restriction"
+        message={`Are you sure you want to remove venue ${venueIdToRemove} from the allowed venues list?`}
+        confirmLabel="Remove Venue"
+        isProcessing={transactionInProcess}
       />
     </>
   );
