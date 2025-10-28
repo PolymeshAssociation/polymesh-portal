@@ -6,6 +6,7 @@ export { AddMetadataModal } from './AddMetadataModal';
 export { AddSecurityIdentifierModal } from './AddSecurityIdentifierModal';
 export { AddTrackedStatModal } from './AddTrackedStatModal';
 export { AddTrustedClaimIssuerModal } from './AddTrustedClaimIssuerModal';
+export { AddVenueModal } from './AddVenueModal';
 export { ComingSoonModal } from './ComingSoonModal';
 export { EditAgentModal } from './EditAgentModal';
 export { EditComplianceRuleModal } from './EditComplianceRuleModal';

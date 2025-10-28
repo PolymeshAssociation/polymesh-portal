@@ -825,6 +825,37 @@ export const ModalActionButton = styled(Button)`
   text-align: left;
 `;
 
+export const FieldValue = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+
+  @media screen and (max-width: 768px) {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+`;
+
+export const VenueDetailsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background-color: ${({ theme }) => theme.colors.landingBackground};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 8px;
+
+  @media screen and (max-width: 768px) {
+    padding: 12px;
+    gap: 10px;
+  }
+`;
+
 // =============================================================================
 // MODAL FORM ELEMENTS
 // =============================================================================

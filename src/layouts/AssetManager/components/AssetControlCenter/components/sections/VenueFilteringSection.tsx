@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import React, { useState } from 'react';
 import { ConfirmationModal, Icon } from '~/components';
-import { ComingSoonModal } from '../modals';
+import { notifyError } from '~/helpers/notifications';
 import { useAssetActionsContext } from '../../context';
-import type { TabProps, VenueConfig } from '../../types';
-import { VenuesTable } from '../VenuesTable';
 import {
-  TabSection,
-  SectionHeader,
-  SectionTitle,
-  SectionContent,
   AddButton,
   EmptyState,
+  SectionContent,
+  SectionHeader,
+  SectionTitle,
+  TabSection,
   VenueStatusBadge,
 } from '../../styles';
-import { notifyError } from '~/helpers/notifications';
+import type { TabProps, VenueConfig } from '../../types';
+import { AddVenueModal } from '../modals';
+import { VenuesTable } from '../VenuesTable';
 
 interface VenueFilteringSectionProps {
   asset: TabProps['asset'];
@@ -23,8 +23,7 @@ interface VenueFilteringSectionProps {
 export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
   asset,
 }) => {
-  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
-  const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const [addVenueModalOpen, setAddVenueModalOpen] = useState(false);
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
   const [toggleConfirmOpen, setToggleConfirmOpen] = useState(false);
   const [venueIdToRemove, setVenueIdToRemove] = useState<string | null>(null);
@@ -47,9 +46,8 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
     }
   };
 
-  const handleManageVenues = () => {
-    setComingSoonFeature('add venue restriction');
-    setComingSoonModalOpen(true);
+  const handleAddVenue = () => {
+    setAddVenueModalOpen(true);
   };
 
   const handleRemoveVenue = (venueId: string) => {
@@ -100,10 +98,7 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
               />
               {venueConfig.isEnabled ? 'Disable' : 'Enable'}
             </AddButton>
-            <AddButton
-              onClick={handleManageVenues}
-              disabled={transactionInProcess}
-            >
+            <AddButton onClick={handleAddVenue} disabled={transactionInProcess}>
               <Icon name="Plus" size="16px" />
               Add Venue
             </AddButton>
@@ -126,10 +121,12 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
         </SectionContent>
       </TabSection>
 
-      <ComingSoonModal
-        isOpen={comingSoonModalOpen}
-        onClose={() => setComingSoonModalOpen(false)}
-        feature={comingSoonFeature}
+      <AddVenueModal
+        isOpen={addVenueModalOpen}
+        onClose={() => setAddVenueModalOpen(false)}
+        currentAllowedVenues={asset?.details?.permittedVenuesIds || []}
+        onAddVenues={setVenueFiltering}
+        transactionInProcess={transactionInProcess}
       />
 
       <ConfirmationModal
