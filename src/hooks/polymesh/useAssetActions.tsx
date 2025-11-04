@@ -1,5 +1,9 @@
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import type {
+  AddBalanceStatParams,
+  AddClaimBalanceStatParams,
+  AddClaimCountStatParams,
+  AddCountStatParams,
   InputCondition,
   NftMetadataInput,
   Requirement,
@@ -1016,6 +1020,43 @@ const useAssetActions = (
     }
   };
 
+  const setTransferRestrictionStats = async ({
+    stats,
+    onTransactionRunning,
+  }: {
+    stats: (
+      | AddCountStatParams
+      | AddBalanceStatParams
+      | AddClaimCountStatParams
+      | AddClaimBalanceStatParams
+    )[];
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    // Type narrow: only FungibleAsset supports transfer restrictions
+    if (!('issuance' in asset)) {
+      notifyError(
+        'Transfer restriction statistics are only supported for fungible assets, not NFT collections',
+      );
+      return;
+    }
+
+    try {
+      const fungibleAsset = asset as FungibleAsset;
+      await executeTransaction(
+        fungibleAsset.transferRestrictions.setStats({ stats }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
   return {
     issueTokens,
     redeemTokens,
@@ -1055,6 +1096,7 @@ const useAssetActions = (
     addComplianceRule,
     modifyComplianceRule,
     removeComplianceRule,
+    setTransferRestrictionStats,
     transactionInProcess,
   };
 };

@@ -1,4 +1,6 @@
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
+  ClaimType,
   CustomPermissionGroup,
   KnownPermissionGroup,
   PermissionGroupType,
@@ -64,3 +66,73 @@ export const resolvePermissionGroup = (
   }
   return knownGroup;
 };
+
+/**
+ * Filters input to allow only integer values (whole numbers)
+ * @param e - The form event from the input element
+ */
+export const filterToIntegerInput = (
+  e: React.FormEvent<HTMLInputElement>,
+): void => {
+  e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, '');
+};
+
+/**
+ * Filters input to allow only decimal values (numbers with up to one decimal point)
+ * @param e - The form event from the input element
+ */
+export const filterToDecimalInput = (
+  e: React.FormEvent<HTMLInputElement>,
+): void => {
+  e.currentTarget.value = e.currentTarget.value
+    .replace(/[^0-9.]/g, '')
+    .replace(/(\..*)\./g, '$1');
+};
+
+/**
+ * Builds the value object for Accredited or Affiliate scoped stats
+ */
+export function buildScopedClaimValue(
+  claimType: ClaimType.Accredited,
+  withClaim: string | undefined,
+  withoutClaim: string | undefined,
+):
+  | {
+      accredited: BigNumber;
+      nonAccredited: BigNumber;
+    }
+  | undefined;
+
+export function buildScopedClaimValue(
+  claimType: ClaimType.Affiliate,
+  withClaim: string | undefined,
+  withoutClaim: string | undefined,
+):
+  | {
+      affiliate: BigNumber;
+      nonAffiliate: BigNumber;
+    }
+  | undefined;
+
+export function buildScopedClaimValue(
+  claimType: ClaimType.Accredited | ClaimType.Affiliate,
+  withClaim: string | undefined,
+  withoutClaim: string | undefined,
+) {
+  if (!withClaim && !withoutClaim) return undefined;
+
+  const withValue = new BigNumber(withClaim || 0);
+  const withoutValue = new BigNumber(withoutClaim || 0);
+
+  if (claimType === ClaimType.Accredited) {
+    return {
+      accredited: withValue,
+      nonAccredited: withoutValue,
+    };
+  }
+
+  return {
+    affiliate: withValue,
+    nonAffiliate: withoutValue,
+  };
+}
