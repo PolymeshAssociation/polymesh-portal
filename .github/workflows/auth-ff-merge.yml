@@ -1,0 +1,31 @@
+name: Auth and Fast-Forward
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  issue_comment:
+    types: [created]
+
+jobs:
+  auth-and-merge:
+    if: >
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' &&
+       contains(github.event.comment.body, '/fast-forward') &&
+       github.event.issue.pull_request)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
+      - uses: PolymeshAssociation/polymesh-action-public@v1.1.2
+        with:
+          allowed-signers: ${{ vars.MIDDLEWARE_ALLOWED_SIGNERS }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-mode: 'always'
+          auth-required: 'true'
+          required-key-type: 'ed25519-sk'
