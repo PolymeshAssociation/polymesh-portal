@@ -26,14 +26,20 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
   const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
+  const [toggleConfirmOpen, setToggleConfirmOpen] = useState(false);
   const [venueIdToRemove, setVenueIdToRemove] = useState<string | null>(null);
   const { setVenueFiltering, transactionInProcess } = useAssetActionsContext();
 
-  const handleToggleVenueFiltering = async () => {
+  const handleToggleVenueFiltering = () => {
+    setToggleConfirmOpen(true);
+  };
+
+  const confirmToggleVenueFiltering = async () => {
     try {
       await setVenueFiltering({
         enabled: !asset?.details?.venueFilteringEnabled,
       });
+      setToggleConfirmOpen(false);
     } catch (error) {
       notifyError(
         `Error toggling venue filtering: ${(error as Error).message}`,
@@ -136,6 +142,23 @@ export const VenueFilteringSection: React.FC<VenueFilteringSectionProps> = ({
         title="Remove Venue Restriction"
         message={`Are you sure you want to remove venue ${venueIdToRemove} from the allowed venues list?`}
         confirmLabel="Remove Venue"
+        isProcessing={transactionInProcess}
+      />
+
+      <ConfirmationModal
+        isOpen={toggleConfirmOpen}
+        onClose={() => setToggleConfirmOpen(false)}
+        onConfirm={confirmToggleVenueFiltering}
+        title={`${
+          asset?.details?.venueFilteringEnabled ? 'Disable' : 'Enable'
+        } Venue Restrictions`}
+        message={`Are you sure you want to ${
+          asset?.details?.venueFilteringEnabled ? 'disable' : 'enable'
+        } venue restrictions for this asset?`}
+        confirmLabel={
+          asset?.details?.venueFilteringEnabled ? 'Disable' : 'Enable'
+        }
+        cancelLabel="Cancel"
         isProcessing={transactionInProcess}
       />
     </>

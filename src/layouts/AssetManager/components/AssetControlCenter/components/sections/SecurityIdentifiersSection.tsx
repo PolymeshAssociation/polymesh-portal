@@ -1,6 +1,6 @@
 import { SecurityIdentifier as SDKSecurityIdentifier } from '@polymeshassociation/polymesh-sdk/types';
 import React, { useState } from 'react';
-import { Icon } from '~/components';
+import { ConfirmationModal, Icon } from '~/components';
 import { useAssetActionsContext } from '../../context';
 import {
   AddButton,
@@ -27,6 +27,8 @@ export const SecurityIdentifiersSection: React.FC<
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [identifierToEdit, setIdentifierToEdit] =
+    useState<SecurityIdentifier | null>(null);
+  const [identifierToDelete, setIdentifierToDelete] =
     useState<SecurityIdentifier | null>(null);
 
   const { modifyAssetIdentifiers, transactionInProcess } =
@@ -57,21 +59,36 @@ export const SecurityIdentifiersSection: React.FC<
     }
   };
 
-  const handleRemoveSecurityIdentifier = async (identifierId: string) => {
-    if (!asset?.details?.assetIdentifiers) {
-      return;
-    }
-
+  const handleRemoveSecurityIdentifier = (identifierId: string) => {
     // Parse identifierId to get type and value
     const [type, value] = identifierId.split('|');
 
+    const identifierFound = securityIdentifiers.find(
+      (identifier) => identifier.type === type && identifier.value === value,
+    );
+
+    if (identifierFound) {
+      setIdentifierToDelete(identifierFound);
+    }
+  };
+
+  const confirmRemoveSecurityIdentifier = async () => {
+    if (!asset?.details?.assetIdentifiers || !identifierToDelete) {
+      return;
+    }
+
     // Filter out the identifier to remove
     const remainingIdentifiers = asset.details.assetIdentifiers.filter(
-      (identifier) => !(identifier.type === type && identifier.value === value),
+      (identifier) =>
+        !(
+          identifier.type === identifierToDelete.type &&
+          identifier.value === identifierToDelete.value
+        ),
     );
 
     // Call the asset action to update identifiers
     await modifyAssetIdentifiers(remainingIdentifiers);
+    setIdentifierToDelete(null);
   };
 
   const handleAddIdentifierSubmit = async (
@@ -137,6 +154,19 @@ export const SecurityIdentifiersSection: React.FC<
         allIdentifiers={securityIdentifiers}
         onEditIdentifier={handleEditIdentifierSubmit}
         transactionInProcess={transactionInProcess}
+      />
+
+      <ConfirmationModal
+        isOpen={!!identifierToDelete}
+        onClose={() => {
+          setIdentifierToDelete(null);
+        }}
+        onConfirm={confirmRemoveSecurityIdentifier}
+        title="Remove Security Identifier"
+        message={`Are you sure you want to remove ${identifierToDelete?.type || ''} ${identifierToDelete?.value || ''} from the security identifiers associated with this asset?`}
+        confirmLabel="Remove"
+        cancelLabel="Cancel"
+        isProcessing={transactionInProcess}
       />
     </>
   );

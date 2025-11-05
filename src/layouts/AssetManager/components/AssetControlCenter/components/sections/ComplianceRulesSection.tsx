@@ -112,6 +112,7 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
   const [addRuleModalOpen, setAddRuleModalOpen] = useState(false);
   const [editRuleModalOpen, setEditRuleModalOpen] = useState(false);
   const [deleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
+  const [pauseConfirmModalOpen, setPauseConfirmModalOpen] = useState(false);
   const [selectedRule, setSelectedRule] = useState<Requirement | null>(null);
 
   const {
@@ -131,13 +132,18 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
     return asset?.details?.compliancePaused ?? false;
   }, [asset?.details?.compliancePaused]);
 
-  const handlePauseCompliance = useCallback(async () => {
+  const handlePauseCompliance = useCallback(() => {
+    setPauseConfirmModalOpen(true);
+  }, []);
+
+  const confirmPauseCompliance = useCallback(async () => {
     try {
       if (compliancePaused) {
         await unpauseCompliance();
       } else {
         await pauseCompliance();
       }
+      setPauseConfirmModalOpen(false);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error toggling compliance:', error);
@@ -569,6 +575,21 @@ export const ComplianceRulesSection: React.FC<ComplianceRulesSectionProps> = ({
         title="Delete Compliance Rule"
         message={`Are you sure you want to delete the Rule with ID ${selectedRule !== null ? selectedRule.id : ''}? This action cannot be undone.`}
         confirmLabel="Delete"
+        cancelLabel="Cancel"
+        isProcessing={transactionInProcess}
+      />
+
+      <ConfirmationModal
+        isOpen={pauseConfirmModalOpen}
+        onClose={() => setPauseConfirmModalOpen(false)}
+        onConfirm={confirmPauseCompliance}
+        title={`${compliancePaused ? 'Resume' : 'Pause'} Compliance Rules`}
+        message={
+          compliancePaused
+            ? 'Are you sure you want to resume all compliance rules for this asset? Once resumed, all asset transfers will be required to comply with the configured rules.'
+            : 'Are you sure you want to pause all compliance rules for this asset? While paused, asset transfers will NOT be checked against any compliance rules and may proceed without restriction.'
+        }
+        confirmLabel={compliancePaused ? 'Resume' : 'Pause'}
         cancelLabel="Cancel"
         isProcessing={transactionInProcess}
       />

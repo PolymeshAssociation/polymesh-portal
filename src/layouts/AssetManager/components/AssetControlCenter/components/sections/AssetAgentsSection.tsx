@@ -5,8 +5,9 @@ import {
   KnownPermissionGroup,
 } from '@polymeshassociation/polymesh-sdk/types';
 import React, { useState } from 'react';
-import { Icon } from '~/components';
+import { ConfirmationModal, Icon } from '~/components';
 import { notifyError } from '~/helpers/notifications';
+import { formatDid } from '~/helpers/formatters';
 import { useAssetActionsContext } from '../../context';
 import {
   AddButton,
@@ -30,6 +31,7 @@ export const AssetAgentsSection: React.FC<AssetAgentsSectionProps> = ({
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [agentToEdit, setAgentToEdit] = useState<AgentWithGroup | null>(null);
+  const [agentToDelete, setAgentToDelete] = useState<string | null>(null);
 
   const {
     removeAssetAgent,
@@ -45,11 +47,18 @@ export const AssetAgentsSection: React.FC<AssetAgentsSectionProps> = ({
     setAddModalOpen(true);
   };
 
-  const handleRemoveAgent = async (agentDid: string) => {
-    try {
-      await removeAssetAgent(agentDid);
-    } catch (error) {
-      notifyError(`Error removing asset agent: ${(error as Error).message}`);
+  const handleRemoveAgent = (agentDid: string) => {
+    setAgentToDelete(agentDid);
+  };
+
+  const confirmRemoveAgent = async () => {
+    if (agentToDelete) {
+      try {
+        await removeAssetAgent(agentToDelete);
+        setAgentToDelete(null);
+      } catch (error) {
+        notifyError(`Error removing asset agent: ${(error as Error).message}`);
+      }
     }
   };
 
@@ -123,6 +132,19 @@ export const AssetAgentsSection: React.FC<AssetAgentsSectionProps> = ({
         permissionGroups={asset.details?.permissionGroups}
         onEditAgent={handleEditAgentSubmit}
         transactionInProcess={transactionInProcess}
+      />
+
+      <ConfirmationModal
+        isOpen={!!agentToDelete}
+        onClose={() => {
+          setAgentToDelete(null);
+        }}
+        onConfirm={confirmRemoveAgent}
+        title="Remove Asset Agent"
+        message={`Are you sure you want to remove agent ${agentToDelete ? formatDid(agentToDelete, 8, 8) : ''} from this asset?`}
+        confirmLabel="Remove"
+        cancelLabel="Cancel"
+        isProcessing={transactionInProcess}
       />
     </>
   );

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Modal, Icon } from '~/components';
+import React, { useState } from 'react';
+import { Modal, Icon, ConfirmationModal } from '~/components';
 import { Heading } from '~/components/UiKit';
 import { TIcons } from '~/assets/icons/types';
 import type { AssetSnapshotProps } from '../../types';
@@ -30,6 +30,8 @@ export const MoreActionsModal: React.FC<MoreActionsModalProps> = ({
   onClose,
   onActionSelect,
 }) => {
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
+
   if (!isOpen) return null;
 
   const isNftCollection = assetDetails.details?.isNftCollection;
@@ -119,9 +121,70 @@ export const MoreActionsModal: React.FC<MoreActionsModalProps> = ({
   ];
 
   const handleActionClick = (actionId: string) => {
+    // Actions that require confirmation
+    const requiresConfirmation = [
+      'freeze',
+      'unfreeze',
+      'unlinkTicker',
+      'makeAssetDivisible',
+    ];
+
+    if (requiresConfirmation.includes(actionId)) {
+      setPendingAction(actionId);
+      return;
+    }
+
+    // For other actions, proceed directly
     onActionSelect(actionId);
     onClose();
   };
+
+  const confirmAction = () => {
+    if (pendingAction) {
+      onActionSelect(pendingAction);
+      setPendingAction(null);
+      onClose();
+    }
+  };
+
+  // Get confirmation modal content based on pending action
+  const getConfirmationContent = () => {
+    switch (pendingAction) {
+      case 'freeze':
+        return {
+          title: 'Confirm Freeze',
+          message:
+            'Are you sure you want to block all transfers for this asset?',
+          confirmLabel: 'Freeze',
+        };
+      case 'unfreeze':
+        return {
+          title: 'Confirm Unfreeze',
+          message: 'Are you sure you want to allow transfers for this asset?',
+          confirmLabel: 'Unfreeze',
+        };
+      case 'unlinkTicker':
+        return {
+          title: 'Confirm Unlink',
+          message: `Are you sure you want to unlink ${assetDetails.details?.ticker} from asset ${assetDetails.assetId}? Once unlinked the ticker will immediately become available for use by other assets.`,
+          confirmLabel: 'Unlink',
+        };
+      case 'makeAssetDivisible':
+        return {
+          title: 'Make Asset Divisible',
+          message: `Are you sure you want to make ${assetDetails.assetId} divisible? This change is permanent and cannot be reversed.`,
+          confirmLabel: 'Make Divisible',
+        };
+      default:
+        return {
+          title: '',
+          message: '',
+          confirmLabel: 'Confirm',
+        };
+    }
+  };
+
+  const confirmationContent = getConfirmationContent();
 
   return (
     <Modal handleClose={onClose} customWidth="600px">
@@ -144,6 +207,16 @@ export const MoreActionsModal: React.FC<MoreActionsModalProps> = ({
           </ModalActionsGrid>
         </ModalContent>
       </ModalContainer>
+
+      <ConfirmationModal
+        isOpen={!!pendingAction}
+        onClose={() => setPendingAction(null)}
+        onConfirm={confirmAction}
+        title={confirmationContent.title}
+        message={confirmationContent.message}
+        confirmLabel={confirmationContent.confirmLabel}
+        cancelLabel="Cancel"
+      />
     </Modal>
   );
 };

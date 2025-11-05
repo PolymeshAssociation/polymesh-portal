@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Icon, CopyToClipboard } from '~/components';
+import { Icon, CopyToClipboard, ConfirmationModal } from '~/components';
 import { formatUuid } from '~/helpers/formatters';
 import { AddMediatorModal } from '../modals';
 import { useAssetActionsContext } from '../../context';
@@ -28,6 +28,7 @@ export const RequiredMediatorsSection: React.FC<
   RequiredMediatorsSectionProps
 > = ({ asset }) => {
   const [addMediatorModalOpen, setAddMediatorModalOpen] = useState(false);
+  const [mediatorToDelete, setMediatorToDelete] = useState<string | null>(null);
   const { removeRequiredMediators, transactionInProcess } =
     useAssetActionsContext();
 
@@ -35,10 +36,17 @@ export const RequiredMediatorsSection: React.FC<
     setAddMediatorModalOpen(true);
   };
 
-  const handleDeleteMediator = async (mediatorId: string) => {
-    await removeRequiredMediators({
-      mediators: [mediatorId],
-    });
+  const handleDeleteMediator = (mediatorId: string) => {
+    setMediatorToDelete(mediatorId);
+  };
+
+  const confirmDeleteMediator = async () => {
+    if (mediatorToDelete) {
+      await removeRequiredMediators({
+        mediators: [mediatorToDelete],
+      });
+      setMediatorToDelete(null);
+    }
   };
 
   const requiredMediators: RequiredMediator[] =
@@ -99,6 +107,19 @@ export const RequiredMediatorsSection: React.FC<
       <AddMediatorModal
         isOpen={addMediatorModalOpen}
         onClose={() => setAddMediatorModalOpen(false)}
+      />
+
+      <ConfirmationModal
+        isOpen={!!mediatorToDelete}
+        onClose={() => {
+          setMediatorToDelete(null);
+        }}
+        onConfirm={confirmDeleteMediator}
+        title="Remove Required Mediator"
+        message={`Are you sure you want to remove DID ${mediatorToDelete ? formatUuid(mediatorToDelete) : ''} from the required mediators for this asset?`}
+        confirmLabel="Remove"
+        cancelLabel="Cancel"
+        isProcessing={transactionInProcess}
       />
     </>
   );
