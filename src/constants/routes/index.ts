@@ -6,6 +6,7 @@ const Landing = lazy(() => import('~/layouts/Landing'));
 const Overview = lazy(() => import('~/layouts/Overview'));
 const Portfolio = lazy(() => import('~/layouts/Portfolio'));
 const Authorizations = lazy(() => import('~/layouts/Authorizations'));
+const SecondaryKeys = lazy(() => import('~/layouts/SecondaryKeys'));
 const Transfers = lazy(() => import('~/layouts/Transfers'));
 const MultiSig = lazy(() => import('~/layouts/MultiSig'));
 const Claims = lazy(() => import('~/layouts/Claims'));
@@ -47,6 +48,7 @@ export const PATHS = {
   TRANSFERS: '/transfers',
   MULTISIG: '/multisig',
   AUTHORIZATIONS: '/authorizations',
+  SECONDARY_KEYS: '/secondary-keys',
   CLAIMS: '/claims',
   DISTRIBUTIONS: '/distributions',
   SETTINGS: '/settings',
@@ -76,6 +78,11 @@ export const ROUTES = [
     path: PATHS.AUTHORIZATIONS,
     label: 'Authorizations',
     component: Authorizations,
+  },
+  {
+    path: PATHS.SECONDARY_KEYS,
+    label: 'Secondary Key Permissions',
+    component: SecondaryKeys,
   },
   { path: PATHS.SETTINGS, label: 'Settings', component: Settings },
   {
@@ -155,6 +162,11 @@ export const NAV_LINKS = [
     label: 'Authorizations',
     icon: 'AuthorizationsIcon',
     notifications: 'authorizations',
+  },
+  {
+    path: PATHS.SECONDARY_KEYS,
+    label: 'Secondary Key Permissions',
+    icon: 'KeyIcon',
   },
   { path: PATHS.CLAIMS, label: 'Claims', icon: 'ClaimsIcon' },
   {
