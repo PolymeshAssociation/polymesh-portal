@@ -1,14 +1,15 @@
+import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import type {
+  AccountIdentityRelation,
+  AccountKeyType,
+} from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
 import {
   Account,
   Identity,
   MultiSig,
   MultiSigDetails,
+  PermissionedAccount,
 } from '@polymeshassociation/polymesh-sdk/types';
-import type {
-  AccountIdentityRelation,
-  AccountKeyType,
-} from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
-import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 
 export interface IInfoByKey {
   available: boolean;
@@ -60,13 +61,15 @@ export interface IAccountContext {
   identity: Identity | null;
   allIdentities: (Identity | null)[];
   primaryKey: string;
-  secondaryKeys: string[];
+  secondaryKeys: PermissionedAccount[];
+  secondaryKeysLoading: boolean;
   accountLoading: boolean;
   identityLoading: boolean;
   allKeyInfo: IInfoByKey[];
   identityHasValidCdd: boolean;
   accountIsMultisigSigner: boolean;
   refreshAccountIdentity: () => void;
+  refreshSecondaryKeys: () => void;
   keyIdentityRelationships: Record<string, AccountIdentityRelation>;
   multiSigAccount: MultiSig | null;
   selectedAccountBalance: IAccountBalance;
@@ -93,12 +96,14 @@ export const initialState = {
   allIdentities: [],
   primaryKey: '',
   secondaryKeys: [],
+  secondaryKeysLoading: false,
   accountLoading: true,
   identityLoading: true,
   allKeyInfo: [],
   identityHasValidCdd: false,
   accountIsMultisigSigner: false,
   refreshAccountIdentity: () => {},
+  refreshSecondaryKeys: () => {},
   keyIdentityRelationships: {},
   multiSigAccount: null,
   selectedAccountBalance: { free: '', locked: '', total: '' },

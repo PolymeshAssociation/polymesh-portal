@@ -9,6 +9,7 @@ import {
   Account,
   Identity,
   MultiSig,
+  PermissionedAccount,
   UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
@@ -65,7 +66,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [allIdentities, setAllIdentities] = useState<(Identity | null)[]>([]);
   const [primaryKey, setPrimaryKey] = useState<string>('');
-  const [secondaryKeys, setSecondaryKeys] = useState<string[]>([]);
+  const [secondaryKeys, setSecondaryKeys] = useState<PermissionedAccount[]>([]);
   const [accountLoading, setAccountLoading] = useState(true);
   const [identityLoading, setIdentityLoading] = useState(true);
   const [primaryKeyLoading, setPrimaryKeyLoading] = useState(true);
@@ -99,6 +100,21 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const refreshAccountIdentity = useCallback(() => {
     setShouldRefreshIdentity(true);
   }, [setShouldRefreshIdentity]);
+
+  const refreshSecondaryKeys = useCallback(async () => {
+    if (!identity) return;
+
+    setSecondaryKeysLoading(true);
+
+    try {
+      const { data } = await identity.getSecondaryAccounts();
+      setSecondaryKeys(data);
+    } catch (error) {
+      notifyGlobalError((error as Error).message);
+    } finally {
+      setSecondaryKeysLoading(false);
+    }
+  }, [identity]);
 
   const blockWalletAddress = useCallback(
     (address: string) => {
@@ -430,11 +446,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
     (async () => {
       unsubCb = await identity.getSecondaryAccounts((secondaryAccounts) => {
-        const keys = secondaryAccounts.map(
-          ({ account: { address } }) => address,
-        );
         if (!identityLoading) {
-          setSecondaryKeys(keys);
+          setSecondaryKeys(secondaryAccounts);
           setSecondaryKeysLoading(false);
         }
       });
@@ -464,8 +477,11 @@ const AccountProvider = ({ children }: IProviderProps) => {
     }
 
     (async () => {
+      const secondaryKeyAddresses = secondaryKeys.map(
+        ({ account: { address } }) => address,
+      );
       const balancesByKey = await Promise.all(
-        [primaryKey, ...secondaryKeys].map(async (key) => {
+        [primaryKey, ...secondaryKeyAddresses].map(async (key) => {
           const acc = await sdk.accountManagement.getAccount({
             address: key,
           });
@@ -523,12 +539,14 @@ const AccountProvider = ({ children }: IProviderProps) => {
       allIdentities,
       primaryKey,
       secondaryKeys,
+      secondaryKeysLoading,
       accountLoading,
       identityLoading,
       allKeyInfo,
       identityHasValidCdd,
       accountIsMultisigSigner,
       refreshAccountIdentity,
+      refreshSecondaryKeys,
       keyIdentityRelationships,
       multiSigAccount,
       selectedAccountBalance,
@@ -560,8 +578,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
       multiSigAccount,
       primaryKey,
       refreshAccountIdentity,
+      refreshSecondaryKeys,
       rememberSelectedAccount,
       secondaryKeys,
+      secondaryKeysLoading,
       selectedAccount,
       selectedAccountBalance,
       setDefaultAccount,

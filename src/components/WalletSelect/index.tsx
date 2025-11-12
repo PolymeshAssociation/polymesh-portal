@@ -37,6 +37,11 @@ const WalletSelect: React.FC<ISelectProps> = ({
   const [truncateLength, setTruncateLength] = useState<number | undefined>();
   const [filter, setFilter] = useState('');
 
+  const secondaryKeyAddresses = useMemo(
+    () => new Set(secondaryKeys.map(({ account }) => account.address)),
+    [secondaryKeys],
+  );
+
   // Memoize sorted accounts to avoid expensive sorting on every render
   const sortedAccounts = useMemo(() => {
     return allAccountsWithMeta.sort((a, b) => {
@@ -47,12 +52,12 @@ const WalletSelect: React.FC<ISelectProps> = ({
       if (a.address === primaryKey) return -1;
       if (b.address === primaryKey) return 1;
       // place secondary keys next of selected key identity next
-      if (secondaryKeys.includes(a.address)) return -1;
-      if (secondaryKeys.includes(b.address)) return 1;
+      if (secondaryKeyAddresses.has(a.address)) return -1;
+      if (secondaryKeyAddresses.has(b.address)) return 1;
 
       return 0;
     });
-  }, [allAccountsWithMeta, selectedAccount, primaryKey, secondaryKeys]);
+  }, [allAccountsWithMeta, selectedAccount, primaryKey, secondaryKeyAddresses]);
 
   // Memoize filtered accounts based on search filter
   const filteredAccounts = useMemo(() => {
@@ -176,7 +181,7 @@ const WalletSelect: React.FC<ISelectProps> = ({
                 $selectedId={
                   address === selectedAccount ||
                   address === primaryKey ||
-                  secondaryKeys.includes(address)
+                  secondaryKeyAddresses.has(address)
                 }
               >
                 {keyIdentityRelationships[address]}

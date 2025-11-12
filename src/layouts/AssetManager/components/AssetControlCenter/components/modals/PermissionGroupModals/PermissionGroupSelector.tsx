@@ -50,6 +50,15 @@ export const PermissionGroupSelector: React.FC<
     new Set(),
   );
 
+  const formatTransactionLabel = useCallback((tx: string) => {
+    const [pallet, extrinsic] = tx.split('.');
+    const formattedPallet = pallet
+      ? `${pallet.charAt(0).toUpperCase()}${pallet.slice(1)}`
+      : pallet;
+
+    return extrinsic ? `${formattedPallet} - ${extrinsic}` : formattedPallet;
+  }, []);
+
   const toggleGroupExpansion = useCallback((group: AgentTxGroup) => {
     setExpandedGroups((prev) => {
       const newSet = new Set(prev);
@@ -178,7 +187,9 @@ export const PermissionGroupSelector: React.FC<
                           onChange={() => toggleTransaction(group, transaction)}
                           disabled={transactionInProcess}
                         />
-                        <TransactionLabel>{transaction}</TransactionLabel>
+                        <TransactionLabel>
+                          {formatTransactionLabel(transaction)}
+                        </TransactionLabel>
                       </TransactionItem>
                     );
                   })}
