@@ -21,8 +21,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  
-      - uses: PolymeshAssociation/polymesh-action-public@v1.1.2
+          fetch-depth: 0
+          # For PR events: checks out the PR merge commit
+          # For comment events: fetches PR head using the PR number
+          ref: ${{ github.event.pull_request.head.sha || format('refs/pull/{0}/head', github.event.issue.number) }}
+      - name: Polymesh Action - Auth and Fast-Forward
+        uses: PolymeshAssociation/polymesh-action-public@v1.1.2
         with:
           allowed-signers: ${{ vars.MIDDLEWARE_ALLOWED_SIGNERS }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
