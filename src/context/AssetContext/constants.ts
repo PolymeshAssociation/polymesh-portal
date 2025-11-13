@@ -14,6 +14,7 @@ import {
   SecurityIdentifier,
   TickerReservation,
   TickerReservationDetails,
+  TransferRestrictionExemption,
   TransferRestrictionStatValues,
   Venue,
 } from '@polymeshassociation/polymesh-sdk/types';
@@ -56,6 +57,7 @@ export interface IDetails {
   compliancePaused: boolean;
   transferRestrictions?: ActiveTransferRestrictions;
   trackedStatistics?: TransferRestrictionStatValues[];
+  exemptions?: TransferRestrictionExemption[];
 }
 export interface IAssetDetails {
   assetId: string;

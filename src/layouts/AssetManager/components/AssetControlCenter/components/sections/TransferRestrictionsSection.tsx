@@ -1,15 +1,29 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { CopyToClipboard, Icon } from '~/components';
+import type { TransferRestrictionExemptionParams } from '@polymeshassociation/polymesh-sdk/types';
+import { ClaimType, StatType } from '@polymeshassociation/polymesh-sdk/types';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { ConfirmationModal, CopyToClipboard, Icon } from '~/components';
 import countryCodes from '~/constants/iso/ISO_3166-1_countries.json';
+import { PolymeshContext } from '~/context/PolymeshContext';
 import { formatDid } from '~/helpers/formatters';
+import { notifyError } from '~/helpers/notifications';
 import { useAssetActionsContext } from '../../context';
 import {
   ActionButton,
   AddButton,
   DataItem,
-  DataLabel,
-  DetailValue,
+  EmptyExemptionsText,
   EmptyState,
+  ExemptionButton,
+  ExemptionIdentity,
+  ExemptionItemContent,
+  ExemptionsContainer,
+  ExemptionsSection,
   GridDataList,
   GroupActions,
   GroupContent,
@@ -18,7 +32,6 @@ import {
   InlineLabel,
   InlineRow,
   InlineValue,
-  MediatorContainer,
   MediatorItem,
   SectionContent,
   SectionHeader,
@@ -26,7 +39,17 @@ import {
   TabSection,
 } from '../../styles';
 import type { TabProps } from '../../types';
-import { ComingSoonModal } from '../modals';
+import {
+  AddExemptionsModal,
+  AddTransferRestrictionModal,
+  EditTransferRestrictionModal,
+} from '../modals';
+import {
+  getClaimTypeDescription,
+  getRestrictionTypeDescription,
+  sdkRestrictionToInputFormat,
+  type DisplayRestriction,
+} from '../modals/transferRestrictionHelpers';
 
 interface TransferRestrictionsSectionProps {
   asset: TabProps['asset'];
@@ -36,18 +59,6 @@ interface ClaimDetails {
   countryCode?: string;
   accredited?: boolean;
   affiliate?: boolean;
-}
-
-interface DisplayRestriction {
-  id: string;
-  type: 'Count' | 'Percentage' | 'ClaimCount' | 'ClaimPercentage';
-  minLimit?: string;
-  maxLimit?: string;
-  exemptions: number;
-  exemptedDids: string[]; // Array of exempted DIDs
-  claimType?: string; // For claim-related restrictions
-  claimIssuer?: string; // For claim-related restrictions (DID)
-  claimDetails?: ClaimDetails; // Additional claim details for enhanced descriptions
 }
 
 // Helper function to extract claim details from restriction claim
@@ -68,52 +79,45 @@ const extractClaimDetails = (claim: unknown): ClaimDetails => {
   return claimDetails;
 };
 
-// Helper function to get claim detail descriptions
-const getClaimDetailDescription = (
-  claimType: string,
-  claimDetails: ClaimDetails,
-): string => {
-  switch (claimType) {
-    case 'Jurisdiction': {
-      return 'Jurisdiction';
-    }
-    case 'Accredited': {
-      const isPresent = claimDetails.accredited !== false;
-      return `Accredited (${isPresent ? 'Present' : 'Not Present'})`;
-    }
-    case 'Affiliate': {
-      const isPresent = claimDetails.affiliate !== false;
-      return `Affiliate (${isPresent ? 'Present' : 'Not Present'})`;
-    }
-    default:
-      return claimType;
-  }
-};
-
-// Helper function to get better restriction type descriptions
-const getRestrictionTypeDescription = (
-  restriction: DisplayRestriction,
-): string => {
-  switch (restriction.type) {
-    case 'Count':
-      return 'Max. Holder Count';
-    case 'Percentage':
-      return 'Max Individual Percentage Ownership';
-    case 'ClaimCount':
-      return 'Claim Holder Count';
-    case 'ClaimPercentage':
-      return 'Claim Total Percentage Ownership';
-    default:
-      return restriction.type;
-  }
-};
-
 export const TransferRestrictionsSection: React.FC<
   TransferRestrictionsSectionProps
 > = ({ asset }) => {
-  const { transactionInProcess } = useAssetActionsContext();
-  const [comingSoonModalOpen, setComingSoonModalOpen] = useState(false);
-  const [comingSoonFeature, setComingSoonFeature] = useState('');
+  const {
+    api: { polkadotApi },
+  } = useContext(PolymeshContext);
+  const {
+    setTransferRestrictions,
+    addExemptions,
+    removeExemptions,
+    transactionInProcess,
+  } = useAssetActionsContext();
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [restrictionToEdit, setRestrictionToEdit] =
+    useState<DisplayRestriction | null>(null);
+  const [restrictionToDelete, setRestrictionToDelete] =
+    useState<DisplayRestriction | null>(null);
+  const [restrictionForExemptions, setRestrictionForExemptions] =
+    useState<DisplayRestriction | null>(null);
+  const [exemptionToRemove, setExemptionToRemove] = useState<{
+    restriction: DisplayRestriction;
+    did: string;
+  } | null>(null);
+  const [maxTransferConditionsPerAsset, setMaxTransferConditionsPerAsset] =
+    useState<number | null>(null);
+
+  // Fetch max transfer conditions from chain
+  useEffect(() => {
+    if (!polkadotApi) return;
+    try {
+      const max = polkadotApi.consts.statistics.maxTransferConditionsPerAsset;
+      setMaxTransferConditionsPerAsset(max.toNumber());
+    } catch (error) {
+      // If we can't fetch the constant, default to 4 (known chain value)
+      setMaxTransferConditionsPerAsset(4);
+    }
+  }, [polkadotApi]);
 
   // Create lookup map for O(1) country code access
   const countryLookup = useMemo(() => {
@@ -128,93 +132,357 @@ export const TransferRestrictionsSection: React.FC<
   };
 
   const handleManageTransferRestrictions = useCallback(() => {
-    setComingSoonFeature('add transfer restriction');
-    setComingSoonModalOpen(true);
+    setAddModalOpen(true);
   }, []);
 
-  const handleEditRestriction = useCallback((restrictionId: string) => {
-    setComingSoonFeature('edit transfer restriction');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Edit restriction:', restrictionId);
-  }, []);
-
-  const handleDeleteRestriction = useCallback((restrictionId: string) => {
-    setComingSoonFeature('delete transfer restriction');
-    setComingSoonModalOpen(true);
-    // eslint-disable-next-line no-console
-    console.log('Delete restriction:', restrictionId);
-  }, []);
-
-  const handleDeleteExemption = useCallback(
-    (restrictionId: string, exemptedDid: string) => {
-      setComingSoonFeature('delete transfer restriction exemption');
-      setComingSoonModalOpen(true);
-      // eslint-disable-next-line no-console
-      console.log('Delete exemption:', restrictionId, exemptedDid);
+  const handleEditRestriction = useCallback(
+    (restriction: DisplayRestriction) => {
+      setRestrictionToEdit(restriction);
+      setEditModalOpen(true);
     },
     [],
   );
 
-  // Extract and format transfer restrictions from asset data (new SDK structure)
-  const restrictions: DisplayRestriction[] = [];
+  const handleDeleteRestriction = useCallback(
+    (restriction: DisplayRestriction) => {
+      setRestrictionToDelete(restriction);
+      setDeleteConfirmOpen(true);
+    },
+    [],
+  );
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!restrictionToDelete) {
+      notifyError('No restriction selected for deletion');
+      return;
+    }
+    if (!asset?.details?.transferRestrictions) {
+      notifyError('Asset transfer restrictions data not available');
+      return;
+    }
+
+    try {
+      // Get current SDK restrictions
+      const currentRestrictions =
+        asset.details.transferRestrictions.restrictions || [];
+
+      // Extract index from the restriction ID (format: "type-index")
+      const indexStr = restrictionToDelete.id.split('-').pop();
+      const indexToDelete = parseInt(indexStr ?? '', 10);
+
+      if (Number.isNaN(indexToDelete) || indexToDelete < 0) {
+        notifyError('Invalid restriction ID');
+        return;
+      }
+
+      // Filter out the restriction to delete by index
+      const filteredRestrictions = currentRestrictions.filter(
+        (_, index) => index !== indexToDelete,
+      );
+
+      // Convert SDK restrictions to input format
+      const updatedRestrictions = filteredRestrictions.map(
+        sdkRestrictionToInputFormat,
+      );
+
+      // Call setTransferRestrictions with updated array
+      await setTransferRestrictions({
+        restrictions: updatedRestrictions,
+      });
+
+      setDeleteConfirmOpen(false);
+      setRestrictionToDelete(null);
+    } catch (error) {
+      notifyError(
+        `Failed to delete transfer restriction: ${(error as Error).message}`,
+      );
+    }
+  }, [restrictionToDelete, asset, setTransferRestrictions]);
+
+  const handleManageExemptions = useCallback(
+    (restriction: DisplayRestriction) => {
+      setRestrictionForExemptions(restriction);
+    },
+    [],
+  );
+
+  const handleRemoveExemptionClick = useCallback(
+    (restriction: DisplayRestriction, did: string) => {
+      setExemptionToRemove({ restriction, did });
+    },
+    [],
+  );
+
+  const handleConfirmRemoveExemption = useCallback(async () => {
+    if (!exemptionToRemove) return;
+
+    const { restriction, did } = exemptionToRemove;
+
+    try {
+      // Build exemption params based on restriction type
+      let exemptionParams: TransferRestrictionExemptionParams;
+
+      if (restriction.type === 'Count' || restriction.type === 'Percentage') {
+        exemptionParams = {
+          type:
+            restriction.type === 'Count' ? StatType.Count : StatType.Balance,
+          identities: [did],
+        };
+      } else {
+        // Build claim for claim-based restrictions
+        if (!restriction.claimType || !restriction.claimIssuer) {
+          notifyError('Missing claim information for restriction');
+          setExemptionToRemove(null);
+          return;
+        }
+
+        let claimType: ClaimType;
+        if (
+          restriction.claimType === ClaimType.Jurisdiction ||
+          restriction.claimType === ClaimType.Accredited ||
+          restriction.claimType === ClaimType.Affiliate
+        ) {
+          claimType = restriction.claimType;
+        } else {
+          notifyError(`Unsupported claim type: ${restriction.claimType}`);
+          setExemptionToRemove(null);
+          return;
+        }
+
+        exemptionParams = {
+          type:
+            restriction.type === 'ClaimCount'
+              ? StatType.ScopedCount
+              : StatType.ScopedBalance,
+          identities: [did],
+          claim: claimType,
+        };
+      }
+
+      await removeExemptions({
+        exemptions: exemptionParams,
+        onTransactionRunning: () => setExemptionToRemove(null),
+      });
+    } catch (error) {
+      notifyError(`Failed to remove exemption: ${(error as Error).message}`);
+      setExemptionToRemove(null);
+    }
+  }, [exemptionToRemove, removeExemptions]);
+
+  const handleAddRestriction = useCallback(
+    async (params: Parameters<typeof setTransferRestrictions>[0]) => {
+      if (!asset?.details?.transferRestrictions) {
+        notifyError('Asset transfer restrictions data not available');
+        return;
+      }
+
+      try {
+        // Get current SDK restrictions and convert to input format
+        const currentRestrictions =
+          asset.details.transferRestrictions.restrictions || [];
+        const currentRestrictionsInput = currentRestrictions.map(
+          sdkRestrictionToInputFormat,
+        );
+
+        // Merge new restriction with existing ones
+        const updatedRestrictions = [
+          ...currentRestrictionsInput,
+          ...params.restrictions,
+        ];
+
+        // Call setTransferRestrictions with merged array
+        await setTransferRestrictions({
+          restrictions: updatedRestrictions,
+          onTransactionRunning: params.onTransactionRunning,
+        });
+      } catch (error) {
+        notifyError(
+          `Failed to add transfer restriction: ${(error as Error).message}`,
+        );
+      }
+    },
+    [asset, setTransferRestrictions],
+  );
+
+  const handleAddExemptions = useCallback(
+    async (params: {
+      exemptions: TransferRestrictionExemptionParams;
+      onTransactionRunning?: () => void | Promise<void>;
+    }) => {
+      await addExemptions(params);
+      setRestrictionForExemptions(null);
+    },
+    [addExemptions],
+  );
+
+  const handleEditRestrictionSubmit = useCallback(
+    async (params: Parameters<typeof setTransferRestrictions>[0]) => {
+      if (!restrictionToEdit) {
+        notifyError('No restriction selected for editing');
+        return;
+      }
+      if (!asset?.details?.transferRestrictions) {
+        notifyError('Asset transfer restrictions data not available');
+        return;
+      }
+
+      try {
+        // Get current SDK restrictions and convert to input format
+        const currentRestrictions =
+          asset.details.transferRestrictions.restrictions || [];
+        const currentRestrictionsInput = currentRestrictions.map(
+          sdkRestrictionToInputFormat,
+        );
+
+        // Extract index from the restriction ID (format: "type-index")
+        const indexStr = restrictionToEdit.id.split('-').pop();
+        const restrictionIndex = parseInt(indexStr ?? '', 10);
+
+        if (Number.isNaN(restrictionIndex) || restrictionIndex < 0) {
+          notifyError('Invalid restriction ID');
+          return;
+        }
+        // Replace the restriction in the array
+        const updatedRestrictions = [...currentRestrictionsInput];
+        const [newRestriction] = params.restrictions;
+        updatedRestrictions[restrictionIndex] = newRestriction;
+
+        // Call setTransferRestrictions with updated array
+        await setTransferRestrictions({
+          restrictions: updatedRestrictions,
+          onTransactionRunning: params.onTransactionRunning,
+        });
+      } catch (error) {
+        notifyError(
+          `Failed to edit transfer restriction: ${(error as Error).message}`,
+        );
+      }
+    },
+    [restrictionToEdit, asset, setTransferRestrictions],
+  );
+
+  // Extract and format transfer restrictions from asset data
+  // Create a map of exemptions by their exempt key for efficient lookup
+  const exemptionsByKey = useMemo(() => {
+    const map = new Map<string, string[]>();
+    const exemptions = asset?.details?.exemptions || [];
+
+    exemptions.forEach((exemption) => {
+      const { opType, claimType } = exemption.exemptKey;
+
+      // Create a key that matches the restriction
+      // For Count/Percentage: just use opType
+      // For ClaimCount/ClaimPercentage: use opType + claimType
+      let key: string;
+      if (opType === 'Count' || opType === 'Balance') {
+        key = opType;
+      } else {
+        // For scoped stats, include claim type
+        let claimTypeStr = 'none';
+        if (claimType) {
+          claimTypeStr = typeof claimType === 'string' ? claimType : 'Custom';
+        }
+        key = `${opType}-${claimTypeStr}`;
+      }
+
+      if (!map.has(key)) {
+        map.set(key, []);
+      }
+      map.get(key)!.push(exemption.identity.did);
+    });
+
+    return map;
+  }, [asset?.details?.exemptions]);
+
+  // Memoize restrictions to avoid rebuilding on every render
+  const restrictions: DisplayRestriction[] = useMemo(() => {
+    const result: DisplayRestriction[] = [];
+    const sdkRestrictions =
+      asset?.details?.transferRestrictions?.restrictions || [];
+
+    sdkRestrictions.forEach((restriction, index) => {
+      let exemptedDids: string[] = [];
+
+      switch (restriction.type) {
+        case 'Count':
+          exemptedDids = exemptionsByKey.get('Count') || [];
+          result.push({
+            id: `count-${index}`,
+            type: 'Count',
+            maxLimit: restriction.value.toString(),
+            exemptions: exemptedDids.length,
+            exemptedDids,
+          });
+          break;
+        case 'Percentage':
+          exemptedDids = exemptionsByKey.get('Balance') || [];
+          result.push({
+            id: `percentage-${index}`,
+            type: 'Percentage',
+            maxLimit: restriction.value.toString(), // Store raw value without %
+            exemptions: exemptedDids.length,
+            exemptedDids,
+          });
+          break;
+        case 'ClaimCount': {
+          const { min, max, issuer, claim } = restriction.value;
+
+          // Get claim type for exemption lookup
+          const claimType =
+            typeof claim.type === 'string' ? claim.type : 'Custom';
+          exemptedDids = exemptionsByKey.get(`ScopedCount-${claimType}`) || [];
+
+          result.push({
+            id: `claim-count-${index}`,
+            type: 'ClaimCount',
+            minLimit: min.toString(),
+            maxLimit: max ? max.toString() : undefined,
+            exemptions: exemptedDids.length,
+            exemptedDids,
+            claimType: claim.type,
+            claimIssuer: issuer.did,
+            claimDetails: extractClaimDetails(claim),
+          });
+          break;
+        }
+        case 'ClaimPercentage': {
+          const { min, max, issuer, claim } = restriction.value;
+
+          // Get claim type for exemption lookup
+          const claimType =
+            typeof claim.type === 'string' ? claim.type : 'Custom';
+          exemptedDids =
+            exemptionsByKey.get(`ScopedBalance-${claimType}`) || [];
+
+          result.push({
+            id: `claim-percentage-${index}`,
+            type: 'ClaimPercentage',
+            minLimit: min.toString(), // Store raw value without %
+            maxLimit: max.toString(), // Store raw value without %
+            exemptions: exemptedDids.length,
+            exemptedDids,
+            claimType: claim.type,
+            claimIssuer: issuer.did,
+            claimDetails: extractClaimDetails(claim),
+          });
+          break;
+        }
+        default:
+          break;
+      }
+    });
+
+    return result;
+  }, [asset?.details?.transferRestrictions?.restrictions, exemptionsByKey]);
+
+  // Keep reference to SDK restrictions for validation
   const sdkRestrictions =
     asset?.details?.transferRestrictions?.restrictions || [];
 
-  sdkRestrictions.forEach((restriction, index) => {
-    switch (restriction.type) {
-      case 'Count':
-        restrictions.push({
-          id: `count-${index}`,
-          type: 'Count',
-          maxLimit: restriction.value.toString(),
-          exemptions: 0,
-          exemptedDids: [],
-        });
-        break;
-      case 'Percentage':
-        restrictions.push({
-          id: `percentage-${index}`,
-          type: 'Percentage',
-          maxLimit: `${restriction.value.toString()}%`,
-          exemptions: 0,
-          exemptedDids: [],
-        });
-        break;
-      case 'ClaimCount': {
-        const { min, max, issuer, claim } = restriction.value;
-        restrictions.push({
-          id: `claim-count-${index}`,
-          type: 'ClaimCount',
-          minLimit: min.toString(),
-          maxLimit: max ? max.toString() : undefined,
-          exemptions: 0,
-          exemptedDids: [],
-          claimType: claim.type,
-          claimIssuer: issuer.did,
-          claimDetails: extractClaimDetails(claim),
-        });
-        break;
-      }
-      case 'ClaimPercentage': {
-        const { min, max, issuer, claim } = restriction.value;
-        restrictions.push({
-          id: `claim-percentage-${index}`,
-          type: 'ClaimPercentage',
-          minLimit: `${min.toString()}%`,
-          maxLimit: `${max.toString()}%`,
-          exemptions: 0,
-          exemptedDids: [],
-          claimType: claim.type,
-          claimIssuer: issuer.did,
-          claimDetails: extractClaimDetails(claim),
-        });
-        break;
-      }
-      default:
-        break;
-    }
-  });
+  // Check if max restrictions limit has been reached
+  const isMaxRestrictionsReached =
+    maxTransferConditionsPerAsset !== null &&
+    sdkRestrictions.length >= maxTransferConditionsPerAsset;
 
   return (
     <>
@@ -223,10 +491,15 @@ export const TransferRestrictionsSection: React.FC<
           <SectionTitle>Transfer Restrictions</SectionTitle>
           <AddButton
             onClick={handleManageTransferRestrictions}
-            disabled={transactionInProcess}
+            disabled={transactionInProcess || isMaxRestrictionsReached}
+            title={
+              isMaxRestrictionsReached
+                ? `Maximum number of transfer restrictions (${maxTransferConditionsPerAsset}) reached`
+                : undefined
+            }
           >
             <Icon name="Plus" size="16px" />
-            Add Restrictions
+            Add Restriction
           </AddButton>
         </SectionHeader>
         <SectionContent>
@@ -240,7 +513,7 @@ export const TransferRestrictionsSection: React.FC<
                       <InlineRow>
                         <InlineLabel>Type</InlineLabel>
                         <InlineValue>
-                          {getRestrictionTypeDescription(restriction)}
+                          {getRestrictionTypeDescription(restriction.type)}
                         </InlineValue>
                       </InlineRow>
                     </GroupTitleSection>
@@ -248,14 +521,14 @@ export const TransferRestrictionsSection: React.FC<
                     {/* Action buttons in top-right corner */}
                     <GroupActions>
                       <ActionButton
-                        onClick={() => handleEditRestriction(restriction.id)}
+                        onClick={() => handleEditRestriction(restriction)}
                         title="Edit Restriction"
                         disabled={transactionInProcess}
                       >
                         <Icon name="Edit" size="14px" />
                       </ActionButton>
                       <ActionButton
-                        onClick={() => handleDeleteRestriction(restriction.id)}
+                        onClick={() => handleDeleteRestriction(restriction)}
                         title="Delete Restriction"
                         disabled={transactionInProcess}
                       >
@@ -270,7 +543,7 @@ export const TransferRestrictionsSection: React.FC<
                       <InlineRow>
                         <InlineLabel>Claim Type</InlineLabel>
                         <InlineValue>
-                          {getClaimDetailDescription(
+                          {getClaimTypeDescription(
                             restriction.claimType,
                             restriction.claimDetails || {},
                           )}
@@ -278,17 +551,18 @@ export const TransferRestrictionsSection: React.FC<
                       </InlineRow>
                     )}
 
-                    {restriction.claimType === 'Jurisdiction' &&
-                      restriction.claimDetails?.countryCode && (
-                        <InlineRow>
-                          <InlineLabel>Jurisdiction</InlineLabel>
-                          <InlineValue>
-                            {getJurisdictionCountryName(
-                              restriction.claimDetails.countryCode,
-                            )}
-                          </InlineValue>
-                        </InlineRow>
-                      )}
+                    {restriction.claimType === 'Jurisdiction' && (
+                      <InlineRow>
+                        <InlineLabel>Jurisdiction</InlineLabel>
+                        <InlineValue>
+                          {restriction.claimDetails?.countryCode
+                            ? getJurisdictionCountryName(
+                                restriction.claimDetails.countryCode,
+                              )
+                            : 'No Jurisdiction'}
+                        </InlineValue>
+                      </InlineRow>
+                    )}
 
                     {restriction.claimIssuer && (
                       <InlineRow>
@@ -303,44 +577,71 @@ export const TransferRestrictionsSection: React.FC<
                     {restriction.maxLimit && (
                       <InlineRow>
                         <InlineLabel>Max Limit</InlineLabel>
-                        <InlineValue>{restriction.maxLimit}</InlineValue>
+                        <InlineValue>
+                          {restriction.type === 'Percentage' ||
+                          restriction.type === 'ClaimPercentage'
+                            ? `${restriction.maxLimit}%`
+                            : restriction.maxLimit}
+                        </InlineValue>
                       </InlineRow>
                     )}
 
                     {restriction.minLimit && (
                       <InlineRow>
                         <InlineLabel>Min Limit</InlineLabel>
-                        <InlineValue>{restriction.minLimit}</InlineValue>
+                        <InlineValue>
+                          {restriction.type === 'ClaimPercentage'
+                            ? `${restriction.minLimit}%`
+                            : restriction.minLimit}
+                        </InlineValue>
                       </InlineRow>
                     )}
 
-                    {restriction.exemptions > 0 && (
-                      <>
-                        <DataLabel>Exemptions</DataLabel>
-                        <MediatorContainer>
-                          {restriction.exemptedDids.map((did, index) => (
-                            <MediatorItem
-                              key={did}
-                              $isLast={
-                                index === restriction.exemptedDids.length - 1
-                              }
-                            >
-                              <DetailValue>
+                    {/* Exemptions section with inline management */}
+                    <ExemptionsSection>
+                      <InlineLabel>
+                        EXEMPTIONS ({restriction.exemptions})
+                      </InlineLabel>
+                      <ExemptionButton
+                        onClick={() => handleManageExemptions(restriction)}
+                        disabled={transactionInProcess}
+                        title="Add exemptions"
+                      >
+                        <Icon name="Plus" size="20px" />
+                      </ExemptionButton>
+                    </ExemptionsSection>
+
+                    {restriction.exemptedDids.length === 0 ? (
+                      <EmptyExemptionsText>
+                        No exempted identities
+                      </EmptyExemptionsText>
+                    ) : (
+                      <ExemptionsContainer>
+                        {restriction.exemptedDids.map((did, index) => (
+                          <MediatorItem
+                            key={did}
+                            $isLast={
+                              index === restriction.exemptedDids.length - 1
+                            }
+                          >
+                            <ExemptionItemContent>
+                              <ExemptionIdentity>
                                 {formatDid(did, 8, 8)}
                                 <CopyToClipboard value={did} />
-                              </DetailValue>
-                              <ActionButton
+                              </ExemptionIdentity>
+                              <ExemptionButton
                                 onClick={() =>
-                                  handleDeleteExemption(restriction.id, did)
+                                  handleRemoveExemptionClick(restriction, did)
                                 }
                                 disabled={transactionInProcess}
+                                title="Remove this exemption"
                               >
-                                <Icon name="Delete" size="14px" />
-                              </ActionButton>
-                            </MediatorItem>
-                          ))}
-                        </MediatorContainer>
-                      </>
+                                <Icon name="Delete" size="16px" />
+                              </ExemptionButton>
+                            </ExemptionItemContent>
+                          </MediatorItem>
+                        ))}
+                      </ExemptionsContainer>
                     )}
                   </GroupContent>
                 </DataItem>
@@ -355,10 +656,57 @@ export const TransferRestrictionsSection: React.FC<
         </SectionContent>
       </TabSection>
 
-      <ComingSoonModal
-        isOpen={comingSoonModalOpen}
-        onClose={() => setComingSoonModalOpen(false)}
-        feature={comingSoonFeature}
+      <AddTransferRestrictionModal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        trackedStats={asset?.details?.trackedStatistics || []}
+        existingRestrictions={sdkRestrictions}
+        onAddRestriction={handleAddRestriction}
+        transactionInProcess={transactionInProcess}
+      />
+
+      <EditTransferRestrictionModal
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setRestrictionToEdit(null);
+        }}
+        restrictionToEdit={restrictionToEdit}
+        onEditRestriction={handleEditRestrictionSubmit}
+        transactionInProcess={transactionInProcess}
+      />
+
+      <ConfirmationModal
+        isOpen={deleteConfirmOpen}
+        onClose={() => {
+          setDeleteConfirmOpen(false);
+          setRestrictionToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Transfer Restriction"
+        message="Are you sure you want to delete this transfer restriction? This action cannot be undone and will affect how transfers are validated for this asset."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        isProcessing={transactionInProcess}
+      />
+
+      <AddExemptionsModal
+        onClose={() => {
+          setRestrictionForExemptions(null);
+        }}
+        restriction={restrictionForExemptions}
+        onAddExemptions={handleAddExemptions}
+      />
+
+      <ConfirmationModal
+        isOpen={!!exemptionToRemove}
+        onClose={() => setExemptionToRemove(null)}
+        onConfirm={handleConfirmRemoveExemption}
+        title="Remove Exemption"
+        message={`Are you sure you want to remove this exemption? The identity ${exemptionToRemove?.did ? formatDid(exemptionToRemove.did, 8, 8) : ''} will be subject to this transfer restriction.`}
+        confirmLabel="Remove"
+        cancelLabel="Cancel"
+        isProcessing={transactionInProcess}
       />
     </>
   );

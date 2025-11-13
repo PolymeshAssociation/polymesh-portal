@@ -779,6 +779,60 @@ export const MediatorContainer = styled.div`
   // margin-top: 8px;
 `;
 
+export const ExemptionsSection = styled(InlineRow)`
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid ${({ theme }) => theme.colors.border};
+
+  @media screen and (max-width: 768px) {
+    flex-direction: row;
+  }
+`;
+
+export const ExemptionButton = styled.button.attrs({ type: 'button' })`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  transition: color ${({ theme }) => theme.transition.normal};
+
+  &:hover:enabled {
+    color: ${({ theme }) => theme.colors.textPink};
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+`;
+
+export const EmptyExemptionsText = styled(DataValue)`
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-style: italic;
+  font-size: 12px;
+`;
+
+export const ExemptionsContainer = styled(MediatorContainer)`
+  margin-top: 8px;
+`;
+
+export const ExemptionItemContent = styled(DetailValue)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+export const ExemptionIdentity = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+`;
+
 // =============================================================================
 // MODAL STYLES
 // =============================================================================

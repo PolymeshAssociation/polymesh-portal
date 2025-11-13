@@ -103,6 +103,7 @@ const AssetProvider = ({ children }: IProviderProps) => {
           compliancePaused,
           transferRestrictions,
           trackedStatistics,
+          exemptions,
         ] = await Promise.all([
           asset.details(),
           asset instanceof NftCollection ? asset.getCollectionId() : undefined,
@@ -126,6 +127,10 @@ const AssetProvider = ({ children }: IProviderProps) => {
 
           asset instanceof FungibleAsset
             ? asset.transferRestrictions.getValues()
+            : undefined,
+
+          asset instanceof FungibleAsset
+            ? asset.transferRestrictions.getExemptions()
             : undefined,
         ]);
 
@@ -186,6 +191,7 @@ const AssetProvider = ({ children }: IProviderProps) => {
             compliancePaused,
             transferRestrictions,
             trackedStatistics,
+            exemptions,
           },
           docs: docs.data,
         };

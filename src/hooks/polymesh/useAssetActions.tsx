@@ -7,6 +7,11 @@ import type {
   InputCondition,
   NftMetadataInput,
   Requirement,
+  TransferRestrictionClaimCountInput,
+  TransferRestrictionExemptionParams,
+  TransferRestrictionInputClaimPercentage,
+  TransferRestrictionInputCount,
+  TransferRestrictionInputPercentage,
   TrustedFor,
 } from '@polymeshassociation/polymesh-sdk/types';
 import {
@@ -1057,6 +1062,104 @@ const useAssetActions = (
     }
   };
 
+  const setTransferRestrictions = async ({
+    restrictions,
+    onTransactionRunning,
+  }: {
+    restrictions: (
+      | TransferRestrictionInputCount
+      | TransferRestrictionInputPercentage
+      | TransferRestrictionClaimCountInput
+      | TransferRestrictionInputClaimPercentage
+    )[];
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    // Type narrow: only FungibleAsset supports transfer restrictions
+    if (!('issuance' in asset)) {
+      notifyError(
+        'Transfer restrictions are only supported for fungible assets, not NFT collections',
+      );
+      return;
+    }
+
+    try {
+      await executeTransaction(
+        asset.transferRestrictions.setRestrictions({ restrictions }),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
+  const addExemptions = async ({
+    exemptions,
+    onTransactionRunning,
+  }: {
+    exemptions: TransferRestrictionExemptionParams;
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    // Type narrow: only FungibleAsset supports transfer restrictions
+    if (!('issuance' in asset)) {
+      notifyError(
+        'Transfer restrictions are only supported for fungible assets, not NFT collections',
+      );
+      return;
+    }
+
+    try {
+      await executeTransaction(
+        asset.transferRestrictions.addExemptions(exemptions),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
+  const removeExemptions = async ({
+    exemptions,
+    onTransactionRunning,
+  }: {
+    exemptions: TransferRestrictionExemptionParams;
+    onTransactionRunning?: () => void | Promise<void>;
+  }) => {
+    if (!asset) {
+      notifyError('Asset not available');
+      return;
+    }
+
+    // Type narrow: only FungibleAsset supports transfer restrictions
+    if (!('issuance' in asset)) {
+      notifyError(
+        'Transfer restrictions are only supported for fungible assets, not NFT collections',
+      );
+      return;
+    }
+
+    try {
+      await executeTransaction(
+        asset.transferRestrictions.removeExemptions(exemptions),
+        createOptions(onTransactionRunning),
+      );
+    } catch (error) {
+      // Error is already handled by the transaction context and notified to the user
+      // This catch block prevents unhandled promise rejection
+    }
+  };
+
   return {
     issueTokens,
     redeemTokens,
@@ -1097,6 +1200,9 @@ const useAssetActions = (
     modifyComplianceRule,
     removeComplianceRule,
     setTransferRestrictionStats,
+    setTransferRestrictions,
+    addExemptions,
+    removeExemptions,
     transactionInProcess,
   };
 };

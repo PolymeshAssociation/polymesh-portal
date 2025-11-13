@@ -38,7 +38,7 @@ import {
 } from './helpers';
 import { createAddStatValidationSchema } from './validation';
 
-interface IAddTrackedStatForm {
+export interface IAddTrackedStatForm {
   type: StatType | '';
   claimType?: ClaimType | '';
   issuer?: string;
