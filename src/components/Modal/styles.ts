@@ -45,7 +45,8 @@ export const StyledModal = styled.div<{
       $customWidth ? `${$customWidth}` : '400px'};
     max-width: ${({ $customWidth }) =>
       $customWidth ? `${$customWidth}` : '504px'};
-    max-height: 80vh;
+    max-height: ${({ $disableOverflow }) =>
+      $disableOverflow ? '90vh' : '80vh'};
     border-radius: 8px;
   }
   background-color: ${({ theme }) => theme.colors.modalBackground};
