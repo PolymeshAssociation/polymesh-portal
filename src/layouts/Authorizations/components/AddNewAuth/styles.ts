@@ -7,10 +7,6 @@ export const StyledTypeSelectWrapper = styled.div`
   cursor: pointer;
   border: 1px solid #8f8f8f;
   border-radius: 8px;
-
-  @media screen and (min-width: 768px) {
-    min-width: 456px;
-  }
 `;
 
 export const StyledTypeSelect = styled.div<{
@@ -106,7 +102,6 @@ export const StyledInputGroup = styled.div`
 export const InputWrapper = styled.div<{ $isSelect: boolean }>`
   ${({ $isSelect }) => ($isSelect ? `grid-column: 1 / 3;` : '')}
   position: relative;
-  /* width: 216px; */
 `;
 
 export const StyledInput = styled.input`

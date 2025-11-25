@@ -134,7 +134,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
   const inputs = configureInputs(selectedAuthType);
 
   return (
-    <Modal handleClose={toggleModal} disableOverflow>
+    <Modal handleClose={toggleModal}>
       <Heading type="h4" marginBottom={32}>
         Create New Authorization
       </Heading>
