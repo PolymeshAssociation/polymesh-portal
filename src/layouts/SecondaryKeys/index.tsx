@@ -8,7 +8,8 @@ import { useTransactionStatusContext } from '~/context/TransactionStatusContext'
 import { SecondaryKeyItem } from './components/SecondaryKeyItem';
 import { AddPermissionModal } from './components/AddPermission';
 import { IPermissionFormData } from './components/AddPermission/constants';
-import { StyledSecondaryKeysList, KeyPlaceholder } from './styles';
+import { NoSecondaryKeysView } from './components/NoSecondaryKeysView';
+import { StyledSecondaryKeysList } from './styles';
 import { ISecondaryKeyData } from './components/SecondaryKeyItem/helpers';
 import {
   convertSdkPermissionsToKeyData,
@@ -21,7 +22,8 @@ const SecondaryKeys = () => {
   const { isMobile, isTablet } = useWindowWidth();
   const isSmallScreen = isMobile || isTablet;
 
-  const { identity, identityLoading } = useContext(AccountContext);
+  const { identity, identityLoading, primaryKey, selectedAccount } =
+    useContext(AccountContext);
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
@@ -160,27 +162,35 @@ const SecondaryKeys = () => {
     setEditingKey(null);
   }, []);
 
+  // Check if selected account is a secondary key or if primary key has no secondary keys
+  const isSelectedAccountSecondaryKey =
+    selectedAccount !== primaryKey && selectedAccount !== '';
+  const shouldShowNoSecondaryKeysView =
+    !identityLoading &&
+    identity &&
+    (secondaryKeys.length === 0 || isSelectedAccountSecondaryKey) &&
+    !loading;
+
+  // Show NoSecondaryKeysView if identity has no secondary keys or selected account is a secondary key
+  if (shouldShowNoSecondaryKeysView) {
+    return <NoSecondaryKeysView />;
+  }
+
   return (
     <>
       {loading && <SkeletonLoader height={isSmallScreen ? 312 : 162} />}
 
       {!loading && (
-        <>
-          {secondaryKeys.length === 0 ? (
-            <KeyPlaceholder>No active secondary keys</KeyPlaceholder>
-          ) : (
-            <StyledSecondaryKeysList>
-              {secondaryKeys.map((key) => (
-                <SecondaryKeyItem
-                  key={key.address}
-                  data={key}
-                  onEdit={() => handleEdit(key)}
-                  onRemove={() => handleRemove(key)}
-                />
-              ))}
-            </StyledSecondaryKeysList>
-          )}
-        </>
+        <StyledSecondaryKeysList>
+          {secondaryKeys.map((key) => (
+            <SecondaryKeyItem
+              key={key.address}
+              data={key}
+              onEdit={() => handleEdit(key)}
+              onRemove={() => handleRemove(key)}
+            />
+          ))}
+        </StyledSecondaryKeysList>
       )}
 
       {isAddModalOpen && (

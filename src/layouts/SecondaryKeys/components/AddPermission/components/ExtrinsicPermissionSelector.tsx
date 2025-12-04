@@ -1,8 +1,6 @@
 import { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import {
-  AGENT_TX_GROUP_VALUES,
-  AgentTxGroup,
   TxGroup,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { txGroupToTxTags } from '@polymeshassociation/polymesh-sdk/utils';
@@ -15,20 +13,33 @@ interface IExtrinsicPermissionSelectorProps {
   ) => void;
 }
 
-// Human-readable labels for agent transaction groups
-const AGENT_TX_GROUP_LABELS: Record<AgentTxGroup, string> = {
+// Get all available transaction groups
+const ALL_TX_GROUPS = Object.values(TxGroup);
+
+// Human-readable labels for all transaction groups
+const TX_GROUP_LABELS: Record<TxGroup, string> = {
   AdvancedAssetManagement: 'Advanced Asset Management',
   AssetDocumentManagement: 'Asset Document Management',
   AssetManagement: 'Asset Management',
   AssetMetadataManagement: 'Asset Metadata Management',
+  AssetRegistration: 'Asset Registration',
+  AuthorizationManagement: 'Authorization Management',
   CapitalDistribution: 'Capital Distribution',
+  CddRegistration: 'CDD Registration',
   CheckpointManagement: 'Checkpoint Management',
+  ClaimsManagement: 'Claims Management',
   ComplianceManagement: 'Compliance Management',
   CorporateActionsManagement: 'Corporate Actions Management',
   CorporateBallotManagement: 'Corporate Ballot Management',
+  CorporateVoting: 'Corporate Voting',
   ExternalAgentManagement: 'External Agent Management',
+  ExternalAgentParticipation: 'External Agent Participation',
   Issuance: 'Issuance',
+  MultiSigManagement: 'MultiSig Management',
+  PortfolioManagement: 'Portfolio Management',
   Redemption: 'Redemption',
+  RelayerManagement: 'Relayer Management',
+  SettlementManagement: 'Settlement Management',
   StoManagement: 'STO Management',
   TrustedClaimIssuersManagement: 'Trusted Claim Issuers Management',
 };
@@ -140,15 +151,15 @@ export const ExtrinsicPermissionSelector = ({
   selectedExtrinsics,
   onChange,
 }: IExtrinsicPermissionSelectorProps) => {
-  const [expandedGroups, setExpandedGroups] = useState<Set<AgentTxGroup>>(
+  const [expandedGroups, setExpandedGroups] = useState<Set<TxGroup>>(
     new Set(),
   );
 
   // Convert selectedExtrinsics to a format compatible with the selector
-  const selectedTransactions: Record<AgentTxGroup, string[]> = {};
+  const selectedTransactions: Record<TxGroup, string[]> = {};
   selectedExtrinsics.forEach(({ pallet, extrinsics }) => {
     // Find which group this pallet belongs to
-    AGENT_TX_GROUP_VALUES.forEach((group) => {
+    ALL_TX_GROUPS.forEach((group) => {
       const allTransactions = txGroupToTxTags(group as TxGroup) || [];
       if (extrinsics && extrinsics.length > 0) {
         // Specific extrinsics
@@ -175,7 +186,7 @@ export const ExtrinsicPermissionSelector = ({
     });
   });
 
-  const toggleGroupExpansion = useCallback((group: AgentTxGroup) => {
+  const toggleGroupExpansion = useCallback((group: TxGroup) => {
     setExpandedGroups((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(group)) {
@@ -188,7 +199,7 @@ export const ExtrinsicPermissionSelector = ({
   }, []);
 
   const toggleGroup = useCallback(
-    (group: AgentTxGroup) => {
+    (group: TxGroup) => {
       const currentGroupTransactions = selectedTransactions[group] || [];
       const allTransactionsForGroup = (txGroupToTxTags(group as TxGroup) ||
         []) as string[];
@@ -211,7 +222,7 @@ export const ExtrinsicPermissionSelector = ({
   );
 
   const toggleTransaction = useCallback(
-    (group: AgentTxGroup, transaction: string) => {
+    (group: TxGroup, transaction: string) => {
       const currentGroupTransactions = selectedTransactions[group] || [];
       const isSelected = currentGroupTransactions.includes(transaction);
 
@@ -235,7 +246,7 @@ export const ExtrinsicPermissionSelector = ({
     [selectedTransactions, onChange],
   );
 
-  const convertAndEmit = (transactions: Record<AgentTxGroup, string[]>) => {
+  const convertAndEmit = (transactions: Record<TxGroup, string[]>) => {
     // Convert back to the format expected by the parent
     const palletMap = new Map<string, Set<string>>();
 
@@ -260,7 +271,7 @@ export const ExtrinsicPermissionSelector = ({
   };
 
   const getGroupCheckboxState = useCallback(
-    (group: AgentTxGroup) => {
+    (group: TxGroup) => {
       const allTransactions = txGroupToTxTags(group as TxGroup) || [];
       const selectedTransactionsForGroup = selectedTransactions[group] || [];
 
@@ -278,7 +289,7 @@ export const ExtrinsicPermissionSelector = ({
   return (
     <SelectWrapper>
       <TransactionGroupsContainer>
-        {AGENT_TX_GROUP_VALUES.map((group) => {
+        {ALL_TX_GROUPS.map((group) => {
           const { checked, indeterminate } = getGroupCheckboxState(group);
           const isExpanded = expandedGroups.has(group);
           const allTransactions = txGroupToTxTags(group as TxGroup) || [];
@@ -296,7 +307,7 @@ export const ExtrinsicPermissionSelector = ({
                     }}
                     onChange={() => toggleGroup(group)}
                   />
-                  <GroupLabel>{AGENT_TX_GROUP_LABELS[group]}</GroupLabel>
+                  <GroupLabel>{TX_GROUP_LABELS[group]}</GroupLabel>
                 </GroupHeaderLeft>
 
                 <ExpandButton

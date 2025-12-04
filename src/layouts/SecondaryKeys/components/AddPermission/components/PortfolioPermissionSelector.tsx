@@ -17,15 +17,16 @@ const SelectedPortfoliosDisplay = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border: 1px solid ${({ theme }) => theme.colors.landingBackground};
+  border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 8px;
   cursor: pointer;
-  background-color: ${({ theme }) => theme.colors.dashboardBackground};
+  background-color: transparent;
   font-size: 14px;
   color: ${({ theme }) => theme.colors.textPrimary};
 
   &:hover {
     border-color: ${({ theme }) => theme.colors.textSecondary};
+    background-color: ${({ theme }) => theme.colors.hoverBackground};
   }
 `;
 
@@ -45,8 +46,8 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   right: 0;
   max-height: 300px;
   overflow-y: auto;
-  background-color: ${({ theme }) => theme.colors.dashboardBackground};
-  border: 1px solid ${({ theme }) => theme.colors.landingBackground};
+  background-color: ${({ theme }) => theme.colors.cardBackground};
+  border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;

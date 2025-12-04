@@ -258,6 +258,7 @@ export const SecondaryKeyItem = ({
 
       <StyledButtonsWrapper $expanded={detailsExpanded}>
         <Button
+          variant="outline"
           onClick={onEdit}
           title="Edit permissions"
           aria-label="Edit permissions"

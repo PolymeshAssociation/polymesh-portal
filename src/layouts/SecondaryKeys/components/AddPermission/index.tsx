@@ -74,7 +74,9 @@ export const AddPermissionModal = ({
           <Text>
             Control which assets, functions, and portfolios this secondary key
             can interact with. The effective permissions are determined by the
-            intersection of Assets, Extrinsics, and Portfolios permissions.{' '}
+            intersection of Assets, Extrinsics, and Portfolios permissions.
+          </Text>
+          <Text>
             <a
               href="https://developers.polymesh.network/identity/advanced/secondary-keys/#secondary-key-permissions"
               target="_blank"

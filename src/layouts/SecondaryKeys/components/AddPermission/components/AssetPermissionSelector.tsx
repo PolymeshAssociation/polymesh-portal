@@ -22,13 +22,14 @@ const StyledSelect = styled.button<{ $expanded: boolean }>`
   padding: 12px 16px;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.landingBackground};
+  background-color: transparent;
   color: ${({ theme }) => theme.colors.textPrimary};
   cursor: pointer;
   transition: all 250ms ease-out;
 
   &:hover {
     border-color: ${({ theme }) => theme.colors.textPrimary};
+    background-color: ${({ theme }) => theme.colors.hoverBackground};
   }
 
   .expand-icon {
@@ -45,7 +46,7 @@ const StyledExpandedSelect = styled.div`
   right: 0;
   max-height: 300px;
   overflow-y: auto;
-  background-color: ${({ theme }) => theme.colors.landingBackground};
+  background-color: ${({ theme }) => theme.colors.cardBackground};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 12px;
   box-shadow: 0px 8px 16px ${({ theme }) => theme.colors.shadow};
