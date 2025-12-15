@@ -1,7 +1,7 @@
 import { Asset } from '@polymeshassociation/polymesh-sdk/types';
 import { useAssetDetails } from '~/hooks/polymesh/useAssetDetails';
-import Modal from '../Modal';
 import { AssetDetailsCard } from '../AssetDetailsCard';
+import Modal from '../Modal';
 
 interface IAssetDetailsModalProps {
   asset: string | Asset;
@@ -14,7 +14,7 @@ export const AssetDetailsModal: React.FC<IAssetDetailsModalProps> = ({
   const { assetDetails, assetDetailsLoading } = useAssetDetails(asset);
 
   return (
-    <Modal handleClose={toggleModal} customWidth="780px" disableOverflow>
+    <Modal handleClose={toggleModal} customWidth="780px">
       <AssetDetailsCard
         assetDetailsLoading={assetDetailsLoading}
         assetDetails={assetDetails}

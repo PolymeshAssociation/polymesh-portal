@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useTheme } from 'styled-components';
 import Modal from '~/components/Modal';
 import { useWindowWidth } from '~/hooks/utility';
-import { setCookiebotThemeProperties } from '~/utils/cookiebotTheme';
 import { isCookiebotEnabled } from '~/utils/cookiebot';
+import { setCookiebotThemeProperties } from '~/utils/cookiebotTheme';
 import { Button, Heading } from '../UiKit';
 import { StyledButtonsWrapper, StyledModalContent } from './styles';
 
@@ -171,12 +171,7 @@ const CookieDeclarationModal: React.FC<ICookieDeclarationModalProps> = ({
   if (!isOpen || !isDeclarationReady) return null;
 
   return (
-    <Modal
-      handleClose={onClose}
-      customWidth="fit-content"
-      disableOverflow
-      flexLayout
-    >
+    <Modal handleClose={onClose} customWidth="fit-content" flexLayout>
       <Heading type="h2" marginBottom={12}>
         Cookie Declaration
       </Heading>

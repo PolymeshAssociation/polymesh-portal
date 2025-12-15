@@ -28,7 +28,7 @@ export const PopupWelcome = () => {
     return null;
   }
   return (
-    <Modal handleClose={() => {}} disableOverflow customWidth="fit-content">
+    <Modal handleClose={() => {}} customWidth="fit-content">
       <StyledWelcomeWrapper>
         <StyledWelcomePopup>
           <h3>Welcome to Polymesh!</h3>

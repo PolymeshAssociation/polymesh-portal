@@ -79,7 +79,7 @@ export const DefaultAddress = () => {
         )}
       </StyledValue>
       {addressSelectExpanded && (
-        <Modal handleClose={toggleModal} disableOverflow>
+        <Modal handleClose={toggleModal}>
           <Heading type="h4" marginBottom={48}>
             Default Wallet Address
           </Heading>

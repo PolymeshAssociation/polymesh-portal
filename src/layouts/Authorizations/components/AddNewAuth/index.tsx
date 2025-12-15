@@ -156,20 +156,21 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
       <Text bold marginBottom={3}>
         Authorization Type
       </Text>
-      <StyledTypeSelectWrapper ref={typeRef}>
-        <StyledTypeSelect
-          onClick={handleTypeDropdownToggle}
-          $expanded={typeDropdownExpanded}
-          $isSelected={!!selectedAuthType}
-        >
-          <span>
-            {selectedAuthType
-              ? splitCamelCase(selectedAuthType)
-              : 'Select Authorization Type'}
-          </span>
-
-          <Icon name="ExpandIcon" size="18px" />
-        </StyledTypeSelect>
+      <div ref={typeRef}>
+        <StyledTypeSelectWrapper>
+          <StyledTypeSelect
+            onClick={handleTypeDropdownToggle}
+            $expanded={typeDropdownExpanded}
+            $isSelected={!!selectedAuthType}
+          >
+            <span>
+              {selectedAuthType
+                ? splitCamelCase(selectedAuthType)
+                : 'Select Authorization Type'}
+            </span>
+            <Icon name="ExpandIcon" size="18px" />
+          </StyledTypeSelect>
+        </StyledTypeSelectWrapper>
         {typeDropdownExpanded && (
           <StyledExpandedTypeSelect>
             {Object.values(AuthorizationType)
@@ -195,7 +196,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
               ))}
           </StyledExpandedTypeSelect>
         )}
-      </StyledTypeSelectWrapper>
+      </div>
       {selectedAuthType === 'RotatePrimaryKey' && (
         <StyledWarningMessage>
           Caution: This will remove the current primary key from your identity

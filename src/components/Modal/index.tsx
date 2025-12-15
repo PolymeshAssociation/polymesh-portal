@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useWindowWidth } from '~/hooks/utility';
 import Icon from '../Icon';
-import { StyledBackdrop, StyledModal, StyledCloseButton } from './styles';
+import { StyledBackdrop, StyledCloseButton, StyledModal } from './styles';
 
 interface KeyboardEvent {
   key: string;
@@ -11,7 +11,6 @@ interface KeyboardEvent {
 interface IModalProps {
   handleClose: () => void | React.ReactEventHandler | React.ChangeEventHandler;
   children: React.ReactNode;
-  disableOverflow?: boolean;
   customWidth?: string;
   flexLayout?: boolean;
 }
@@ -21,7 +20,6 @@ const modalRoot = document.getElementById('modal-root') as Element;
 const Modal: React.FC<IModalProps> = ({
   handleClose,
   children,
-  disableOverflow,
   customWidth,
   flexLayout,
 }) => {
@@ -58,11 +56,7 @@ const Modal: React.FC<IModalProps> = ({
 
   return createPortal(
     <StyledBackdrop onMouseDown={handleBackdropClick}>
-      <StyledModal
-        $disableOverflow={disableOverflow}
-        $customWidth={customWidth}
-        $flexLayout={flexLayout}
-      >
+      <StyledModal $customWidth={customWidth} $flexLayout={flexLayout}>
         {isMobile && (
           <StyledCloseButton onClick={handleClose}>
             <Icon name="CloseIcon" size="24px" />

@@ -32,17 +32,16 @@ export const StyledTypeSelect = styled.div<{
 `;
 
 export const StyledExpandedTypeSelect = styled.div`
-  position: absolute;
-  top: 110%;
-  left: 0;
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  margin-top: 4px;
   padding: 8px;
   max-height: 200px;
   background-color: ${({ theme }) => theme.colors.landingBackground};
   border: 1px solid #8f8f8f;
   border-radius: 8px;
-  overflow-y: scroll;
-  z-index: 1;
+  overflow-y: auto;
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
 `;
 

@@ -28,7 +28,6 @@ export const StyledBackdrop = styled.div`
 `;
 
 export const StyledModal = styled.div<{
-  $disableOverflow?: boolean;
   $customWidth?: string;
   $flexLayout?: boolean;
 }>`
@@ -45,12 +44,13 @@ export const StyledModal = styled.div<{
       $customWidth ? `${$customWidth}` : '400px'};
     max-width: ${({ $customWidth }) =>
       $customWidth ? `${$customWidth}` : '504px'};
+    min-height: 200px;
     max-height: 80vh;
     border-radius: 8px;
   }
   background-color: ${({ theme }) => theme.colors.modalBackground};
   box-shadow: ${({ theme }) => `0px 20px 40px ${theme.colors.shadow}`};
-  ${({ $disableOverflow }) => ($disableOverflow ? '' : `overflow-y: auto;`)}
+  overflow-y: auto;
 
   animation: modal-animation 250ms ease-out;
   @keyframes modal-animation {
