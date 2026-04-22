@@ -1,9 +1,9 @@
 import {
-  POLYMESH_WALLET,
-  POLKADOT_WALLET,
-  TALISMAN_WALLET,
   NOVA_WALLET,
+  POLKADOT_WALLET,
+  POLYMESH_WALLET,
   SUBWALLET_WALLET,
+  TALISMAN_WALLET,
 } from '~/constants/wallets';
 
 export interface IdentityPopupState {
@@ -48,7 +48,8 @@ export type TIdentityModalType =
   | typeof MOCKID_IDENTITY_PROVIDER
   | typeof FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER
   | 'business'
-  | 'pending';
+  | 'pending'
+  | 'self-assign';
 
 export type TConnectModalType =
   | 'extensions'

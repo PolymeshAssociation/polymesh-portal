@@ -36,7 +36,7 @@ interface IProviderProps {
 const AccountProvider = ({ children }: IProviderProps) => {
   const {
     api: { polkadotApi, sdk, signingManager },
-    state: { initialized },
+    state: { initialized, isV8Plus },
     settings: { defaultExtension },
   } = useContext(PolymeshContext);
   const [account, setAccount] = useState<Account | MultiSig | null>(null);
@@ -379,6 +379,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
         if (
           !accountLoading &&
+          !isV8Plus &&
           // we use the env configured genesis hash to ensure we are querying
           // the cdd service for the connected chain
           polkadotApi?.genesisHash.toString() ===
@@ -408,6 +409,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
     allSigningAccounts,
     accountLoading,
     polkadotApi?.genesisHash,
+    isV8Plus,
   ]);
 
   // Subscribe to primary identity keys
@@ -456,10 +458,17 @@ const AccountProvider = ({ children }: IProviderProps) => {
     return () => (unsubCb ? unsubCb() : undefined);
   }, [identity, identityLoading]);
 
+  // TODO: remove post v8 cleanup, as on v8+ chains the presence of a DID implies CDD is valid, so this check is redundant. For now, this is used to determine whether to show the "Identity Verification" section of the UI for accounts without a DID, based on whether they have a valid CDD application.
   // Check identity CDD status
   useEffect(() => {
     if (!identity) {
       setIdentityHasValidCdd(false);
+      return;
+    }
+
+    // On v8+ chains CDD is no longer required — treat DID existence as valid
+    if (isV8Plus) {
+      setIdentityHasValidCdd(true);
       return;
     }
 
@@ -468,7 +477,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
     };
 
     fetchCddStatus();
-  }, [identity]);
+  }, [identity, isV8Plus]);
 
   // Get total balance for all keys associated with current DID
   useEffect(() => {
@@ -523,6 +532,9 @@ const AccountProvider = ({ children }: IProviderProps) => {
     secondaryKeysLoading,
   ]);
 
+  // On v8+ chains having a DID is sufficient; on pre-v8 chains a valid CDD claim is required
+  const canUseIdentityFeatures = isV8Plus ? !!identity : identityHasValidCdd;
+
   const contextValue = useMemo(
     () => ({
       account,
@@ -544,6 +556,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       identityLoading,
       allKeyInfo,
       identityHasValidCdd,
+      canUseIdentityFeatures,
       accountIsMultisigSigner,
       refreshAccountIdentity,
       refreshSecondaryKeys,
@@ -568,6 +581,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       balanceIsLoading,
       blockWalletAddress,
       blockedWallets,
+      canUseIdentityFeatures,
       defaultAccount,
       keyCddVerificationInfo,
       lastExternalKey,

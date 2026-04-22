@@ -1,3 +1,5 @@
+// TODO(v8-cleanup): This entire component is legacy CDD provider info/verification flow.
+// Remove once pre-v8 chain support is dropped.
 import { useContext, useEffect, useMemo, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { Icon } from '~/components';

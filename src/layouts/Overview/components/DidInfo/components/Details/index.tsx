@@ -1,41 +1,39 @@
-import { useContext, useState } from 'react';
 import {
   AccountIdentityRelation,
   AccountKeyType,
 } from '@polymeshassociation/polymesh-sdk/api/entities/Account/types';
-import { AccountContext } from '~/context/AccountContext';
-import { Modal, Icon, CopyToClipboard } from '~/components';
+import { useContext, useState } from 'react';
+import { CopyToClipboard, Icon, Modal } from '~/components';
 import { Button, Heading, Text } from '~/components/UiKit';
+import { AccountContext } from '~/context/AccountContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
+import { formatBalance, formatDid, formatKey } from '~/helpers/formatters';
+import { notifyError } from '~/helpers/notifications';
+import { useWindowWidth } from '~/hooks/utility';
 import {
-  StyledAccountWrapper,
-  Separator,
-  StyledBottomData,
-  StyledBottomInfo,
-  StyledDidWrapper,
-  StyledTopInfo,
-  StyledVerifiedLabel,
   IconWrapper,
-  StyledDidThumb,
-  StyledBalance,
-  StyledKeysList,
-  StyledKeyData,
-  StyledLabel,
   KeyDetails,
   KeyInfo,
-  StyledButtonsWrapper,
-  StyledSelect,
+  Separator,
   SignerDetails,
+  StyledAccountWrapper,
+  StyledBalance,
+  StyledBottomData,
+  StyledBottomInfo,
+  StyledButtonsWrapper,
+  StyledDidThumb,
+  StyledDidWrapper,
+  StyledKeyData,
+  StyledKeysList,
+  StyledLabel,
+  StyledSelect,
   StyledSignerInfo,
+  StyledTopInfo,
 } from './styles';
-import { formatDid, formatBalance, formatKey } from '~/helpers/formatters';
-import { useWindowWidth } from '~/hooks/utility';
-import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
-import { notifyError } from '~/helpers/notifications';
-import { PolymeshContext } from '~/context/PolymeshContext';
 
 interface IDetailsProps {
   toggleModal: () => void;
-  isVerified: boolean;
   did?: string;
   expiry: string;
   issuer: string | null;
@@ -43,13 +41,13 @@ interface IDetailsProps {
 
 export const Details: React.FC<IDetailsProps> = ({
   toggleModal,
-  isVerified,
   did,
   expiry,
   issuer,
 }) => {
   const {
     api: { sdk },
+    state: { isV8Plus },
   } = useContext(PolymeshContext);
   const { isTransactionInProgress, executeTransaction } =
     useTransactionStatusContext();
@@ -151,17 +149,18 @@ export const Details: React.FC<IDetailsProps> = ({
               </IconWrapper>
             </StyledDidWrapper>
           </div>
-          {isVerified && <StyledVerifiedLabel>Verified</StyledVerifiedLabel>}
         </StyledTopInfo>
-        <StyledBottomInfo>
-          <StyledBottomData>
-            Expires on: <span>{expiry}</span>
-          </StyledBottomData>
-          {!isMobile && <Separator />}
-          <StyledBottomData>
-            Verified by: <span>{formatDid(issuer)}</span>
-          </StyledBottomData>
-        </StyledBottomInfo>
+        {!isV8Plus && (
+          <StyledBottomInfo>
+            <StyledBottomData>
+              Expires on: <span>{expiry}</span>
+            </StyledBottomData>
+            {!isMobile && <Separator />}
+            <StyledBottomData>
+              Verified by: <span>{formatDid(issuer)}</span>
+            </StyledBottomData>
+          </StyledBottomInfo>
+        )}
       </StyledAccountWrapper>
       <Text bold size="large" marginTop={36} marginBottom={22}>
         Your keys

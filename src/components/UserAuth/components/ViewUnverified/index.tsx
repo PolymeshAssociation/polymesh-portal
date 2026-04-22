@@ -19,12 +19,19 @@ import { PopupWelcome } from '../PopupWelcome';
 export const ViewUnverified = () => {
   const {
     api: { polkadotApi },
+    state: { isV8Plus },
   } = useContext(PolymeshContext);
   const { selectedAccount, keyCddVerificationInfo } =
     useContext(AccountContext);
   const { setConnectPopup, setIdentityPopup, setShowAuth } = useAuthContext();
 
   const getIdentityButtonStatus = () => {
+    // On v8+ chains, no genesis hash check or CDD pending — just require a connected account
+    if (isV8Plus) {
+      return selectedAccount
+        ? EActionButtonStatus.ACTION_ACTIVE
+        : EActionButtonStatus.ACTION_DISABLED;
+    }
     if (
       polkadotApi?.genesisHash.toString() !== import.meta.env.VITE_GENESIS_HASH
     ) {
@@ -37,6 +44,16 @@ export const ViewUnverified = () => {
       return EActionButtonStatus.ACTION_DISABLED;
     }
     return EActionButtonStatus.ACTION_ACTIVE;
+  };
+
+  const handleIdentityClick = () => {
+    if (isV8Plus) {
+      setIdentityPopup({ type: 'self-assign' });
+    } else if (keyCddVerificationInfo?.status === EKeyIdentityStatus.PENDING) {
+      setIdentityPopup({ type: 'pending' });
+    } else {
+      setIdentityPopup({ type: 'providers' });
+    }
   };
 
   return (
@@ -76,36 +93,43 @@ export const ViewUnverified = () => {
         />
         <ActionButton
           title={
+            !isV8Plus &&
             keyCddVerificationInfo?.status === EKeyIdentityStatus.PENDING
               ? 'Step 2 (In Progress)'
               : 'Step 2'
           }
-          label="Verify Identity*"
+          label={
+            isV8Plus ? 'Register Decentralized Identity' : 'Verify Identity*'
+          }
           icon="ConnectIdentityIcon"
           status={getIdentityButtonStatus()}
           data-event-category="onboarding"
           matomoData={{
             eventCategory: 'onboarding',
-            eventAction: 'verify-identity',
+            eventAction: isV8Plus ? 'register-did' : 'verify-identity',
             eventName: 'unverified-view',
           }}
-          handleClick={() =>
-            setIdentityPopup({
-              type:
-                keyCddVerificationInfo?.status === EKeyIdentityStatus.PENDING
-                  ? 'pending'
-                  : 'providers',
-            })
-          }
+          handleClick={handleIdentityClick}
         />
       </StyledAuthButtons>
 
       {selectedAccount && (
         <Text size="medium" marginBottom={8}>
-          <strong>* Identity verification is optional:</strong> You can send and
-          receive POLYX and participate in staking, as a nominator, without
-          Identity verification. Identity verification is required for assets
-          and identity-related features.
+          {isV8Plus ? (
+            <>
+              <strong>* Identity registration is optional:</strong> You can send
+              and receive POLYX and participate in staking without a registered
+              identity. A DID is required for asset management, portfolios, and
+              other identity-related features.
+            </>
+          ) : (
+            <>
+              <strong>* Identity verification is optional:</strong> You can send
+              and receive POLYX and participate in staking, as a nominator,
+              without Identity verification. Identity verification is required
+              for assets and identity-related features.
+            </>
+          )}
         </Text>
       )}
 

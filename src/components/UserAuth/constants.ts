@@ -73,6 +73,8 @@ export const SUPPORTED_BROWSERS = {
   },
 };
 
+// TODO(v8-cleanup): CDD provider definitions below are legacy. On v8+ chains, the SelfAssignDid
+// component replaces the CDD provider selection flow. Remove these once pre-v8 support is dropped.
 export type TIdentityProvider =
   | typeof JUMIO_IDENTITY_PROVIDER
   | typeof NETKI_IDENTITY_PROVIDER

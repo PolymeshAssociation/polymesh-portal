@@ -1,3 +1,5 @@
+// TODO(v8-cleanup): This entire component is legacy CDD pending application info.
+// Remove once pre-v8 chain support is dropped.
 import { useContext } from 'react';
 import { AccountContext } from '~/context/AccountContext';
 import { useAuthContext } from '~/context/AuthContext';
