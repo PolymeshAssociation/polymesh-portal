@@ -15,9 +15,6 @@ export const createTransactions = (
     case EActionTypes.REJECT:
       return selectedItems.map((instruction) => instruction.reject());
 
-    case EActionTypes.WITHDRAW:
-      return selectedItems.map((instruction) => instruction.withdraw());
-
     case EActionTypes.EXECUTE:
       return selectedItems.map((instruction) => instruction.executeManually());
 

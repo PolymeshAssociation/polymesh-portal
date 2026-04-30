@@ -93,12 +93,6 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
     affirmationStatus &&
     affirmationStatus !== 'Affirmed';
 
-  const isFailedCanWithdrawAffirmation =
-    type === EInstructionTypes.FAILED &&
-    (isSettleManual ||
-      instructionDetails?.type === InstructionType.SettleOnAffirmation) &&
-    affirmationStatus === 'Affirmed';
-
   return (
     <StyledItemWrapper>
       <StyledInfoWrapper>
@@ -146,31 +140,19 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
           <Icon name="CloseIcon" size="24px" />
           Reject
         </Button>
-        {(type === EInstructionTypes.AFFIRMED ||
-          isFailedCanWithdrawAffirmation) && (
-          <>
-            <Button
-              disabled={!details || actionInProgress || isExternalConnection}
-              onClick={() => executeAction({ method: instruction.withdraw })}
-            >
-              <Icon name="Check" size="24px" />
-              Unapprove
-            </Button>
-            {isAllowedToSettleManually && type !== EInstructionTypes.FAILED && (
-              <Button
-                variant="success"
-                disabled={
-                  actionInProgress || legsHaveErrors || isExternalConnection
-                }
-                onClick={() =>
-                  executeAction({ method: instruction.executeManually })
-                }
-              >
-                <Icon name="Check" size="24px" />
-                Settle
-              </Button>
-            )}
-          </>
+        {type === EInstructionTypes.AFFIRMED && isAllowedToSettleManually && (
+          <Button
+            variant="success"
+            disabled={
+              actionInProgress || legsHaveErrors || isExternalConnection
+            }
+            onClick={() =>
+              executeAction({ method: instruction.executeManually })
+            }
+          >
+            <Icon name="Check" size="24px" />
+            Settle
+          </Button>
         )}
         {(type === EInstructionTypes.PENDING || isFailedCanBeAffirmed) && (
           <>

@@ -3,7 +3,6 @@ import {
   ExecuteManualInstructionParams,
   Instruction,
   RejectInstructionParams,
-  WithdrawInstructionParams,
   Leg,
   InstructionDetails,
   InstructionAffirmation,
@@ -18,7 +17,6 @@ export enum EInstructionTypes {
 export enum EActionTypes {
   AFFIRM = 'affirm',
   REJECT = 'reject',
-  WITHDRAW = 'withdraw',
   EXECUTE = 'execute',
 }
 
@@ -39,10 +37,6 @@ export type InstructionAction =
   | {
       method: Instruction['executeManually'];
       params?: ExecuteManualInstructionParams;
-    }
-  | {
-      method: Instruction['withdraw'];
-      params?: WithdrawInstructionParams;
     };
 
 export interface InstructionData {

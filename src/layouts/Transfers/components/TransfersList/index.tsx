@@ -339,16 +339,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
               <Icon name="CloseIcon" size="24px" />
               {!isMobile && 'Reject'}
             </StyledActionButton>
-            {type === EInstructionTypes.AFFIRMED && (
-              <StyledActionButton
-                $isReject
-                disabled={isTransactionInProgress || isExternalConnection}
-                onClick={() => executeBatch(EActionTypes.WITHDRAW)}
-              >
-                <Icon name="Check" size="24px" />
-                {!isMobile && 'Unapprove'}
-              </StyledActionButton>
-            )}
+
             {type === EInstructionTypes.PENDING && (
               <StyledActionButton
                 disabled={isTransactionInProgress || isExternalConnection}
