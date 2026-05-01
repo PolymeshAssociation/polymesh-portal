@@ -6,32 +6,26 @@ import { AccountContext } from '~/context/AccountContext';
 import { EKeyIdentityStatus } from '~/context/AccountContext/constants';
 import { useAuthContext } from '~/context/AuthContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { formatDid } from '~/helpers/formatters';
 import { useWindowWidth } from '~/hooks/utility';
 import { Details } from './components/Details';
 import { systematicCddProviders } from './constants';
 import {
   IconWrapper,
-  Separator,
   StyledBottomInfo,
   StyledButtonWrapper,
   StyledDidWrapper,
   StyledLink,
   StyledTopInfo,
-  StyledVerifiedLabel,
   StyledWrapper,
 } from './styles';
 
 export const DidInfo = () => {
   const {
     api: { sdk, polkadotApi },
+    state: { isV8Plus },
   } = useContext(PolymeshContext);
-  const {
-    identity,
-    identityLoading,
-    identityHasValidCdd,
-    keyCddVerificationInfo,
-  } = useContext(AccountContext);
+  const { identity, identityLoading, keyCddVerificationInfo } =
+    useContext(AccountContext);
   const { setIdentityPopup } = useAuthContext();
   const [expiry, setExpiry] = useState<null | Date | undefined>(undefined);
   const [issuer, setIssuer] = useState<string | null>(null);
@@ -44,6 +38,14 @@ export const DidInfo = () => {
     if (identityLoading || !sdk) return undefined;
     if (!identity) {
       setExpiry(undefined);
+      setIssuer(null);
+      setClaimDetailsLoading(false);
+      return undefined;
+    }
+
+    // On v8+ chains CDD claims are not used — skip claim lookup
+    if (isV8Plus) {
+      setExpiry(null); // null = never expires (no CDD concept)
       setIssuer(null);
       setClaimDetailsLoading(false);
       return undefined;
@@ -84,7 +86,7 @@ export const DidInfo = () => {
       setIssuer(null);
       setClaimDetailsLoading(false);
     };
-  }, [identity, identityLoading, sdk]);
+  }, [identity, identityLoading, sdk, isV8Plus]);
 
   const parseExpiry = (expiryValue: null | Date | undefined) => {
     if (typeof expiryValue === 'undefined') return 'CDD claim missing';
@@ -113,11 +115,32 @@ export const DidInfo = () => {
   const renderBottomInfo = (
     activeIdentity: Identity | null,
     expiryDate: Date | null | undefined,
-    issuerDid: string | null,
   ) => {
     const date = parseExpiry(expiryDate);
     if (!activeIdentity) {
-      return (
+      return isV8Plus ? (
+        <>
+          <Text size="small" marginTop={6}>
+            A Decentralized Identity (DID) is required for asset management and
+            identity-related features. Click the below button to register a new
+            identity or{' '}
+            <StyledLink
+              href={import.meta.env.VITE_ASSIGN_KEY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              click here
+            </StyledLink>{' '}
+            if you want to learn how to assign this key to an existing DID.
+          </Text>
+          <Text size="small" marginBottom={6}>
+            <strong>* DID registration is optional:</strong> You can send and
+            receive POLYX and participate in staking without a registered
+            identity. A DID is required for asset management, portfolios, and
+            other identity-related features.
+          </Text>
+        </>
+      ) : (
         <Text size="small">
           A DID is required to execute identity and asset related transactions.
           Complete onboarding to link this key to a new Polymesh identity. If
@@ -153,26 +176,7 @@ export const DidInfo = () => {
         </Text>
       );
     }
-    return (
-      <>
-        <div>
-          Expires on:
-          <span>{date}</span>
-        </div>
-        {!isSmallScreen && <Separator />}
-        <div>
-          Verified by:
-          <span>
-            {formatDid(issuerDid)}
-            {!!issuerDid && (
-              <IconWrapper>
-                <CopyToClipboard value={issuerDid} />
-              </IconWrapper>
-            )}
-          </span>
-        </div>
-      </>
-    );
+    return null;
   };
 
   return (
@@ -187,13 +191,10 @@ export const DidInfo = () => {
           <div className="did-wrapper">
             {!identityLoading && !identity ? (
               <Text bold size="large" marginTop={isSmallScreen ? 0 : 22}>
-                This key is not linked to an identity
+                This key is not linked to an on-chain identity
               </Text>
             ) : (
               <>
-                {identityHasValidCdd && (
-                  <StyledVerifiedLabel>Verified</StyledVerifiedLabel>
-                )}
                 <Text marginBottom={4}>Your DID</Text>
                 <StyledDidWrapper>
                   <DidSelect />
@@ -218,10 +219,10 @@ export const DidInfo = () => {
         <StyledBottomInfo>
           {!identityLoading &&
             !claimDetailsLoading &&
-            renderBottomInfo(identity, expiry, issuer)}
+            renderBottomInfo(identity, expiry)}
           {identityLoading || claimDetailsLoading ? (
             <SkeletonLoader
-              count={2}
+              count={1}
               baseColor="rgba(255,255,255,0.05)"
               highlightColor="rgba(255, 255, 255, 0.24)"
             />
@@ -231,17 +232,20 @@ export const DidInfo = () => {
           {!identityLoading && !identity ? (
             <Button
               disabled={
+                !isV8Plus &&
                 polkadotApi?.genesisHash.toString() !==
-                import.meta.env.VITE_GENESIS_HASH
+                  import.meta.env.VITE_GENESIS_HASH
               }
               onClick={() =>
-                setIdentityPopup({
-                  type:
-                    keyCddVerificationInfo?.status ===
-                    EKeyIdentityStatus.PENDING
-                      ? 'pending'
-                      : 'providers',
-                })
+                isV8Plus
+                  ? setIdentityPopup({ type: 'self-assign' })
+                  : setIdentityPopup({
+                      type:
+                        keyCddVerificationInfo?.status ===
+                        EKeyIdentityStatus.PENDING
+                          ? 'pending'
+                          : 'providers',
+                    })
               }
               matomoData={{
                 eventCategory: 'onboarding',
@@ -249,7 +253,7 @@ export const DidInfo = () => {
                 eventName: 'did-view',
               }}
             >
-              Complete onboarding
+              {isV8Plus ? 'Register DID' : 'Complete onboarding'}
             </Button>
           ) : (
             <>
@@ -276,7 +280,6 @@ export const DidInfo = () => {
       {detailsExpanded && (
         <Details
           toggleModal={toggleModal}
-          isVerified={identityHasValidCdd}
           did={identity?.did}
           expiry={parseExpiry(expiry)}
           issuer={issuer}

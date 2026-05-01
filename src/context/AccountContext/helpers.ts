@@ -1,3 +1,5 @@
+// TODO(v8-cleanup): This helper fetches CDD application status from the legacy CDD service.
+// Remove once pre-v8 chain support is dropped.
 import { EKeyIdentityStatus, IApplication } from './constants';
 
 const BLANK_IDENTITY = {

@@ -1,12 +1,14 @@
 import { Modal } from '~/components';
+import { Heading } from '~/components/UiKit';
 import { useAuthContext } from '~/context/AuthContext';
 import { PopupHeader } from '../PopupHeader';
 import { BusinessAccount } from './components/BusinessAccount';
+import { BusinessProviderSelect } from './components/BusinessProviderSelect';
 import { PendingInfo } from './components/PendingInfo';
 import { ProviderInfo } from './components/ProviderInfo';
 import { ProviderSelect } from './components/ProviderSelect';
-import { StyledModalContent } from './styles';
-import { BusinessProviderSelect } from './components/BusinessProviderSelect';
+import { SelfAssignDid } from './components/SelfAssignDid';
+import { ModalContainer, ModalContent, StyledModalContent } from './styles';
 
 export const PopupVerifyIdentity = () => {
   const { identityPopup, setIdentityPopup } = useAuthContext();
@@ -34,6 +36,8 @@ export const PopupVerifyIdentity = () => {
         return <BusinessAccount />;
       case 'pending':
         return <PendingInfo />;
+      case 'self-assign':
+        return <SelfAssignDid />;
 
       default:
         return <ProviderSelect />;
@@ -44,11 +48,13 @@ export const PopupVerifyIdentity = () => {
     return null;
   }
 
+  const isSelfAssign = identityPopup.type === 'self-assign';
+
   let subTitle = '';
   let title = 'Verify Identity';
   if (identityPopup.type === 'providers') {
     subTitle =
-      'We are required to verify everyone’s identity on Polymesh to ensure security for all. Please proceed with choosing a third party CDD provider to verify your identity.';
+      'We are required to verify everyone\u2019s identity on Polymesh to ensure security for all. Please proceed with choosing a third party CDD provider to verify your identity.';
   } else if (identityPopup.type === 'business-providers') {
     title = 'Verify Business Identity';
     subTitle =
@@ -60,17 +66,26 @@ export const PopupVerifyIdentity = () => {
   return (
     <Modal
       handleClose={() => setIdentityPopup({ type: null })}
-      customWidth="fit-content"
+      customWidth={isSelfAssign ? '600px' : 'fit-content'}
     >
-      <StyledModalContent>
-        <PopupHeader
-          title={title}
-          subTitle={subTitle}
-          icon="ConnectIdentityIcon"
-          isWide
-        />
-        {renderPopupContent()}
-      </StyledModalContent>
+      {isSelfAssign ? (
+        <ModalContainer>
+          <ModalContent>
+            <Heading type="h3">Register a Decentralized Identity</Heading>
+          </ModalContent>
+          {renderPopupContent()}
+        </ModalContainer>
+      ) : (
+        <StyledModalContent>
+          <PopupHeader
+            title={title}
+            subTitle={subTitle}
+            icon="ConnectIdentityIcon"
+            isWide
+          />
+          {renderPopupContent()}
+        </StyledModalContent>
+      )}
     </Modal>
   );
 };

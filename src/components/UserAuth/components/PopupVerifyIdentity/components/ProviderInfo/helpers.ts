@@ -1,3 +1,5 @@
+// TODO(v8-cleanup): These helpers call the legacy CDD service API.
+// Remove once pre-v8 chain support is dropped.
 import { notifyError } from '~/helpers/notifications';
 
 export const fetchIdentityProviderLink = async (

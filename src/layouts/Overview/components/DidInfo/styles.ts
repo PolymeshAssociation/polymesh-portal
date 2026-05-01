@@ -5,7 +5,7 @@ export const StyledWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 244px;
+  min-height: 144px;
   padding: 24px;
   background: linear-gradient(245deg, #bd235d 10%, #000000 90%);
   box-shadow: 0px 20px 40px ${({ theme }) => theme.colors.shadow};
@@ -80,17 +80,14 @@ export const StyledBottomInfo = styled.div`
   gap: 8px;
 
   @media screen and (min-width: 768px) and (max-width: 1023px) {
-    flex-direction: row;
     align-items: center;
     gap: 16px;
   }
   @media screen and (min-width: 1024px) and (max-width: 1199px) {
     gap: 8px;
-    flex-direction: column;
     align-items: flex-start;
   }
   @media screen and (min-width: 1200px) {
-    flex-direction: row;
     align-items: center;
     gap: 16px;
   }

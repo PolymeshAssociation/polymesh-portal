@@ -1,16 +1,16 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
-import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import {
   EventRecord,
   MiddlewareMetadata,
 } from '@polymeshassociation/polymesh-sdk/types';
-import PolymeshContext from './context';
-import { IPFS_PROVIDER_URL } from './constants';
-import { useLocalStorage } from '~/hooks/utility';
-import { notifyGlobalError } from '~/helpers/notifications';
+import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { runMigration } from '~/helpers/localStorageMigrations';
+import { notifyGlobalError } from '~/helpers/notifications';
+import { useLocalStorage } from '~/hooks/utility';
+import { IPFS_PROVIDER_URL } from './constants';
+import PolymeshContext from './context';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -381,6 +381,13 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
 
   const ss58Prefix = useMemo(() => sdk?.network.getSs58Format(), [sdk]);
 
+  // TODO: Remove post v8 cleanup, as on v8+ chains the presence of a DID implies CDD is valid
+  const isV8Plus = useMemo(
+    () =>
+      (polkadotApi?.runtimeVersion.specVersion.toNumber() ?? 0) >= 7_000_000,
+    [polkadotApi],
+  );
+
   const contextValue = useMemo(
     () => ({
       state: {
@@ -388,6 +395,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         initialized,
         middlewareMetadata,
         middlewareLoading,
+        isV8Plus,
       },
       api: {
         sdk,
@@ -422,6 +430,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       disconnectWalletConnect,
       initialized,
       ipfsProviderUrl,
+      isV8Plus,
       middlewareKey,
       middlewareLoading,
       middlewareMetadata,

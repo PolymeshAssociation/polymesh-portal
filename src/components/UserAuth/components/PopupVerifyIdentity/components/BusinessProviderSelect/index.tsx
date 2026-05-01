@@ -1,3 +1,5 @@
+// TODO(v8-cleanup): This entire component is legacy CDD business provider selection.
+// Remove once pre-v8 chain support is dropped.
 import { useContext, useEffect, useState } from 'react';
 import Icon from '~/components/Icon';
 import { Heading, Text } from '~/components/UiKit';

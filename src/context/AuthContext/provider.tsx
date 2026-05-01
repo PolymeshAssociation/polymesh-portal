@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocalStorage } from '~/hooks/utility';
 import {
-  TConnectModalType,
-  REGEX_MOBILE_DEVICE,
   IdentityPopupState,
+  REGEX_MOBILE_DEVICE,
+  TConnectModalType,
 } from './constants';
 import AuthContext from './context';
 

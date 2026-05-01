@@ -1,30 +1,27 @@
-import { useLocalStorage } from '~/hooks/utility';
-import { useAuthContext } from '~/context/AuthContext';
 import { Modal } from '~/components';
-import { Text, Button } from '~/components/UiKit';
+import { Button, Text } from '~/components/UiKit';
+import { useAuthContext } from '~/context/AuthContext';
 import {
-  StyledWelcomeWrapper,
-  StyledWelcomePopup,
   StyledButtonsContainer,
+  StyledWelcomePopup,
+  StyledWelcomeWrapper,
 } from './styles';
 
 export const PopupWelcome = () => {
   const { setConnectPopup, isMobileDevice } = useAuthContext();
-  const [showWelcome, setShowWelcome] = useLocalStorage(
-    'showWelcomePopup',
-    true,
-  );
 
   const handleProceed = () => {
-    setShowWelcome(false);
     setConnectPopup(isMobileDevice ? 'extensionsMobile' : 'extensions');
   };
 
   const defaultAccount = JSON.parse(
     localStorage.getItem('defaultAccount') || 'null',
   );
+  const defaultExtension = JSON.parse(
+    localStorage.getItem('defaultExtension') || 'null',
+  );
 
-  if (!showWelcome && defaultAccount) {
+  if (defaultExtension || defaultAccount) {
     return null;
   }
   return (

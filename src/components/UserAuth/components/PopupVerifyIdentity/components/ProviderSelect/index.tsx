@@ -1,3 +1,6 @@
+// TODO(v8-cleanup): This entire component is legacy CDD provider selection.
+// Remove once pre-v8 chain support is dropped. On v8+ chains, users
+// are routed to the SelfAssignDid component instead.
 import { useContext, useEffect, useState } from 'react';
 import { useAuthContext } from '~/context/AuthContext';
 import {

@@ -22,7 +22,7 @@ import { useWindowWidth } from '~/hooks/utility';
 
 export const PortfolioInfo = () => {
   const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolioData>();
-  const { identity, identityHasValidCdd, isExternalConnection } =
+  const { identity, canUseIdentityFeatures, isExternalConnection } =
     useContext(AccountContext);
   const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
   const { deletePortfolio, isTransactionInProgress } = usePortfolio(
@@ -120,7 +120,7 @@ export const PortfolioInfo = () => {
               isExternalConnection ||
               !!selectedPortfolio.assets.length ||
               isTransactionInProgress ||
-              !identityHasValidCdd ||
+              !canUseIdentityFeatures ||
               selectedPortfolio.custodian.did !== identity?.did
             }
             onClick={deletePortfolio}
@@ -154,7 +154,7 @@ export const PortfolioInfo = () => {
               onClick={toggleMoveModal}
               disabled={
                 isExternalConnection ||
-                !identityHasValidCdd ||
+                !canUseIdentityFeatures ||
                 isTransactionInProgress ||
                 selectedPortfolio.custodian.did !== identity?.did
               }
@@ -168,7 +168,7 @@ export const PortfolioInfo = () => {
                   variant="secondary"
                   disabled={
                     isTransactionInProgress ||
-                    !identityHasValidCdd ||
+                    !canUseIdentityFeatures ||
                     isExternalConnection
                   }
                   onClick={toggleEditModal}
@@ -183,7 +183,7 @@ export const PortfolioInfo = () => {
                       isExternalConnection ||
                       !!selectedPortfolio.assets.length ||
                       isTransactionInProgress ||
-                      !identityHasValidCdd ||
+                      !canUseIdentityFeatures ||
                       selectedPortfolio.custodian.did !== identity?.did
                     }
                     onClick={deletePortfolio}

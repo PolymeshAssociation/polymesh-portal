@@ -24,7 +24,7 @@ import {
 export const PortfolioNavigation = () => {
   const {
     identity,
-    identityHasValidCdd,
+    canUseIdentityFeatures,
     identityLoading,
     isExternalConnection,
   } = useContext(AccountContext);
@@ -127,7 +127,7 @@ export const PortfolioNavigation = () => {
           round={isTablet || isMobile}
           onClick={toggleModal}
           disabled={
-            !identityHasValidCdd ||
+            !canUseIdentityFeatures ||
             isExternalConnection ||
             isTransactionInProgress
           }
