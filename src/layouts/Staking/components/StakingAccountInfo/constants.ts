@@ -5,7 +5,7 @@ export enum EModalOptions {
   BOND_MORE = 'Bond More POLYX',
   UNBOND = 'Unbond POLYX',
   REBOND = 'Rebond Unbonding POLYX',
-  CHANGE_CONTROLLER = 'Change Controller Address',
+  CHANGE_CONTROLLER = 'Reset Controller',
   CHANGE_DESTINATION = 'Change Reward Destination',
   CHANGE_NOMINATIONS = 'Change Nominations',
 }
@@ -60,7 +60,6 @@ export interface INominatorsForm {
 export type TDestination = 'Stash' | 'Staked' | 'Controller';
 
 export interface IStakeArgs {
-  controller: string;
   amount: number;
   nominators: string[];
   payee: { Account: string } | TDestination;

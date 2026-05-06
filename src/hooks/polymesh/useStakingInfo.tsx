@@ -1,9 +1,9 @@
-import { useState, useEffect, useContext, useMemo } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { balanceToBigNumber } from '@polymeshassociation/polymesh-sdk/utils/conversion';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { notifyError } from '~/helpers/notifications';
 import { StakingContext } from '~/context/StakingContext';
+import { notifyError } from '~/helpers/notifications';
 
 const X_IDEAL = new BigNumber(0.7); // Ideal Staked ratio.
 const I_IDEAL = new BigNumber(0.14); // Inflation at ideal staked ratio.
@@ -42,7 +42,7 @@ const useStakingInfo = () => {
       };
     return {
       fixedAnnualReward: balanceToBigNumber(
-        polkadotApi.consts.staking.fixedYearlyReward,
+        polkadotApi.consts.validators.fixedYearlyReward,
       ),
     };
   }, [polkadotApi]);

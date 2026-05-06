@@ -1,5 +1,3 @@
-import type { Option } from '@polkadot/types-codec';
-import type { PalletStakingActiveEraInfo } from '@polkadot/types/lookup';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   u32ToBigNumber,
@@ -12,7 +10,7 @@ import { notifyError } from '~/helpers/notifications';
 
 interface EraRelatedConstants {
   epochDurationBlocks: BigNumber | null;
-  electionLookahead: BigNumber | null;
+  unsignedPhaseSlots: BigNumber | null;
   sessionsPerEra: BigNumber | null;
   expectedBlockTime: BigNumber | null;
 }
@@ -47,30 +45,26 @@ const useEraStatus = () => {
 
   const {
     epochDurationBlocks,
-    electionLookahead,
+    unsignedPhaseSlots,
     sessionsPerEra,
     expectedBlockTime,
   }: EraRelatedConstants = useMemo(() => {
     if (!polkadotApi) {
       return {
         epochDurationBlocks: null,
-        electionLookahead: null,
+        unsignedPhaseSlots: null,
         sessionsPerEra: null,
         expectedBlockTime: null,
       };
     }
 
+    const epochDuration = u64ToBigNumber(polkadotApi.consts.babe.epochDuration);
+
     return {
-      epochDurationBlocks: u64ToBigNumber(
-        polkadotApi.consts.babe.epochDuration,
-      ),
-      electionLookahead: u32ToBigNumber(
-        polkadotApi.consts.electionProviderMultiPhase.signedPhase,
-      ).plus(
-        u32ToBigNumber(
-          polkadotApi.consts.electionProviderMultiPhase.unsignedPhase,
-        ),
-      ),
+      epochDurationBlocks: epochDuration,
+      // Signed/unsigned phase constants are no longer exposed in metadata.
+      // Polymesh runtime uses UnsignedPhase = EPOCH_DURATION_IN_BLOCKS / 4.
+      unsignedPhaseSlots: epochDuration.div(4),
       sessionsPerEra: u32ToBigNumber(polkadotApi.consts.staking.sessionsPerEra),
       expectedBlockTime: u64ToBigNumber(
         polkadotApi.consts.babe.expectedBlockTime,
@@ -127,7 +121,7 @@ const useEraStatus = () => {
 
   const electionOpenSlot = useMemo(() => {
     if (
-      !electionLookahead ||
+      !unsignedPhaseSlots ||
       !eraStartSlot ||
       !sessionsPerEra ||
       !epochDurationBlocks ||
@@ -136,23 +130,26 @@ const useEraStatus = () => {
     ) {
       return null;
     }
+
     // Election closes at the end of the 2nd to last epoch
     const closeSlot = eraStartSlot.plus(
       epochDurationBlocks.times(sessionsPerEra.minus(1)),
     );
-    let openSlot = closeSlot.minus(electionLookahead);
-    // If the open slot has already passed for the active era, report planned open slot for the next era
+    let openSlot = closeSlot.minus(unsignedPhaseSlots);
+
+    // If the open slot already passed, report the next era's opening slot.
     if (openSlot.lt(currentSlot)) {
       openSlot = openSlot.plus(eraDurationBlocks);
     }
+
     return openSlot;
   }, [
-    currentSlot,
-    electionLookahead,
-    epochDurationBlocks,
-    eraDurationBlocks,
+    unsignedPhaseSlots,
     eraStartSlot,
     sessionsPerEra,
+    epochDurationBlocks,
+    eraDurationBlocks,
+    currentSlot,
   ]);
 
   const timeToNextElection = useMemo(() => {
@@ -173,18 +170,16 @@ const useEraStatus = () => {
 
     const getActiveEra = async () => {
       try {
-        unsubActiveEra = await polkadotApi.query.staking.activeEra(
-          (era: Option<PalletStakingActiveEraInfo>) => {
-            if (era.isSome) {
-              setActiveEra({
-                index: u32ToBigNumber(era.unwrap().index),
-                start: u64ToBigNumber(era.unwrap().start.unwrapOrDefault()),
-              });
-            } else {
-              setActiveEra({ index: null, start: null });
-            }
-          },
-        );
+        unsubActiveEra = await polkadotApi.query.staking.activeEra((era) => {
+          if (era.isSome) {
+            setActiveEra({
+              index: u32ToBigNumber(era.unwrap().index),
+              start: u64ToBigNumber(era.unwrap().start.unwrapOrDefault()),
+            });
+          } else {
+            setActiveEra({ index: null, start: null });
+          }
+        });
       } catch (error) {
         notifyError((error as Error).message);
       }

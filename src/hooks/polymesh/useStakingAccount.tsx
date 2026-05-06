@@ -1,5 +1,4 @@
-import type { Vec, u32 } from '@polkadot/types-codec';
-import type { AccountId32 } from '@polkadot/types/interfaces';
+import type { Vec } from '@polkadot/types-codec';
 import type { PalletStakingUnlockChunk } from '@polkadot/types/lookup';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
@@ -172,10 +171,11 @@ const useStakingAccount = () => {
 
       const [totalUnlockingBalance, totalWithdrawableBalance, unlockingLots] =
         processUnlockingDetails(unlocking);
-      const rewardPayee = await polkadotApi.query.staking.payee(stash);
+      const rewardPayeeOption = await polkadotApi.query.staking.payee(stash);
+      const rewardPayee = rewardPayeeOption.unwrapOrDefault();
       const payee = rewardPayee.isAccount
         ? rewardPayee.asAccount.toString()
-        : rewardPayee.toString();
+        : rewardPayee.type;
       return {
         isController: account === selectedAccount,
         controllerAddress: account,
@@ -294,11 +294,7 @@ const useStakingAccount = () => {
         setNominatedEra(null);
         return;
       }
-      const {
-        targets,
-        submittedIn,
-      }: { targets: Vec<AccountId32>; submittedIn: u32 } =
-        nominatedAccounts.unwrap();
+      const { targets, submittedIn } = nominatedAccounts.unwrap();
       const nominated = targets.map((target) => target.toString());
       setNominations(nominated);
       setNominatedEra(u32ToBigNumber(submittedIn));

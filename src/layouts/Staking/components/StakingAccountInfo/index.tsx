@@ -13,13 +13,13 @@ import {
   useState,
 } from 'react';
 import { Icon, Modal } from '~/components';
+import { ConfirmationModal } from '~/components/ConfirmationModal';
 import { Heading, SkeletonLoader } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { StakingContext } from '~/context/StakingContext';
 import { AccountDetails } from './components/AccountDetails';
 import { BondMoreModal } from './components/BondMoreModal';
-import { ChangeControllerModal } from './components/ChangeControllerModal';
 import { ChangeDestinationModal } from './components/ChangeDestinationModal';
 import { ChangeNominationsModal } from './components/ChangeNominationsModal';
 import { NoStakingInfo } from './components/NoStakingInfo';
@@ -128,23 +128,13 @@ export const StakingAccountInfo = () => {
     try {
       let tx: SubmittableExtrinsic<'promise', ISubmittableResult>;
       if (action === EModalActions.BOND) {
-        const { controller, amount, payee, nominators } = args as IStakeArgs;
-        const { bond, nominate, setController } = polkadotApi.tx.staking;
+        const { amount, payee, nominators } = args as IStakeArgs;
+        const { bond, nominate } = polkadotApi.tx.staking;
 
-        if (selectedAccount === controller) {
-          tx = polkadotApi.tx.utility.batchAll([
-            bond(controller, amount, payee),
-            nominate(nominators),
-          ]);
-        } else {
-          // stash != controller
-          // controller should be set after initial nominations
-          tx = polkadotApi.tx.utility.batchAll([
-            bond(selectedAccount, amount, payee),
-            nominate(nominators),
-            setController(controller),
-          ]);
-        }
+        tx = polkadotApi.tx.utility.batchAll([
+          bond(amount, payee),
+          nominate(nominators),
+        ]);
       } else if (action === EModalActions.WITHDRAW) {
         const optSpans = await polkadotApi.query.staking.slashingSpans(
           stashAddress!,
@@ -154,11 +144,13 @@ export const StakingAccountInfo = () => {
           : optSpans.unwrap().prior.length + 1;
         tx = polkadotApi.tx.staking.withdrawUnbonded(spanCount);
       } else {
-        tx =
-          action !== EModalActions.CHILL
-            ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              polkadotApi.tx.staking[action](args as any)
-            : polkadotApi.tx.staking[action]();
+        const isNoArgAction =
+          action === EModalActions.CHILL ||
+          action === EModalActions.SET_CONTROLLER;
+        tx = isNoArgAction
+          ? polkadotApi.tx.staking[action]()
+          : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            polkadotApi.tx.staking[action](args as any);
       }
       let txHash: string;
 
@@ -213,6 +205,10 @@ export const StakingAccountInfo = () => {
     setModalOpen(option);
   };
 
+  const handleResetController = () => {
+    executeAction(EModalActions.SET_CONTROLLER);
+  };
+
   const renderModal = () => {
     switch (modalOpen) {
       case EModalOptions.STAKE:
@@ -233,14 +229,6 @@ export const StakingAccountInfo = () => {
         return (
           <UnbondModal
             amountActive={amountActive?.toNumber() || 0}
-            executeAction={executeAction}
-            handleClose={() => toggleModal(null)}
-          />
-        );
-      case EModalOptions.CHANGE_CONTROLLER:
-        return (
-          <ChangeControllerModal
-            selectedController={controllerAddress as string}
             executeAction={executeAction}
             handleClose={() => toggleModal(null)}
           />
@@ -497,7 +485,18 @@ export const StakingAccountInfo = () => {
             )}
           </StyledButtonWrapper>
         </div>
-        {modalOpen && (
+        {modalOpen === EModalOptions.CHANGE_CONTROLLER && (
+          <ConfirmationModal
+            isOpen
+            onClose={() => toggleModal(null)}
+            onConfirm={handleResetController}
+            title={EModalOptions.CHANGE_CONTROLLER}
+            message={`This will reset the controller from ${controllerAddress} to the stash address ${stashAddress}. This action cannot be undone.`}
+            confirmLabel="Reset Controller"
+            isProcessing={actionInProgress}
+          />
+        )}
+        {modalOpen && modalOpen !== EModalOptions.CHANGE_CONTROLLER && (
           <Modal handleClose={() => toggleModal(null)} customWidth="540px">
             <Heading type="h4" marginBottom={32}>
               {modalOpen}

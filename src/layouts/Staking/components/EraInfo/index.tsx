@@ -1,21 +1,21 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { Heading, SkeletonLoader, Text } from '~/components/UiKit';
 import { Icon } from '~/components';
+import { Heading, SkeletonLoader, Text } from '~/components/UiKit';
+import { StakingContext } from '~/context/StakingContext';
+import { formatMillisecondsToTime } from '~/helpers/formatters';
+import DonutProgressBar from './components/DonutProgressBar';
 import {
   EmptyRow,
   Label,
-  StyledElectionItem,
   StyledElectionInfo,
+  StyledElectionItem,
+  StyledElectionRow,
   StyledEraEpochWrapper,
+  StyledIconRing,
+  StyledIconWrap,
   StyledWrapper,
   Value,
-  StyledElectionRow,
-  StyledIconWrap,
-  StyledIconRing,
 } from './styles';
-import { formatMillisecondsToTime } from '~/helpers/formatters';
-import { StakingContext } from '~/context/StakingContext';
-import DonutProgressBar from './components/DonutProgressBar';
 
 export const EraInfo = () => {
   const {

@@ -44,7 +44,6 @@ export const StakeModal: React.FC<IStakeModalProps> = ({
 
   const formMethods = useModalForm(EModalOptions.STAKE, availableBalance);
   const { watch, setValue, trigger, handleSubmit, formState } = formMethods;
-  const controller = watch('controller');
   const destination = watch('destination');
   const amount = watch('amount');
   const nominators = watch('nominators');
@@ -54,7 +53,6 @@ export const StakeModal: React.FC<IStakeModalProps> = ({
 
   const onSubmit = (data: IStakeForm) => {
     executeAction(EModalActions.BOND, {
-      controller: data.controller,
       amount: new BigNumber(data.amount).shiftedBy(6).toNumber(),
       nominators: data.nominators,
       payee:
@@ -65,21 +63,13 @@ export const StakeModal: React.FC<IStakeModalProps> = ({
   };
 
   useEffect(() => {
-    if (controller === undefined) {
-      setValue('controller', selectedAccount);
-    }
-  }, [controller, expanded, selectedAccount, setValue]);
-
-  useEffect(() => {
-    if (destination === undefined) {
+    if (!destination) {
       setValue('destination', PAYMENT_DESTINATION.Staked);
     }
-  }, [destination, expanded, setValue]);
+  }, [destination, setValue]);
 
   useEffect(() => {
     if (expandedRef.current !== expanded && !expanded) {
-      setValue('controller', selectedAccount);
-      trigger('controller');
       if (
         destination === PAYMENT_DESTINATION.Controller ||
         destination === PAYMENT_DESTINATION.Account
@@ -100,7 +90,6 @@ export const StakeModal: React.FC<IStakeModalProps> = ({
 
   const isSubmitDisabled =
     Boolean(Object.keys(formState.errors).length) ||
-    !controller ||
     !amount ||
     !destination ||
     !nominators ||
@@ -137,7 +126,6 @@ export const StakeModal: React.FC<IStakeModalProps> = ({
       </StyledExpansionToggle>
       {expanded && (
         <>
-          <AccountsDropdown header="Enter a Controller Address" isController />
           <DestinationDropdown />
           {shouldSpecifyAccount && (
             <AccountsDropdown header="Destination Address" />

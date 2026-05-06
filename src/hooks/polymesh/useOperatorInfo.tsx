@@ -1,24 +1,17 @@
-import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   balanceToBigNumber,
   u32ToBigNumber,
 } from '@polymeshassociation/polymesh-sdk/utils/conversion';
-import type { Perbill } from '@polkadot/types/interfaces';
-import type { Compact, bool } from '@polkadot/types-codec';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { PolymeshContext } from '~/context/PolymeshContext';
-import { notifyError } from '~/helpers/notifications';
 import { StakingContext } from '~/context/StakingContext';
 import {
   IEraStakers,
   OperatorLastSlashObject,
   OperatorPrefObject,
 } from '~/context/StakingContext/constants';
-
-interface ValidatorPrefs {
-  commission: Compact<Perbill>;
-  blocked: bool;
-}
+import { notifyError } from '~/helpers/notifications';
 
 const useOperatorInfo = () => {
   const {
@@ -87,7 +80,7 @@ const useOperatorInfo = () => {
         const validatorsObject: OperatorPrefObject = {};
         validators.forEach(([key, validatorPrefs]) => {
           const account = key.args.toString();
-          const { commission, blocked } = validatorPrefs as ValidatorPrefs;
+          const { commission, blocked } = validatorPrefs;
           const commissionValue = new BigNumber(
             commission.unwrap().toString(),
           ).shiftedBy(-7);
@@ -181,8 +174,12 @@ const useOperatorInfo = () => {
 
   const getEraStakers = useCallback(
     async (eraIndex: BigNumber) => {
+      if (!polkadotApi) {
+        return [];
+      }
+
       const eraStakerExposure =
-        await polkadotApi!.query.staking.erasStakers.entries(
+        await polkadotApi.query.staking.erasStakers.entries(
           eraIndex.toNumber(),
         );
       const eraStakers: IEraStakers[] = [];

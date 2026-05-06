@@ -4,135 +4,86 @@ import {
   balanceToBigNumber,
   u32ToBigNumber,
 } from '@polymeshassociation/polymesh-sdk/utils/conversion';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useForm, ValidationMode } from 'react-hook-form';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { Resolver, useForm, ValidationMode } from 'react-hook-form';
 import * as yup from 'yup';
-import { AccountContext } from '~/context/AccountContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { StakingContext } from '~/context/StakingContext';
 import { EModalOptions, PAYMENT_DESTINATION } from '../../constants';
 import { IFieldValues, INPUT_NAMES } from './constants';
 
 export const useModalForm = (modalType: EModalOptions | null, max?: number) => {
-  const configRef = useRef({
-    mode: 'onTouched' as keyof ValidationMode,
-    defaultValues: {},
-  });
-  const useFormReturn = useForm<IFieldValues>(configRef.current);
-
-  const { selectedAccount } = useContext(AccountContext);
   const {
-    api: { sdk, polkadotApi },
+    api: { sdk },
   } = useContext(PolymeshContext);
 
-  const isValidAddress = (address: string) => {
-    if (!sdk) return false;
+  // Lazily build and cache the form config on the first render only.
+  const formConfigRef = useRef<{
+    mode: keyof ValidationMode;
+    defaultValues?: Partial<IFieldValues>;
+    resolver?: Resolver<IFieldValues>;
+  } | null>(null);
 
-    try {
-      const isValid = sdk.accountManagement.isValidAddress({ address });
-      return isValid;
-    } catch (error) {
-      return false;
-    }
-  };
+  if (formConfigRef.current === null && modalType) {
+    const isValidAddress = (address: string) => {
+      if (!sdk) return false;
+      try {
+        return sdk.accountManagement.isValidAddress({ address });
+      } catch {
+        return false;
+      }
+    };
 
-  const isStashAccount = async (address: string) => {
-    if (!polkadotApi) return false;
+    const amountValidation = yup
+      .number()
+      .typeError('Amount must be a number')
+      .required('Amount is required')
+      .positive('Amount must be positive')
+      .test(
+        'is-decimal',
+        'Amount must have at most 6 decimal places',
+        (value) =>
+          value ? /^-?\d+(\.\d{1,6})?$/.test(value.toString()) : true,
+      )
+      .max(Number(max), 'Insufficient balance')
+      .test('is-zero', 'Amount must be greater than 0', (value) => value !== 0);
 
-    try {
-      const controllerOption = await polkadotApi.query.staking.bonded(address);
-      const hasController = controllerOption.isSome;
-      return hasController;
-    } catch (_error) {
-      return false;
-    }
-  };
+    const specifiedAccountValidation = yup
+      .string()
+      .when(INPUT_NAMES.DESTINATION, {
+        is: PAYMENT_DESTINATION.Account,
+        then: (schema) =>
+          schema
+            .required('Destination Account is required')
+            .test(
+              'is-valid-key',
+              'Selected account is not a valid address',
+              (value) => isValidAddress(value ?? ''),
+            ),
+        otherwise: (schema) => schema.optional().nullable(),
+      });
 
-  const isControllerAccount = async (address: string) => {
-    if (!polkadotApi) return false;
-
-    try {
-      const stakingLedger = await polkadotApi.query.staking.ledger(address);
-      return stakingLedger.isSome;
-    } catch (_error) {
-      return false;
-    }
-  };
-
-  const controllerValidation = yup
-    .string()
-    .required('Controller Address is required')
-    .test(
-      'is-valid-key',
-      'Selected account is not a valid address',
-      async (value) => {
-        const isValid = isValidAddress(value);
-        return isValid;
-      },
-    )
-    .test(
-      'is-stash',
-      'The Controller address cannot be another Stash',
-      async (value) => {
-        const isStash = await isStashAccount(value);
-        return !isStash || value === selectedAccount;
-      },
-    )
-    .test(
-      'is-controller',
-      'The Controller address cannot be a Controller of another Stash',
-      async (value) => {
-        const isController = await isControllerAccount(value);
-        return !isController || value === selectedAccount;
-      },
-    );
-
-  const amountValidation = yup
-    .number()
-    .typeError('Amount must be a number')
-    .required('Amount is required')
-    .positive('Amount must be positive')
-    .test('is-decimal', 'Amount must have at most 6 decimal places', (value) =>
-      value ? /^-?\d+(\.\d{1,6})?$/.test(value.toString()) : true,
-    )
-    .max(Number(max), 'Insufficient balance')
-    .test('is-zero', 'Amount must be greater than 0', (value) => {
-      const isZero = value === 0;
-      return !isZero;
-    });
-
-  const specifiedAccountValidation = yup
-    .string()
-    .when(INPUT_NAMES.DESTINATION, {
-      is: PAYMENT_DESTINATION.Account,
-      then: (schema) =>
-        schema
-          .required('Destination Account is required')
-          .test(
-            'is-valid-key',
-            'Selected account is not a valid address',
-            async (value) => {
-              const isValid = isValidAddress(value);
-              return isValid;
-            },
-          ),
-      otherwise: (schema) => schema.optional().nullable(),
-    });
-
-  const configOpts = useMemo(() => {
-    return {
+    const configs: Partial<
+      Record<
+        EModalOptions,
+        {
+          mode: keyof ValidationMode;
+          defaultValues?: Partial<IFieldValues>;
+          resolver?: Resolver<IFieldValues>;
+        }
+      >
+    > = {
       [EModalOptions.STAKE]: {
         mode: 'all' as keyof ValidationMode,
         defaultValues: {
-          [INPUT_NAMES.CONTROLLER]: '',
           [INPUT_NAMES.AMOUNT]: 0,
           [INPUT_NAMES.NOMINATORS]: [] as string[],
-          [INPUT_NAMES.DESTINATION]: '' as keyof typeof PAYMENT_DESTINATION,
+          [INPUT_NAMES.DESTINATION]:
+            PAYMENT_DESTINATION.Staked as keyof typeof PAYMENT_DESTINATION,
           [INPUT_NAMES.SPECIFIED_ACCOUNT]: '',
         },
         resolver: yupResolver(
           yup.object().shape({
-            [INPUT_NAMES.CONTROLLER]: controllerValidation,
             [INPUT_NAMES.AMOUNT]: amountValidation,
             [INPUT_NAMES.SPECIFIED_ACCOUNT]: specifiedAccountValidation,
           }),
@@ -171,17 +122,6 @@ export const useModalForm = (modalType: EModalOptions | null, max?: number) => {
           }),
         ),
       },
-      [EModalOptions.CHANGE_CONTROLLER]: {
-        mode: 'onTouched' as keyof ValidationMode,
-        defaultValues: {
-          [INPUT_NAMES.CONTROLLER]: '',
-        },
-        resolver: yupResolver(
-          yup.object().shape({
-            [INPUT_NAMES.CONTROLLER]: controllerValidation,
-          }),
-        ),
-      },
       [EModalOptions.CHANGE_DESTINATION]: {
         mode: 'onTouched' as keyof ValidationMode,
         defaultValues: {
@@ -201,14 +141,16 @@ export const useModalForm = (modalType: EModalOptions | null, max?: number) => {
         },
       },
     };
-  }, [amountValidation, controllerValidation, specifiedAccountValidation]);
 
-  useEffect(() => {
-    if (!modalType) {
-      return;
+    const config = configs[modalType];
+    if (config) {
+      formConfigRef.current = config;
     }
-    configRef.current = configOpts[modalType];
-  }, [configOpts, modalType, max]);
+  }
+
+  const useFormReturn = useForm<IFieldValues>(
+    formConfigRef.current ?? { mode: 'onTouched', defaultValues: {} },
+  );
 
   return useFormReturn;
 };
@@ -230,8 +172,8 @@ export const useOperatorRewards = () => {
     if (!polkadotApi || !activeEra.index || !eraDurationTime) return;
     const previousEraIndex = activeEra.index.minus(1).toNumber();
 
-    const MILISEONDS_PER_YEAR_BN = new BigNumber(31_536_000_000);
-    const erasPerYear = MILISEONDS_PER_YEAR_BN.div(eraDurationTime);
+    const MILLISECONDS_PER_YEAR_BN = new BigNumber(31_536_000_000);
+    const erasPerYear = MILLISECONDS_PER_YEAR_BN.div(eraDurationTime);
 
     (async () => {
       // Fetch reward pool for the previous era

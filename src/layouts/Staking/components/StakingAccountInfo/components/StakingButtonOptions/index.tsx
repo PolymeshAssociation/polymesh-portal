@@ -1,8 +1,8 @@
 import { useContext } from 'react';
 import { StakingContext } from '~/context/StakingContext';
 import { useOutsideClick } from '~/hooks/utility';
-import { EModalOptions, EModalActions } from '../../constants';
-import { StyledOptionsContainer, StyledOption } from './styles';
+import { EModalActions, EModalOptions } from '../../constants';
+import { StyledOption, StyledOptionsContainer } from './styles';
 
 interface IStakingButtonOptionsProps {
   disabled: boolean;
@@ -21,9 +21,11 @@ export const StakingButtonOptions: React.FC<IStakingButtonOptionsProps> = ({
     stakingAccountInfo: {
       amountUnbonding,
       amountAvailableToWithdraw,
+      controllerAddress,
       isController,
       isStash,
       nominations,
+      stashAddress,
     },
   } = useContext(StakingContext);
 
@@ -31,6 +33,11 @@ export const StakingButtonOptions: React.FC<IStakingButtonOptionsProps> = ({
 
   const isRebondDisabled = !!amountUnbonding?.isZero();
   const isWithdrawDisabled = !!amountAvailableToWithdraw?.isZero();
+  const canResetController =
+    isStash &&
+    Boolean(controllerAddress) &&
+    Boolean(stashAddress) &&
+    controllerAddress !== stashAddress;
 
   const handleAction = (action: EModalActions, isDisabled: boolean = false) => {
     if (disabled || isDisabled) {
@@ -63,14 +70,14 @@ export const StakingButtonOptions: React.FC<IStakingButtonOptionsProps> = ({
           ? EModalOptions.CHANGE_NOMINATIONS
           : 'Set Nominations'}
       </StyledOption>
-      <StyledOption
-        onClick={() =>
-          handleModalOpen(EModalOptions.CHANGE_CONTROLLER, !isStash)
-        }
-        $disabled={disabled || !isStash}
-      >
-        {EModalOptions.CHANGE_CONTROLLER}
-      </StyledOption>
+      {canResetController && (
+        <StyledOption
+          onClick={() => handleModalOpen(EModalOptions.CHANGE_CONTROLLER)}
+          $disabled={disabled}
+        >
+          {EModalOptions.CHANGE_CONTROLLER}
+        </StyledOption>
+      )}
       <StyledOption
         onClick={() =>
           handleModalOpen(EModalOptions.CHANGE_DESTINATION, !isController)
