@@ -61,6 +61,7 @@ export interface IAccountContext {
   identity: Identity | null;
   allIdentities: (Identity | null)[];
   primaryKey: string;
+  primaryKeyLoading: boolean;
   secondaryKeys: PermissionedAccount[];
   secondaryKeysLoading: boolean;
   accountLoading: boolean;
@@ -98,6 +99,7 @@ export const initialState = {
   identity: null,
   allIdentities: [],
   primaryKey: '',
+  primaryKeyLoading: true,
   secondaryKeys: [],
   secondaryKeysLoading: false,
   accountLoading: true,

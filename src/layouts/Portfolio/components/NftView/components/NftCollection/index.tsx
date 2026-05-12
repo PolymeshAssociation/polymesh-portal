@@ -1,5 +1,13 @@
-import { useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { AssetDetailsCard } from '~/components/AssetDetailsCard';
+import { notifyWarning } from '~/helpers/notifications';
+import { useSearchParamAssetDetails } from '~/hooks/polymesh/useSearchParamAssetDetails';
+import {
+  buildBalanceSearchParams,
+  EBalanceHolder,
+  getBalanceHolder,
+} from '~/layouts/Portfolio/helpers';
 import { ECollectionView } from '../../constants';
 import { NftsList } from '../NftsList';
 import { NftTable } from '../NftTable';
@@ -9,9 +17,6 @@ import {
   StyledCollectionContainer,
   StyledListContainer,
 } from './styles';
-import { AssetDetailsCard } from '~/components/AssetDetailsCard';
-import { notifyWarning } from '~/helpers/notifications';
-import { useSearchParamAssetDetails } from '~/hooks/polymesh/useSearchParamAssetDetails';
 
 interface INftCollectionProps {
   view: ECollectionView;
@@ -21,22 +26,34 @@ export const NftCollection: React.FC<INftCollectionProps> = ({ view }) => {
   const { assetDetails, assetDetailsLoading } = useSearchParamAssetDetails();
   const { nftList, nftListLoading } = useNftCollection(assetDetails?.assetId);
   const [searchParams, setSearchParams] = useSearchParams();
-  const portfolioId = searchParams.get('id') || '';
+  const portfolioId = searchParams.get('id');
+  const holder = searchParams.get('holder');
+  const address = searchParams.get('address');
   const nftCollection = searchParams.get('nftCollection') || '';
+  const selectedHolder = getBalanceHolder(holder, portfolioId);
+  const selectedPortfolioId =
+    selectedHolder === EBalanceHolder.PORTFOLIO ? portfolioId : null;
 
   useEffect(() => {
-    if (portfolioId && !nftListLoading && !nftList.length) {
+    if (selectedPortfolioId && !nftListLoading && !nftList.length) {
       notifyWarning(
-        `NFT collection ${nftCollection} not found in Portfolio ID ${portfolioId}`,
+        `NFT collection ${nftCollection} not found in Portfolio ID ${selectedPortfolioId}`,
       );
     }
-  }, [nftCollection, nftList.length, nftListLoading, portfolioId]);
+  }, [nftCollection, nftList.length, nftListLoading, selectedPortfolioId]);
 
   const handleNftClick = (nftId: number) => {
     setSearchParams(
-      portfolioId
-        ? { id: portfolioId, nftCollection, nftId: nftId.toString() }
-        : { nftCollection, nftId: nftId.toString() },
+      buildBalanceSearchParams({
+        holder: selectedHolder,
+        portfolioId: selectedPortfolioId,
+        accountAddress:
+          selectedHolder === EBalanceHolder.ACCOUNT ? address : undefined,
+        additionalParams: {
+          nftCollection,
+          nftId: nftId.toString(),
+        },
+      }),
     );
   };
 

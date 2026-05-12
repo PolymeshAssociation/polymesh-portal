@@ -1,4 +1,7 @@
-import { Nft } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  AccountCollection,
+  Nft,
+} from '@polymeshassociation/polymesh-sdk/types';
 import { asUuid } from '@polymeshassociation/polymesh-sdk/utils/internal';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
 import { getNftImageUrl } from '../../helpers';
@@ -14,11 +17,10 @@ const parseSingleNftFromPortfolio = async (nft: Nft, isLocked: boolean) => {
   };
 };
 
-export const parseCollectionFromPortfolio = async (
-  { portfolio }: IPortfolioData,
+export const parseCollectionFromCollections = async (
+  collectionsList: AccountCollection[],
   nftCollection: string,
 ) => {
-  const collectionsList = await portfolio.getCollections();
   const currectCollection = collectionsList.find(
     ({ collection }) => collection.id === asUuid(nftCollection),
   );
@@ -41,6 +43,21 @@ export const parseCollectionFromPortfolio = async (
   );
 
   return [freeNfts, lockedNfts].flat(3);
+};
+
+export const parseCollectionFromPortfolio = async (
+  { portfolio }: IPortfolioData,
+  nftCollection: string,
+) => {
+  const collectionsList = await portfolio.getCollections();
+  return parseCollectionFromCollections(collectionsList, nftCollection);
+};
+
+export const parseCollectionFromAccountCollections = async (
+  accountCollections: AccountCollection[],
+  nftCollection: string,
+) => {
+  return parseCollectionFromCollections(accountCollections, nftCollection);
 };
 
 export const parseCollectionFromPortfolios = async (

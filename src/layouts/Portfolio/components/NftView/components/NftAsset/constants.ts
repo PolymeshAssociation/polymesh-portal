@@ -17,5 +17,6 @@ export interface INftAsset {
   onChainDetails?: INftArgs[];
   offChainDetails?: INftArgs[];
   ownerDid?: string;
+  ownerAddress?: string;
   ownerPortfolioId?: string;
 }

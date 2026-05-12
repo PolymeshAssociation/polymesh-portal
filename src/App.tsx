@@ -1,7 +1,7 @@
 import { ApolloProvider } from '@apollo/client';
 import { createElement, lazy, Suspense, useContext } from 'react';
 import { SkeletonTheme } from 'react-loading-skeleton';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { ThemeProvider } from 'styled-components';
 import { LoadingFallback } from '~/components';
@@ -46,6 +46,10 @@ const App = () => {
                   key={path}
                 />
               ))}
+              <Route
+                path="/portfolio"
+                element={<Navigate to="/balances" replace />}
+              />
             </Routes>
           </SharedLayout>
         </Suspense>

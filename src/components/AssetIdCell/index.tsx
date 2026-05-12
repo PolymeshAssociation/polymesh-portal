@@ -1,7 +1,7 @@
 import { hexToUuid, isHexUuid } from '@polymeshassociation/polymesh-sdk/utils';
 import { NavLink } from 'react-router-dom';
-import { formatUuid } from '~/helpers/formatters';
 import { CopyToClipboard } from '~/components';
+import { formatUuid } from '~/helpers/formatters';
 import { AssetIdCellWrapper } from './styles';
 
 interface IAssetIdCellProps {
@@ -30,8 +30,8 @@ export const AssetIdCell: React.FC<IAssetIdCellProps> = ({
             <NavLink
               to={
                 isNftCollection
-                  ? `/portfolio?nftCollection=${assetUuid}`
-                  : `/portfolio?asset=${assetUuid}`
+                  ? `/balances?nftCollection=${assetUuid}`
+                  : `/balances?asset=${assetUuid}`
               }
             >
               {formattedAssetId}

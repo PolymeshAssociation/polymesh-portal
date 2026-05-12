@@ -17,6 +17,9 @@ export const StyledNavBar = styled.div`
 
 export const StyledSelectWrapper = styled.div`
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
 export const StyledNavList = styled.ul`
@@ -54,4 +57,21 @@ export const StyledActionsWrapper = styled.div`
   align-items: center;
   gap: 24px;
   margin-left: auto;
+`;
+
+export const StyledNavWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+export const StyledSubSelectorWrapper = styled.div`
+  min-width: 200px;
+  max-width: 400px;
+
+  @media screen and (max-width: 1023px) {
+    min-width: unset;
+    max-width: unset;
+    width: 100%;
+  }
 `;

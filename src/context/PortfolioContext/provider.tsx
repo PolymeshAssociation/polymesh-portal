@@ -1,15 +1,20 @@
-import { useContext, useMemo, useState, useEffect, useCallback } from 'react';
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
+  AccountCollection,
   DefaultPortfolio,
   NumberedPortfolio,
   PortfolioBalance,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { PolymeshContext } from '../PolymeshContext';
-import { AccountContext } from '../AccountContext';
-import PortfolioContext from './context';
-import { ICombinedPortfolioData, IPortfolioData } from './constants';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { notifyGlobalError } from '~/helpers/notifications';
+import { AccountContext } from '../AccountContext';
+import { PolymeshContext } from '../PolymeshContext';
+import {
+  IAccountData,
+  ICombinedPortfolioData,
+  IPortfolioData,
+} from './constants';
+import PortfolioContext from './context';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -20,7 +25,15 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
     state: { initialized },
     api: { sdk },
   } = useContext(PolymeshContext);
-  const { identity, identityLoading } = useContext(AccountContext);
+  const {
+    account,
+    identity,
+    identityLoading,
+    primaryKey,
+    primaryKeyLoading,
+    secondaryKeys,
+    secondaryKeysLoading,
+  } = useContext(AccountContext);
 
   const [defaultPortfolio, setDefaultPortfolio] =
     useState<DefaultPortfolio | null>(null);
@@ -28,6 +41,10 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
     NumberedPortfolio[]
   >([]);
   const [allPortfolios, setAllPortfolios] = useState<IPortfolioData[]>([]);
+  const [accountAssets, setAccountAssets] = useState<PortfolioBalance[]>([]);
+  const [accountCollections, setAccountCollections] = useState<
+    AccountCollection[]
+  >([]);
   const [custodiedPortfolios, setCustodiedPortfolios] = useState<
     IPortfolioData[]
   >([]);
@@ -36,6 +53,9 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
   const [totalAssetsAmount, setTotalAssetsAmount] = useState(0);
   const [portfolioLoading, setPortfolioLoading] = useState(true);
   const [portfolioError, setPortfolioError] = useState('');
+  const [allAccountsData, setAllAccountsData] = useState<
+    Record<string, IAccountData>
+  >({});
 
   // Helper function to parse portfolio data
   const parsePortfolioData = useCallback(
@@ -127,13 +147,72 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
   );
 
   const getPortfoliosData = useCallback(async () => {
-    if (identityLoading || !identity) {
-      setPortfolioLoading(identityLoading);
+    // Wait until key loading is complete to avoid a premature fetch with an
+    // incomplete address list. By the time both flags are false, identityLoading
+    // is also guaranteed false (keys load after identity resolves).
+    if (primaryKeyLoading || secondaryKeysLoading || !sdk) return;
+
+    // Assets and portfolios are both identity-dependent on Polymesh — nothing
+    // meaningful to fetch without one.
+    if (!identity) {
+      setPortfolioLoading(false);
       return;
     }
+
+    const allAddresses = Array.from(
+      new Set([
+        primaryKey,
+        ...secondaryKeys.map(({ account: { address } }) => address),
+      ]),
+    );
+
+    const sumAccountsTotal = (data: Record<string, IAccountData>): number =>
+      Object.values(data).reduce(
+        (sum, { assets }) =>
+          sum + assets.reduce((s, { total: t }) => s + t.toNumber(), 0),
+        0,
+      );
+
+    const applyAccountData = (data: Record<string, IAccountData>) => {
+      setAllAccountsData(data);
+      const selectedAddress = account?.address ?? '';
+      setAccountAssets(data[selectedAddress]?.assets ?? []);
+      setAccountCollections(data[selectedAddress]?.collections ?? []);
+    };
+
+    // Fetch account data and portfolio list in parallel
     setPortfolioLoading(true);
     try {
-      const portfolios = await identity.portfolios.getPortfolios();
+      const [entries, portfolios] = await Promise.all([
+        Promise.all(
+          allAddresses.map(async (addr) => {
+            try {
+              const acc = await sdk.accountManagement.getAccount({
+                address: addr,
+              });
+              const [assets, collections] = await Promise.all([
+                acc
+                  .getAssetBalances()
+                  .then((r) => r.filter(({ total }) => total.toNumber() > 0)),
+                acc
+                  .getCollections()
+                  .then((r) => r.filter(({ total }) => total.toNumber() > 0)),
+              ]);
+              return [addr, { assets, collections }] as [string, IAccountData];
+            } catch (error) {
+              notifyGlobalError((error as Error).message);
+              return [addr, { assets: [], collections: [] }] as [
+                string,
+                IAccountData,
+              ];
+            }
+          }),
+        ),
+        identity.portfolios.getPortfolios(),
+      ]);
+
+      const newAllAccountsData = Object.fromEntries(entries);
+      applyAccountData(newAllAccountsData);
 
       const defaultP = portfolios[0];
       const numberedP = portfolios
@@ -174,15 +253,23 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
         assets: combineAssets(combined.assets),
       });
 
-      setTotalAssetsAmount(calculateTotalBalance(parsedPortfolios));
+      setTotalAssetsAmount(
+        calculateTotalBalance(parsedPortfolios) +
+          sumAccountsTotal(newAllAccountsData),
+      );
     } catch (error) {
       notifyGlobalError((error as Error).message);
     } finally {
       setPortfolioLoading(false);
     }
   }, [
+    account,
     identity,
-    identityLoading,
+    primaryKey,
+    primaryKeyLoading,
+    secondaryKeys,
+    secondaryKeysLoading,
+    sdk,
     parsePortfolioData,
     filterZeroBalances,
     combineAssets,
@@ -220,12 +307,16 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
 
   useEffect(() => {
     setAllPortfolios([]);
+    setAccountAssets([]);
+    setAccountCollections([]);
+    setAllAccountsData({});
     setDefaultPortfolio(null);
     setNumberedPortfolios([]);
     setCustodiedPortfolios([]);
     setCombinedPortfolios(null);
     setTotalAssetsAmount(0);
     setPortfolioError('');
+    setPortfolioLoading(true);
 
     if (!initialized || !sdk) return;
     (async () => {
@@ -235,6 +326,7 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
   }, [
     getPortfoliosData,
     getCustodiedPortfoliosData,
+    account,
     identity,
     initialized,
     sdk,
@@ -245,6 +337,9 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
       defaultPortfolio,
       numberedPortfolios,
       allPortfolios,
+      accountAssets,
+      accountCollections,
+      allAccountsData,
       custodiedPortfolios,
       combinedPortfolios,
       totalAssetsAmount,
@@ -255,6 +350,9 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
     }),
     [
       allPortfolios,
+      accountAssets,
+      accountCollections,
+      allAccountsData,
       custodiedPortfolios,
       defaultPortfolio,
       numberedPortfolios,

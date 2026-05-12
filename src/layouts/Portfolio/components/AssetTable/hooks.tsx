@@ -1,34 +1,36 @@
-import { useState, useEffect, useContext, useMemo, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import {
-  useReactTable,
+  ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  ColumnDef,
   PaginationState,
+  useReactTable,
 } from '@tanstack/react-table';
-import { PortfolioContext } from '~/context/PortfolioContext';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import {
+  IMovementQueryResponse,
+  ITransactionsQueryResponse,
+} from '~/constants/queries/types';
 import { AccountContext } from '~/context/AccountContext';
-import { AssetTableItem, EAssetsTableTabs } from './constants';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { PortfolioContext } from '~/context/PortfolioContext';
+import {
+  portfolioMovementsQuery,
+  transferEventsQuery,
+} from '~/helpers/graphqlQueries';
+import { notifyError } from '~/helpers/notifications';
+import { EBalanceHolder, getBalanceHolder } from '../../helpers';
 import { columns } from './config';
+import { AssetTableItem, EAssetsTableTabs, ITokenItem } from './constants';
 import {
   getPortfolioNumber,
+  parseAssetsFromBalances,
   parseAssetsFromPortfolios,
   parseAssetsFromSelectedPortfolio,
   parseMovements,
   parseTransfers,
 } from './helpers';
-import {
-  IMovementQueryResponse,
-  ITransactionsQueryResponse,
-} from '~/constants/queries/types';
-import { notifyError } from '~/helpers/notifications';
-import {
-  transferEventsQuery,
-  portfolioMovementsQuery,
-} from '~/helpers/graphqlQueries';
-import { PolymeshContext } from '~/context/PolymeshContext';
 
 const initialPaginationState = { pageIndex: 0, pageSize: 10 };
 
@@ -42,25 +44,38 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
   const [tableData, setTableData] = useState<AssetTableItem[]>([]);
   const [searchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
+  const holder = searchParams.get('holder');
+  const selectedHolder = getBalanceHolder(holder, portfolioId);
+  const selectedPortfolioId =
+    selectedHolder === EBalanceHolder.PORTFOLIO ? portfolioId : null;
   const {
     api: { gqlClient },
     state: { middlewareMetadata },
   } = useContext(PolymeshContext);
-  const { allPortfolios, totalAssetsAmount, portfolioLoading } =
-    useContext(PortfolioContext);
+  const {
+    allPortfolios,
+    totalAssetsAmount,
+    portfolioLoading,
+    allAccountsData,
+  } = useContext(PortfolioContext);
   const { identity } = useContext(AccountContext);
   const [tableDataLoading, setTableDataLoading] = useState(false);
   const tabRef = useRef<EAssetsTableTabs>(EAssetsTableTabs.TOKENS);
   const portfolioRef = useRef<string | null>(null);
 
+  const address = searchParams.get('address');
+
   // Reset page index when tabs are switched
   useEffect(() => {
     if (tableDataLoading) return;
 
-    if (currentTab !== tabRef.current || portfolioId !== portfolioRef.current) {
+    if (
+      currentTab !== tabRef.current ||
+      selectedPortfolioId !== portfolioRef.current
+    ) {
       setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     }
-  }, [currentTab, portfolioId, pageSize, tableDataLoading]);
+  }, [currentTab, selectedPortfolioId, pageSize, tableDataLoading]);
 
   // Get portfolio movements or asset transfers
   useEffect(() => {
@@ -71,6 +86,19 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
       !gqlClient ||
       !middlewareMetadata
     ) {
+      return;
+    }
+
+    // portfolioMovements does not support account-based filtering, so skip MOVEMENTS for account holders
+    if (
+      selectedHolder === EBalanceHolder.ACCOUNT &&
+      currentTab === EAssetsTableTabs.MOVEMENTS
+    ) {
+      setTableData([]);
+      setTotalItems(0);
+      setTotalPages(-1);
+      tabRef.current = currentTab;
+      portfolioRef.current = selectedPortfolioId;
       return;
     }
 
@@ -91,7 +119,7 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
                   type: 'Fungible',
                   portfolioNumber: getPortfolioNumber(
                     identity.did,
-                    portfolioId,
+                    selectedPortfolioId,
                   ),
                   paddedIds: middlewareMetadata.paddedIds,
                 }),
@@ -111,7 +139,9 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
               await gqlClient.query<ITransactionsQueryResponse>({
                 query: transferEventsQuery({
                   identityId: identity.did,
-                  portfolioId,
+                  portfolioId: selectedPortfolioId,
+                  accountAddress:
+                    selectedHolder === EBalanceHolder.ACCOUNT ? address : null,
                   offset,
                   pageSize,
                   nonFungible: false,
@@ -135,17 +165,19 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
         notifyError((error as Error).message);
       } finally {
         tabRef.current = currentTab;
-        portfolioRef.current = portfolioId;
+        portfolioRef.current = selectedPortfolioId;
         setTableDataLoading(false);
       }
     })();
   }, [
     currentTab,
     identity,
-    portfolioId,
+    selectedPortfolioId,
     portfolioLoading,
     pageSize,
     pageIndex,
+    selectedHolder,
+    address,
     gqlClient,
     middlewareMetadata,
   ]);
@@ -163,13 +195,18 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
       setTableDataLoading(true);
 
       tabRef.current = currentTab;
-      portfolioRef.current = portfolioId;
+      portfolioRef.current = selectedPortfolioId;
       setTableData([]);
 
-      if (!portfolioId) {
-        const parsedAssets = await parseAssetsFromPortfolios(
-          allPortfolios,
-          totalAssetsAmount,
+      if (selectedHolder === EBalanceHolder.ACCOUNT) {
+        const accountData = allAccountsData[address ?? '']?.assets ?? [];
+        const accountTotalAmount = accountData.reduce(
+          (acc, { total }) => acc + total.toNumber(),
+          0,
+        );
+        const parsedAssets = await parseAssetsFromBalances(
+          accountData,
+          accountTotalAmount,
         );
         setTableData(parsedAssets);
         setTotalItems(parsedAssets.length);
@@ -177,8 +214,47 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
         return;
       }
 
+      if (selectedHolder === EBalanceHolder.ALL) {
+        const allAccountAssets = Object.values(allAccountsData).flatMap(
+          ({ assets }) => assets,
+        );
+        const [portfolioAssets, accountHolderAssets] = await Promise.all([
+          parseAssetsFromPortfolios(allPortfolios, totalAssetsAmount),
+          parseAssetsFromBalances(allAccountAssets, totalAssetsAmount),
+        ]);
+
+        const parsedAssets = [
+          ...portfolioAssets,
+          ...accountHolderAssets,
+        ].reduce((acc, asset) => {
+          const existing = acc.find(({ assetId }) => assetId === asset.assetId);
+
+          if (!existing) {
+            return [...acc, asset];
+          }
+
+          return acc.map((item) => {
+            if (item.assetId === asset.assetId) {
+              return {
+                ...item,
+                percentage: item.percentage + asset.percentage,
+                balance: item.balance + asset.balance,
+                locked: item.locked + asset.locked,
+              };
+            }
+
+            return item;
+          });
+        }, [] as ITokenItem[]);
+
+        setTableData(parsedAssets);
+        setTotalItems(parsedAssets.length);
+        setTableDataLoading(false);
+        return;
+      }
+
       const selectedPortfolio = allPortfolios.find(
-        ({ id }) => id === portfolioId,
+        ({ id }) => id === selectedPortfolioId,
       );
 
       if (selectedPortfolio) {
@@ -191,7 +267,16 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
     };
 
     fetchAssets();
-  }, [portfolioId, allPortfolios, totalAssetsAmount, currentTab, identity]);
+  }, [
+    selectedPortfolioId,
+    selectedHolder,
+    address,
+    allPortfolios,
+    allAccountsData,
+    totalAssetsAmount,
+    currentTab,
+    identity,
+  ]);
 
   const pagination = useMemo(
     () => ({

@@ -36,8 +36,7 @@ interface IProviderProps {
 const AccountProvider = ({ children }: IProviderProps) => {
   const {
     api: { polkadotApi, sdk, signingManager },
-    state: { initialized, isV8Plus },
-    settings: { defaultExtension },
+    state: { initialized, isV8Plus, signingManagerLoading },
   } = useContext(PolymeshContext);
   const [account, setAccount] = useState<Account | MultiSig | null>(null);
   const [multiSigAccount, setMultiSigAccount] = useState<MultiSig | null>(null);
@@ -96,6 +95,10 @@ const AccountProvider = ({ children }: IProviderProps) => {
   const [lastExternalKey, setLastExternalKey] = useState('');
   const [keyCddVerificationInfo, setKeyCddVerificationInfo] =
     useState<null | IKeyCddState>(null);
+  // use to prevent isExternalConnection from evaluating before we
+  // have a confirmed account list.
+  const [signingManagerAccountsLoaded, setSigningManagerAccountsLoaded] =
+    useState(false);
 
   const refreshAccountIdentity = useCallback(() => {
     setShouldRefreshIdentity(true);
@@ -134,8 +137,11 @@ const AccountProvider = ({ children }: IProviderProps) => {
     [setBlockedWallets],
   );
 
-  // Perform actions when account change occurs in extension
+  // Perform actions when account change occurs in extension.
+  // This effect is the sole owner of allAccounts state.
   useEffect(() => {
+    setSigningManagerAccountsLoaded(false);
+
     if (!signingManager) {
       setAllAccounts([]);
       setAllAccountsWithMeta([]);
@@ -163,6 +169,8 @@ const AccountProvider = ({ children }: IProviderProps) => {
           filteredNewAccounts.map((acc) => acc.address.toString()),
         );
         setAllAccountsWithMeta(filteredNewAccounts);
+        // Mark accounts as confirmed only after a successful delivery.
+        setSigningManagerAccountsLoaded(true);
       } catch (error) {
         notifyGlobalError((error as Error).message);
         setAllAccounts([]);
@@ -216,27 +224,6 @@ const AccountProvider = ({ children }: IProviderProps) => {
           setAccount(accountInstance);
           accountRef.current = accountInstance;
         }
-        const signingKeys = signingManager
-          ? await signingManager.getAccounts()
-          : [];
-        const filteredSigningKeys = signingKeys.filter(
-          (key) => !blockedWallets.includes(key),
-        );
-        // check if the key is in the signing manager's keys
-        if (filteredSigningKeys.includes(selectedAccount)) {
-          // if the signing manager has changed connect the new signingManager
-          if (connectedSigningManagerRef.current !== signingManager) {
-            await sdk.setSigningManager(signingManager);
-            connectedSigningManagerRef.current = signingManager;
-          }
-          sdk.setSigningAccount(accountRef.current);
-        } else {
-          // if the key is not in all accounts (the signingManager)
-          // ensure there is no signing manager attached to the SDK
-          await sdk.setSigningManager(null);
-          connectedSigningManagerRef.current = null;
-          setLastExternalKey(selectedAccount);
-        }
 
         const multiSigInstance = await accountRef.current.getMultiSig();
         setMultiSigAccount(multiSigInstance);
@@ -251,7 +238,37 @@ const AccountProvider = ({ children }: IProviderProps) => {
         setAccountLoading(false);
       }
     })();
-  }, [blockedWallets, defaultExtension, sdk, selectedAccount, signingManager]);
+  }, [sdk, selectedAccount]);
+
+  // Attach / detach the signing manager to the SDK whenever it changes.
+  // Intentionally separate from the account-loading effect (no re-fetch).
+  useEffect(() => {
+    if (!sdk || !accountRef.current) return;
+
+    (async () => {
+      try {
+        const signingKeys = signingManager
+          ? await signingManager.getAccounts()
+          : [];
+        const filteredSigningKeys = signingKeys.filter(
+          (key) => !blockedWallets.includes(key),
+        );
+        if (filteredSigningKeys.includes(selectedAccount)) {
+          if (connectedSigningManagerRef.current !== signingManager) {
+            await sdk.setSigningManager(signingManager);
+            connectedSigningManagerRef.current = signingManager;
+          }
+          if (accountRef.current) sdk.setSigningAccount(accountRef.current);
+        } else {
+          await sdk.setSigningManager(null);
+          connectedSigningManagerRef.current = null;
+          if (selectedAccount) setLastExternalKey(selectedAccount);
+        }
+      } catch (error) {
+        notifyGlobalError((error as Error).message);
+      }
+    })();
+  }, [blockedWallets, sdk, selectedAccount, signingManager]);
 
   // Create subscription to keyRecords
   useEffect(() => {
@@ -550,6 +567,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       identity,
       allIdentities,
       primaryKey,
+      primaryKeyLoading,
       secondaryKeys,
       secondaryKeysLoading,
       accountLoading,
@@ -568,7 +586,12 @@ const AccountProvider = ({ children }: IProviderProps) => {
       setRememberSelectedAccount,
       lastExternalKey,
       keyCddVerificationInfo,
-      isExternalConnection: !allAccounts.includes(selectedAccount),
+      isExternalConnection:
+        !signingManagerLoading &&
+        !!selectedAccount &&
+        ((signingManagerAccountsLoaded &&
+          !allAccounts.includes(selectedAccount)) ||
+          !signingManager),
     }),
     [
       account,
@@ -583,14 +606,15 @@ const AccountProvider = ({ children }: IProviderProps) => {
       blockedWallets,
       canUseIdentityFeatures,
       defaultAccount,
-      keyCddVerificationInfo,
-      lastExternalKey,
       identity,
       identityHasValidCdd,
       identityLoading,
+      keyCddVerificationInfo,
       keyIdentityRelationships,
+      lastExternalKey,
       multiSigAccount,
       primaryKey,
+      primaryKeyLoading,
       refreshAccountIdentity,
       refreshSecondaryKeys,
       rememberSelectedAccount,
@@ -600,6 +624,9 @@ const AccountProvider = ({ children }: IProviderProps) => {
       selectedAccountBalance,
       setDefaultAccount,
       setRememberSelectedAccount,
+      signingManager,
+      signingManagerAccountsLoaded,
+      signingManagerLoading,
       unblockWalletAddress,
     ],
   );

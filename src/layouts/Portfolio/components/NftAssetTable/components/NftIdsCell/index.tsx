@@ -20,7 +20,7 @@ export const NftIdsCell: React.FC<INftIdsCellProps> = ({ info, assetId }) => {
         index > 0 && ', ',
         <NavLink
           key={nftId}
-          to={`/portfolio?nftCollection=${assetId}&nftId=${nftId}`}
+          to={`/balances?nftCollection=${assetId}&nftId=${nftId}`}
         >
           {nftId}
         </NavLink>,

@@ -1,13 +1,18 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table } from '~/components';
-import { useNftAssetTable } from './hooks';
+import {
+  buildBalanceSearchParams,
+  EBalanceHolder,
+  getBalanceHolder,
+} from '../../helpers';
 import {
   ENftAssetsTableTabs,
-  TNftTableItem,
-  INftAssetItem,
   ICollectionItem,
+  INftAssetItem,
+  TNftTableItem,
 } from './constants';
+import { useNftAssetTable } from './hooks';
 
 export const NftAssetTable = () => {
   const [tab, setTab] = useState<ENftAssetsTableTabs>(
@@ -18,6 +23,9 @@ export const NftAssetTable = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const id = searchParams.get('id');
+  const holder = searchParams.get('holder');
+  const address = searchParams.get('address');
+  const selectedHolder = getBalanceHolder(holder, id);
 
   const handleRowClick = (original: TNftTableItem) => {
     if (
@@ -27,22 +35,21 @@ export const NftAssetTable = () => {
       return;
     }
 
-    let params = id ? { id } : ({} as Record<string, string>);
-
-    if (tab === ENftAssetsTableTabs.COLLECTIONS) {
-      params = {
-        ...params,
-        nftCollection: (original as ICollectionItem).collectionAssetId,
-      };
-    }
-    if (tab === ENftAssetsTableTabs.ALL_NFTS) {
-      params = {
-        ...params,
-        nftCollection: (original as INftAssetItem).collectionAssetId,
-        nftId: (original as INftAssetItem).nftId.toString(),
-      };
-    }
-
+    const params = buildBalanceSearchParams({
+      holder: selectedHolder,
+      portfolioId: selectedHolder === EBalanceHolder.PORTFOLIO ? id : undefined,
+      accountAddress:
+        selectedHolder === EBalanceHolder.ACCOUNT ? address : undefined,
+      additionalParams:
+        tab === ENftAssetsTableTabs.COLLECTIONS
+          ? {
+              nftCollection: (original as ICollectionItem).collectionAssetId,
+            }
+          : {
+              nftCollection: (original as INftAssetItem).collectionAssetId,
+              nftId: (original as INftAssetItem).nftId.toString(),
+            },
+    });
     setSearchParams(params);
   };
 

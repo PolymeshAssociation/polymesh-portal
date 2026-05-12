@@ -87,8 +87,12 @@ export interface IAssetTransaction {
   assetId: string;
   id: string;
   datetime: string;
-  fromPortfolioId: string;
-  toPortfolioId: string;
+  fromPortfolioId: string | null;
+  toPortfolioId: string | null;
+  fromAccount: string | null;
+  toAccount: string | null;
+  fromIdentityId: string | null;
+  toIdentityId: string | null;
   createdBlock: {
     blockId: number;
   };

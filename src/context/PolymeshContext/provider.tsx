@@ -34,6 +34,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   >(null);
   const [connecting, setConnecting] = useState<boolean | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [signingManagerLoading, setSigningManagerLoading] = useState(false);
   const [walletConnectConnected, setWalletConnectConnected] = useState(false);
   const [migrationCompleted, setMigrationCompleted] = useState(false);
 
@@ -92,6 +93,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   const handleWalletConnect = useCallback(async () => {
     if (!polkadotApi) return;
 
+    setSigningManagerLoading(true);
     try {
       const themeMode =
         (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
@@ -131,6 +133,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       setSigningManager(walletConnectSigningManager);
     } catch (error) {
       notifyGlobalError((error as Error).message);
+    } finally {
+      setSigningManagerLoading(false);
     }
   }, [polkadotApi, setDefaultExtension]);
 
@@ -142,6 +146,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         await handleWalletConnect();
         return;
       }
+      setSigningManagerLoading(true);
       try {
         const signingManagerInstance =
           await BrowserExtensionSigningManager.create({
@@ -162,6 +167,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setDefaultExtension(extensionName);
       } catch (error) {
         notifyGlobalError((error as Error).message);
+        setSigningManagerLoading(false);
         // this is a hacky work around for wallet errors due to chrome preloading
         // the page and not passing the correct url from a new tab. Preloading may
         // still cause authorization requests from incorrect pages requiring rejection
@@ -177,6 +183,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
             window.location.reload();
           }, 1000);
         }
+      } finally {
+        setSigningManagerLoading(false);
       }
     },
     [handleWalletConnect, polkadotApi, setDefaultExtension],
@@ -393,6 +401,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       state: {
         connecting,
         initialized,
+        signingManagerLoading,
         middlewareMetadata,
         middlewareLoading,
         isV8Plus,
@@ -445,6 +454,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       setMiddlewareUrl,
       setNodeUrl,
       signingManager,
+      signingManagerLoading,
       ss58Prefix,
       subscribedEventRecords,
       walletConnectConnected,

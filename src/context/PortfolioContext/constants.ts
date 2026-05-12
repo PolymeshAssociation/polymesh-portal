@@ -1,4 +1,5 @@
 import {
+  AccountCollection,
   DefaultPortfolio,
   Identity,
   NumberedPortfolio,
@@ -21,10 +22,18 @@ export interface ICombinedPortfolioData {
   assets: PortfolioBalance[];
 }
 
+export interface IAccountData {
+  assets: PortfolioBalance[];
+  collections: AccountCollection[];
+}
+
 export interface IPortfolioContext {
   defaultPortfolio: DefaultPortfolio | null;
   numberedPortfolios: NumberedPortfolio[];
   allPortfolios: IPortfolioData[];
+  accountAssets: PortfolioBalance[];
+  accountCollections: AccountCollection[];
+  allAccountsData: Record<string, IAccountData>;
   custodiedPortfolios: IPortfolioData[];
   combinedPortfolios: ICombinedPortfolioData | null;
   totalAssetsAmount: number;
@@ -38,6 +47,9 @@ export const initialState = {
   defaultPortfolio: null,
   numberedPortfolios: [],
   allPortfolios: [],
+  accountAssets: [],
+  accountCollections: [],
+  allAccountsData: {},
   custodiedPortfolios: [],
   combinedPortfolios: null,
   totalAssetsAmount: 0,

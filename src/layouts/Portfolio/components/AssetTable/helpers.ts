@@ -1,34 +1,58 @@
-import { balanceToBigNumber } from '@polymeshassociation/polymesh-sdk/utils/conversion';
 import {
   AssetDetails,
   FungibleAsset,
+  PortfolioBalance,
 } from '@polymeshassociation/polymesh-sdk/types';
 import { hexToUuid } from '@polymeshassociation/polymesh-sdk/utils';
-import {
-  IIdData,
-  ITransactionItem,
-  IMovementItem,
-  ITokenItem,
-} from './constants';
-import { toParsedDateTime } from '~/helpers/dateTime';
+import { balanceToBigNumber } from '@polymeshassociation/polymesh-sdk/utils/conversion';
 import {
   IMovementQueryResponse,
   ITransactionsQueryResponse,
 } from '~/constants/queries/types';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
+import { toParsedDateTime } from '~/helpers/dateTime';
 import { removeLeadingZeros } from '~/helpers/formatters';
+import {
+  IIdData,
+  IMovementItem,
+  ITokenItem,
+  ITransactionItem,
+} from './constants';
 
 export const getPortfolioNumber = (
   identityId: string | undefined,
   portfolioId: string | null,
 ) => {
   if (!identityId) return '';
+
+  if (portfolioId === null) {
+    return identityId;
+  }
+
   const portfolioNumber = portfolioId ? Number(portfolioId) : '';
 
   return `${identityId}/${Number.isNaN(portfolioNumber) ? 0 : portfolioNumber}`;
 };
 
 const assetDetailsCache = new Map<string, AssetDetails>();
+
+const mergeTokenItems = (assetsArray: ITokenItem[]): ITokenItem[] =>
+  assetsArray.reduce((acc, asset) => {
+    if (acc.find(({ assetId }) => assetId === asset.assetId)) {
+      return acc.map((accAsset) => {
+        if (accAsset.assetId === asset.assetId) {
+          return {
+            ...accAsset,
+            percentage: accAsset.percentage + asset.percentage,
+            balance: accAsset.balance + asset.balance,
+            locked: accAsset.locked + asset.locked,
+          };
+        }
+        return accAsset;
+      });
+    }
+    return [...acc, asset];
+  }, [] as ITokenItem[]);
 
 // Helper function to fetch asset details with caching
 const getAssetDetails = async (asset: FungibleAsset) => {
@@ -52,7 +76,10 @@ export const parseAssetsFromPortfolios = async (
       return {
         assetId: asset.id,
         tokenDetails,
-        percentage: (total.toNumber() / totalAssetsAmount) * 100,
+        percentage:
+          total.toNumber() > 0 && totalAssetsAmount > 0
+            ? (total.toNumber() / totalAssetsAmount) * 100
+            : 0,
         balance: total.toNumber(),
         locked: locked.toNumber(),
       } as ITokenItem;
@@ -61,21 +88,30 @@ export const parseAssetsFromPortfolios = async (
 
   const assetsArray = await Promise.all(assetPromises);
 
-  return assetsArray.reduce((acc, asset) => {
-    if (acc.find(({ assetId }) => assetId === asset.assetId)) {
-      return acc.map((accAsset) => {
-        if (accAsset.assetId === asset.assetId) {
-          return {
-            ...accAsset,
-            percentage: accAsset.percentage + asset.percentage,
-            balance: accAsset.balance + asset.balance,
-          };
-        }
-        return accAsset;
-      });
-    }
-    return [...acc, asset];
-  }, [] as ITokenItem[]);
+  return mergeTokenItems(assetsArray);
+};
+
+export const parseAssetsFromBalances = async (
+  balances: PortfolioBalance[],
+  totalAssetsAmount: number,
+): Promise<ITokenItem[]> => {
+  const assetPromises = balances.map(async ({ asset, total, locked }) => {
+    const tokenDetails = await getAssetDetails(asset);
+    return {
+      assetId: asset.id,
+      tokenDetails,
+      percentage:
+        total.toNumber() > 0 && totalAssetsAmount > 0
+          ? (total.toNumber() / totalAssetsAmount) * 100
+          : 0,
+      balance: total.toNumber(),
+      locked: locked.toNumber(),
+    } as ITokenItem;
+  });
+
+  const assetsArray = await Promise.all(assetPromises);
+
+  return mergeTokenItems(assetsArray);
 };
 
 export const parseAssetsFromSelectedPortfolio = async (
@@ -132,8 +168,8 @@ export const parseTransfers = (
         amount,
         assetId,
         datetime,
-        fromPortfolioId,
-        toPortfolioId,
+        fromIdentityId,
+        toIdentityId,
         createdBlock,
         instructionId,
         extrinsicIdx,
@@ -148,8 +184,9 @@ export const parseTransfers = (
             instructionId,
           },
           dateTime: toParsedDateTime(datetime),
-          from: fromPortfolioId ? fromPortfolioId.split('/')[0] : '',
-          to: toPortfolioId ? toPortfolioId.split('/')[0] : '',
+          from: fromIdentityId || '',
+          to: toIdentityId || '',
+
           amount: amount ? (amount / 1_000_000).toString() : '0',
           asset: hexToUuid(assetId),
           tokenDetails: asset,

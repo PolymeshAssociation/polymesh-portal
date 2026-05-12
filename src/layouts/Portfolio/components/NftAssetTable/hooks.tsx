@@ -1,38 +1,41 @@
-import { useState, useEffect, useContext, useMemo, useRef } from 'react';
 import {
-  useReactTable,
+  ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  ColumnDef,
   PaginationState,
+  useReactTable,
 } from '@tanstack/react-table';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { PolymeshContext } from '~/context/PolymeshContext';
-import { PortfolioContext } from '~/context/PortfolioContext';
-import { AccountContext } from '~/context/AccountContext';
-import { IPortfolioData } from '~/context/PortfolioContext/constants';
-import {
-  transferEventsQuery,
-  portfolioMovementsQuery,
-} from '~/helpers/graphqlQueries';
-import { notifyError } from '~/helpers/notifications';
 import {
   IMovementQueryResponse,
   ITransactionsQueryResponse,
 } from '~/constants/queries/types';
+import { AccountContext } from '~/context/AccountContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
+import { PortfolioContext } from '~/context/PortfolioContext';
+import {
+  portfolioMovementsQuery,
+  transferEventsQuery,
+} from '~/helpers/graphqlQueries';
+import { notifyError } from '~/helpers/notifications';
+import { EBalanceHolder, getBalanceHolder } from '../../helpers';
 import { getPortfolioNumber } from '../AssetTable/helpers';
 import { getNftImageUrl } from '../NftView/helpers';
 import { columns } from './config';
+import { ENftAssetsTableTabs, INftAssetItem, TNftTableItem } from './constants';
 import {
-  parseCollectionFromPortfolios,
+  mergeCollectionItems,
+  parseCollectionFromCollections,
   parseCollectionFromPortfolio,
-  parseNftAssetsFromPortfolios,
+  parseCollectionFromPortfolios,
+  parseNftAssetsFromCollections,
   parseNftAssetsFromPortfolio,
+  parseNftAssetsFromPortfolios,
   parseNftMovements,
   parseNftTransactions,
 } from './helpers';
-import { ENftAssetsTableTabs, TNftTableItem, INftAssetItem } from './constants';
 
 const initialPaginationState = { pageIndex: 0, pageSize: 10 };
 
@@ -54,12 +57,18 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
 
   const [searchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
+  const holder = searchParams.get('holder');
+  const address = searchParams.get('address');
+  const selectedHolder = getBalanceHolder(holder, portfolioId);
+  const selectedPortfolioId =
+    selectedHolder === EBalanceHolder.PORTFOLIO ? portfolioId : null;
   const {
     api: { gqlClient },
     state: { middlewareMetadata },
   } = useContext(PolymeshContext);
   const { identity } = useContext(AccountContext);
-  const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
+  const { allPortfolios, portfolioLoading, allAccountsData } =
+    useContext(PortfolioContext);
 
   useEffect(() => {
     if (
@@ -76,15 +85,16 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
   useEffect(() => {
     if (tableDataLoading) return;
 
-    if (currentTab !== tabRef.current || portfolioId !== portfolioRef.current) {
+    if (
+      currentTab !== tabRef.current ||
+      selectedPortfolioId !== portfolioRef.current
+    ) {
       setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     }
-  }, [currentTab, portfolioId, pageSize, tableDataLoading]);
+  }, [currentTab, selectedPortfolioId, pageSize, tableDataLoading]);
 
   useEffect(() => {
     if (
-      !identity ||
-      !allPortfolios ||
       portfolioLoading ||
       (currentTab !== ENftAssetsTableTabs.COLLECTIONS &&
         currentTab !== ENftAssetsTableTabs.ALL_NFTS)
@@ -93,29 +103,60 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
     }
 
     tabRef.current = currentTab;
-    portfolioRef.current = portfolioId;
+    portfolioRef.current = selectedPortfolioId;
 
     setTableDataLoading(true);
     (async () => {
       try {
-        let data = [];
-        if (!portfolioId) {
-          data =
+        if (selectedHolder === EBalanceHolder.ACCOUNT) {
+          const accountData = allAccountsData[address ?? '']?.collections ?? [];
+          const data =
             currentTab === ENftAssetsTableTabs.COLLECTIONS
-              ? await parseCollectionFromPortfolios(allPortfolios)
-              : await parseNftAssetsFromPortfolios(allPortfolios);
+              ? await parseCollectionFromCollections(accountData)
+              : await parseNftAssetsFromCollections(accountData);
+
+          setTableData(data);
+          setTotalItems(data.length);
+          return;
+        }
+
+        let data = [];
+        if (!selectedPortfolioId) {
+          const allAccountCollections = Object.values(allAccountsData).flatMap(
+            ({ collections }) => collections,
+          );
+          if (currentTab === ENftAssetsTableTabs.COLLECTIONS) {
+            const [portfolioCollections, accountHolderCollections] =
+              await Promise.all([
+                parseCollectionFromPortfolios(allPortfolios),
+                parseCollectionFromCollections(allAccountCollections),
+              ]);
+
+            data = mergeCollectionItems([
+              ...portfolioCollections,
+              ...accountHolderCollections,
+            ]);
+          } else {
+            const [portfolioNfts, accountHolderNfts] = await Promise.all([
+              parseNftAssetsFromPortfolios(allPortfolios),
+              parseNftAssetsFromCollections(allAccountCollections),
+            ]);
+
+            data = [...portfolioNfts, ...accountHolderNfts];
+          }
         } else {
           const selectedPortfolio = allPortfolios.find(
-            ({ id }) => id === portfolioId,
+            ({ id }) => id === selectedPortfolioId,
           );
+          if (!selectedPortfolio) {
+            throw new Error(
+              `Portfolio with ID ${selectedPortfolioId} was not found.`,
+            );
+          }
           data =
             currentTab === ENftAssetsTableTabs.COLLECTIONS
-              ? await parseCollectionFromPortfolio(
-                  selectedPortfolio as IPortfolioData,
-                )
-              : await parseNftAssetsFromPortfolio(
-                  selectedPortfolio as IPortfolioData,
-                );
+              ? await parseCollectionFromPortfolio(selectedPortfolio)
+              : await parseNftAssetsFromPortfolio(selectedPortfolio);
         }
         setTableData(data);
         setTotalItems(data.length);
@@ -125,7 +166,15 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
         setTableDataLoading(false);
       }
     })();
-  }, [allPortfolios, currentTab, identity, portfolioId, portfolioLoading]);
+  }, [
+    allAccountsData,
+    allPortfolios,
+    currentTab,
+    selectedPortfolioId,
+    address,
+    selectedHolder,
+    portfolioLoading,
+  ]);
 
   useEffect(() => {
     if (
@@ -136,6 +185,19 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
       !gqlClient ||
       !middlewareMetadata
     ) {
+      return;
+    }
+
+    // portfolioMovements does not support account-based filtering, so skip MOVEMENTS for account holders
+    if (
+      selectedHolder === EBalanceHolder.ACCOUNT &&
+      currentTab === ENftAssetsTableTabs.MOVEMENTS
+    ) {
+      setTableData([]);
+      setTotalItems(0);
+      setTotalPages(-1);
+      tabRef.current = currentTab;
+      portfolioRef.current = selectedPortfolioId;
       return;
     }
 
@@ -153,7 +215,10 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
               offset,
               pageSize,
               type: 'NonFungible',
-              portfolioNumber: getPortfolioNumber(identity.did, portfolioId),
+              portfolioNumber: getPortfolioNumber(
+                identity.did,
+                selectedPortfolioId,
+              ),
               paddedIds: middlewareMetadata.paddedIds,
             }),
           });
@@ -168,7 +233,9 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
             await gqlClient.query<ITransactionsQueryResponse>({
               query: transferEventsQuery({
                 identityId: identity.did,
-                portfolioId,
+                portfolioId: selectedPortfolioId,
+                accountAddress:
+                  selectedHolder === EBalanceHolder.ACCOUNT ? address : null,
                 offset,
                 pageSize,
                 nonFungible: true,
@@ -186,19 +253,21 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
         notifyError((error as Error).message);
       } finally {
         tabRef.current = currentTab;
-        portfolioRef.current = portfolioId;
+        portfolioRef.current = selectedPortfolioId;
         setTableDataLoading(false);
       }
     })();
   }, [
+    address,
     currentTab,
     gqlClient,
     identity,
     middlewareMetadata,
     pageIndex,
     pageSize,
-    portfolioId,
     portfolioLoading,
+    selectedHolder,
+    selectedPortfolioId,
   ]);
 
   useEffect(() => {

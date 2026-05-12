@@ -1,10 +1,15 @@
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AccountContext } from '~/context/AccountContext';
-import { notifyError } from '~/helpers/notifications';
-import { getNftDetails, getNftCollectionAndStatus } from './helpers';
-import { INftAsset } from './constants';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { notifyError } from '~/helpers/notifications';
+import {
+  buildBalanceSearchParams,
+  EBalanceHolder,
+  getBalanceHolder,
+} from '~/layouts/Portfolio/helpers';
+import { INftAsset } from './constants';
+import { getNftCollectionAndStatus, getNftDetails } from './helpers';
 
 export const useNftAsset = () => {
   const [nft, setNft] = useState<INftAsset>();
@@ -16,8 +21,15 @@ export const useNftAsset = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
+  const holder = searchParams.get('holder');
+  const address = searchParams.get('address');
   const nftCollection = searchParams.get('nftCollection') || '';
   const nftId = searchParams.get('nftId') || '';
+  const selectedHolder = getBalanceHolder(holder, portfolioId);
+  const selectedPortfolioId =
+    selectedHolder === EBalanceHolder.PORTFOLIO ? portfolioId : null;
+  const selectedAccountAddress =
+    selectedHolder === EBalanceHolder.ACCOUNT ? address : null;
 
   const identityRef = useRef<string | null>(null);
 
@@ -28,7 +40,15 @@ export const useNftAsset = () => {
 
     // Return to portfolio page if identity changes
     if (identityRef.current && identityRef.current !== identity?.did) {
-      setSearchParams({});
+      setSearchParams(
+        buildBalanceSearchParams({
+          holder: selectedHolder,
+          portfolioId: selectedPortfolioId,
+          additionalParams: {
+            nftCollection,
+          },
+        }),
+      );
       return;
     }
     setNftLoading(true);
@@ -39,13 +59,15 @@ export const useNftAsset = () => {
           isLocked,
           collectionKeys,
           ownerDid,
+          ownerAddress,
           ownerPortfolioId,
         } = await getNftCollectionAndStatus(
           nftCollection,
           nftId,
-          portfolioId,
+          selectedPortfolioId,
           identity?.did,
           sdk,
+          selectedAccountAddress,
         );
 
         const details = await getNftDetails(
@@ -54,12 +76,18 @@ export const useNftAsset = () => {
           collectionKeys,
           ownerDid,
           ownerPortfolioId,
+          ownerAddress,
         );
         setNft(details);
       } catch (error) {
         notifyError((error as Error).message);
 
-        setSearchParams('');
+        setSearchParams(
+          buildBalanceSearchParams({
+            holder: selectedHolder,
+            portfolioId: selectedPortfolioId,
+          }),
+        );
       } finally {
         setNftLoading(false);
         identityRef.current = identity?.did || null;
@@ -68,7 +96,9 @@ export const useNftAsset = () => {
   }, [
     nftCollection,
     nftId,
-    portfolioId,
+    selectedPortfolioId,
+    selectedAccountAddress,
+    selectedHolder,
     identityLoading,
     setSearchParams,
     sdk,

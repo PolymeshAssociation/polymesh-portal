@@ -11,6 +11,7 @@ export interface IPolymeshContext {
   state: {
     connecting: boolean | null;
     initialized: boolean;
+    signingManagerLoading: boolean;
     middlewareMetadata: MiddlewareMetadata | null;
     middlewareLoading: boolean;
     isV8Plus: boolean;
@@ -51,6 +52,7 @@ export const initialState = {
   state: {
     connecting: null,
     initialized: false,
+    signingManagerLoading: false,
     middlewareMetadata: null,
     middlewareLoading: true,
     isV8Plus: false,

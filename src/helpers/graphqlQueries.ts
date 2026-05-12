@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 export const transferEventsQuery = ({
   identityId,
   portfolioId,
+  accountAddress = null,
   offset,
   pageSize,
   nonFungible,
@@ -10,12 +11,35 @@ export const transferEventsQuery = ({
 }: {
   identityId: string;
   portfolioId: string | null;
+  accountAddress?: string | null;
   offset: number;
   pageSize: number;
   nonFungible: boolean;
   paddedIds: boolean;
 }) => {
   const id = portfolioId === 'default' ? '0' : portfolioId;
+
+  const getOrFilter = () => {
+    if (accountAddress) {
+      return `or: [
+            { fromAccount: {equalTo: "${accountAddress}"} }
+            { toAccount: {equalTo: "${accountAddress}"} }
+          ]`;
+    }
+    if (portfolioId !== null) {
+      return `or: [
+            { fromPortfolioId: {equalTo: "${identityId}/${id}"} }
+            { toPortfolioId: {equalTo: "${identityId}/${id}"} }
+          ]`;
+    }
+    return `or: [
+            { fromIdentityId: {equalTo: "${identityId}"} }
+            { toIdentityId: {equalTo: "${identityId}"} }
+          ]`;
+  };
+
+  const orFilter = getOrFilter();
+
   const query = gql`
     query {
       assetTransactions(
@@ -23,22 +47,7 @@ export const transferEventsQuery = ({
         offset: ${offset}
         orderBy: ${paddedIds ? 'CREATED_EVENT_ID_DESC' : 'CREATED_AT_DESC'}
         filter: {
-          or: [
-            {fromPortfolioId: 
-              ${
-                portfolioId === null
-                  ? `{startsWith: "${identityId}"}`
-                  : `{equalTo: "${identityId}/${id}"}`
-              }
-            }
-            {toPortfolioId:
-              ${
-                portfolioId === null
-                  ? `{startsWith: "${identityId}"}`
-                  : `{equalTo: "${identityId}/${id}"}`
-              }
-            }
-          ]
+          ${orFilter}
           amount: {
             isNull: ${nonFungible}
           }
@@ -69,6 +78,10 @@ export const transferEventsQuery = ({
           eventId
           toPortfolioId
           fromPortfolioId
+          toAccount
+          fromAccount
+          toIdentityId
+          fromIdentityId
           instructionId
           instructionMemo
         }

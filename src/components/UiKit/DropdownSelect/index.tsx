@@ -1,14 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icon } from '~/components';
 import { formatKey } from '~/helpers/formatters';
 import {
-  StyledLabel,
+  InputWrapper,
   StyledErrorMessage,
   StyledExpandedSelect,
+  StyledLabel,
   StyledOption,
-  StyledSelect,
-  InputWrapper,
   StyledSearch,
+  StyledSelect,
 } from './styles';
 
 interface IDropdownSelectProps {
@@ -83,6 +83,10 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({
       block: 'nearest',
     });
   }, [selectExpanded]);
+
+  useEffect(() => {
+    setSelectedOption(selected || '');
+  }, [selected]);
 
   useEffect(() => {
     if (!removeSelection) {

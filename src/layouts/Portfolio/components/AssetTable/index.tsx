@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Table } from '~/components';
+import {
+  buildBalanceSearchParams,
+  EBalanceHolder,
+  getBalanceHolder,
+} from '../../helpers';
+import { AssetTableItem, EAssetsTableTabs, ITokenItem } from './constants';
 import { useAssetTable } from './hooks';
-import { EAssetsTableTabs, AssetTableItem, ITokenItem } from './constants';
 // import { EAssetsTableTabs } from './constants';
 
 export const AssetTable = () => {
@@ -11,15 +16,22 @@ export const AssetTable = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const id = searchParams.get('id');
+  const holder = searchParams.get('holder');
+  const address = searchParams.get('address');
+  const selectedHolder = getBalanceHolder(holder, id);
 
   const handleRowClick = (original: AssetTableItem) => {
     if (tab !== EAssetsTableTabs.TOKENS) return;
 
     const { assetId } = original as ITokenItem;
 
-    const params = id
-      ? { id, asset: assetId }
-      : ({ asset: assetId } as Record<string, string>);
+    const params = buildBalanceSearchParams({
+      holder: selectedHolder,
+      portfolioId: selectedHolder === EBalanceHolder.PORTFOLIO ? id : undefined,
+      accountAddress:
+        selectedHolder === EBalanceHolder.ACCOUNT ? address : undefined,
+      additionalParams: { asset: assetId },
+    });
     setSearchParams(params);
   };
 

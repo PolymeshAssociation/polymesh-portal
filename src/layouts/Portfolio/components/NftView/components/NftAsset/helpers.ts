@@ -1,12 +1,12 @@
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { Nft } from '@polymeshassociation/polymesh-sdk/internal';
 import {
   CollectionKey,
   NftCollection,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { Nft } from '@polymeshassociation/polymesh-sdk/internal';
-import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { notifyWarning } from '~/helpers/notifications';
 import { getNftImageUrl, getNftTokenUri } from '../../helpers';
 import { INftAsset } from './constants';
-import { notifyWarning } from '~/helpers/notifications';
 
 export const getNftCollectionAndStatus = async (
   nftCollectionIdentifier: NftCollection | string,
@@ -14,12 +14,14 @@ export const getNftCollectionAndStatus = async (
   portfolioId: string | null,
   did: string | undefined,
   sdk: Polymesh,
+  accountAddress?: string | null,
 ): Promise<{
   nft: Nft;
   collectionKeys: CollectionKey[];
   isLocked: boolean;
-  ownerDid: string;
-  ownerPortfolioId: string;
+  ownerDid?: string;
+  ownerAddress?: string;
+  ownerPortfolioId?: string;
 }> => {
   let collection: NftCollection;
   if (typeof nftCollectionIdentifier === 'string') {
@@ -38,39 +40,71 @@ export const getNftCollectionAndStatus = async (
 
   const collectionKeys = (await collection.collectionKeys()) || [];
   const nft = await collection.getNft({ id: new BigNumber(nftId) });
-  const ownerPortfolio = await nft.getOwner();
+  const ownerHolder = await nft.getOwner();
 
-  if (!ownerPortfolio) {
+  if (!ownerHolder) {
     throw new Error(
       `Owner not found for ${collection.id} token ID ${nftId}. The token may have been redeemed`,
     );
   }
 
-  const ownerDid = ownerPortfolio.owner.did.toString();
-  const ownerPortfolioId =
-    'id' in ownerPortfolio ? ownerPortfolio.id.toString() : 'default';
+  const isPortfolioOwned = 'owner' in ownerHolder;
 
+  // Resolve ownership details for both cases
+  let ownerDid: string | undefined;
+  let ownerAddress: string | undefined;
+  let ownerPortfolioId: string | undefined;
+
+  if (isPortfolioOwned) {
+    ownerDid = ownerHolder.owner.did;
+    ownerPortfolioId =
+      'id' in ownerHolder ? ownerHolder.id.toString() : 'default';
+  } else {
+    ownerAddress = ownerHolder.address.toString();
+    const ownerIdentity = await ownerHolder.getIdentity();
+    ownerDid = ownerIdentity?.did;
+  }
+
+  // Warn if the NFT is not owned by the expected identity
   if (ownerDid !== did) {
     notifyWarning(
       `NFT ID ${nftId} of collection ${collection.id} is not owned by the selected identity`,
     );
   }
 
+  // Warn if a portfolio was selected but the NFT is not held in the expected portfolio
   if (portfolioId) {
-    if (ownerPortfolioId !== portfolioId) {
+    if (!isPortfolioOwned) {
+      notifyWarning(
+        `NFT ID ${nftId} of collection ${collection.id} is not held in a portfolio`,
+      );
+    } else if (ownerPortfolioId !== portfolioId) {
       notifyWarning(
         `NFT ID ${nftId} of collection ${collection.id} not found in Portfolio ID ${portfolioId}`,
       );
     }
   }
 
-  const isLocked = await nft.isLocked();
+  // Warn if an account was selected but the NFT is not directly owned by that account
+  if (accountAddress) {
+    if (isPortfolioOwned) {
+      notifyWarning(
+        `NFT ID ${nftId} of collection ${collection.id} is not directly owned by an account`,
+      );
+    } else if (ownerAddress !== accountAddress) {
+      notifyWarning(
+        `NFT ID ${nftId} of collection ${collection.id} is not owned by the selected account`,
+      );
+    }
+  }
 
+  const isLocked = await nft.isLocked();
   return {
     nft,
     collectionKeys,
     isLocked,
     ownerDid,
+    ownerAddress,
     ownerPortfolioId,
   };
 };
@@ -121,8 +155,9 @@ export const getNftDetails = async (
   nft: Nft,
   isLocked: boolean,
   collectionKeys: CollectionKey[],
-  ownerDid: string,
-  ownerPortfolioId: string,
+  ownerDid?: string,
+  ownerPortfolioId?: string,
+  ownerAddress?: string,
 ): Promise<INftAsset> => {
   const tokenUri = (await getNftTokenUri(nft)) || '';
 
@@ -130,6 +165,7 @@ export const getNftDetails = async (
     tokenUri,
     isLocked,
     ownerDid,
+    ownerAddress,
     ownerPortfolioId,
   } as INftAsset;
 

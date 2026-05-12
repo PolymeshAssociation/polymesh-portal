@@ -2,44 +2,92 @@ import { useContext, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SkeletonLoader, Text } from '~/components/UiKit';
 import { PortfolioContext } from '~/context/PortfolioContext';
+import { stringToColor } from '~/helpers/formatters';
+import { EBalanceHolder, getBalanceHolder } from '../../helpers';
+import { LegendItems } from './components/LedgendItems';
+import { IAssetOption, IReducedOption } from './constants';
 import {
-  StyledWrapper,
-  StyledPercentageBar,
   StyledFraction,
   StyledLegendList,
+  StyledPercentageBar,
   StyledPlaceholder,
+  StyledWrapper,
 } from './styles';
-import { stringToColor } from '~/helpers/formatters';
-import { IAssetOption, IReducedOption } from './constants';
-import { LegendItems } from './components/LedgendItems';
 
 export const AssetAllocation = () => {
-  const { allPortfolios, totalAssetsAmount, portfolioLoading } =
-    useContext(PortfolioContext);
+  const {
+    allPortfolios,
+    totalAssetsAmount,
+    portfolioLoading,
+    allAccountsData,
+  } = useContext(PortfolioContext);
   const [searchParams] = useSearchParams();
   const portfolioId = searchParams.get('id');
+  const holder = searchParams.get('holder');
+  const address = searchParams.get('address');
+  const selectedHolder = getBalanceHolder(holder, portfolioId);
 
   // Compute asset options based on selected portfolio or all portfolios
   const assetOptions = useMemo((): IAssetOption[] => {
-    if (!allPortfolios.length) {
+    const hasAnyData =
+      allPortfolios.length > 0 ||
+      Object.values(allAccountsData).some(({ assets }) => assets.length > 0);
+    if (!hasAnyData) {
       return [];
     }
 
-    if (!portfolioId) {
-      // For all portfolios combined
-      return allPortfolios
-        .flatMap(({ assets }) =>
+    if (selectedHolder === EBalanceHolder.ACCOUNT) {
+      const accountData = allAccountsData[address ?? '']?.assets ?? [];
+      const accountTotalAmount = accountData.reduce(
+        (acc, { total }) => acc + total.toNumber(),
+        0,
+      );
+
+      return accountData
+        .map(({ asset, total }) => ({
+          assetId: asset.id,
+          amount: total.toNumber(),
+          asset,
+          color: stringToColor(asset.id),
+          percentage:
+            total.toNumber() > 0 && accountTotalAmount > 0
+              ? (total.toNumber() / accountTotalAmount) * 100
+              : 0,
+        }))
+        .sort((a, b) => b.percentage - a.percentage);
+    }
+
+    if (selectedHolder === EBalanceHolder.ALL) {
+      // Aggregate all accounts under the DID + all portfolios
+      const allAccountAssets = Object.values(allAccountsData).flatMap(
+        ({ assets }) =>
           assets.map(({ asset, total }) => ({
             assetId: asset.id,
             amount: total.toNumber(),
             asset,
             color: stringToColor(asset.id),
             percentage:
-              total.toNumber() > 0
+              total.toNumber() > 0 && totalAssetsAmount > 0
                 ? (total.toNumber() / totalAssetsAmount) * 100
                 : 0,
           })),
-        )
+      );
+
+      return [
+        ...allPortfolios.flatMap(({ assets }) =>
+          assets.map(({ asset, total }) => ({
+            assetId: asset.id,
+            amount: total.toNumber(),
+            asset,
+            color: stringToColor(asset.id),
+            percentage:
+              total.toNumber() > 0 && totalAssetsAmount > 0
+                ? (total.toNumber() / totalAssetsAmount) * 100
+                : 0,
+          })),
+        ),
+        ...allAccountAssets,
+      ]
         .reduce((acc, asset) => {
           const existingAsset = acc.find(
             ({ assetId }) => assetId === asset.assetId,
@@ -77,7 +125,14 @@ export const AssetAllocation = () => {
           total.toNumber() > 0 ? (total.toNumber() / totalAmount) * 100 : 0,
       }))
       .sort((a, b) => b.percentage - a.percentage);
-  }, [portfolioId, allPortfolios, totalAssetsAmount]);
+  }, [
+    selectedHolder,
+    portfolioId,
+    address,
+    allPortfolios,
+    allAccountsData,
+    totalAssetsAmount,
+  ]);
 
   // Compute reduced options for the percentage bar
   const reducedOptions = useMemo((): IReducedOption[] => {
@@ -123,7 +178,7 @@ export const AssetAllocation = () => {
   return (
     <StyledWrapper>
       <Text size="large" bold marginBottom={22}>
-        {portfolioLoading ? <SkeletonLoader /> : 'Asset allocation'}
+        {portfolioLoading ? <SkeletonLoader /> : 'Balance allocation'}
       </Text>
       {portfolioLoading ? (
         <SkeletonLoader height={56} borderRadius={8} />

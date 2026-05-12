@@ -44,7 +44,7 @@ interface INavLink {
 export const PATHS = {
   LANDING_PAGE: '/',
   OVERVIEW: '/overview',
-  PORTFOLIO: '/portfolio',
+  BALANCES: '/balances',
   TRANSFERS: '/transfers',
   MULTISIG: '/multisig',
   AUTHORIZATIONS: '/authorizations',
@@ -70,8 +70,8 @@ export const ROUTES = [
     component: Overview,
   },
   {
-    path: PATHS.PORTFOLIO,
-    label: 'Portfolio',
+    path: PATHS.BALANCES,
+    label: 'Balances',
     component: Portfolio,
   },
   {
@@ -144,7 +144,7 @@ export const NAV_LINKS = [
     icon: 'StakingIcon',
     disabled: false,
   },
-  { path: PATHS.PORTFOLIO, label: 'Portfolio', icon: 'PortfolioIcon' },
+  { path: PATHS.BALANCES, label: 'Balances', icon: 'PortfolioIcon' },
   {
     path: PATHS.TRANSFERS,
     label: 'Transfers',

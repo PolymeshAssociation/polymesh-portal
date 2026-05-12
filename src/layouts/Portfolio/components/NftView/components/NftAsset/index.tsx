@@ -1,19 +1,19 @@
-import { useSearchParams } from 'react-router-dom';
-import { useContext, useEffect, useState } from 'react';
 import { bytesToString } from '@polymeshassociation/polymesh-sdk/utils/conversion';
-import { SkeletonLoader } from '~/components/UiKit';
+import { useContext, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
 import {
+  CardContainer,
   PropertiesDropdown,
   PropertiesItem,
-  CardContainer,
 } from '~/components/DetailsCard';
-import { NftStatusLabel } from '../NftStatusLabel';
-import { useNftAsset } from './hooks';
-import { EInfoType } from './constants';
-import { StyledNftContainer, StyledImageWrap, StyledImage } from './styles';
-import { formatDid } from '~/helpers/formatters';
+import { SkeletonLoader } from '~/components/UiKit';
 import { PolymeshContext } from '~/context/PolymeshContext';
+import { formatDid } from '~/helpers/formatters';
+import { NftStatusLabel } from '../NftStatusLabel';
+import { EInfoType } from './constants';
+import { useNftAsset } from './hooks';
+import { StyledImage, StyledImageWrap, StyledNftContainer } from './styles';
 
 export const NftAsset = () => {
   const {
@@ -46,7 +46,7 @@ export const NftAsset = () => {
 
     try {
       (async () => {
-        const name = await polkadotApi?.query.portfolio.portfolios(
+        const name = await polkadotApi.query.portfolio.portfolios(
           did,
           portfolioId,
         );
@@ -112,9 +112,16 @@ export const NftAsset = () => {
           )}
           {nft?.ownerDid && (
             <PropertiesItem
-              propKey="Owned by"
+              propKey="Owned by (DID)"
               propValue={formatDid(nft.ownerDid, 8, 8)}
               propCopy={nft.ownerDid}
+            />
+          )}
+          {nft?.ownerAddress && (
+            <PropertiesItem
+              propKey="Owned by (Account)"
+              propValue={formatDid(nft.ownerAddress, 7, 4)}
+              propCopy={nft.ownerAddress}
             />
           )}
           {portfolioName && (
