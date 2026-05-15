@@ -188,19 +188,6 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
       return;
     }
 
-    // portfolioMovements does not support account-based filtering, so skip MOVEMENTS for account holders
-    if (
-      selectedHolder === EBalanceHolder.ACCOUNT &&
-      currentTab === ENftAssetsTableTabs.MOVEMENTS
-    ) {
-      setTableData([]);
-      setTotalItems(0);
-      setTotalPages(-1);
-      tabRef.current = currentTab;
-      portfolioRef.current = selectedPortfolioId;
-      return;
-    }
-
     if (currentTab !== tabRef.current && pageIndex !== 0) return;
 
     setTableData([]);
@@ -210,15 +197,26 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
     (async () => {
       try {
         if (currentTab === ENftAssetsTableTabs.MOVEMENTS) {
+          const getMovementFilterParams = () => {
+            if (selectedHolder === EBalanceHolder.ACCOUNT) {
+              return { accountAddress: address };
+            }
+            if (selectedHolder === EBalanceHolder.ALL) {
+              return { identityId: identity.did };
+            }
+            return {
+              portfolioNumber: getPortfolioNumber(
+                identity.did,
+                selectedPortfolioId,
+              ),
+            };
+          };
           const { data } = await gqlClient.query<IMovementQueryResponse>({
             query: portfolioMovementsQuery({
               offset,
               pageSize,
               type: 'NonFungible',
-              portfolioNumber: getPortfolioNumber(
-                identity.did,
-                selectedPortfolioId,
-              ),
+              ...getMovementFilterParams(),
               paddedIds: middlewareMetadata.paddedIds,
             }),
           });

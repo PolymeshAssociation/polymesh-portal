@@ -1,7 +1,7 @@
 import { Icon } from '~/components';
+import { stringToColor } from '~/helpers/formatters';
 import { ICollectionItemTicker } from '../../constants';
 import { StyledCell, StyledIconWrapper, StyledImageWrap } from './styles';
-import { stringToColor } from '~/helpers/formatters';
 
 interface ITickerCellProps {
   info: ICollectionItemTicker;
@@ -24,7 +24,7 @@ export const TickerCell: React.FC<ITickerCellProps> = ({ info }) => {
         )}
       </StyledImageWrap>
       {name}
-      {ticker ? ` (${ticker})` : ''}
+      {ticker ? ` (${ticker})` : '-'}
     </StyledCell>
   );
 };

@@ -96,16 +96,38 @@ export const portfolioMovementsQuery = ({
   offset,
   pageSize,
   portfolioNumber,
+  identityId,
   type,
   paddedIds,
+  accountAddress,
 }: {
   offset: number;
   pageSize: number;
-  portfolioNumber: string;
+  portfolioNumber?: string;
+  identityId?: string | null;
   type: string;
   paddedIds: boolean;
+  accountAddress?: string | null;
 }) => {
   const assetDetail = type === 'Fungible' ? 'amount' : 'nftIds';
+
+  const getFilterClause = () => {
+    if (accountAddress) {
+      return `or: [
+            { fromAccount: { equalTo: "${accountAddress}" } }
+            { toAccount: { equalTo: "${accountAddress}" } }
+          ]`;
+    }
+    if (identityId) {
+      return `identityId: { equalTo: "${identityId}" }`;
+    }
+    return `or: [
+            { fromId: { startsWith: "${portfolioNumber}" } }
+            { toId: { startsWith: "${portfolioNumber}" } }
+          ]`;
+  };
+
+  const filterClause = getFilterClause();
 
   const query = gql`
     query {
@@ -115,10 +137,7 @@ export const portfolioMovementsQuery = ({
         orderBy: ${paddedIds ? 'CREATED_BLOCK_ID_DESC' : 'CREATED_AT_DESC'}
         filter: {
           type: { equalTo: ${type} }
-          or: [
-            { fromId: { startsWith: "${portfolioNumber}" } }
-            { toId: { startsWith: "${portfolioNumber}" } }
-          ]
+          ${filterClause}
         }
       ) {
         totalCount
@@ -131,12 +150,14 @@ export const portfolioMovementsQuery = ({
         nodes {
           id
           fromId
+          fromAccount
           from {
             identityId
             number
             name
           }
           toId
+          toAccount
           to {
             identityId
             number

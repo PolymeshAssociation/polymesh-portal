@@ -143,7 +143,17 @@ export const parseMovements = (
   dataFromQuery: IMovementQueryResponse,
 ): IMovementItem[] =>
   (dataFromQuery.portfolioMovements.nodes.map(
-    ({ id, amount, asset, assetId, from, to, createdBlock }) => {
+    ({
+      id,
+      amount,
+      asset,
+      assetId,
+      from,
+      fromAccount,
+      to,
+      toAccount,
+      createdBlock,
+    }) => {
       const [paddedBlockId, paddedEventIdx] = id.split('/');
       return {
         movementId: `${removeLeadingZeros(paddedBlockId)}-${removeLeadingZeros(paddedEventIdx)}`,
@@ -153,8 +163,8 @@ export const parseMovements = (
         assetId: hexToUuid(assetId),
         tokenDetails: asset,
         dateTime: toParsedDateTime(createdBlock.datetime),
-        from: from.name || 'Default',
-        to: to.name || 'Default',
+        from: { name: from?.name ?? null, accountAddress: fromAccount },
+        to: { name: to?.name ?? null, accountAddress: toAccount },
       };
     },
   ) as IMovementItem[]) || [];

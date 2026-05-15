@@ -1,20 +1,21 @@
 import { createColumnHelper } from '@tanstack/react-table';
+import { INftTransactionItem } from '~/layouts/Overview/components/ActivityTable/constants';
+import { AssetIdCell } from '../../../../components/AssetIdCell';
 import { IIdData } from '../AssetTable/constants';
 import { createTokenActivityLink } from '../AssetTable/helpers';
-import { CollectionFilter } from './components/CollectionFilter';
-import { TickerCell } from './components/TickerCell';
-import { IdCell } from './components/IdCell';
-import { DateCell } from './components/DateCell';
-import { NftIdsCell } from './components/NftIdsCell';
 import { AddressCell } from './components/AddressCell';
+import { CollectionFilter } from './components/CollectionFilter';
+import { DateCell } from './components/DateCell';
+import { IdCell } from './components/IdCell';
+import { MovementPartyCell } from './components/MovementPartyCell';
+import { NftIdsCell } from './components/NftIdsCell';
+import { TickerCell } from './components/TickerCell';
 import {
   ENftAssetsTableTabs,
   ICollectionItem,
   INftAssetItem,
   INftMovementItem,
 } from './constants';
-import { AssetIdCell } from '../../../../components/AssetIdCell';
-import { INftTransactionItem } from '~/layouts/Overview/components/ActivityTable/constants';
 
 const collectionColumnHelper = createColumnHelper<ICollectionItem>();
 const allNftsColumnHelper = createColumnHelper<INftAssetItem>();
@@ -112,7 +113,7 @@ export const columns = {
       enableSorting: false,
       cell: (info) => {
         const tokenDetails = info.getValue();
-        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : ''}`;
+        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : '-'}`;
       },
     }),
 
@@ -144,18 +145,18 @@ export const columns = {
     }),
     movementColumnHelper.accessor('from', {
       header: 'From',
-      cell: (info) => info.getValue(),
+      cell: (info) => <MovementPartyCell party={info.getValue()} />,
     }),
     movementColumnHelper.accessor('to', {
       header: 'To',
-      cell: (info) => info.getValue(),
+      cell: (info) => <MovementPartyCell party={info.getValue()} />,
     }),
     movementColumnHelper.accessor('nameAndTicker', {
       header: 'Name',
       enableSorting: false,
       cell: (info) => {
         const tokenDetails = info.getValue();
-        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : ''}`;
+        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : '-'}`;
       },
     }),
     movementColumnHelper.accessor('collection', {

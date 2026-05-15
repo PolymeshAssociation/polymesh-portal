@@ -159,7 +159,17 @@ export const parseNftMovements = ({
   portfolioMovements,
 }: IMovementQueryResponse) =>
   (portfolioMovements.nodes.map(
-    ({ id, nftIds, asset, assetId, from, to, createdBlock }) => {
+    ({
+      id,
+      nftIds,
+      asset,
+      assetId,
+      from,
+      fromAccount,
+      to,
+      toAccount,
+      createdBlock,
+    }) => {
       const [paddedBlockId, paddedEventIdx] = id.split('/');
 
       return {
@@ -167,8 +177,8 @@ export const parseNftMovements = ({
         collection: hexToUuid(assetId),
         nameAndTicker: asset,
         dateTime: toParsedDateTime(createdBlock.datetime),
-        from: from.name || 'Default',
-        to: to.name || 'Default',
+        from: { name: from?.name ?? null, accountAddress: fromAccount },
+        to: { name: to?.name ?? null, accountAddress: toAccount },
         nftIds,
       };
     },

@@ -30,11 +30,16 @@ export interface ITransactionItem {
   };
 }
 
+export interface IMovementParty {
+  name: string | null;
+  accountAddress: string | null;
+}
+
 export interface IMovementItem {
   movementId: string;
   dateTime: string;
-  from: string;
-  to: string;
+  from: IMovementParty;
+  to: IMovementParty;
   amount: string;
   assetId: string;
   tokenDetails: {

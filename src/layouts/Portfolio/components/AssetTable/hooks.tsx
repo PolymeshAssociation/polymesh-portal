@@ -89,19 +89,6 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
       return;
     }
 
-    // portfolioMovements does not support account-based filtering, so skip MOVEMENTS for account holders
-    if (
-      selectedHolder === EBalanceHolder.ACCOUNT &&
-      currentTab === EAssetsTableTabs.MOVEMENTS
-    ) {
-      setTableData([]);
-      setTotalItems(0);
-      setTotalPages(-1);
-      tabRef.current = currentTab;
-      portfolioRef.current = selectedPortfolioId;
-      return;
-    }
-
     if (currentTab !== tabRef.current && pageIndex !== 0) return;
     setTableDataLoading(true);
 
@@ -111,16 +98,27 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
       try {
         switch (currentTab) {
           case EAssetsTableTabs.MOVEMENTS: {
+            const getMovementFilterParams = () => {
+              if (selectedHolder === EBalanceHolder.ACCOUNT) {
+                return { accountAddress: address };
+              }
+              if (selectedHolder === EBalanceHolder.ALL) {
+                return { identityId: identity.did };
+              }
+              return {
+                portfolioNumber: getPortfolioNumber(
+                  identity.did,
+                  selectedPortfolioId,
+                ),
+              };
+            };
             const { data: movements } =
               await gqlClient.query<IMovementQueryResponse>({
                 query: portfolioMovementsQuery({
                   offset,
                   pageSize,
                   type: 'Fungible',
-                  portfolioNumber: getPortfolioNumber(
-                    identity.did,
-                    selectedPortfolioId,
-                  ),
+                  ...getMovementFilterParams(),
                   paddedIds: middlewareMetadata.paddedIds,
                 }),
               });

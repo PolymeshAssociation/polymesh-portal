@@ -1,8 +1,8 @@
 import { CellContext } from '@tanstack/react-table';
+import { Icon } from '~/components';
+import { stringToColor } from '~/helpers/formatters';
 import { ITokenItem } from '../../constants';
 import { StyledCell, StyledIconWrapper } from './styles';
-import { stringToColor } from '~/helpers/formatters';
-import { Icon } from '~/components';
 
 interface ICellProps {
   info: CellContext<ITokenItem, ITokenItem['tokenDetails']> | undefined;
@@ -21,7 +21,7 @@ export const TokenCell: React.FC<ICellProps> = ({ info }) => {
         <Icon name="Coins" size="20px" />
       </StyledIconWrapper>
       {name}
-      {ticker ? ` (${ticker})` : ''}
+      {ticker ? ` (${ticker})` : '-'}
     </StyledCell>
   );
 };

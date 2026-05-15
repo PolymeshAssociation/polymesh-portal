@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@polkadot/extension-inject": "0.63.1",
-    "@polymeshassociation/polymesh-types": "^7.3.0",
+    "@polymeshassociation/polymesh-types": "^7.4.0",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@typescript-eslint/eslint-plugin": "7.18.0",

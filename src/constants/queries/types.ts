@@ -57,10 +57,12 @@ interface IMovement {
   };
   from: {
     name: string | null;
-  };
+  } | null;
+  fromAccount: string | null;
   to: {
     name: string | null;
-  };
+  } | null;
+  toAccount: string | null;
 }
 
 interface IPortfolioMovements {

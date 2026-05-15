@@ -3,10 +3,10 @@ import { Icon } from '~/components';
 import { useWindowWidth } from '~/hooks/utility';
 import {
   ICollectionItem,
-  INftAssetItem,
   ICollectionItemTicker,
+  INftAssetItem,
 } from '../../constants';
-import { StyledSortButton, StyledCell } from './styles';
+import { StyledCell, StyledSortButton } from './styles';
 
 interface ICollectionFilterProps {
   info:

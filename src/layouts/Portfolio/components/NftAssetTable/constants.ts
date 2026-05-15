@@ -1,5 +1,6 @@
 import { Nft } from '@polymeshassociation/polymesh-sdk/types';
 import { INftTransactionItem } from '~/layouts/Overview/components/ActivityTable/constants';
+import { IMovementParty } from '../AssetTable/constants';
 
 export enum ENftAssetsTableTabs {
   COLLECTIONS = 'collections',
@@ -39,8 +40,8 @@ export interface INftMovementItem {
   movementId: string;
   collection: string;
   dateTime: string;
-  from: string;
-  to: string;
+  from: IMovementParty;
+  to: IMovementParty;
   nftIds: string[];
   nameAndTicker: {
     name: string;
