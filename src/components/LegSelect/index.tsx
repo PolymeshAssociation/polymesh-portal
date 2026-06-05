@@ -1,9 +1,18 @@
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   FungibleAsset,
   Identity,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { useCallback, useContext, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { TSelectedAsset } from '~/components/AssetForm/constants';
+import { IAccountAssetSource } from '~/components/AssetForm/hooks';
 import { DropdownSelect, SkeletonLoader } from '~/components/UiKit';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { IPortfolioData } from '~/context/PortfolioContext/constants';
@@ -28,6 +37,7 @@ interface ILegSelectProps {
   handleDelete: (index: number) => void;
   selectedLegs: TSelectedLeg[];
   legIndexes: number[];
+  onValidityChange?: (index: number, isValid: boolean) => void;
 }
 
 const LegSelect: React.FC<ILegSelectProps> = ({
@@ -36,6 +46,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
   handleDelete,
   selectedLegs,
   legIndexes,
+  onValidityChange,
 }) => {
   const {
     api: { sdk },
@@ -55,10 +66,18 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     receiver: '',
   });
 
-  const [selectedSenderPortfolio, setSelectedSenderPortfolio] =
-    useState<IPortfolioData | null>(null);
-  const [selectedReceiverPortfolio, setSelectedReceiverPortfolio] =
-    useState<IPortfolioData | null>(null);
+  const [selectedSenderSource, setSelectedSenderSource] = useState<
+    IPortfolioData | IAccountAssetSource | null
+  >(null);
+  const [selectedReceiverSource, setSelectedReceiverSource] = useState<
+    IPortfolioData | IAccountAssetSource | null
+  >(null);
+  const [senderAccountsData, setSenderAccountsData] = useState<
+    IAccountAssetSource[]
+  >([]);
+  const [receiverAccountsData, setReceiverAccountsData] = useState<
+    IAccountAssetSource[]
+  >([]);
   const [shouldHideSenderPortfolio, setShouldHideSenderPortfolio] =
     useState(true);
   const [shouldHideReceiverPortfolio, setShouldHideReceiverPortfolio] =
@@ -77,7 +96,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     getNftsPerCollection,
     handleDeleteAsset,
     handleSelectAsset,
-  } = useAssetForm(selectedSenderPortfolio, index);
+  } = useAssetForm(selectedSenderSource, index);
 
   const selectedLeg = useMemo(() => {
     return selectedLegs.find((leg) => leg.index === index);
@@ -166,17 +185,20 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     identity: Identity | null,
     hidePortfolio: boolean,
     portfolios: IPortfolioData[],
+    accountsData: IAccountAssetSource[] = [],
   ) => {
     if (role === 'sender') {
-      setSelectedSenderPortfolio(null);
+      setSelectedSenderSource(null);
       setShouldHideSenderPortfolio(hidePortfolio);
       setSenderIdentity(identity);
       setSenderPortfolios(portfolios);
+      setSenderAccountsData(accountsData);
     } else {
-      setSelectedReceiverPortfolio(null);
+      setSelectedReceiverSource(null);
       setShouldHideReceiverPortfolio(hidePortfolio);
       setReceiverIdentity(identity);
       setReceiverPortfolios(portfolios);
+      setReceiverAccountsData(accountsData);
     }
   };
 
@@ -223,8 +245,10 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       const identity = role === 'sender' ? senderIdentity : receiverIdentity;
       const portfolios =
         role === 'sender' ? senderPortfolios : receiverPortfolios;
+      const accountsData =
+        role === 'sender' ? senderAccountsData : receiverAccountsData;
 
-      setRoleSpecificState(role, identity, false, portfolios);
+      setRoleSpecificState(role, identity, false, portfolios, accountsData);
     },
     [
       getCurrentLeg,
@@ -232,8 +256,10 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       index,
       receiverIdentity,
       receiverPortfolios,
+      receiverAccountsData,
       senderIdentity,
       senderPortfolios,
+      senderAccountsData,
     ],
   );
 
@@ -246,9 +272,48 @@ const LegSelect: React.FC<ILegSelectProps> = ({
         setPortfolioLoading((prev) => ({ ...prev, [role]: true }));
 
         const identity = await sdk.identities.getIdentity({ did });
-        const portfolios = await getPortfolioDataFromIdentity(identity);
 
-        setRoleSpecificState(role, identity, false, portfolios);
+        const [portfolios, primaryAccData, secondaryAccsData] =
+          await Promise.all([
+            getPortfolioDataFromIdentity(identity),
+            identity.getPrimaryAccount(),
+            identity.getSecondaryAccounts({ size: new BigNumber(500) }),
+          ]);
+
+        const allAccs = [
+          primaryAccData.account,
+          ...secondaryAccsData.data.map((a) => a.account),
+        ];
+
+        // For sender fetch balances; for receiver just use the address
+        const accountsData = await Promise.all(
+          allAccs.map(async (acc) => {
+            if (role === 'sender') {
+              const [accAssets, accountCollections] = await Promise.all([
+                acc
+                  .getAssetBalances()
+                  .then((r) => r.filter(({ total }) => total.toNumber() > 0)),
+                acc
+                  .getCollections()
+                  .then((r) => r.filter(({ total }) => total.toNumber() > 0)),
+              ]);
+              return {
+                name: `account / ${acc.address}`,
+                address: acc.address,
+                assets: accAssets,
+                accountCollections,
+              } as IAccountAssetSource;
+            }
+            return {
+              name: `account / ${acc.address}`,
+              address: acc.address,
+              assets: [],
+              accountCollections: [],
+            } as IAccountAssetSource;
+          }),
+        );
+
+        setRoleSpecificState(role, identity, false, portfolios, accountsData);
 
         const currentLeg = getCurrentLeg();
         if (currentLeg) {
@@ -277,40 +342,163 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     [receiverIdentity, senderIdentity],
   );
 
+  // Handle direct account address input (non-DID)
+  const handleAddressInput = useCallback(
+    async (address: string, role: 'sender' | 'receiver') => {
+      if (!sdk) return;
+      try {
+        setPortfolioLoading((prev) => ({ ...prev, [role]: true }));
+
+        const acc = await sdk.accountManagement.getAccount({ address });
+
+        let accountSource: IAccountAssetSource;
+        if (role === 'sender') {
+          const [accAssets, accountCollections] = await Promise.all([
+            acc
+              .getAssetBalances()
+              .then((r) => r.filter(({ total }) => total.toNumber() > 0)),
+            acc
+              .getCollections()
+              .then((r) => r.filter(({ total }) => total.toNumber() > 0)),
+          ]);
+          accountSource = {
+            name: 'Account',
+            address,
+            assets: accAssets,
+            accountCollections,
+          };
+        } else {
+          accountSource = {
+            name: 'Account',
+            address,
+            assets: [],
+            accountCollections: [],
+          };
+        }
+
+        const currentLeg = getCurrentLeg() || { index };
+        handleUpdateLeg(Number(index), {
+          ...currentLeg,
+          [role === 'sender' ? 'from' : 'to']: address,
+        } as TSelectedLeg);
+
+        const identity = await acc.getIdentity();
+        const otherIdentity =
+          role === 'sender' ? receiverIdentity : senderIdentity;
+        const isSameDID =
+          identity !== null &&
+          otherIdentity !== null &&
+          identity.did === otherIdentity.did;
+
+        if (role === 'sender') {
+          setSelectedSenderSource(accountSource);
+          setSenderIdentity(identity);
+          setSenderPortfolios([]);
+          setSenderAccountsData([]);
+          setShouldHideSenderPortfolio(true);
+          setIdentityError((prev) =>
+            isSameDID
+              ? {
+                  sender: 'Cannot also be receiver',
+                  receiver: 'Cannot also be sender',
+                }
+              : {
+                  sender: '',
+                  receiver:
+                    prev.receiver === 'Cannot also be sender'
+                      ? ''
+                      : prev.receiver,
+                },
+          );
+        } else {
+          setSelectedReceiverSource(accountSource);
+          setReceiverIdentity(identity);
+          setReceiverPortfolios([]);
+          setReceiverAccountsData([]);
+          setShouldHideReceiverPortfolio(true);
+          setIdentityError((prev) =>
+            isSameDID
+              ? {
+                  sender: 'Cannot also be receiver',
+                  receiver: 'Cannot also be sender',
+                }
+              : {
+                  receiver: '',
+                  sender:
+                    prev.sender === 'Cannot also be receiver'
+                      ? ''
+                      : prev.sender,
+                },
+          );
+        }
+      } catch (error) {
+        setIdentityError((prev) => ({
+          ...prev,
+          [role]: 'Invalid account address',
+        }));
+        handleInvalidIdentity(role);
+      } finally {
+        setPortfolioLoading((prev) => ({ ...prev, [role]: false }));
+      }
+    },
+    [
+      getCurrentLeg,
+      handleInvalidIdentity,
+      handleUpdateLeg,
+      index,
+      receiverIdentity,
+      senderIdentity,
+      sdk,
+    ],
+  );
+
   // Main function for handling identity selection
   const handleIdentitySelect = useCallback(
-    async (did: string, role: 'sender' | 'receiver') => {
+    async (input: string, role: 'sender' | 'receiver') => {
       if (!sdk) return;
 
-      const isValidDid = await validateDid(did, role);
-      if (!isValidDid) {
+      if (/^0x[0-9a-fA-F]{64}$/.test(input)) {
+        const isValidDid = await validateDid(input, role);
+        if (!isValidDid) {
+          handleInvalidIdentity(role);
+          return;
+        }
+
+        if (isSameIdentity(input, role)) return;
+
+        if (isSenderEqualReceiver(input, role)) {
+          setIdentityError({
+            sender: 'Cannot also be receiver',
+            receiver: 'Cannot also be sender',
+          });
+        } else {
+          setIdentityError((prev) => {
+            const otherRole = role === 'sender' ? 'receiver' : 'sender';
+            if (prev[otherRole] === `Cannot also be ${role}`) {
+              return { sender: '', receiver: '' };
+            }
+            return { ...prev, [role]: '' };
+          });
+        }
+
+        await fetchIdentityAndPortfolios(input, role);
+        return;
+      }
+
+      if (!input.length) {
+        setIdentityError((prev) => ({
+          ...prev,
+          [role]: 'DID or address is required',
+        }));
         handleInvalidIdentity(role);
         return;
       }
 
-      if (isSameIdentity(did, role)) return;
-
-      if (isSenderEqualReceiver(did, role)) {
-        setIdentityError({
-          sender: 'Cannot also be receiver',
-          receiver: 'Cannot also be sender',
-        });
-      } else {
-        setIdentityError((prev) => {
-          const otherRole = role === 'sender' ? 'receiver' : 'sender';
-
-          if (prev[otherRole] === `Cannot also be ${role}`) {
-            return { sender: '', receiver: '' };
-          }
-
-          return { ...prev, [role]: '' };
-        });
-      }
-
-      await fetchIdentityAndPortfolios(did, role);
+      await handleAddressInput(input, role);
     },
     [
       fetchIdentityAndPortfolios,
+      handleAddressInput,
       handleInvalidIdentity,
       isSameIdentity,
       isSenderEqualReceiver,
@@ -323,11 +511,11 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     (combinedId: string | null, role: 'sender' | 'receiver') => {
       if (!combinedId) {
         if (role === 'sender') {
-          setSelectedSenderPortfolio(null);
+          setSelectedSenderSource(null);
           handleInvalidPortfolio(role);
         }
         if (role === 'receiver') {
-          setSelectedReceiverPortfolio(null);
+          setSelectedReceiverSource(null);
           handleInvalidPortfolio(role);
         }
         return;
@@ -337,13 +525,28 @@ const LegSelect: React.FC<ILegSelectProps> = ({
 
       switch (role) {
         case 'sender': {
+          if (id === 'account') {
+            const address = combinedId.replace(/^account \/ /, '');
+            const accSource = senderAccountsData.find(
+              (a) => a.address === address,
+            );
+            if (accSource) {
+              setSelectedSenderSource(accSource);
+              const currentLeg = getCurrentLeg() || { index };
+              handleUpdateLeg(index, {
+                ...currentLeg,
+                from: address,
+              } as TSelectedLeg);
+            }
+            break;
+          }
           const selectedSendingPortfolio = senderPortfolios.find((item) => {
             return Number.isNaN(Number(id))
               ? item.id === 'default'
               : item.id === id;
           });
           if (selectedSendingPortfolio) {
-            setSelectedSenderPortfolio(selectedSendingPortfolio);
+            setSelectedSenderSource(selectedSendingPortfolio);
             // Use a function to get the most current selectedLegs state
             const currentLeg = getCurrentLeg() || { index };
             const updatedLeg = {
@@ -355,13 +558,28 @@ const LegSelect: React.FC<ILegSelectProps> = ({
           break;
         }
         case 'receiver': {
+          if (id === 'account') {
+            const address = combinedId.replace(/^account \/ /, '');
+            const accSource = receiverAccountsData.find(
+              (a) => a.address === address,
+            );
+            if (accSource) {
+              setSelectedReceiverSource(accSource);
+              const currentLeg = getCurrentLeg() || { index };
+              handleUpdateLeg(index, {
+                ...currentLeg,
+                to: address,
+              } as TSelectedLeg);
+            }
+            break;
+          }
           const selectedReceivingPortfolio = receiverPortfolios.find((item) => {
             return Number.isNaN(Number(id))
               ? item.id === 'default'
               : item.id === id;
           });
           if (selectedReceivingPortfolio) {
-            setSelectedReceiverPortfolio(selectedReceivingPortfolio);
+            setSelectedReceiverSource(selectedReceivingPortfolio);
             // Use a function to get the most current selectedLegs state
             const currentLeg = getCurrentLeg() || { index };
             const updatedLeg = {
@@ -382,8 +600,10 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       handleInvalidPortfolio,
       index,
       receiverPortfolios,
+      receiverAccountsData,
       getCurrentLeg,
       senderPortfolios,
+      senderAccountsData,
     ],
   );
 
@@ -416,9 +636,16 @@ const LegSelect: React.FC<ILegSelectProps> = ({
     [handleDelete, handleDeleteAsset],
   );
 
+  useEffect(() => {
+    const hasSameDIDError =
+      identityError.sender === 'Cannot also be receiver' ||
+      identityError.receiver === 'Cannot also be sender';
+    onValidityChange?.(index, !hasSameDIDError);
+  }, [identityError, index, onValidityChange]);
+
   const getAvailableNfts = useCallback(
     (collectionId?: string) => {
-      if (!selectedSenderPortfolio?.id || !collectionId) return [];
+      if (!selectedSenderSource || !collectionId) return [];
       const currentAsset = selectedAssets[index].asset;
       const currentSelectedAssets = selectedLegs.filter(
         (leg) => leg.asset === currentAsset,
@@ -439,29 +666,32 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       index,
       selectedAssets,
       selectedLegs,
-      selectedSenderPortfolio?.id,
+      selectedSenderSource,
     ],
   );
 
   const balance = useMemo(() => {
-    if (!selectedSenderPortfolio?.id) return 0;
-    const currentAsset = selectedSenderPortfolio.assets.find(
+    if (!selectedSenderSource) return 0;
+
+    const isAccountSource = 'accountCollections' in selectedSenderSource;
+    const currentAsset = selectedSenderSource.assets.find(
       (asset) => asset.asset.id === selectedAssets[index].asset,
     );
-
     if (!currentAsset) return 0;
 
-    const currentBalance = checkAvailableBalance({
-      asset: currentAsset?.asset as FungibleAsset,
+    return checkAvailableBalance({
+      asset: currentAsset.asset as FungibleAsset,
       balance: currentAsset.free || 0,
       selectedLegs,
-      sender: selectedSenderPortfolio.portfolio.owner.did,
-      portfolioId: selectedSenderPortfolio.id,
+      sender: isAccountSource
+        ? (selectedSenderSource as IAccountAssetSource).address
+        : (selectedSenderSource as IPortfolioData).portfolio.owner.did,
+      portfolioId: isAccountSource
+        ? 'account'
+        : (selectedSenderSource as IPortfolioData).id,
       assetIndex: index,
     });
-
-    return currentBalance;
-  }, [selectedSenderPortfolio, selectedLegs, index, selectedAssets]);
+  }, [selectedSenderSource, selectedLegs, index, selectedAssets]);
 
   return (
     <AssetForm
@@ -473,7 +703,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
       handleDeleteAsset={handleDeleteLeg}
       handleSelectAsset={handleUpdateLegAsset}
       assetBalance={balance}
-      disabled={!selectedSenderPortfolio?.id}
+      disabled={!selectedSenderSource}
       portfolioName={portfolioName}
       maxNfts={MAX_NFTS_PER_LEG}
       indexArray={legIndexes}
@@ -482,7 +712,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
         <InputWrapper>
           <StyledLabel>Sender</StyledLabel>
           <StyledInput
-            placeholder="Sender DID"
+            placeholder="Sender DID or account address"
             onBlur={({ target }) =>
               handleIdentitySelect(target.value, 'sender')
             }
@@ -493,24 +723,34 @@ const LegSelect: React.FC<ILegSelectProps> = ({
         </InputWrapper>
         {!shouldHideSenderPortfolio && !portfolioLoading.sender ? (
           <DropdownSelect
-            label="Sending Portfolio"
-            placeholder="Select portfolio"
-            options={senderPortfolios.map(({ id, name }) =>
-              id === 'default' ? name : `${id} / ${name}`,
-            )}
+            label="Sending From"
+            placeholder="Select portfolio or account"
+            options={[
+              ...senderPortfolios.map(({ id, name }) =>
+                id === 'default' ? 'Default Portfolio' : `${id} / ${name}`,
+              ),
+              ...senderAccountsData.map(
+                ({ address }) => `account / ${address}`,
+              ),
+            ]}
             onChange={(option) => handlePortfolioSelect(option, 'sender')}
-            removeSelection={!selectedSenderPortfolio}
+            removeSelection={!selectedSenderSource}
             error={undefined}
             enableSearch
           />
         ) : (
           <InputWrapper>
             <StyledPlaceholder $isAbsolute>
-              {portfolioLoading.sender ? (
-                <SkeletonLoader height={16} />
-              ) : (
-                'Enter Sender DID'
-              )}
+              {(() => {
+                if (portfolioLoading.sender)
+                  return <SkeletonLoader height={16} />;
+                if (
+                  selectedSenderSource &&
+                  'accountCollections' in selectedSenderSource
+                )
+                  return 'Account';
+                return 'Enter Sender DID or account address';
+              })()}
             </StyledPlaceholder>
           </InputWrapper>
         )}
@@ -519,7 +759,7 @@ const LegSelect: React.FC<ILegSelectProps> = ({
         <InputWrapper>
           <StyledLabel>Receiver</StyledLabel>
           <StyledInput
-            placeholder="Receiver DID"
+            placeholder="Receiver DID or account address"
             onBlur={({ target }) =>
               handleIdentitySelect(target.value, 'receiver')
             }
@@ -530,24 +770,34 @@ const LegSelect: React.FC<ILegSelectProps> = ({
         </InputWrapper>
         {!shouldHideReceiverPortfolio && !portfolioLoading.receiver ? (
           <DropdownSelect
-            label="Receiving Portfolio"
-            placeholder="Select portfolio"
-            options={receiverPortfolios.map(({ id, name }) =>
-              id === 'default' ? name : `${id} / ${name}`,
-            )}
+            label="Receiving At"
+            placeholder="Select portfolio or account"
+            options={[
+              ...receiverPortfolios.map(({ id, name }) =>
+                id === 'default' ? name : `${id} / ${name}`,
+              ),
+              ...receiverAccountsData.map(
+                ({ address }) => `account / ${address}`,
+              ),
+            ]}
             onChange={(option) => handlePortfolioSelect(option, 'receiver')}
-            removeSelection={!selectedReceiverPortfolio}
+            removeSelection={!selectedReceiverSource}
             error={undefined}
             enableSearch
           />
         ) : (
           <InputWrapper>
             <StyledPlaceholder $isAbsolute>
-              {portfolioLoading.receiver ? (
-                <SkeletonLoader height={16} />
-              ) : (
-                'Enter Receiver DID'
-              )}
+              {(() => {
+                if (portfolioLoading.receiver)
+                  return <SkeletonLoader height={16} />;
+                if (
+                  selectedReceiverSource &&
+                  'accountCollections' in selectedReceiverSource
+                )
+                  return 'Account';
+                return 'Enter Receiver DID or account address';
+              })()}
             </StyledPlaceholder>
           </InputWrapper>
         )}

@@ -1,28 +1,31 @@
-import { useContext, useState } from 'react';
 import {
   Instruction,
   InstructionType,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Icon } from '~/components';
 import { Button, SkeletonLoader } from '~/components/UiKit';
-import {
-  StyledItemWrapper,
-  StyledInfoWrapper,
-  StyledButtonsWrapper,
-  StyledSelect,
-  StyledLegsWrapper,
-  StyledMemo,
-} from './styles';
-import { Details } from './components/Details';
-import { InstructionLeg } from './components/InstructionLeg';
+import { AccountContext } from '~/context/AccountContext';
 import {
   EInstructionTypes,
   InstructionAction,
   InstructionData,
 } from '../../types';
-import { getAffirmationStatus, isLastManualAffirmation } from './helpers';
-import { AccountContext } from '~/context/AccountContext';
+import { Details } from './components/Details';
+import { InstructionLeg } from './components/InstructionLeg';
+import {
+  getSelectedAffirmationStatus,
+  isLastManualAffirmation,
+} from './helpers';
+import {
+  StyledButtonsWrapper,
+  StyledInfoWrapper,
+  StyledItemWrapper,
+  StyledLegsWrapper,
+  StyledMemo,
+  StyledSelect,
+} from './styles';
 
 interface IAuthorizationItemProps {
   instruction: Instruction;
@@ -41,7 +44,8 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
   actionInProgress,
   details,
 }) => {
-  const { identity, isExternalConnection } = useContext(AccountContext);
+  const { identity, selectedAccount, isExternalConnection } =
+    useContext(AccountContext);
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type');
   const [detailsExpanded, setDetailsExpanded] = useState(false);
@@ -80,11 +84,15 @@ export const TransferItem: React.FC<IAuthorizationItemProps> = ({
       instructionAffirmations,
       counterparties,
       identity,
+      accountAddress: selectedAccount,
     });
   const legsHaveErrors = instructionLegs.some(({ errors }) => !!errors.length);
 
-  const affirmationStatus =
-    identity && getAffirmationStatus(instructionAffirmations, identity.did);
+  const affirmationStatus = getSelectedAffirmationStatus({
+    affirmations: instructionAffirmations,
+    identityDid: identity?.did,
+    accountAddress: selectedAccount,
+  });
 
   const isFailedCanBeAffirmed =
     type === EInstructionTypes.FAILED &&

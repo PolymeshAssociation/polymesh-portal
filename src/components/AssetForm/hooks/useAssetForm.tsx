@@ -1,15 +1,23 @@
-import { useState, useEffect } from 'react';
 import {
+  AccountCollection,
   NftCollection,
   PortfolioBalance,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { useEffect, useState } from 'react';
 import {
   ICombinedPortfolioData,
   IPortfolioData,
 } from '~/context/PortfolioContext/constants';
-import { TSelectedAsset, INft } from '../constants';
-import { parseCollections } from '../helpers';
 import { notifyError } from '~/helpers/notifications';
+import { INft, TSelectedAsset } from '../constants';
+import { parseCollections, parseNftsFromCollection } from '../helpers';
+
+export interface IAccountAssetSource {
+  name: string;
+  address: string;
+  assets: PortfolioBalance[];
+  accountCollections: AccountCollection[];
+}
 
 type TSelectedAssets = Record<string, TSelectedAsset>;
 
@@ -31,7 +39,7 @@ interface IAssetForm {
 }
 
 export const useAssetForm = (
-  portfolio: IPortfolioData | ICombinedPortfolioData | null,
+  source: IPortfolioData | ICombinedPortfolioData | IAccountAssetSource | null,
   index: number = 0,
 ): IAssetForm => {
   const [selectedAssets, setSelectedAssets] = useState<
@@ -50,9 +58,7 @@ export const useAssetForm = (
   };
 
   const getAssetBalance = (asset: string) => {
-    const currentAsset = portfolio?.assets.find(
-      (item) => item.asset.id === asset,
-    );
+    const currentAsset = source?.assets.find((item) => item.asset.id === asset);
     const balance = currentAsset?.free.toNumber();
     return balance || 0;
   };
@@ -84,24 +90,49 @@ export const useAssetForm = (
   };
 
   useEffect(() => {
-    if (!portfolio) {
+    if (!source) {
+      return;
+    }
+
+    if ('accountCollections' in source) {
+      (async () => {
+        try {
+          const nftRecord: Record<string, INft[]> = {};
+          const parsedCollections: NftCollection[] = [];
+          await Promise.all(
+            source.accountCollections.map(
+              async ({ collection, free, locked }) => {
+                parsedCollections.push(collection);
+                nftRecord[collection.id] = await parseNftsFromCollection(
+                  free,
+                  locked,
+                );
+              },
+            ),
+          );
+          setCollections(parsedCollections);
+          setNfts(nftRecord);
+        } catch (error) {
+          notifyError((error as Error).message);
+        }
+      })();
       return;
     }
 
     (async () => {
       try {
         const { collections: parsedCollections, nfts: parsedNfts } =
-          await parseCollections(portfolio);
+          await parseCollections(source);
         setCollections(parsedCollections);
         setNfts(parsedNfts);
       } catch (error) {
         notifyError((error as Error).message);
       }
     })();
-  }, [portfolio]);
+  }, [source]);
 
   return {
-    assets: portfolio?.assets || [],
+    assets: source?.assets || [],
     collections,
     nfts,
     selectedAssets,
@@ -110,6 +141,6 @@ export const useAssetForm = (
     handleAddAsset,
     handleDeleteAsset,
     handleSelectAsset,
-    portfolioName: portfolio?.name || '',
+    portfolioName: source?.name || '',
   };
 };

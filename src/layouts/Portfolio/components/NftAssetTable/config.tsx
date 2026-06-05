@@ -113,7 +113,7 @@ export const columns = {
       enableSorting: false,
       cell: (info) => {
         const tokenDetails = info.getValue();
-        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : '-'}`;
+        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : ''}`;
       },
     }),
 
@@ -156,7 +156,7 @@ export const columns = {
       enableSorting: false,
       cell: (info) => {
         const tokenDetails = info.getValue();
-        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : '-'}`;
+        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : ''}`;
       },
     }),
     movementColumnHelper.accessor('collection', {

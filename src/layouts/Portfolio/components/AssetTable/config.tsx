@@ -100,7 +100,7 @@ export const columns = {
       enableSorting: false,
       cell: (info) => {
         const tokenDetails = info.getValue();
-        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : '-'}`;
+        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : ''}`;
       },
     }),
     transactionColumnHelper.accessor('asset', {
@@ -161,7 +161,7 @@ export const columns = {
       enableSorting: false,
       cell: (info) => {
         const tokenDetails = info.getValue();
-        return `${tokenDetails.name}${tokenDetails.ticker ? ` (${tokenDetails.ticker})` : '-'}`;
+        return `${tokenDetails.name}${tokenDetails.ticker ? ` (${tokenDetails.ticker})` : ''}`;
       },
     }),
     movementColumnHelper.accessor('assetId', {

@@ -1,31 +1,31 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import {
   AssetDetails,
   FungibleAsset,
   PortfolioBalance,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { formatBalance, formatUuid, stringToColor } from '~/helpers/formatters';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '~/components';
 import { Text } from '~/components/UiKit';
-import { useOutsideClick } from '../../hooks';
+import { formatBalance, formatUuid, stringToColor } from '~/helpers/formatters';
 import { TSelectedAsset } from '../../constants';
+import { useOutsideClick } from '../../hooks';
+import {
+  SelectedOption,
+  SelectWrapper,
+  StyledError,
+  StyledExpandedSelect,
+  StyledInput,
+  StyledPlaceholder,
+  StyledSelect,
+  StyledSelectOption,
+} from '../../styles';
 import { validateAssetInputField } from './helpers';
 import {
-  SelectWrapper,
-  StyledSelect,
-  StyledExpandedSelect,
-  SelectedOption,
-  StyledSelectOption,
-  StyledPlaceholder,
-  StyledError,
-  StyledInput,
-} from '../../styles';
-import {
-  StyledAmountInput,
-  InputWrapper,
   AssetWrapper,
   IconWrapper,
+  InputWrapper,
+  StyledAmountInput,
   StyledAvailableBalance,
   UseMaxButton,
 } from './styles';
@@ -197,9 +197,10 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
                   <Icon name="Coins" size="16px" />
                 </IconWrapper>
                 {selectedAssetDetails
-                  ? `${formatUuid(selectedAsset.id)} - ${selectedAssetDetails.name} ${
-                      selectedAssetDetails.ticker &&
-                      `(${selectedAssetDetails.ticker})`
+                  ? `${formatUuid(selectedAsset.id)} ${selectedAssetDetails.name ? `- ${selectedAssetDetails.name}` : ''} ${
+                      selectedAssetDetails.ticker
+                        ? `(${selectedAssetDetails.ticker})`
+                        : ''
                     }`
                   : formatUuid(selectedAsset.id)}
               </SelectedOption>
@@ -229,8 +230,10 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
                         <Icon name="Coins" size="16px" />
                       </IconWrapper>
                       {assetDetails
-                        ? `${formatUuid(asset.id)} - ${assetDetails.name} ${
-                            assetDetails.ticker && `(${assetDetails.ticker})`
+                        ? `${formatUuid(asset.id)} ${assetDetails.name ? `- ${assetDetails.name}` : ''} ${
+                            assetDetails.ticker
+                              ? `(${assetDetails.ticker})`
+                              : ''
                           }`
                         : formatUuid(asset.id)}
                     </StyledSelectOption>

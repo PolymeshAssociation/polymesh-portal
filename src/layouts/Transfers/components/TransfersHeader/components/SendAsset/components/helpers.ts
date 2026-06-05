@@ -22,19 +22,23 @@ export const parseVenueId = (venue?: string): BigNumber | undefined => {
 export const createBasicInstructionParams = ({
   selectedAssets,
   selectedPortfolio,
+  senderAddress,
   formData,
 }: {
   selectedAssets: TSelectedAsset[];
-  selectedPortfolio: IPortfolioData;
+  selectedPortfolio?: IPortfolioData;
+  senderAddress?: string;
   formData: IBasicFieldValues;
 }): AddInstructionWithVenueIdParams => {
   const { recipient, memo } = formData;
+  const from =
+    senderAddress !== undefined ? senderAddress : selectedPortfolio!.portfolio;
 
   const instructionParams = {
     legs: selectedAssets.map((selectedAsset) => ({
       ...getAssetValue(selectedAsset),
       asset: selectedAsset.asset,
-      from: selectedPortfolio.portfolio,
+      from,
       to: recipient,
     })),
     memo,

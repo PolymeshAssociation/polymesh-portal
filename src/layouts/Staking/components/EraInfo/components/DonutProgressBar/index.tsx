@@ -20,7 +20,7 @@ const DonutProgressBar: React.FC<DonutProgressBarProps> = ({
 }) => {
   const radius = 40;
   const circumference = 2 * Math.PI * radius;
-  const progressRatio = progress / duration;
+  const progressRatio = Math.min(progress / duration, 1);
   const progressOffset = circumference * progressRatio;
 
   return (

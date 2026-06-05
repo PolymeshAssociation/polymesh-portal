@@ -55,6 +55,9 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
   const [selectedLegs, setSelectedLegs] = useState<TSelectedLeg[]>([
     { index: 0 } as TSelectedLeg,
   ]);
+  const [legValidityErrors, setLegValidityErrors] = useState<Set<number>>(
+    new Set(),
+  );
   const { isMobile } = useWindowWidth();
 
   useEffect(() => {
@@ -134,17 +137,36 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
   const handleDeleteLegField = useCallback((index: number) => {
     setLegIndexes((prev) => prev.filter((prevIndex) => prevIndex !== index));
     setSelectedLegs((prev) => prev.filter((leg) => leg.index !== index));
+    setLegValidityErrors((prev) => {
+      const next = new Set(prev);
+      next.delete(index);
+      return next;
+    });
   }, []);
+
+  const handleLegValidityChange = useCallback(
+    (legIndex: number, isLegValid: boolean) => {
+      setLegValidityErrors((prev) => {
+        const next = new Set(prev);
+        if (isLegValid) {
+          next.delete(legIndex);
+        } else {
+          next.add(legIndex);
+        }
+        return next;
+      });
+    },
+    [],
+  );
 
   const isDataValid = useMemo(() => {
     return (
       isValid &&
+      legValidityErrors.size === 0 &&
       !!selectedLegs.length &&
       !selectedLegs.some((leg) => {
         const hasRequiredFields = leg.from && leg.to && leg.asset;
         if (!hasRequiredFields) return true;
-
-        if (leg.from.owner.did === leg.to.owner.did) return true;
 
         if ('amount' in leg) {
           return leg.amount.lte(0);
@@ -153,7 +175,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
         return !leg.nfts?.length || leg.nfts.length > MAX_NFTS_PER_LEG;
       })
     );
-  }, [isValid, selectedLegs]);
+  }, [isValid, legValidityErrors, selectedLegs]);
 
   const onSubmit = useCallback(
     async (formData: IAdvancedFieldValues) => {
@@ -248,6 +270,7 @@ export const AdvancedForm: React.FC<IAdvancedFormProps> = ({ toggleModal }) => {
           handleDelete={handleDeleteLegField}
           selectedLegs={selectedLegs}
           legIndexes={legIndexes}
+          onValidityChange={handleLegValidityChange}
         />
       ))}
 

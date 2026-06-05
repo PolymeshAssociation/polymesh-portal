@@ -1,33 +1,39 @@
-import { useContext, useEffect, useState } from 'react';
 import {
   InstructionAffirmation,
   Leg,
 } from '@polymeshassociation/polymesh-sdk/types';
+import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { AccountContext } from '~/context/AccountContext';
-import { SkeletonLoader, Text } from '~/components/UiKit';
 import { CopyToClipboard, Icon } from '~/components';
-import {
-  StyledLegWrapper,
-  StyledLeg,
-  StyledLabel,
-  StyledInfoItem,
-  StyledInfoValue,
-  StyledExpandedErrors,
-  StyledNftsWrapper,
-  StyledNftItem,
-  StyledNftImage,
-  StyledClickableWrapper,
-} from './styles';
+import { AssetDetailsModal } from '~/components/AssetDetailsModal';
+import { SkeletonLoader, Text } from '~/components/UiKit';
+import { AccountContext } from '~/context/AccountContext';
 import { formatBalance, formatDid, formatUuid } from '~/helpers/formatters';
+import { useWindowWidth } from '~/hooks/utility';
+import {
+  getAssetHolderIdentifier,
+  getDidIdentifier,
+  isPortfolioHolder,
+} from '~/layouts/Transfers/helpers';
 import {
   EInstructionDirection,
   getAffirmationStatus,
+  getAssetHolderName,
   getLegDirection,
   parseNfts,
 } from './helpers';
-import { useWindowWidth } from '~/hooks/utility';
-import { AssetDetailsModal } from '~/components/AssetDetailsModal';
+import {
+  StyledClickableWrapper,
+  StyledExpandedErrors,
+  StyledInfoItem,
+  StyledInfoValue,
+  StyledLabel,
+  StyledLeg,
+  StyledLegWrapper,
+  StyledNftImage,
+  StyledNftItem,
+  StyledNftsWrapper,
+} from './styles';
 
 interface ILegProps {
   data: {
@@ -37,10 +43,14 @@ interface ILegProps {
   affirmationsData: InstructionAffirmation[];
 }
 interface ILegDetails {
+  sendingIdentifier: string;
   sendingDid: string;
   sendingName: string;
+  sendingAddress?: string;
+  receivingIdentifier: string;
   receivingDid: string;
   receivingName: string;
+  receivingAddress?: string;
   asset: string;
   amount: string;
   direction: `${EInstructionDirection}`;
@@ -54,7 +64,8 @@ export const InstructionLeg: React.FC<ILegProps> = ({
   data: { leg, errors },
   affirmationsData,
 }) => {
-  const { identity } = useContext(AccountContext);
+  const { identity, selectedAccount, allAccountsWithMeta } =
+    useContext(AccountContext);
   const [legDetails, setLegDetails] = useState<ILegDetails | null>(null);
   const [legErrorExpanded, setLegErrorExpanded] = useState(false);
   const [isAssetDetailsModalOpen, setAssetDetailsModalOpen] = useState(false);
@@ -69,13 +80,15 @@ export const InstructionLeg: React.FC<ILegProps> = ({
   };
 
   useEffect(() => {
-    if (!leg || !identity) return;
+    if (!leg) return;
 
     (async () => {
       if ('offChainAmount' in leg) {
         const parsedData = {
+          sendingIdentifier: getDidIdentifier(leg.from.did),
           sendingDid: leg.from.did,
           sendingName: 'Off Chain',
+          receivingIdentifier: getDidIdentifier(leg.to.did),
           receivingDid: leg.to.did,
           receivingName: 'Off Chain',
           asset: leg.asset,
@@ -86,22 +99,8 @@ export const InstructionLeg: React.FC<ILegProps> = ({
         return;
       }
       const { from, to, asset } = leg;
-      let fromName = '';
-      let toName = '';
-      if ('id' in from) {
-        try {
-          fromName = `${from.id.toString()} / ${await from.getName()}`;
-        } catch (error) {
-          fromName = `${from.id.toString()} / unknown`;
-        }
-      }
-      if ('id' in to) {
-        try {
-          toName = `${to.id.toString()} / ${await to.getName()}`;
-        } catch (error) {
-          toName = `${to.id.toString()} / unknown`;
-        }
-      }
+      const fromName = await getAssetHolderName(from);
+      const toName = await getAssetHolderName(to);
       const amount =
         'amount' in leg
           ? formatBalance(leg.amount.toNumber())
@@ -109,20 +108,49 @@ export const InstructionLeg: React.FC<ILegProps> = ({
 
       const nfts = 'nfts' in leg ? await parseNfts(leg.nfts) : [];
 
+      let sendingDid: string;
+      let sendingAddress: string | undefined;
+      if (isPortfolioHolder(from)) {
+        sendingDid = from.owner.did;
+      } else {
+        sendingAddress = from.address;
+        const fromIdentity = await from.getIdentity();
+        sendingDid = fromIdentity?.did ?? '';
+      }
+
+      let receivingDid: string;
+      let receivingAddress: string | undefined;
+      if (isPortfolioHolder(to)) {
+        receivingDid = to.owner.did;
+      } else {
+        receivingAddress = to.address;
+        const toIdentity = await to.getIdentity();
+        receivingDid = toIdentity?.did ?? '';
+      }
+
       const parsedData = {
-        sendingDid: from.owner.did,
-        sendingName: fromName || 'Default',
-        receivingDid: to.owner.did,
-        receivingName: toName || 'Default',
+        sendingIdentifier: getAssetHolderIdentifier(from),
+        sendingDid,
+        sendingName: fromName,
+        sendingAddress,
+        receivingIdentifier: getAssetHolderIdentifier(to),
+        receivingDid,
+        receivingName: toName,
+        receivingAddress,
         asset: asset.id,
-        direction: getLegDirection({ from, to, identity }),
+        direction: getLegDirection({
+          from,
+          to,
+          identity,
+          accountAddress: selectedAccount,
+        }),
         amount,
         nfts,
       } as ILegDetails;
 
       setLegDetails(parsedData);
     })();
-  }, [affirmationsData, leg, identity]);
+  }, [affirmationsData, leg, identity, selectedAccount]);
 
   return legDetails ? (
     <StyledLegWrapper>
@@ -160,48 +188,78 @@ export const InstructionLeg: React.FC<ILegProps> = ({
           </Text>
         </StyledInfoItem>
         <StyledInfoItem>
-          Sending DID
+          Sending Participant
           <StyledInfoValue
             $affirmationStatus={getAffirmationStatus(
               affirmationsData,
-              legDetails.sendingDid,
+              legDetails.sendingIdentifier,
             )}
           >
             <Text size="large" bold>
               {legDetails.sendingDid === identity?.did
-                ? 'Selected DID'
+                ? 'Selected participant'
                 : formatDid(legDetails.sendingDid)}
             </Text>
-            <CopyToClipboard value={legDetails.sendingDid} />
+            <CopyToClipboard
+              value={legDetails.sendingDid || legDetails.sendingAddress || ''}
+            />
           </StyledInfoValue>
         </StyledInfoItem>
         <StyledInfoItem>
-          Sending Portfolio
-          <Text size="large" bold>
-            {legDetails.sendingName}
-          </Text>
+          Sending Holder
+          {legDetails.sendingAddress ? (
+            <StyledInfoValue>
+              <Text size="large" bold>
+                {allAccountsWithMeta.find(
+                  (a) => a.address === legDetails.sendingAddress,
+                )?.meta.name ?? formatDid(legDetails.sendingAddress)}
+              </Text>
+              <CopyToClipboard value={legDetails.sendingAddress} />
+            </StyledInfoValue>
+          ) : (
+            <Text size="large" bold>
+              {legDetails.sendingName}
+            </Text>
+          )}
         </StyledInfoItem>
         <StyledInfoItem>
-          Receiving DID
+          Receiving Participant
           <StyledInfoValue
             $affirmationStatus={getAffirmationStatus(
               affirmationsData,
-              legDetails.receivingDid,
+              legDetails.receivingIdentifier,
             )}
           >
             <Text size="large" bold>
               {legDetails.receivingDid === identity?.did
-                ? 'Selected DID'
-                : formatDid(legDetails.receivingDid)}
+                ? 'Selected participant'
+                : formatDid(
+                    legDetails.receivingDid || legDetails.receivingAddress,
+                  )}
             </Text>
-            <CopyToClipboard value={legDetails.receivingDid} />
+            <CopyToClipboard
+              value={
+                legDetails.receivingDid || legDetails.receivingAddress || ''
+              }
+            />
           </StyledInfoValue>
         </StyledInfoItem>
         <StyledInfoItem>
-          Receiving Portfolio
-          <Text size="large" bold>
-            {legDetails.receivingName}
-          </Text>
+          Receiving Holder
+          {legDetails.receivingAddress ? (
+            <StyledInfoValue>
+              <Text size="large" bold>
+                {allAccountsWithMeta.find(
+                  (a) => a.address === legDetails.receivingAddress,
+                )?.meta.name ?? formatDid(legDetails.receivingAddress)}
+              </Text>
+              <CopyToClipboard value={legDetails.receivingAddress} />
+            </StyledInfoValue>
+          ) : (
+            <Text size="large" bold>
+              {legDetails.receivingName}
+            </Text>
+          )}
         </StyledInfoItem>
         <StyledInfoItem>
           {isSmallScreen && 'Status'}
@@ -235,7 +293,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
                 key={nft.id}
                 onClick={() =>
                   window.open(
-                    `${window.location.origin}/portfolio?nftCollection=${legDetails.asset}&nftId=${nft.id}`,
+                    `${window.location.origin}/balances?nftCollection=${legDetails.asset}&nftId=${nft.id}`,
                     '_blank',
                   )
                 }

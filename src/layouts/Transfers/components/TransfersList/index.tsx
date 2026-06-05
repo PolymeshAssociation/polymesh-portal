@@ -1,44 +1,44 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Instruction,
-  GroupedInstructions,
-  AffirmationStatus,
-} from '@polymeshassociation/polymesh-sdk/types';
-import { useSearchParams } from 'react-router-dom';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { InstructionsContext } from '~/context/InstructionsContext';
+import {
+  AffirmationStatus,
+  GroupedInstructions,
+  Instruction,
+} from '@polymeshassociation/polymesh-sdk/types';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Icon, Pagination } from '~/components';
+import { Button, SkeletonLoader } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
+import { InstructionsContext } from '~/context/InstructionsContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
-import { Icon, Pagination } from '~/components';
-import {
-  StyledSelectionWrapper,
-  SelectAllButton,
-  StyledSelected,
-  StyledTransfersList,
-  StyledButtonWrapper,
-  StyledActionButton,
-  ClearSelectionButton,
-  TransfersPlaceholder,
-  StyledPaginationContainer,
-  StyledPerPageWrapper,
-  StyledPerPageSelect,
-} from './styles';
-import { TransferItem } from '../TransferItem';
-import { getLegErrors } from '../TransferItem/helpers';
 import { notifyError } from '~/helpers/notifications';
+import { useWindowWidth } from '~/hooks/utility';
+import { calculateCounterparties } from '../../helpers';
 import {
-  EInstructionTypes,
   EActionTypes,
+  EInstructionTypes,
   ESortOptions,
   InstructionAction,
   InstructionData,
 } from '../../types';
+import { TransferItem } from '../TransferItem';
+import { dedupeAffirmations, getLegErrors } from '../TransferItem/helpers';
 import { createTransactionChunks, createTransactions } from './helpers';
-import { useWindowWidth } from '~/hooks/utility';
-import { SkeletonLoader, Button } from '~/components/UiKit';
 import { useTransfersPagination } from './hooks';
-import { calculateCounterparties } from '../../helpers';
+import {
+  ClearSelectionButton,
+  SelectAllButton,
+  StyledActionButton,
+  StyledButtonWrapper,
+  StyledPaginationContainer,
+  StyledPerPageSelect,
+  StyledPerPageWrapper,
+  StyledSelected,
+  StyledSelectionWrapper,
+  StyledTransfersList,
+  TransfersPlaceholder,
+} from './styles';
 
 interface ITransfersListProps {
   sortBy: ESortOptions;
@@ -123,11 +123,7 @@ export const TransfersList: React.FC<ITransfersListProps> = ({ sortBy }) => {
               const { data: affirmations } =
                 await instruction.getAffirmations();
               const details = await instruction.details();
-              const uniqueAffirmations = affirmations.filter(
-                (a, index, self) =>
-                  index ===
-                  self.findIndex((t) => t.identity.did === a.identity.did),
-              );
+              const uniqueAffirmations = dedupeAffirmations(affirmations);
               const legErrors = await Promise.all(
                 legs.map(async (leg) => ({
                   leg,

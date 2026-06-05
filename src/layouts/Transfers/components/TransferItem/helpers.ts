@@ -1,31 +1,43 @@
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import {
+  AffirmationStatus,
+  FungibleAsset,
   Identity,
   InstructionAffirmation,
   InstructionDetails,
+  InstructionType,
   Leg,
-  FungibleAsset,
   NftCollection,
   TransferError,
-  InstructionType,
-  AffirmationStatus,
 } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  getAffirmationIdentifier,
+  getAssetHolderIdentifier,
+  getSelectedParticipantIdentifiers,
+} from '../../helpers';
 
 export const isLastManualAffirmation = ({
   instructionAffirmations,
   counterparties,
   identity,
+  accountAddress,
 }: {
   instructionAffirmations: InstructionAffirmation[];
   counterparties: number;
   identity: Identity | null;
+  accountAddress?: string;
 }) => {
-  if (!identity) return false;
+  const selectedParticipants = getSelectedParticipantIdentifiers({
+    identityDid: identity?.did,
+    accountAddress,
+  });
+
+  if (!selectedParticipants.length) return false;
 
   if (
     instructionAffirmations.length === counterparties - 1 &&
-    !instructionAffirmations.find(
-      (affirmation) => affirmation.identity.did === identity.did,
+    !instructionAffirmations.find((affirmation) =>
+      selectedParticipants.includes(getAffirmationIdentifier(affirmation)),
     )
   ) {
     return true;
@@ -42,14 +54,47 @@ export const getLatestBlockNumber = async (sdk: Polymesh | null) => {
 
 export const getAffirmationStatus = (
   affirmations: InstructionAffirmation[],
-  custodianDid: string,
+  participantIdentifier: string,
 ) => {
   const currentAffirmation = affirmations.find(
-    (affirmation) => affirmation.identity.did === custodianDid,
+    (affirmation) =>
+      getAffirmationIdentifier(affirmation) === participantIdentifier,
   );
   if (!currentAffirmation) return AffirmationStatus.Unknown;
 
   return currentAffirmation.status;
+};
+
+export const getSelectedAffirmationStatus = ({
+  affirmations,
+  identityDid,
+  accountAddress,
+}: {
+  affirmations: InstructionAffirmation[];
+  identityDid?: string | null;
+  accountAddress?: string;
+}) => {
+  const selectedParticipants = getSelectedParticipantIdentifiers({
+    identityDid,
+    accountAddress,
+  });
+
+  if (!selectedParticipants.length) {
+    return AffirmationStatus.Unknown;
+  }
+
+  const statuses = selectedParticipants.map((participant) =>
+    getAffirmationStatus(affirmations, participant),
+  );
+
+  if (statuses.includes(AffirmationStatus.Affirmed)) {
+    return AffirmationStatus.Affirmed;
+  }
+
+  return (
+    statuses.find((status) => status !== AffirmationStatus.Unknown) ||
+    AffirmationStatus.Unknown
+  );
 };
 
 export const getLegErrors = async ({
@@ -112,7 +157,7 @@ export const getLegErrors = async ({
           ) {
             const status = getAffirmationStatus(
               affirmationsData,
-              from.owner.did,
+              getAssetHolderIdentifier(from),
             );
             return status === AffirmationStatus.Affirmed ? '' : error;
           }
@@ -140,8 +185,14 @@ export const getLegErrors = async ({
     instructionDetails.type === InstructionType.SettleOnBlock &&
     instructionDetails.endBlock.toNumber() < latestBlock
   ) {
-    const fromStatus = getAffirmationStatus(affirmationsData, from.owner.did);
-    const toStatus = getAffirmationStatus(affirmationsData, to.owner.did);
+    const fromStatus = getAffirmationStatus(
+      affirmationsData,
+      getAssetHolderIdentifier(from),
+    );
+    const toStatus = getAffirmationStatus(
+      affirmationsData,
+      getAssetHolderIdentifier(to),
+    );
     if (
       !(fromStatus === AffirmationStatus.Affirmed) ||
       !(toStatus === AffirmationStatus.Affirmed)
@@ -153,4 +204,18 @@ export const getLegErrors = async ({
   }
 
   return errors;
+};
+
+export const dedupeAffirmations = (
+  affirmations: InstructionAffirmation[],
+): InstructionAffirmation[] => {
+  return affirmations.filter(
+    (affirmation, index, self) =>
+      index ===
+      self.findIndex(
+        (candidate) =>
+          getAffirmationIdentifier(candidate) ===
+          getAffirmationIdentifier(affirmation),
+      ),
+  );
 };

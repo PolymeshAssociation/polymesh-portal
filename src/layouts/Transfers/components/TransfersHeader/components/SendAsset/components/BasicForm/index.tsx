@@ -1,11 +1,22 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { Venue, VenueDetails } from '@polymeshassociation/polymesh-sdk/types';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import AssetForm from '~/components/AssetForm';
 import { MAX_NFTS_PER_LEG } from '~/components/AssetForm/constants';
-import { useAssetForm } from '~/components/AssetForm/hooks';
+import {
+  IAccountAssetSource,
+  useAssetForm,
+} from '~/components/AssetForm/hooks';
 import { Button, DropdownSelect } from '~/components/UiKit';
+import { AccountContext } from '~/context/AccountContext';
 import { InstructionsContext } from '~/context/InstructionsContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { PortfolioContext } from '~/context/PortfolioContext';
@@ -18,7 +29,7 @@ import {
   StyledLabel,
 } from '../../../styles';
 import { InputWrapper, StyledErrorMessage } from '../../styles';
-import { BASIC_FORM_CONFIG, IBasicFieldValues } from '../config';
+import { createBasicFormConfig, IBasicFieldValues } from '../config';
 import { createBasicInstructionParams } from '../helpers';
 
 interface IBasicFormProps {
@@ -33,16 +44,39 @@ interface IVenueWithDetails {
 export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   const { createdVenues, instructionsLoading, refreshInstructions } =
     useContext(InstructionsContext);
-  const { allPortfolios } = useContext(PortfolioContext);
+  const { allPortfolios, allAccountsData } = useContext(PortfolioContext);
+  const { selectedAccount } = useContext(AccountContext);
   const {
     api: { sdk },
   } = useContext(PolymeshContext);
 
+  const formConfigRef = useRef<ReturnType<typeof createBasicFormConfig> | null>(
+    null,
+  );
+  if (formConfigRef.current === null) {
+    formConfigRef.current = createBasicFormConfig((address) => {
+      if (!sdk) return false;
+      try {
+        return sdk.accountManagement.isValidAddress({ address });
+      } catch {
+        return false;
+      }
+    });
+  }
+
+  const accountData = allAccountsData[selectedAccount];
+  const hasAccountAssets = !!(
+    accountData &&
+    (accountData.assets.length > 0 || accountData.collections.length > 0)
+  );
+
   const [removeSelection, setRemoveSelection] = useState<boolean>(false);
   const [venues, setVenues] = useState<IVenueWithDetails[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
-  const [selectedPortfolio, setSelectedPortfolio] =
-    useState<IPortfolioData | null>(allPortfolios[0]);
+  const [senderSource, setSenderSource] = useState<
+    IPortfolioData | IAccountAssetSource | null
+  >(allPortfolios[0] ?? null);
+  const [recipientDIDError, setRecipientDIDError] = useState('');
 
   const { isMobile } = useWindowWidth();
   const {
@@ -51,7 +85,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     formState: { errors, isValid },
     setValue,
     reset,
-  } = useForm<IBasicFieldValues>(BASIC_FORM_CONFIG);
+  } = useForm<IBasicFieldValues>(formConfigRef.current);
   const { executeTransaction, isTransactionInProgress } =
     useTransactionStatusContext();
   const {
@@ -63,7 +97,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     getNftsPerCollection,
     handleDeleteAsset,
     handleSelectAsset,
-  } = useAssetForm(selectedPortfolio);
+  } = useAssetForm(senderSource);
 
   useEffect(() => {
     if (instructionsLoading) return;
@@ -119,38 +153,112 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     [createdVenues, setValue],
   );
 
+  const getSenderDid = useCallback(async (): Promise<string | null> => {
+    if (!senderSource || !sdk) return null;
+    if ('accountCollections' in senderSource) {
+      const acc = await sdk.accountManagement.getAccount({
+        address: (senderSource as IAccountAssetSource).address,
+      });
+      const identity = await acc.getIdentity();
+      return identity?.did ?? null;
+    }
+    return (senderSource as IPortfolioData).portfolio.owner.did;
+  }, [senderSource, sdk]);
+
+  const handleRecipientBlur = useCallback(
+    async (value: string) => {
+      if (!value || !sdk) {
+        setRecipientDIDError('');
+        return;
+      }
+      try {
+        let recipientDid: string | null = null;
+        if (/^0x[0-9a-fA-F]{64}$/.test(value)) {
+          recipientDid = value;
+        } else if (sdk.accountManagement.isValidAddress({ address: value })) {
+          const acc = await sdk.accountManagement.getAccount({
+            address: value,
+          });
+          const identity = await acc.getIdentity();
+          recipientDid = identity?.did ?? null;
+        } else {
+          setRecipientDIDError('');
+          return;
+        }
+
+        if (recipientDid === null) {
+          setRecipientDIDError('');
+          return;
+        }
+
+        const senderDid = await getSenderDid();
+        if (senderDid !== null && senderDid === recipientDid) {
+          setRecipientDIDError(
+            'Recipient belongs to the same identity as the sender. Transfers within the same identity are not permitted for settlements.',
+          );
+        } else {
+          setRecipientDIDError('');
+        }
+      } catch {
+        setRecipientDIDError('');
+      }
+    },
+    [getSenderDid, sdk],
+  );
+
   const handleSenderSelect = useCallback(
     (combinedId: string | null) => {
       if (!combinedId) {
-        setSelectedPortfolio(null);
+        setSenderSource(null);
         setValue('senderPortfolio', '', { shouldValidate: true });
         return;
       }
+
+      if (combinedId === 'Account') {
+        if (accountData) {
+          setSenderSource({
+            name: 'Account',
+            address: selectedAccount,
+            assets: accountData.assets,
+            accountCollections: accountData.collections,
+          });
+          setValue('senderPortfolio', 'account', { shouldValidate: true });
+        }
+        return;
+      }
+
       const id = combinedId.split('/')[0].trim();
       const selectedSendingPortfolio = allPortfolios.find((item) =>
         Number.isNaN(Number(id)) ? item.id === 'default' : item.id === id,
       );
       if (selectedSendingPortfolio) {
-        setSelectedPortfolio(selectedSendingPortfolio);
+        setSenderSource(selectedSendingPortfolio);
         setValue('senderPortfolio', selectedSendingPortfolio.id, {
           shouldValidate: true,
         });
       } else {
-        setSelectedPortfolio(null);
+        setSenderSource(null);
         setValue('senderPortfolio', '', { shouldValidate: true });
       }
     },
-    [allPortfolios, setValue],
+    [accountData, allPortfolios, selectedAccount, setValue],
   );
 
   const onSubmit = async (formData: IBasicFieldValues) => {
-    if (!selectedPortfolio || !sdk) return;
+    if (!senderSource || !sdk) return;
+
+    const isAccountSender = 'accountCollections' in senderSource;
 
     try {
       const transactionPromise = sdk.settlements.addInstruction(
         createBasicInstructionParams({
           selectedAssets: Object.values(selectedAssets),
-          selectedPortfolio,
+          selectedPortfolio: isAccountSender
+            ? undefined
+            : (senderSource as IPortfolioData),
+          senderAddress: isAccountSender
+            ? (senderSource as IAccountAssetSource).address
+            : undefined,
           formData,
         }),
       );
@@ -173,7 +281,8 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
   const isDataValid = useMemo(() => {
     return (
       isValid &&
-      !!selectedPortfolio &&
+      !recipientDIDError &&
+      !!senderSource &&
       !!Object.keys(selectedAssets).length &&
       !Object.values(selectedAssets).some((asset) => {
         if ('amount' in asset) {
@@ -182,7 +291,17 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
         return !asset.nfts?.length;
       })
     );
-  }, [isValid, selectedPortfolio, selectedAssets]);
+  }, [isValid, recipientDIDError, senderSource, selectedAssets]);
+
+  const getSenderLabel = (
+    source: IPortfolioData | IAccountAssetSource | null,
+  ): string | undefined => {
+    if (!source) return undefined;
+    if ('accountCollections' in source) return 'Account';
+    const portfolio = source as IPortfolioData;
+    if (portfolio.id === 'default') return portfolio.name;
+    return `${portfolio.id} / ${portfolio.name}`;
+  };
 
   return (
     <>
@@ -198,16 +317,19 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
           />
         )}
       </InputWrapper>
-      {allPortfolios.length > 1 && (
+      {allPortfolios.length + (hasAccountAssets ? 1 : 0) > 1 && (
         <InputWrapper $marginBottom={24}>
           <DropdownSelect
-            selected={allPortfolios[0].name}
-            label="Sending Portfolio"
-            placeholder="Select portfolio"
+            selected={getSenderLabel(senderSource)}
+            label="Sending From"
+            placeholder="Select portfolio or account"
             onChange={handleSenderSelect}
-            options={allPortfolios.map(({ id, name }) =>
-              id === 'default' ? name : `${id} / ${name}`,
-            )}
+            options={[
+              ...allPortfolios.map(({ id, name }) =>
+                id === 'default' ? 'Default Portfolio' : `${id} / ${name}`,
+              ),
+              ...(hasAccountAssets ? ['Selected Account'] : []),
+            ]}
             error={undefined}
             enableSearch
           />
@@ -222,13 +344,20 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
         <StyledLabel htmlFor="recipient">Recipient</StyledLabel>
         <StyledInput
           id="recipient"
-          placeholder="Enter recipient address"
+          placeholder="Enter recipient DID or account address"
           {...register('recipient')}
+          onBlur={(e) => {
+            register('recipient').onBlur(e);
+            handleRecipientBlur(e.target.value);
+          }}
         />
         {!!errors?.recipient?.message && (
           <StyledErrorMessage>
             {errors?.recipient?.message as string}
           </StyledErrorMessage>
+        )}
+        {!errors?.recipient?.message && !!recipientDIDError && (
+          <StyledErrorMessage>{recipientDIDError}</StyledErrorMessage>
         )}
       </InputWrapper>
       <InputWrapper $marginBottom={24}>
@@ -249,7 +378,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
           index={asset}
           assets={assets}
           collections={collections}
-          portfolioName={selectedPortfolio?.name || ''}
+          portfolioName={senderSource?.name || ''}
           nfts={nfts}
           getNftsPerCollection={getNftsPerCollection}
           handleDeleteAsset={handleDeleteAsset}

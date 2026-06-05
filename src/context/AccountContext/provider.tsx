@@ -243,7 +243,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
   // Attach / detach the signing manager to the SDK whenever it changes.
   // Intentionally separate from the account-loading effect (no re-fetch).
   useEffect(() => {
-    if (!sdk || !accountRef.current) return;
+    if (!sdk || !selectedAccount) return;
 
     (async () => {
       try {
@@ -258,7 +258,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
             await sdk.setSigningManager(signingManager);
             connectedSigningManagerRef.current = signingManager;
           }
-          if (accountRef.current) sdk.setSigningAccount(accountRef.current);
+          sdk.setSigningAccount(selectedAccount);
         } else {
           await sdk.setSigningManager(null);
           connectedSigningManagerRef.current = null;

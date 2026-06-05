@@ -20,8 +20,8 @@ export const TokenCell: React.FC<ICellProps> = ({ info }) => {
       <StyledIconWrapper $background={stringToColor(assetId)}>
         <Icon name="Coins" size="20px" />
       </StyledIconWrapper>
-      {name}
-      {ticker ? ` (${ticker})` : '-'}
+      {name || ''}
+      {ticker ? ` (${ticker})` : ''}
     </StyledCell>
   );
 };

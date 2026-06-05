@@ -80,16 +80,22 @@ export const getTotalSelectedInSamePortfolio = ({
       return false;
     }
 
-    return (
-      leg.asset === asset.id &&
-      (leg.from as DefaultPortfolio | NumberedPortfolio).owner.did === sender
-    );
+    const fromMatchesSender =
+      typeof leg.from === 'string'
+        ? leg.from === sender
+        : (leg.from as DefaultPortfolio | NumberedPortfolio).owner.did ===
+          sender;
+
+    return leg.asset === asset.id && fromMatchesSender;
   });
 
   return (totalSameAssets as ISelectedLegFungible[]).reduce(
     (acc, { from, amount, index }) => {
       if (!from || !amount || index === assetIndex) {
         return acc;
+      }
+      if (typeof from === 'string') {
+        return from === sender ? acc + amount.toNumber() : acc;
       }
       if (
         from instanceof DefaultPortfolioInstance &&

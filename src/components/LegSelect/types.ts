@@ -8,14 +8,14 @@ import {
 } from '~/components/AssetForm/constants';
 
 export interface ISelectedLegFungible extends IFungibleAsset {
-  from: DefaultPortfolio | NumberedPortfolio;
-  to: DefaultPortfolio | NumberedPortfolio;
+  from: DefaultPortfolio | NumberedPortfolio | string;
+  to: DefaultPortfolio | NumberedPortfolio | string;
   index: number;
 }
 
 export interface ISelectedLegNonFungible extends INonFungibleAsset {
-  from: DefaultPortfolio | NumberedPortfolio;
-  to: DefaultPortfolio | NumberedPortfolio;
+  from: DefaultPortfolio | NumberedPortfolio | string;
+  to: DefaultPortfolio | NumberedPortfolio | string;
   index: number;
 }
 
