@@ -19,7 +19,7 @@ jobs:
       issues: write
     steps:
       - name: Polymesh Action - Auth and Fast-Forward
-        uses: PolymeshAssociation/polymesh-action-public@v2.0.1
+        uses: PolymeshAssociation/polymesh-action-public@v2.0.2
         with:
           allowed-signers: ${{ vars.MIDDLEWARE_ALLOWED_SIGNERS }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
