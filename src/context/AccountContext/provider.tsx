@@ -490,6 +490,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
     }
 
     const fetchCddStatus = async () => {
+      // eslint-disable-next-line deprecation/deprecation -- pre-v8 chains only
       setIdentityHasValidCdd(await identity.hasValidCdd());
     };
 

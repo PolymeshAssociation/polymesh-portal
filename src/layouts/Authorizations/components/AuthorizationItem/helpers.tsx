@@ -251,6 +251,8 @@ const parseDetails = async (
         },
       ];
 
+    case AuthorizationType.OldAddRelayerPayingKey:
+    // eslint-disable-next-line no-fallthrough, deprecation/deprecation -- legacy v7 authorization type
     case AuthorizationType.AddRelayerPayingKey:
       return [
         {

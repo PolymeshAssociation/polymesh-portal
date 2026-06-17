@@ -168,7 +168,7 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
           }),
         ),
       },
-      [AuthorizationType.AddRelayerPayingKey]: {
+      [AuthorizationType.OldAddRelayerPayingKey]: {
         mode: 'onTouched' as keyof ValidationMode,
         defaultValues: {
           [INPUT_NAMES.ALLOWANCE]: '',
@@ -271,6 +271,7 @@ export const useSubmitHandler = () => {
   >([]);
   const {
     api: { sdk },
+    state: { isV8Plus },
   } = useContext(PolymeshContext);
   const { allPortfolios } = useContext(PortfolioContext);
   const { executeTransaction } = useTransactionStatusContext();
@@ -537,7 +538,7 @@ export const useSubmitHandler = () => {
       }
     },
 
-    [AuthorizationType.AddRelayerPayingKey]: async (data: FieldValues) => {
+    [AuthorizationType.OldAddRelayerPayingKey]: async (data: FieldValues) => {
       if (!sdk) return;
       const allowance = data.allowance as number;
       const beneficiary = data.beneficiary as string;
@@ -547,9 +548,31 @@ export const useSubmitHandler = () => {
       };
 
       try {
+        if (isV8Plus) {
+          const {
+            signerPermissions: { result },
+          } =
+            await sdk.accountManagement.approveSubsidy.checkAuthorization(args);
+
+          if (!result) {
+            notifyWarning(
+              "The signing Account doesn't have the required permissions to execute this procedure",
+            );
+            return;
+          }
+
+          await executeTransaction(sdk.accountManagement.approveSubsidy(args), {
+            onSuccess: () => {
+              refreshAuthorizations();
+            },
+          });
+          return;
+        }
+
         const {
           signerPermissions: { result },
         } =
+          // eslint-disable-next-line deprecation/deprecation -- pre-v8 chains only
           await sdk.accountManagement.subsidizeAccount.checkAuthorization(args);
 
         if (!result) {
@@ -559,11 +582,15 @@ export const useSubmitHandler = () => {
           return;
         }
 
-        await executeTransaction(sdk.accountManagement.subsidizeAccount(args), {
-          onSuccess: () => {
-            refreshAuthorizations();
+        await executeTransaction(
+          // eslint-disable-next-line deprecation/deprecation -- pre-v8 chains only
+          sdk.accountManagement.subsidizeAccount(args),
+          {
+            onSuccess: () => {
+              refreshAuthorizations();
+            },
           },
-        });
+        );
       } catch (error) {
         // Error is already handled by the transaction context and notified to the user
         // This catch block prevents unhandled promise rejection

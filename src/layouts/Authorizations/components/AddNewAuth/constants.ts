@@ -47,7 +47,7 @@ export type AllowedAuthTypes =
   | AuthorizationType.TransferTicker
   | AuthorizationType.TransferAssetOwnership
   | AuthorizationType.JoinIdentity
-  | AuthorizationType.AddRelayerPayingKey
+  | AuthorizationType.OldAddRelayerPayingKey
   | AuthorizationType.BecomeAgent
   | AuthorizationType.PortfolioCustody
   | AuthorizationType.RotatePrimaryKey

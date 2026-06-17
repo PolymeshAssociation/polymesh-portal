@@ -176,7 +176,9 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
             {Object.values(AuthorizationType)
               .filter(
                 (authType) =>
-                  authType !== AuthorizationType.AttestPrimaryKeyRotation,
+                  authType !== AuthorizationType.AttestPrimaryKeyRotation &&
+                  // eslint-disable-next-line deprecation/deprecation -- superseded by OldAddRelayerPayingKey on v8
+                  authType !== AuthorizationType.AddRelayerPayingKey,
               )
               .sort((authType) =>
                 disabledAuthTypes.includes(authType) ? 1 : -1,

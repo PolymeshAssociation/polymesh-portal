@@ -137,7 +137,7 @@ export const configureInputs = (type: `${AuthorizationType}` | null) => {
           placeholder: 'Enter ID',
         },
       ];
-    case AuthorizationType.AddRelayerPayingKey:
+    case AuthorizationType.OldAddRelayerPayingKey:
       return [
         {
           id: INPUT_NAMES.ALLOWANCE,

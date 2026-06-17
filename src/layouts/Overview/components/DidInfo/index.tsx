@@ -52,6 +52,7 @@ export const DidInfo = () => {
     }
 
     (async () => {
+      // eslint-disable-next-line deprecation/deprecation -- pre-v8 chains only
       const claims = await sdk.claims.getCddClaims({ target: identity });
       if (!claims.length) {
         setExpiry(undefined);
