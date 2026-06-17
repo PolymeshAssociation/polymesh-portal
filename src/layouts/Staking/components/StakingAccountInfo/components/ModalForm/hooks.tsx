@@ -17,6 +17,12 @@ export const useModalForm = (modalType: EModalOptions | null, max?: number) => {
     api: { sdk },
   } = useContext(PolymeshContext);
 
+  const sdkRef = useRef(sdk);
+  sdkRef.current = sdk;
+
+  const maxRef = useRef(max);
+  maxRef.current = max;
+
   // Lazily build and cache the form config on the first render only.
   const formConfigRef = useRef<{
     mode: keyof ValidationMode;
@@ -26,9 +32,10 @@ export const useModalForm = (modalType: EModalOptions | null, max?: number) => {
 
   if (formConfigRef.current === null && modalType) {
     const isValidAddress = (address: string) => {
-      if (!sdk) return false;
+      const currentSdk = sdkRef.current;
+      if (!currentSdk) return false;
       try {
-        return sdk.accountManagement.isValidAddress({ address });
+        return currentSdk.accountManagement.isValidAddress({ address });
       } catch {
         return false;
       }
@@ -45,7 +52,10 @@ export const useModalForm = (modalType: EModalOptions | null, max?: number) => {
         (value) =>
           value ? /^-?\d+(\.\d{1,6})?$/.test(value.toString()) : true,
       )
-      .max(Number(max), 'Insufficient balance')
+      .test('max-balance', 'Insufficient balance', (value) => {
+        if (value == null || maxRef.current == null) return true;
+        return value <= maxRef.current;
+      })
       .test('is-zero', 'Amount must be greater than 0', (value) => value !== 0);
 
     const specifiedAccountValidation = yup

@@ -44,20 +44,21 @@ export const NftAsset = () => {
     const did = nft.ownerDid;
     const portfolioId = nft.ownerPortfolioId;
 
-    try {
-      (async () => {
+    (async () => {
+      try {
         const name = await polkadotApi.query.portfolio.portfolios(
           did,
           portfolioId,
         );
         if (name.isNone) {
           setPortfolioName('');
+          return;
         }
         setPortfolioName(`${portfolioId} / ${bytesToString(name.unwrap())}`);
-      })();
-    } catch (error) {
-      setPortfolioName('');
-    }
+      } catch {
+        setPortfolioName('');
+      }
+    })();
   }, [nftLoading, nft?.ownerPortfolioId, nft?.ownerDid, polkadotApi]);
 
   if (nftLoading) {

@@ -50,14 +50,18 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
     api: { sdk },
   } = useContext(PolymeshContext);
 
+  const sdkRef = useRef(sdk);
+  sdkRef.current = sdk;
+
   const formConfigRef = useRef<ReturnType<typeof createBasicFormConfig> | null>(
     null,
   );
   if (formConfigRef.current === null) {
     formConfigRef.current = createBasicFormConfig((address) => {
-      if (!sdk) return false;
+      const currentSdk = sdkRef.current;
+      if (!currentSdk) return false;
       try {
-        return sdk.accountManagement.isValidAddress({ address });
+        return currentSdk.accountManagement.isValidAddress({ address });
       } catch {
         return false;
       }
@@ -328,7 +332,7 @@ export const BasicForm: React.FC<IBasicFormProps> = ({ toggleModal }) => {
               ...allPortfolios.map(({ id, name }) =>
                 id === 'default' ? 'Default Portfolio' : `${id} / ${name}`,
               ),
-              ...(hasAccountAssets ? ['Selected Account'] : []),
+              ...(hasAccountAssets ? ['Account'] : []),
             ]}
             error={undefined}
             enableSearch

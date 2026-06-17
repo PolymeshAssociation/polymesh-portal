@@ -44,6 +44,7 @@ export const useNftAsset = () => {
         buildBalanceSearchParams({
           holder: selectedHolder,
           portfolioId: selectedPortfolioId,
+          accountAddress: selectedAccountAddress,
           additionalParams: {
             nftCollection,
           },
@@ -86,6 +87,7 @@ export const useNftAsset = () => {
           buildBalanceSearchParams({
             holder: selectedHolder,
             portfolioId: selectedPortfolioId,
+            accountAddress: selectedAccountAddress,
           }),
         );
       } finally {

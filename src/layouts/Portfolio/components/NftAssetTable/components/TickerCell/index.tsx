@@ -24,7 +24,7 @@ export const TickerCell: React.FC<ITickerCellProps> = ({ info }) => {
         )}
       </StyledImageWrap>
       {name}
-      {ticker ? ` (${ticker})` : '-'}
+      {ticker ? ` (${ticker})` : ''}
     </StyledCell>
   );
 };

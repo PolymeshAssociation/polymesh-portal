@@ -75,6 +75,35 @@ export const InstructionLeg: React.FC<ILegProps> = ({
 
   const isSmallScreen = isMobile || isTablet;
 
+  const isSelectedSendingParticipant =
+    legDetails?.sendingDid === identity?.did ||
+    legDetails?.sendingAddress === selectedAccount;
+
+  const isSelectedReceivingParticipant =
+    legDetails?.receivingDid === identity?.did ||
+    legDetails?.receivingAddress === selectedAccount;
+
+  const getSendingParticipantLabel = () => {
+    if (!legDetails) return '';
+    if (isSelectedSendingParticipant) return 'Selected participant';
+    if (legDetails.sendingDid) return formatDid(legDetails.sendingDid);
+    if (legDetails.sendingAddress) {
+      return (
+        allAccountsWithMeta.find((a) => a.address === legDetails.sendingAddress)
+          ?.meta.name ?? formatDid(legDetails.sendingAddress)
+      );
+    }
+    return 'No identity';
+  };
+
+  const getReceivingParticipantLabel = () => {
+    if (!legDetails) return '';
+    if (isSelectedReceivingParticipant) return 'Selected participant';
+    return formatDid(
+      legDetails.receivingDid || legDetails.receivingAddress || '',
+    );
+  };
+
   const toggleModal = () => {
     setAssetDetailsModalOpen(false);
   };
@@ -196,9 +225,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
             )}
           >
             <Text size="large" bold>
-              {legDetails.sendingDid === identity?.did
-                ? 'Selected participant'
-                : formatDid(legDetails.sendingDid)}
+              {getSendingParticipantLabel()}
             </Text>
             <CopyToClipboard
               value={legDetails.sendingDid || legDetails.sendingAddress || ''}
@@ -231,11 +258,7 @@ export const InstructionLeg: React.FC<ILegProps> = ({
             )}
           >
             <Text size="large" bold>
-              {legDetails.receivingDid === identity?.did
-                ? 'Selected participant'
-                : formatDid(
-                    legDetails.receivingDid || legDetails.receivingAddress,
-                  )}
+              {getReceivingParticipantLabel()}
             </Text>
             <CopyToClipboard
               value={
