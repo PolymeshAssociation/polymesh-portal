@@ -202,11 +202,6 @@ export const NAV_LINKS = [
         nestedIcon: 'DeveloperIcon',
       },
       {
-        nestedPath: import.meta.env.VITE_TOKENSTUDIO_URL,
-        nestedLabel: 'Token Studio',
-        nestedIcon: 'PolymathLogo',
-      },
-      {
         nestedPath: 'https://polymesh.protofire.io/',
         nestedLabel: 'Asset Explorer',
         nestedIcon: 'ExplorerIcon',
