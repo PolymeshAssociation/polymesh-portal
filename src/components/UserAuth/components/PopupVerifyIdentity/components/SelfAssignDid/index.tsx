@@ -1,12 +1,13 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Icon } from '~/components';
-import { Heading, Text } from '~/components/UiKit';
+import { Heading, SkeletonLoader, Text } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
 import { useAuthContext } from '~/context/AuthContext';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useTransactionStatusContext } from '~/context/TransactionStatusContext';
 import { formatDid } from '~/helpers/formatters';
 import { notifyError } from '~/helpers/notifications';
+import { onboardAccount } from '~/helpers/onboarding';
 import { PopupActionButtons } from '../../../PopupActionButtons';
 import {
   StyledSelfAssignContainer,
@@ -14,7 +15,12 @@ import {
   StyledSelfAssignStatus,
 } from './styles';
 
-type SelfAssignState = 'ready' | 'signing' | 'submitting' | 'success';
+type SelfAssignState =
+  | 'ready'
+  | 'signing'
+  | 'submitting'
+  | 'requesting'
+  | 'success';
 
 export const SelfAssignDid = () => {
   const {
@@ -28,6 +34,15 @@ export const SelfAssignDid = () => {
   const [state, setState] = useState<SelfAssignState>(
     identity?.did ? 'success' : 'ready',
   );
+  const [isTestnet, setIsTestnet] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!sdk) return;
+    (async () => {
+      const { name } = await sdk.network.getNetworkProperties();
+      setIsTestnet(!name.includes('Mainnet'));
+    })();
+  }, [sdk]);
 
   const createOptions = (
     onTransactionRunning?: () => void | Promise<void>,
@@ -69,6 +84,29 @@ export const SelfAssignDid = () => {
     }
   };
 
+  const handleTestnetOnboard = async () => {
+    if (!selectedAccount) return;
+
+    setState('requesting');
+
+    try {
+      await onboardAccount(selectedAccount);
+      refreshAccountIdentity();
+      setState('success');
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Onboarding failed';
+      setState('ready');
+      notifyError(msg);
+    }
+  };
+
+  const handleRegisterDid = () => {
+    if (isTestnet) {
+      return handleTestnetOnboard();
+    }
+    return handleSelfAssign();
+  };
+
   const renderContent = () => {
     if (state === 'success' || identity?.did) {
       return (
@@ -82,6 +120,41 @@ export const SelfAssignDid = () => {
             features.
           </Text>
         </StyledSelfAssignStatus>
+      );
+    }
+
+    if (state === 'requesting') {
+      return (
+        <StyledSelfAssignInfo>
+          <Text size="medium" color="secondary">
+            Requesting your DID and testnet POLYX from the onboarding service.
+            This may take a moment...
+          </Text>
+        </StyledSelfAssignInfo>
+      );
+    }
+
+    if (isTestnet === null) {
+      return (
+        <StyledSelfAssignInfo>
+          <SkeletonLoader height={100} />
+        </StyledSelfAssignInfo>
+      );
+    }
+
+    if (isTestnet) {
+      return (
+        <StyledSelfAssignInfo>
+          <Text size="medium">
+            Create a Decentralized Identity (DID) on the Polymesh testnet. This
+            is a free service — no POLYX is needed to cover the transaction fee
+            on testnet.
+          </Text>
+          <Text size="medium">
+            You will also receive testnet POLYX tokens to use for testing
+            transactions on the network.
+          </Text>
+        </StyledSelfAssignInfo>
       );
     }
 
@@ -104,11 +177,16 @@ export const SelfAssignDid = () => {
     );
   };
 
+  const isProcessing =
+    state === 'signing' || state === 'submitting' || state === 'requesting';
+
   let proceedLabel = 'Create DID';
   if (state === 'signing') {
     proceedLabel = 'Awaiting Signature...';
   } else if (state === 'submitting') {
     proceedLabel = 'Submitting Transaction...';
+  } else if (state === 'requesting') {
+    proceedLabel = 'Requesting DID...';
   }
 
   return (
@@ -117,9 +195,9 @@ export const SelfAssignDid = () => {
       <PopupActionButtons
         proceedLabel={proceedLabel}
         goBackLabel="Close"
-        canProceed={state !== 'signing' && state !== 'submitting'}
+        canProceed={!isProcessing && isTestnet !== null}
         onProceed={
-          state === 'success' || identity?.did ? undefined : handleSelfAssign
+          state === 'success' || identity?.did ? undefined : handleRegisterDid
         }
         onGoBack={() => setIdentityPopup({ type: null })}
         matomoData={{
