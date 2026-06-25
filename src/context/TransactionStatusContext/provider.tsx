@@ -103,6 +103,7 @@ const TransactionStatusProvider = ({
         | (() => void | Promise<void>),
       onError?: (error: Error) => void | Promise<void>,
       onTransactionRunning?: () => void | Promise<void>,
+      onInBlock?: () => void | Promise<void>,
       middlewareCleanup?: {
         middlewareUnsubscribe?: () => void;
         middlewarePromise?: Promise<void>;
@@ -118,6 +119,12 @@ const TransactionStatusProvider = ({
           case TransactionStatus.Running:
             if (onTransactionRunning) {
               onTransactionRunning();
+            }
+            break;
+
+          case TransactionStatus.InBlock:
+            if (onInBlock) {
+              onInBlock();
             }
             break;
 
@@ -187,6 +194,7 @@ const TransactionStatusProvider = ({
     ): Promise<ReturnValue | MultiSigProposal> {
       const {
         onTransactionRunning,
+        onInBlock,
         onProcessedByMiddleware,
         onSuccess,
         onError,
@@ -226,6 +234,7 @@ const TransactionStatusProvider = ({
           onSuccess,
           onError,
           onTransactionRunning,
+          onInBlock,
           { middlewareUnsubscribe, middlewarePromise },
           isProposal,
         );
@@ -271,6 +280,7 @@ const TransactionStatusProvider = ({
     ): Promise<ReturnValue[] | MultiSigProposal> {
       const {
         onTransactionRunning,
+        onInBlock,
         onProcessedByMiddleware,
         onSuccess,
         onError,
@@ -319,6 +329,7 @@ const TransactionStatusProvider = ({
           onSuccess,
           onError,
           onTransactionRunning,
+          onInBlock,
           { middlewareUnsubscribe, middlewarePromise },
           isProposal,
         );

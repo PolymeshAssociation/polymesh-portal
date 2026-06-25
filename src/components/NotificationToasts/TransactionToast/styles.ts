@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import { TransactionStatus } from '@polymeshassociation/polymesh-sdk/types';
+import styled from 'styled-components';
 
 export const StyledInfoWrapper = styled.div`
   display: flex;
@@ -21,6 +21,12 @@ const handleStatusType = (status: `${TransactionStatus}`) => {
         background-color: #170087;
         color: #ffffff;
         `;
+
+    case TransactionStatus.InBlock:
+      return `
+        background-color: #FFF4D6;
+        color: #B7791F;
+  `;
 
     case TransactionStatus.Succeeded:
       return `

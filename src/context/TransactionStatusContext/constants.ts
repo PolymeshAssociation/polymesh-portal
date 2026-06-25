@@ -7,6 +7,7 @@ import {
 // Shared transaction option types
 export interface BaseTransactionOptions {
   onTransactionRunning?: () => void | Promise<void>;
+  onInBlock?: () => void | Promise<void>;
   onProcessedByMiddleware?: () => void | Promise<void>;
   onError?: (error: Error) => void | Promise<void>;
   /**

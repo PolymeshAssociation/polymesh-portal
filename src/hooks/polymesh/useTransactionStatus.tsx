@@ -1,9 +1,9 @@
+import { PolymeshTransactionBatch } from '@polymeshassociation/polymesh-sdk/internal';
 import {
   GenericPolymeshTransaction,
   TransactionStatus,
   TxTag,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { PolymeshTransactionBatch } from '@polymeshassociation/polymesh-sdk/internal';
 import { Id, toast } from 'react-toastify';
 import { TransactionToast } from '~/components/NotificationToasts';
 
@@ -64,6 +64,27 @@ const useTransactionStatus = () => {
           containerId: 'notification-center',
         });
         break;
+
+      case TransactionStatus.InBlock:
+        toast.update(toastId, {
+          render: (
+            <TransactionToast
+              txHash={transaction.txHash}
+              status={transaction.status}
+              tag={tag}
+              isTxBatch={isTxBatch}
+              batchSize={isTxBatch ? transaction.transactions.length : 0}
+              timestamp={Date.now()}
+            />
+          ),
+          type: 'info',
+          isLoading: false,
+          autoClose: false,
+          closeOnClick: false,
+          containerId: 'notification-center',
+        });
+        break;
+
       case TransactionStatus.Succeeded:
         toast.update(toastId, {
           render: (
