@@ -272,7 +272,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
 
   // Create subscription to keyRecords
   useEffect(() => {
-    if (!polkadotApi) return undefined;
+    if (!polkadotApi || !selectedAccount) return undefined;
     let unsubKeyRecord: (() => void) | undefined;
     (async () => {
       unsubKeyRecord = await polkadotApi.query.identity.keyRecords(

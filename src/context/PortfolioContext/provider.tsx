@@ -150,7 +150,9 @@ const PortfolioProvider = ({ children }: IProviderProps) => {
     // Wait until key loading is complete to avoid a premature fetch with an
     // incomplete address list. By the time both flags are false, identityLoading
     // is also guaranteed false (keys load after identity resolves).
-    if (primaryKeyLoading || secondaryKeysLoading || !sdk) return;
+    if (primaryKeyLoading || secondaryKeysLoading || !sdk || !primaryKey) {
+      return;
+    }
 
     // Assets and portfolios are both identity-dependent on Polymesh — nothing
     // meaningful to fetch without one.
