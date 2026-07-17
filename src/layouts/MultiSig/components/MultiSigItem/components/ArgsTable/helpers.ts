@@ -1,4 +1,4 @@
-import { isHex, isAscii, hexToString } from '@polkadot/util';
+import { hexToString, isAscii, isHex } from '@polkadot/util';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { toParsedDateTime } from '~/helpers/dateTime';
 import {
@@ -187,10 +187,6 @@ export function processCallParameters(
       }
       case 'Pips': {
         polyxKeysToConvert = ['deposit'];
-        break;
-      }
-      case 'Contracts': {
-        polyxKeysToConvert = ['value', 'storage_deposit_limit'];
         break;
       }
       case 'Treasury': {

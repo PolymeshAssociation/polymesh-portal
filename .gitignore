@@ -31,3 +31,4 @@ package-lock.json
 .yarn/install-state.gz
 .yarn/unplugged/
 .yarn/build-state.yml
+.claude/

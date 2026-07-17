@@ -1543,15 +1543,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymeshassociation/polymesh-sdk@npm:^30.0.0-beta.1":
-  version: 30.0.0-beta.1
-  resolution: "@polymeshassociation/polymesh-sdk@npm:30.0.0-beta.1"
+"@polymeshassociation/polymesh-sdk@npm:30.0.0-beta.4":
+  version: 30.0.0-beta.4
+  resolution: "@polymeshassociation/polymesh-sdk@npm:30.0.0-beta.4"
   dependencies:
     "@apollo/client": "npm:^3.8.1"
     "@polkadot/api": "npm:16.5.2"
     "@polkadot/util": "npm:13.5.9"
     "@polkadot/util-crypto": "npm:13.5.9"
-    "@polymeshassociation/polymesh-types": "npm:^7.4.0"
+    "@polymeshassociation/polymesh-types": "npm:^7.5.0"
     bignumber.js: "npm:9.0.1"
     cross-fetch: "npm:^4.0.0"
     dayjs: "npm:1.11.9"
@@ -1563,7 +1563,7 @@ __metadata:
     semver: "npm:^7.5.4"
     ts-morph: "npm:^25.0.1"
     ws: "npm:^8.18.3"
-  checksum: 10c0/f127d044af33f67aef0e23a03f5c893b8babb02b895cd34701a755326c7795751d679e9e13e7e9115c7d611a923f0def94ccb854008e939fd8167d4fe1f8fb80
+  checksum: 10c0/ab8050061bb6c7aba060d35c353180883ca5e703baeb305a3456ebf139b81c5e8aa99d96bdd4398ec1478b8f24cf8d8d2dd74369fadf07c813facd6d8a4b6a72
   languageName: node
   linkType: hard
 
@@ -1577,6 +1577,19 @@ __metadata:
     "@polkadot/types": "npm:16.5.2"
     "@polkadot/types-codec": "npm:16.5.2"
   checksum: 10c0/e0ba7d34eee7171f8ed02dfe47295fdbb55bcc4b315d327a724312242fcea3b485064f64a453c9f13cdd1b75197626714482a0e16fe15274223bd3f150c554b8
+  languageName: node
+  linkType: hard
+
+"@polymeshassociation/polymesh-types@npm:^7.5.0":
+  version: 7.5.0
+  resolution: "@polymeshassociation/polymesh-types@npm:7.5.0"
+  dependencies:
+    "@polkadot/api": "npm:16.5.2"
+    "@polkadot/api-base": "npm:16.5.2"
+    "@polkadot/rpc-core": "npm:16.5.2"
+    "@polkadot/types": "npm:16.5.2"
+    "@polkadot/types-codec": "npm:16.5.2"
+  checksum: 10c0/cdb8191954e864e5eee65aca83205b6e2e002c7bcf78b6bc6a24d101bc09e0d904d7015a08dd3734cdead839bc457b9acb884d5799fae73a52ab4de131d7c03c
   languageName: node
   linkType: hard
 
@@ -6577,7 +6590,7 @@ __metadata:
     "@polkadot/util": "npm:13.5.9"
     "@polkadot/util-crypto": "npm:13.5.9"
     "@polymeshassociation/browser-extension-signing-manager": "npm:^2.5.0"
-    "@polymeshassociation/polymesh-sdk": "npm:^30.0.0-beta.1"
+    "@polymeshassociation/polymesh-sdk": "npm:30.0.0-beta.4"
     "@polymeshassociation/polymesh-types": "npm:^7.4.0"
     "@polymeshassociation/walletconnect-signing-manager": "npm:^2.0.0"
     "@tanstack/react-table": "npm:^8.20.5"
