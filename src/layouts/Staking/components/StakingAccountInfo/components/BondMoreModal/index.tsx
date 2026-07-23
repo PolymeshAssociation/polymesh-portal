@@ -1,6 +1,6 @@
 import { FormProvider } from 'react-hook-form';
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Button } from '~/components/UiKit';
 import {
   EModalActions,
@@ -11,6 +11,7 @@ import {
 import { useModalForm } from '../ModalForm/hooks';
 import { AmountInput, ButtonContainer } from '../ModalForm';
 import { AccountContext } from '~/context/AccountContext';
+import { PolymeshContext } from '~/context/PolymeshContext';
 
 interface IBondMoreModalProps {
   executeAction: (action: EModalActions, args: TStakeArgs) => void;
@@ -22,9 +23,59 @@ export const BondMoreModal: React.FC<IBondMoreModalProps> = ({
   handleClose,
 }) => {
   const {
+    api: { polkadotApi },
+  } = useContext(PolymeshContext);
+  const {
+    selectedAccount,
     selectedAccountBalance: { free },
   } = useContext(AccountContext);
-  const maxAvailablePolyx = Number(free);
+  const freeBalance = Number(free);
+
+  // The SDK's free balance is the spendable balance (it already excludes the
+  // existential deposit and any frozen funds), but the transaction fee is also
+  // paid from it, so the max amount that can be bonded is the free balance
+  // minus the estimated fee.
+  const [maxAvailablePolyx, setMaxAvailablePolyx] =
+    useState<number>(freeBalance);
+
+  useEffect(() => {
+    if (!polkadotApi || !selectedAccount || !freeBalance) {
+      setMaxAvailablePolyx(freeBalance);
+      return undefined;
+    }
+
+    let isMounted = true;
+
+    const calculateMaxAvailable = async () => {
+      try {
+        const rawFree = new BigNumber(freeBalance).shiftedBy(6).toFixed(0);
+        const { partialFee } = await polkadotApi.tx.staking
+          .bondExtra(rawFree)
+          .paymentInfo(selectedAccount);
+        const fee = new BigNumber(partialFee.toString()).shiftedBy(-6);
+        const max = BigNumber.max(
+          new BigNumber(freeBalance).minus(fee),
+          new BigNumber(0),
+        )
+          .decimalPlaces(6, BigNumber.ROUND_DOWN)
+          .toNumber();
+        if (isMounted) {
+          setMaxAvailablePolyx(max);
+        }
+      } catch (error) {
+        // If fee estimation fails, fall back to the full free balance
+        if (isMounted) {
+          setMaxAvailablePolyx(freeBalance);
+        }
+      }
+    };
+
+    calculateMaxAvailable();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [polkadotApi, selectedAccount, freeBalance]);
 
   const formMethods = useModalForm(EModalOptions.BOND_MORE, maxAvailablePolyx);
 
@@ -45,9 +96,8 @@ export const BondMoreModal: React.FC<IBondMoreModalProps> = ({
     // eslint-disable-next-line react/jsx-props-no-spreading
     <FormProvider {...formMethods}>
       <AmountInput
-        balanceLabel="Available balance"
+        balanceLabel="Available to bond, after fee"
         balance={maxAvailablePolyx}
-        withAmountValidation
       />
       <ButtonContainer>
         <Button variant="modalSecondary" onClick={handleClose}>
