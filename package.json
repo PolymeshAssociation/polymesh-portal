@@ -17,7 +17,7 @@
     "@polkadot/util": "13.5.9",
     "@polkadot/util-crypto": "13.5.9",
     "@polymeshassociation/browser-extension-signing-manager": "^2.5.0",
-    "@polymeshassociation/polymesh-sdk": "30.0.0-beta.4",
+    "@polymeshassociation/polymesh-sdk": "30.1.1-beta.1",
     "@polymeshassociation/walletconnect-signing-manager": "^2.0.0",
     "@tanstack/react-table": "^8.20.5",
     "@types/lodash": "^4.17.15",

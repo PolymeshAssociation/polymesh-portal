@@ -154,40 +154,44 @@ export const StakingAccountInfo = () => {
       }
       let txHash: string;
 
-      unsub = await tx.signAndSend(selectedAccount, (result) => {
-        const { events, status, txHash: rawTxHash } = result;
-        if (status.type === 'Ready') {
-          txHash = rawTxHash.toString();
-          handleStakeStatusChange({
-            ...transaction,
-            status: TransactionStatus.Running,
-            txHash,
-          });
-        }
+      unsub = await tx.signAndSend(
+        selectedAccount,
+        { withSignedTransaction: true },
+        (result) => {
+          const { events, status, txHash: rawTxHash } = result;
+          if (status.type === 'Ready') {
+            txHash = rawTxHash.toString();
+            handleStakeStatusChange({
+              ...transaction,
+              status: TransactionStatus.Running,
+              txHash,
+            });
+          }
 
-        if (status.isInBlock) {
-          events.forEach(({ event: { method } }) => {
-            if (method === 'ExtrinsicSuccess') {
-              handleStakeStatusChange({
-                ...transaction,
-                status: TransactionStatus.Succeeded,
-                txHash,
-              });
-              refetchAccountInfo();
-              setActionInProgress(false);
-              if (unsub) unsub();
-            } else {
-              handleStakeStatusChange({
-                ...transaction,
-                status: TransactionStatus.Failed,
-                txHash,
-              });
-              setActionInProgress(false);
-              if (unsub) unsub();
-            }
-          });
-        }
-      });
+          if (status.isInBlock) {
+            events.forEach(({ event: { method } }) => {
+              if (method === 'ExtrinsicSuccess') {
+                handleStakeStatusChange({
+                  ...transaction,
+                  status: TransactionStatus.Succeeded,
+                  txHash,
+                });
+                refetchAccountInfo();
+                setActionInProgress(false);
+                if (unsub) unsub();
+              } else {
+                handleStakeStatusChange({
+                  ...transaction,
+                  status: TransactionStatus.Failed,
+                  txHash,
+                });
+                setActionInProgress(false);
+                if (unsub) unsub();
+              }
+            });
+          }
+        },
+      );
     } catch (error) {
       handleStakeStatusChange({
         ...transaction,
