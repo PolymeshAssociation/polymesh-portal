@@ -1543,9 +1543,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymeshassociation/polymesh-sdk@npm:30.1.1-beta.1":
-  version: 30.1.1-beta.1
-  resolution: "@polymeshassociation/polymesh-sdk@npm:30.1.1-beta.1"
+"@polymeshassociation/polymesh-sdk@npm:30.1.1-beta.2":
+  version: 30.1.1-beta.2
+  resolution: "@polymeshassociation/polymesh-sdk@npm:30.1.1-beta.2"
   dependencies:
     "@apollo/client": "npm:^3.8.1"
     "@polkadot/api": "npm:16.5.2"
@@ -1563,7 +1563,7 @@ __metadata:
     semver: "npm:^7.5.4"
     ts-morph: "npm:^25.0.1"
     ws: "npm:^8.18.3"
-  checksum: 10c0/d030e88e55a8dd4a91ae5e1968954caccdd20e635fbcbeeb56c83dd2698f1e1425f70e1df1ae400350004d038fc6a598c11690e9a7cd6544df45c4d3b6f04d51
+  checksum: 10c0/8b5041df253f8446248034f6ee2c199bcbffe4d0488db0ea128c66fba5e2559cae3181b7ebabd6a869516c02b301fd83ea92c17771e790759a5274e8508f1190
   languageName: node
   linkType: hard
 
@@ -6590,7 +6590,7 @@ __metadata:
     "@polkadot/util": "npm:13.5.9"
     "@polkadot/util-crypto": "npm:13.5.9"
     "@polymeshassociation/browser-extension-signing-manager": "npm:^2.5.0"
-    "@polymeshassociation/polymesh-sdk": "npm:30.1.1-beta.1"
+    "@polymeshassociation/polymesh-sdk": "npm:30.1.1-beta.2"
     "@polymeshassociation/polymesh-types": "npm:^7.4.0"
     "@polymeshassociation/walletconnect-signing-manager": "npm:^2.0.0"
     "@tanstack/react-table": "npm:^8.20.5"
