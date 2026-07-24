@@ -1,26 +1,26 @@
-import { useState, useContext, useEffect, useMemo } from 'react';
-import { Controller, useFormContext } from 'react-hook-form';
 import Identicon from '@polkadot/react-identicon';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
+import { Icon } from '~/components';
+import { Text } from '~/components/UiKit';
 import { StakingContext } from '~/context/StakingContext';
 import { formatKey } from '~/helpers/formatters';
-import { Text } from '~/components/UiKit';
 import { IFieldValues, NOMINATIONS_MAX_LENGTH } from '../../constants';
-import { InputWrapper, StyledInput, StyledError } from '../../styles';
+import { useOperatorRewards } from '../../hooks';
+import { InputWrapper, StyledError, StyledInput } from '../../styles';
 import {
+  StyledActionButton,
+  StyledExpandIconWrapper,
+  StyledIconWrapper,
   StyledNominationContainer,
   StyledNominationWrapper,
-  StyledOperatorSelect,
-  StyledSelected,
   StyledNominatorOption,
-  StyledIconWrapper,
-  StyledSelectedOption,
-  StyledActionButton,
-  StyledSelectedHeadWrapper,
-  StyledExpandIconWrapper,
+  StyledOperatorSelect,
   StyledOperatorSelectContainer,
+  StyledSelected,
+  StyledSelectedHeadWrapper,
+  StyledSelectedOption,
 } from './styles';
-import { Icon } from '~/components';
-import { useOperatorRewards } from '../../hooks';
 
 interface IOperatorSelectProps {
   currentNominations?: string[];
@@ -34,6 +34,7 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
     stakingAccountInfo: { nominatedNames, inactiveNominations },
   } = useContext(StakingContext);
   const operatorAprRecord = useOperatorRewards();
+
   const { watch, setValue } = useFormContext<IFieldValues>();
   const nominators = watch('nominators');
 
@@ -51,15 +52,18 @@ export const OperatorSelect: React.FC<IOperatorSelectProps> = ({
     setExpandOperators((prev) => !prev);
   };
 
+  // Seed the form with the account's current nominations once, as soon as they
+  // are available. We can't rely on the form value being empty/undefined on
+  // mount because `useModalForm` now initialises the field with a `[]` default,
+  // so we track initialisation explicitly. Initialising only once means the
+  // user can subsequently edit or clear the selection without it being reset.
+  const hasInitializedNominations = useRef(false);
   useEffect(() => {
-    if (!nominators) {
-      if (currentNominations?.length) {
-        setValue('nominators', currentNominations);
-      } else {
-        setValue('nominators', []);
-      }
-    }
-  }, [currentNominations, nominators, setValue]);
+    if (hasInitializedNominations.current) return;
+    if (!currentNominations?.length) return;
+    hasInitializedNominations.current = true;
+    setValue('nominators', currentNominations);
+  }, [currentNominations, setValue]);
 
   const candidateAccounts = useMemo(() => {
     return Object.keys(operatorsWithCommission)
