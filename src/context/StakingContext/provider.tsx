@@ -1,17 +1,17 @@
-import { useContext, useMemo, useState, useEffect } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { AccountContext } from '../AccountContext';
 import { PolymeshContext } from '../PolymeshContext';
-import StakingContext from './context';
 import {
   IEraStatus,
   IOperatorInfo,
   IStakingAccountInfo,
   IStakingInfo,
   initialEraStatus,
+  initialOperatorInfo,
   initialStakingAccountInfo,
   initialStakingInfo,
-  initialOperatorInfo,
 } from './constants';
-import { AccountContext } from '../AccountContext';
+import StakingContext from './context';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -80,12 +80,14 @@ const StakingProvider = ({ children }: IProviderProps) => {
         (e) =>
           (e.event.section === 'staking' &&
             (e.event.method === 'Bonded' ||
-              e.event.method === 'Nominated' ||
               e.event.method === 'Unbonded' ||
               e.event.method === 'Withdrawn' ||
-              e.event.method === 'Slash' ||
-              e.event.method === 'StakingElection' ||
-              e.event.method === 'Reward')) ||
+              e.event.method === 'Slashed' ||
+              e.event.method === 'StakersElected' ||
+              e.event.method === 'Rewarded')) ||
+          (e.event.section === 'validators' &&
+            (e.event.method === 'Nominated' ||
+              e.event.method === 'InvalidatedNominators')) ||
           (e.event.section === 'offences' && e.event.method === 'Offence') ||
           (e.event.section === 'imonline' && e.event.method === 'SomeOffline'),
       )

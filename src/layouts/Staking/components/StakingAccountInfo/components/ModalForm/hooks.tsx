@@ -199,9 +199,11 @@ export const useOperatorRewards = () => {
       const totalPoints = u32ToBigNumber(previousPoints.total);
       const operatorPoints = previousPoints.individual;
 
-      // Fetch staking exposure data for the previous era
+      // Fetch staking exposure data for the previous era. Since the v8 chain
+      // upgrade the legacy `erasStakersClipped` storage is no longer populated,
+      // so the per operator total stake is read from `erasStakersOverview`.
       const erasStakingData =
-        await polkadotApi.query.staking.erasStakersClipped.entries(
+        await polkadotApi.query.staking.erasStakersOverview.entries(
           previousEraIndex,
         );
       const operatorPointsRecord: Record<string, BigNumber> = {};
@@ -226,10 +228,10 @@ export const useOperatorRewards = () => {
           const nodeStakingData = erasStakingData.find(
             ([key]) => key.args[1].toString() === operator,
           )?.[1];
-          if (!nodeStakingData) return;
+          if (!nodeStakingData || nodeStakingData.isNone) return;
 
           const nodeEraReturnRate = nominatorPortion.div(
-            balanceToBigNumber(nodeStakingData.total.unwrap()),
+            balanceToBigNumber(nodeStakingData.unwrap().total.unwrap()),
           );
 
           const calcedApr = nodeEraReturnRate

@@ -178,36 +178,55 @@ const useOperatorInfo = () => {
         return [];
       }
 
-      const eraStakerExposure =
-        await polkadotApi.query.staking.erasStakers.entries(
-          eraIndex.toNumber(),
-        );
-      const eraStakers: IEraStakers[] = [];
+      const era = eraIndex.toNumber();
 
-      eraStakerExposure.forEach(
-        ([
-          {
-            args: [, operatorAccountId],
-          },
-          stakersClipped,
-        ]) => {
-          const operatorAccount = operatorAccountId.toString();
-          const totalStaked = balanceToBigNumber(stakersClipped.total.unwrap());
-          const ownStaked = balanceToBigNumber(stakersClipped.own.unwrap());
-          const others: Record<string, BigNumber> = {};
+      // Since the v8 chain upgrade exposure data is stored using the paged
+      // model. The legacy `erasStakers`/`erasStakersClipped` storage is no
+      // longer populated for new eras, so we must read from:
+      //  - `erasStakersOverview`: per operator total/own stake and page count
+      //  - `erasStakersPaged`: the individual nominator exposures, which may
+      //    be split across multiple pages per operator.
+      const overviewEntries =
+        await polkadotApi.query.staking.erasStakersOverview.entries(era);
 
-          stakersClipped.others.forEach((entry) => {
-            const who = entry.who.toString();
-            const value = balanceToBigNumber(entry.value.unwrap());
-            others[who] = value;
-          });
-          eraStakers.push({
-            operatorAccount,
-            totalStaked,
-            ownStaked,
-            others,
-          });
-        },
+      const eraStakers: IEraStakers[] = await Promise.all(
+        overviewEntries
+          .filter(([, overviewOpt]) => overviewOpt.isSome)
+          .map(
+            async ([
+              {
+                args: [, operatorAccountId],
+              },
+              overviewOpt,
+            ]) => {
+              const operatorAccount = operatorAccountId.toString();
+              const overview = overviewOpt.unwrap();
+
+              // Collect the nominator ("others") exposures across all of the
+              // operator's exposure pages.
+              const pagedEntries =
+                await polkadotApi.query.staking.erasStakersPaged.entries(
+                  era,
+                  operatorAccount,
+                );
+              const others: Record<string, BigNumber> = {};
+              pagedEntries.forEach(([, exposurePageOpt]) => {
+                if (exposurePageOpt.isNone) return;
+                exposurePageOpt.unwrap().others.forEach((entry) => {
+                  others[entry.who.toString()] = balanceToBigNumber(
+                    entry.value.unwrap(),
+                  );
+                });
+              });
+
+              return {
+                operatorAccount,
+                totalStaked: balanceToBigNumber(overview.total.unwrap()),
+                ownStaked: balanceToBigNumber(overview.own.unwrap()),
+                others,
+              };
+            },
+          ),
       );
       return eraStakers;
     },
