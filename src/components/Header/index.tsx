@@ -16,6 +16,7 @@ import { KeysInfo } from './components/KeysInfo';
 import { NotificationInfo } from './components/NotificationInfo';
 import { useWindowWidth } from '~/hooks/utility';
 import Icon from '../Icon';
+import { EvmNetworkInfo } from './components/EvmNetworkInfo';
 import { WalletConnectInfo } from './components/WalletConnectInfo';
 import { WalletSelectButton } from './components/WalletSelectButton';
 
@@ -75,6 +76,7 @@ const Header: React.FC<IHeaderProps> = ({ toggleMobileMenu }) => {
           <StyledIconGroup>
             <WalletSelectButton />
             <WalletConnectInfo />
+            <EvmNetworkInfo />
             <NotificationInfo />
           </StyledIconGroup>
         </StyledInfoList>

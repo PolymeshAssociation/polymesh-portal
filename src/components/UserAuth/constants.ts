@@ -1,4 +1,5 @@
 import {
+  METAMASK_WALLET,
   NOVA_WALLET,
   POLKADOT_WALLET,
   POLYMESH_WALLET,
@@ -29,6 +30,10 @@ export const WALLET_FEATURES_LIST = {
   ],
   [TALISMAN_WALLET as TWalletName]: [
     'Multichain support',
+    'Browser support: Google Chrome, Firefox, Brave and Edge',
+  ],
+  [METAMASK_WALLET as TWalletName]: [
+    'Sign with an Ethereum key',
     'Browser support: Google Chrome, Firefox, Brave and Edge',
   ],
 };

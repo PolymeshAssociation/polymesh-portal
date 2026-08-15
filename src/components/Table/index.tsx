@@ -38,6 +38,8 @@ interface ITableProps<T, S> {
   downloadButton?: IDownloadButton;
   handleRowClick?: (row: T) => void;
   noBoxShadow?: boolean;
+  /** Shown in place of "No data available" when the table is empty for a known reason */
+  emptyMessage?: React.ReactNode;
 }
 
 const perPageOptions = [3, 5, 10, 20, 50];
@@ -55,6 +57,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
     downloadButton = undefined,
     handleRowClick,
     noBoxShadow = false,
+    emptyMessage = 'No data available',
   } = props;
 
   const colsNumber = table.getAllColumns().length;
@@ -215,7 +218,7 @@ const Table = <T, S>(props: ITableProps<T, S>) => {
       {!loading && !rowsNumber && (
         <StyledTablePlaceholder $withTitle={!!title}>
           <Icon name="Coins" />
-          No data available
+          {emptyMessage}
         </StyledTablePlaceholder>
       )}
       {isSmallScreen

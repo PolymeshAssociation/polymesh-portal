@@ -22,6 +22,13 @@ export const ExtensionCard = ({ wallet }: IExtensionCardProps) => {
   const { windowWidth } = useWindowWidth();
   const { isMobileDevice } = useAuthContext();
 
+  // These lists are keyed by wallet name and are not exhaustive — the desktop list has no entry for
+  // mobile-only wallets and vice versa, since the caller filters by platform first. Default rather
+  // than index blindly: a wallet without an entry should render a plainer card, not take the whole
+  // connect modal down with it.
+  const features = WALLET_FEATURES_LIST[wallet.walletName] ?? [];
+  const mobileFeature = WALLET_FEATURES_LIST_MOBILE[wallet.walletName];
+
   return (
     <ActionCard hovered>
       <StyledExtensionName $isMobile={isMobileDevice}>
@@ -34,15 +41,15 @@ export const ExtensionCard = ({ wallet }: IExtensionCardProps) => {
             <Text size="large" bold>
               {wallet.walletName}
             </Text>
-            <Text>({WALLET_FEATURES_LIST_MOBILE[wallet.walletName]})</Text>
+            {mobileFeature && <Text>({mobileFeature})</Text>}
           </StyledExtensionNameMobile>
         ) : (
           <Text size="large">{wallet.walletName}</Text>
         )}
       </StyledExtensionName>
-      {!isMobileDevice && (
+      {!isMobileDevice && !!features.length && (
         <StyledExtensionFeaturesList>
-          {WALLET_FEATURES_LIST[wallet.walletName].map((item) => (
+          {features.map((item) => (
             <li key={item}>
               <Text size="small">{item}</Text>
             </li>

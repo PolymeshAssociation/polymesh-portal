@@ -74,6 +74,12 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
     }
   }, [currentTab, identity]);
 
+  // The indexer cannot attribute Ethereum-signed transactions: they are submitted as a bare
+  // `revive.ethTransact` extrinsic whose signer only exists inside the RLP payload, so the indexed
+  // record carries no address. The SDK therefore throws rather than returning a misleadingly empty
+  // result set — we skip the query entirely and explain the gap instead.
+  const historyUnavailable = !!account?.ethAddress;
+
   // Update table data for Historical Activity tab
   useEffect(() => {
     if (
@@ -87,6 +93,17 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
     ) {
       return;
     }
+
+    if (historyUnavailable) {
+      setTableData([]);
+      setTotalItems(0);
+      setTotalPages(0);
+      setTableLoading(false);
+      tabRef.current = currentTab;
+      accountRef.current = account.address;
+      return;
+    }
+
     setTableLoading(true);
 
     (async () => {
@@ -119,6 +136,7 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
     accountLoading,
     currentTab,
     gqlClient,
+    historyUnavailable,
     middlewareMetadata,
     pageIndex,
     pageSize,
@@ -213,5 +231,8 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
     paginationState: pagination,
     tableLoading: tableLoading || currentTab !== tabRef.current,
     totalItems,
+    historyUnavailable:
+      historyUnavailable &&
+      currentTab === EActivityTableTabs.HISTORICAL_ACTIVITY,
   };
 };

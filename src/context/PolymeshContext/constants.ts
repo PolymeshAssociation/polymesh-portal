@@ -1,11 +1,21 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
+import { EthSigningManager } from '@polymeshassociation/eth-signing-manager';
 import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import {
   EventRecord,
   MiddlewareMetadata,
 } from '@polymeshassociation/polymesh-sdk/types';
+
+/**
+ * Every Signing Manager the Portal can connect. `EthSigningManager` differs from the others in that
+ * it signs with an Ethereum key and dispatches through the `revive` pallet.
+ */
+export type TSigningManager =
+  | BrowserExtensionSigningManager
+  | WalletConnectSigningManager
+  | EthSigningManager;
 
 export interface IPolymeshContext {
   state: {
@@ -17,10 +27,7 @@ export interface IPolymeshContext {
   };
   api: {
     sdk: Polymesh | null;
-    signingManager:
-      | BrowserExtensionSigningManager
-      | WalletConnectSigningManager
-      | null;
+    signingManager: TSigningManager | null;
     polkadotApi: Polymesh['_polkadotApi'] | null;
     gqlClient: ApolloClient<NormalizedCacheObject> | null;
   };
@@ -39,6 +46,13 @@ export interface IPolymeshContext {
   connectWallet: (extensionName: string) => Promise<void>;
   walletConnectConnected: boolean;
   disconnectWalletConnect: () => Promise<void>;
+  /**
+   * True when an Ethereum wallet is connected but pointed at a different chain than the connected
+   * Polymesh node. MetaMask signs *and broadcasts*, so it must be on the right network to submit
+   */
+  evmNetworkMismatch: boolean;
+  /** Prompt the connected Ethereum wallet to switch to the Polymesh network */
+  switchEvmNetwork: () => Promise<void>;
   ss58Prefix: BigNumber | undefined;
   subscribedEventRecords: {
     events: EventRecord[];
@@ -76,6 +90,8 @@ export const initialState = {
   connectWallet: async () => {},
   walletConnectConnected: false,
   disconnectWalletConnect: async () => {},
+  evmNetworkMismatch: false,
+  switchEvmNetwork: async () => {},
   ss58Prefix: undefined,
   subscribedEventRecords: { events: [], blockHash: '' },
   refreshMiddlewareMetadata: async () => {},

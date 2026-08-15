@@ -5,10 +5,13 @@ import { useAuthContext } from '~/context/AuthContext';
 import { TConnectModalType } from '~/context/AuthContext/constants';
 import { useWindowWidth } from '~/hooks/utility';
 import {
+  EVM_CONNECT_OPTIONS,
   EXTENSION_CONNECT_OPTIONS,
   PlatformOptions,
   IExtensionConnectOption,
+  isEvmWallet,
 } from '~/constants/wallets';
+import { isMetaMaskInstalled } from '~/helpers/evm';
 import { Text } from '~/components/UiKit';
 import { Icon } from '~/components';
 import { ExtensionCard } from '../ExtensionCard';
@@ -29,12 +32,24 @@ export const ExtensionSelect = () => {
   const walletOptions = useMemo(() => {
     const injectedExtensions =
       BrowserExtensionSigningManager.getExtensionList();
-    return Object.values(EXTENSION_CONNECT_OPTIONS).map(
+    const extensionOptions = Object.values(EXTENSION_CONNECT_OPTIONS).map(
       (option: IExtensionConnectOption) => ({
         ...option,
         isInstalled: injectedExtensions.includes(option.extensionName),
       }),
     );
+
+    // Ethereum wallets are detected through the EIP-1193 injection rather than the Polkadot
+    // extension list, so they are appended separately.
+    return [
+      ...extensionOptions,
+      ...Object.values(EVM_CONNECT_OPTIONS).map(
+        (option: IExtensionConnectOption) => ({
+          ...option,
+          isInstalled: isMetaMaskInstalled(),
+        }),
+      ),
+    ];
   }, []);
 
   const filteredOptions = walletOptions.filter(
@@ -56,6 +71,12 @@ export const ExtensionSelect = () => {
   ) => {
     if (wallet.isInstalled) {
       connectWallet(wallet.extensionName).then(() => setConnectPopup('wallet'));
+      return;
+    }
+    // The per-wallet "how to install" modals only exist for the Polkadot extensions, so an
+    // uninstalled Ethereum wallet goes straight to its download page.
+    if (isEvmWallet(wallet.extensionName)) {
+      window.open(wallet.downloadUrl, '_blank', 'noopener,noreferrer');
       return;
     }
     setConnectPopup(wallet.walletName as TConnectModalType);

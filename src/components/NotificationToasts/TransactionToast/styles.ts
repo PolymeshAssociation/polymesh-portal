@@ -93,6 +93,11 @@ export const StyledDetailsWrapper = styled.div`
   gap: 8px;
 `;
 
+export const StyledHashLabel = styled.span`
+  font-size: 12px;
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
 export const StyledDetail = styled.div<{ $isIcon?: boolean }>`
   display: flex;
   align-items: center;

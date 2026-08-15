@@ -9,6 +9,7 @@ import {
   StyledStatusWrapper,
   StyledDetailsWrapper,
   StyledDetail,
+  StyledHashLabel,
   StyledLink,
   StyledError,
   StyledTimestamp,
@@ -18,6 +19,19 @@ import { toRelativeTime } from '~/helpers/dateTime';
 
 interface ITxToastProps {
   txHash?: string;
+  /**
+   * Whether `txHash` is an Ethereum transaction hash rather than a Substrate extrinsic hash. True
+   * when an Ethereum wallet signed *and* broadcast the transaction, which is the only hash it — and
+   * so the user — ever sees. Used to label the hash, since it is the one MetaMask shows as its
+   * Transaction ID and looks nothing like the extrinsic hashes the Portal otherwise displays
+   */
+  isEthTxHash?: boolean;
+  /**
+   * How the block explorer identifies this extrinsic — either its hash, or `blockNumber-txIndex`.
+   * Omitted while the transaction has no on-chain location yet, in which case the hash is shown
+   * without a link
+   */
+  explorerExtrinsicId?: string;
   message?: string;
   status: `${TransactionStatus}`;
   isTxBatch: boolean;
@@ -29,6 +43,8 @@ interface ITxToastProps {
 
 const TransactionToast: React.FC<ITxToastProps> = ({
   txHash,
+  isEthTxHash,
+  explorerExtrinsicId,
   message,
   status,
   isTxBatch,
@@ -69,19 +85,26 @@ const TransactionToast: React.FC<ITxToastProps> = ({
       </StyledInfoWrapper>
       {!!message && <Text>{message}</Text>}
       {!!txHash && (
-        <StyledDetailsWrapper>
-          <StyledDetail>{formatDid(txHash, 10, 9)}</StyledDetail>
-          <StyledDetail $isIcon>
-            <CopyToClipboard value={txHash} />
-          </StyledDetail>
-          <StyledLink
-            href={`${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${txHash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Icon name="GotoIcon" />
-          </StyledLink>
-        </StyledDetailsWrapper>
+        <>
+          {isEthTxHash && (
+            <StyledHashLabel>Ethereum transaction hash</StyledHashLabel>
+          )}
+          <StyledDetailsWrapper>
+            <StyledDetail>{formatDid(txHash, 10, 9)}</StyledDetail>
+            <StyledDetail $isIcon>
+              <CopyToClipboard value={txHash} />
+            </StyledDetail>
+            {!!explorerExtrinsicId && (
+              <StyledLink
+                href={`${import.meta.env.VITE_SUBSCAN_URL}extrinsic/${explorerExtrinsicId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Icon name="GotoIcon" />
+              </StyledLink>
+            )}
+          </StyledDetailsWrapper>
+        </>
       )}
       {!!error && <StyledError>{error}</StyledError>}
       <StyledTimestamp>{formattedTime}</StyledTimestamp>

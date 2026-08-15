@@ -7,7 +7,8 @@ export const ActivityTable = () => {
   const [tab, setTab] = useState<EActivityTableTabs>(
     EActivityTableTabs.HISTORICAL_ACTIVITY,
   );
-  const { table, tableLoading, totalItems } = useActivityTable(tab);
+  const { table, tableLoading, totalItems, historyUnavailable } =
+    useActivityTable(tab);
 
   return (
     <Table
@@ -17,6 +18,11 @@ export const ActivityTable = () => {
       title="Activity"
       loading={tableLoading}
       totalItems={totalItems}
+      emptyMessage={
+        historyUnavailable
+          ? 'Transaction history is not yet available for Ethereum keys'
+          : undefined
+      }
     />
   );
 };

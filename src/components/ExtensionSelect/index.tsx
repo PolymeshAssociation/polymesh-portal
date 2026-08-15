@@ -2,11 +2,13 @@ import { useContext, useMemo, useState } from 'react';
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import {
+  EVM_CONNECT_OPTIONS,
   EXTENSION_CONNECT_OPTIONS,
   IExtensionConnectOption,
 } from '~/constants/wallets';
 import { Modal } from '~/components';
 import { Button, Heading } from '~/components/UiKit';
+import { isMetaMaskInstalled } from '~/helpers/evm';
 import { WalletOptionGroup } from './components/WalletOptionGroup';
 import { StyledButtonWrapper } from './styles';
 import { useWindowWidth } from '~/hooks/utility';
@@ -32,12 +34,24 @@ const ExtensionSelect: React.FC<IExtensionSelectProps> = ({ handleClose }) => {
   const walletOptions = useMemo(() => {
     const injectedExtensions =
       BrowserExtensionSigningManager.getExtensionList();
-    return Object.values(EXTENSION_CONNECT_OPTIONS).map(
+    const extensionOptions = Object.values(EXTENSION_CONNECT_OPTIONS).map(
       (option: IExtensionConnectOption) => ({
         ...option,
         isInstalled: injectedExtensions.includes(option.extensionName),
       }),
     );
+
+    // Ethereum wallets are detected through the EIP-1193 injection rather than the Polkadot
+    // extension list, so they are appended separately.
+    return [
+      ...extensionOptions,
+      ...Object.values(EVM_CONNECT_OPTIONS).map(
+        (option: IExtensionConnectOption) => ({
+          ...option,
+          isInstalled: isMetaMaskInstalled(),
+        }),
+      ),
+    ];
   }, []);
 
   const handleWalletSelect: React.ChangeEventHandler = ({ target }) => {

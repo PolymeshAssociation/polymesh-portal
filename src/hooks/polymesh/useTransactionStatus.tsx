@@ -22,6 +22,39 @@ const useTransactionStatus = () => {
       tag = transaction.tag;
     }
 
+    // Set only when an Ethereum wallet broadcast the transaction itself, in which case `txHash` is
+    // that Ethereum hash rather than the Substrate extrinsic hash.
+    const isEthTxHash = !!transaction.ethTxHash;
+
+    /*
+     * The block explorer identifies an extrinsic either by its hash or by `blockNumber-txIndex`.
+     * The native path has the hash. The Ethereum path does not — the wallet broadcasts, so the only
+     * hash we ever hold is the Ethereum one, and the `revive.ethTransact` extrinsic carrying the
+     * call is unsigned, so its hash is never surfaced. What we do get is where it landed: the SDK
+     * correlates the Ethereum hash back to that extrinsic and reports the block and index, which
+     * addresses the same extrinsic.
+     */
+    const getExplorerExtrinsicId = (): string | undefined => {
+      if (!isEthTxHash) return transaction.txHash;
+
+      const { blockNumber, txIndex } = transaction;
+      /*
+       * Known from `InBlock` onwards, i.e. once the block scan has located the extrinsic — including
+       * on failure, since the SDK records where the transaction landed before it raises the error.
+       *
+       * A failed transaction is linked like any other. The explorer will show the extrinsic itself
+       * as successful, because the outer `revive.ethTransact` emits `ExtrinsicSuccess` even when the
+       * inner dispatch reverted and the indexer records that verbatim — but its event list carries
+       * the `revive.EthExtrinsicRevert` that says what actually happened, which is exactly what
+       * someone following the link from a failed toast is looking for.
+       */
+      if (blockNumber === undefined || txIndex === undefined) return undefined;
+
+      return `${blockNumber.toString()}-${txIndex.toString()}`;
+    };
+
+    const explorerExtrinsicId = getExplorerExtrinsicId();
+
     const toastId = transactionId;
 
     switch (transaction.status) {
@@ -51,6 +84,8 @@ const useTransactionStatus = () => {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
+              isEthTxHash={isEthTxHash}
+              explorerExtrinsicId={explorerExtrinsicId}
               status={transaction.status}
               tag={tag}
               isTxBatch={isTxBatch}
@@ -70,6 +105,8 @@ const useTransactionStatus = () => {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
+              isEthTxHash={isEthTxHash}
+              explorerExtrinsicId={explorerExtrinsicId}
               status={transaction.status}
               tag={tag}
               isTxBatch={isTxBatch}
@@ -90,6 +127,8 @@ const useTransactionStatus = () => {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
+              isEthTxHash={isEthTxHash}
+              explorerExtrinsicId={explorerExtrinsicId}
               status={transaction.status}
               tag={tag}
               isTxBatch={isTxBatch}
@@ -130,6 +169,8 @@ const useTransactionStatus = () => {
           render: (
             <TransactionToast
               txHash={transaction.txHash}
+              isEthTxHash={isEthTxHash}
+              explorerExtrinsicId={explorerExtrinsicId}
               status={transaction.status}
               tag={tag}
               isTxBatch={isTxBatch}

@@ -1,4 +1,8 @@
 import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
+import {
+  EthSigningManager,
+  type Eip1193Provider,
+} from '@polymeshassociation/eth-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import {
   EventRecord,
@@ -6,10 +10,17 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isEvmWallet, WALLET_CONNECT } from '~/constants/wallets';
+import {
+  buildEvmChainConfig,
+  ensureEvmNetwork,
+  getMetaMaskProvider,
+  isSameChainId,
+} from '~/helpers/evm';
 import { runMigration } from '~/helpers/localStorageMigrations';
 import { notifyGlobalError } from '~/helpers/notifications';
 import { useLocalStorage } from '~/hooks/utility';
-import { IPFS_PROVIDER_URL } from './constants';
+import { IPFS_PROVIDER_URL, type TSigningManager } from './constants';
 import PolymeshContext from './context';
 
 interface IProviderProps {
@@ -29,14 +40,19 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
   const [polkadotApi, setPolkadotApi] = useState<
     Polymesh['_polkadotApi'] | null
   >(null);
-  const [signingManager, setSigningManager] = useState<
-    BrowserExtensionSigningManager | WalletConnectSigningManager | null
-  >(null);
+  const [signingManager, setSigningManager] = useState<TSigningManager | null>(
+    null,
+  );
   const [connecting, setConnecting] = useState<boolean | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [signingManagerLoading, setSigningManagerLoading] = useState(false);
   const [walletConnectConnected, setWalletConnectConnected] = useState(false);
   const [migrationCompleted, setMigrationCompleted] = useState(false);
+  const [evmNetworkMismatch, setEvmNetworkMismatch] = useState(false);
+  // Held so the network can be switched after connecting without re-discovering the wallet. The
+  // Signing Manager wraps the provider but does not expose it, and switching is a Portal concern:
+  // the manager deliberately never prompts the wallet to change network.
+  const evmProviderRef = useRef<Eip1193Provider | null>(null);
 
   const [defaultExtension, setDefaultExtension] = useLocalStorage<string>(
     'defaultExtension',
@@ -138,12 +154,89 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
     }
   }, [polkadotApi, setDefaultExtension]);
 
+  // No `revive` pallet check is needed: the SDK only supports chain v8, and every v8 chain carries
+  // the pallet Ethereum keys dispatch through.
+  const evmChainConfig = useMemo(() => {
+    if (!polkadotApi) return null;
+
+    return buildEvmChainConfig(polkadotApi, {
+      rpcUrl: import.meta.env.VITE_ETH_RPC_URL,
+      chainName: import.meta.env.VITE_ETH_CHAIN_NAME || 'Polymesh',
+      explorerUrl: import.meta.env.VITE_SUBSCAN_URL,
+    });
+  }, [polkadotApi]);
+
+  // Create the Ethereum signing manager. Currently MetaMask only: it is the wallet users reach for,
+  // and it broadcasts the transaction itself rather than handing back raw signed bytes.
+  const handleEvmConnect = useCallback(
+    async (
+      extensionName: string,
+      // On an explicit user action we prompt the wallet to authorize the dApp and to switch
+      // network. On an automatic reconnect we do neither: we only pick up an existing
+      // authorization, so returning to the Portal never pops MetaMask open unbidden.
+      { interactive = true }: { interactive?: boolean } = {},
+    ) => {
+      if (!polkadotApi || !evmChainConfig) return;
+
+      setSigningManagerLoading(true);
+      try {
+        const provider = await getMetaMaskProvider();
+        if (!provider) {
+          throw new Error(
+            'MetaMask was not detected. Install it, or unlock it and reload the page',
+          );
+        }
+
+        // MetaMask signs and broadcasts through its own configured network, so it has to be on the
+        // Polymesh chain before we let the SDK build a transaction for it.
+        if (interactive) {
+          await ensureEvmNetwork(provider, evmChainConfig);
+        }
+
+        const ethSigningManager = await EthSigningManager.create({
+          provider,
+          requestAccounts: interactive,
+          ss58Format: polkadotApi.consts.system.ss58Prefix.toNumber(),
+        });
+
+        evmProviderRef.current = provider;
+        setSigningManager(ethSigningManager);
+        setDefaultExtension(extensionName);
+      } catch (error) {
+        // A silent reconnect failing just means the wallet is locked or no longer authorizes us.
+        // That is the normal resting state, not something to interrupt the user about.
+        if (interactive) {
+          notifyGlobalError((error as Error).message);
+        }
+      } finally {
+        setSigningManagerLoading(false);
+      }
+    },
+    [evmChainConfig, polkadotApi, setDefaultExtension],
+  );
+
+  const switchEvmNetwork = useCallback(async () => {
+    const provider = evmProviderRef.current;
+    if (!provider || !evmChainConfig) return;
+
+    try {
+      await ensureEvmNetwork(provider, evmChainConfig);
+      setEvmNetworkMismatch(false);
+    } catch (error) {
+      notifyGlobalError((error as Error).message);
+    }
+  }, [evmChainConfig]);
+
   // Create the browser extension signing manager.
   const connectWallet = useCallback(
     async (extensionName: string) => {
       if (!polkadotApi || !extensionName) return;
-      if (extensionName === 'walletConnect') {
+      if (extensionName === WALLET_CONNECT) {
         await handleWalletConnect();
+        return;
+      }
+      if (isEvmWallet(extensionName)) {
+        await handleEvmConnect(extensionName);
         return;
       }
       setSigningManagerLoading(true);
@@ -187,12 +280,12 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         setSigningManagerLoading(false);
       }
     },
-    [handleWalletConnect, polkadotApi, setDefaultExtension],
+    [handleEvmConnect, handleWalletConnect, polkadotApi, setDefaultExtension],
   );
 
   // Effect to track wallet connect connection
   useEffect(() => {
-    if (!signingManager || defaultExtension !== 'walletConnect') {
+    if (!signingManager || defaultExtension !== WALLET_CONNECT) {
       setWalletConnectConnected(false);
       return;
     }
@@ -209,6 +302,41 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       setDefaultExtension('');
     }
   }, [setDefaultExtension, signingManager]);
+
+  // Track the Ethereum wallet's selected network. MetaMask broadcasts the transaction itself, so if
+  // the user switches network the submission silently goes to the wrong chain — this surfaces it.
+  useEffect(() => {
+    if (!(signingManager instanceof EthSigningManager) || !evmChainConfig) {
+      setEvmNetworkMismatch(false);
+      return undefined;
+    }
+
+    const expected = evmChainConfig.chainId;
+    let cancelled = false;
+
+    // The manager reports the network of the provider it wraps, so nothing here has to reach for
+    // the provider itself.
+    signingManager
+      .getCurrentNetwork()
+      .then((network) => {
+        if (!cancelled && network) {
+          setEvmNetworkMismatch(!isSameChainId(network.chainId, expected));
+        }
+      })
+      // A wallet that cannot answer `eth_chainId` is not evidence of a mismatch.
+      .catch(() => undefined);
+
+    const unsub = signingManager.onNetworkChange(({ chainId }) => {
+      if (!cancelled) {
+        setEvmNetworkMismatch(!isSameChainId(chainId, expected));
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      unsub();
+    };
+  }, [evmChainConfig, signingManager]);
 
   useEffect(() => {
     // Run migration logic on startup
@@ -286,18 +414,31 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
 
   // Create an initial signing manager instance for the default extension
   useEffect(() => {
-    if (signingManager) return;
+    if (signingManager || !defaultExtension) return;
+
+    if (isEvmWallet(defaultExtension)) {
+      // Wait for the chain, which is what the wallet's network is checked against.
+      if (!polkadotApi) return;
+      handleEvmConnect(defaultExtension, { interactive: false });
+      return;
+    }
+
     const injectedExtensions =
       BrowserExtensionSigningManager.getExtensionList();
     if (
-      !defaultExtension ||
-      (!injectedExtensions.includes(defaultExtension) &&
-        defaultExtension !== 'walletConnect')
+      !injectedExtensions.includes(defaultExtension) &&
+      defaultExtension !== WALLET_CONNECT
     ) {
       return;
     }
     connectWallet(defaultExtension);
-  }, [connectWallet, defaultExtension, signingManager]);
+  }, [
+    connectWallet,
+    defaultExtension,
+    handleEvmConnect,
+    polkadotApi,
+    signingManager,
+  ]);
 
   // Effect to subscribe to events
   useEffect(() => {
@@ -420,6 +561,8 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       connectWallet,
       walletConnectConnected,
       disconnectWalletConnect,
+      evmNetworkMismatch,
+      switchEvmNetwork,
       ss58Prefix,
       subscribedEventRecords,
       refreshMiddlewareMetadata,
@@ -429,6 +572,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       connectWallet,
       defaultExtension,
       disconnectWalletConnect,
+      evmNetworkMismatch,
       initialized,
       ipfsProviderUrl,
       middlewareKey,
@@ -448,6 +592,7 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       signingManagerLoading,
       ss58Prefix,
       subscribedEventRecords,
+      switchEvmNetwork,
       walletConnectConnected,
     ],
   );

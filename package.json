@@ -8,7 +8,8 @@
     "build": "tsc && NODE_OPTIONS=\"--max-old-space-size=4096\" && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "link:local": "node scripts/link-local-packages.mjs"
   },
   "dependencies": {
     "@apollo/client": "3.13.8",
@@ -17,7 +18,8 @@
     "@polkadot/util": "13.5.9",
     "@polkadot/util-crypto": "13.5.9",
     "@polymeshassociation/browser-extension-signing-manager": "^2.5.0",
-    "@polymeshassociation/polymesh-sdk": "31.0.0",
+    "@polymeshassociation/eth-signing-manager": "0.0.1",
+    "@polymeshassociation/polymesh-sdk": "portal:./local-packages/polymesh-sdk",
     "@polymeshassociation/walletconnect-signing-manager": "^2.0.0",
     "@tanstack/react-table": "^8.20.5",
     "@types/lodash": "^4.17.15",
@@ -40,6 +42,7 @@
   "devDependencies": {
     "@polkadot/extension-inject": "0.63.1",
     "@polymeshassociation/polymesh-types": "^7.4.0",
+    "@polymeshassociation/signing-manager-types": "3.8.0-beta.1",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@typescript-eslint/eslint-plugin": "7.18.0",

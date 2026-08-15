@@ -1543,9 +1543,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymeshassociation/polymesh-sdk@npm:31.0.0":
-  version: 31.0.0
-  resolution: "@polymeshassociation/polymesh-sdk@npm:31.0.0"
+"@polymeshassociation/eth-signing-manager@npm:0.0.1":
+  version: 0.0.1
+  resolution: "@polymeshassociation/eth-signing-manager@npm:0.0.1"
+  dependencies:
+    "@polkadot/util": "npm:13.5.9"
+    "@polkadot/util-crypto": "npm:13.5.9"
+    "@polymeshassociation/signing-manager-types": "npm:3.8.0-beta.1"
+  checksum: 10c0/3f7ff5dad30052411bdd1d24394a78ce4c55aa10e53d1c4662731ce88f8eb6f378d318adb47cc9f34d5b20c8cf0cd6037fbfcf91fa60ef981165aa18f031650b
+  languageName: node
+  linkType: hard
+
+"@polymeshassociation/polymesh-sdk@portal:./local-packages/polymesh-sdk::locator=polymesh-portal%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@polymeshassociation/polymesh-sdk@portal:./local-packages/polymesh-sdk::locator=polymesh-portal%40workspace%3A."
   dependencies:
     "@apollo/client": "npm:^3.8.1"
     "@polkadot/api": "npm:16.5.2"
@@ -1563,9 +1574,8 @@ __metadata:
     semver: "npm:^7.5.4"
     ts-morph: "npm:^25.0.1"
     ws: "npm:^8.18.3"
-  checksum: 10c0/9c74bb0a6be7e0c528edb4d4d35f8841d3e754e1fdae694749ee461d9b833e200c62c2563baf3c549cb0434588f91079afc3a53c8ea60e6c009b18b265b91815
   languageName: node
-  linkType: hard
+  linkType: soft
 
 "@polymeshassociation/polymesh-types@npm:^7.4.0":
   version: 7.4.0
@@ -1590,6 +1600,15 @@ __metadata:
     "@polkadot/types": "npm:16.5.2"
     "@polkadot/types-codec": "npm:16.5.2"
   checksum: 10c0/cdb8191954e864e5eee65aca83205b6e2e002c7bcf78b6bc6a24d101bc09e0d904d7015a08dd3734cdead839bc457b9acb884d5799fae73a52ab4de131d7c03c
+  languageName: node
+  linkType: hard
+
+"@polymeshassociation/signing-manager-types@npm:3.8.0-beta.1":
+  version: 3.8.0-beta.1
+  resolution: "@polymeshassociation/signing-manager-types@npm:3.8.0-beta.1"
+  dependencies:
+    "@polkadot/api": "npm:16.5.2"
+  checksum: 10c0/8f912d05f87a6db142391c671f061d0afb06f8f7316f68f67e444106c45426eb7455eaddf1483d18eda7da2aabc0464187aa3cf88893862b5c40f285072343c7
   languageName: node
   linkType: hard
 
@@ -6590,8 +6609,10 @@ __metadata:
     "@polkadot/util": "npm:13.5.9"
     "@polkadot/util-crypto": "npm:13.5.9"
     "@polymeshassociation/browser-extension-signing-manager": "npm:^2.5.0"
-    "@polymeshassociation/polymesh-sdk": "npm:31.0.0"
+    "@polymeshassociation/eth-signing-manager": "npm:0.0.1"
+    "@polymeshassociation/polymesh-sdk": "portal:./local-packages/polymesh-sdk"
     "@polymeshassociation/polymesh-types": "npm:^7.4.0"
+    "@polymeshassociation/signing-manager-types": "npm:3.8.0-beta.1"
     "@polymeshassociation/walletconnect-signing-manager": "npm:^2.0.0"
     "@tanstack/react-table": "npm:^8.20.5"
     "@types/lodash": "npm:^4.17.15"

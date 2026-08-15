@@ -37,6 +37,7 @@ export { ReactComponent as LightMode } from './light-mode.svg';
 export { ReactComponent as Link } from './link.svg';
 export { ReactComponent as LockIcon } from './lock.svg';
 export { ReactComponent as MenuIcon } from './menu-icon.svg';
+export { ReactComponent as MetaMaskSymbol } from './metamask-symbol.svg';
 export { ReactComponent as MinusCircle } from './minus-circle.svg';
 export { ReactComponent as Move } from './move.svg';
 export { ReactComponent as MultisigIcon } from './multisig-icon.svg';

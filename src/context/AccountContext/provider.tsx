@@ -1,5 +1,5 @@
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
-import { BrowserExtensionSigningManager } from '@polymeshassociation/browser-extension-signing-manager';
+import { EthSigningManager } from '@polymeshassociation/eth-signing-manager';
 import {
   AccountIdentityRelation,
   AccountKeyType,
@@ -12,7 +12,6 @@ import {
   PermissionedAccount,
   UnsubCallback,
 } from '@polymeshassociation/polymesh-sdk/types';
-import { WalletConnectSigningManager } from '@polymeshassociation/walletconnect-signing-manager';
 import {
   useCallback,
   useContext,
@@ -25,8 +24,10 @@ import { notifyGlobalError } from '~/helpers/notifications';
 import { useBalance } from '~/hooks/polymesh';
 import { useLocalStorage } from '~/hooks/utility';
 import { PolymeshContext } from '../PolymeshContext';
+import type { TSigningManager } from '../PolymeshContext/constants';
 import { IInfoByKey } from './constants';
 import AccountContext from './context';
+import { getEthAccountsWithMeta, toEthAccountsWithMeta } from './helpers';
 
 interface IProviderProps {
   children: React.ReactNode;
@@ -84,9 +85,7 @@ const AccountProvider = ({ children }: IProviderProps) => {
       }
     >
   >({});
-  const connectedSigningManagerRef = useRef<
-    BrowserExtensionSigningManager | WalletConnectSigningManager | null
-  >(null);
+  const connectedSigningManagerRef = useRef<TSigningManager | null>(null);
   const accountRef = useRef<Account | MultiSigInstance | null>(null);
 
   const [lastExternalKey, setLastExternalKey] = useState('');
@@ -143,15 +142,15 @@ const AccountProvider = ({ children }: IProviderProps) => {
       return () => {};
     }
 
-    const unsubCb = signingManager.onAccountChange(async (newAccounts) => {
+    const isEthManager = signingManager instanceof EthSigningManager;
+
+    const applyAccounts = (newAccounts: InjectedAccountWithMeta[]) => {
       try {
         if (!newAccounts.length) {
           throw new Error('No injected keys found in the connected wallet');
         }
 
-        const filteredNewAccounts = (
-          newAccounts as InjectedAccountWithMeta[]
-        ).filter(
+        const filteredNewAccounts = newAccounts.filter(
           (accountWithMeta) =>
             !blockedWallets.includes(accountWithMeta.address),
         );
@@ -171,7 +170,30 @@ const AccountProvider = ({ children }: IProviderProps) => {
         setAllAccounts([]);
         setAllAccountsWithMeta([]);
       }
-    }, true);
+    };
+
+    // The second argument of `onAccountChange` means different things per manager: for the extension
+    // and WalletConnect managers it requests accounts *with metadata*, but for the Ethereum manager
+    // it requests the raw H160 addresses instead of the SS58-encoded ones. So the Ethereum manager
+    // is subscribed without it, and the metadata the Portal expects is synthesised here.
+    const unsubCb = isEthManager
+      ? signingManager.onAccountChange((newAccounts) =>
+          applyAccounts(toEthAccountsWithMeta(newAccounts)),
+        )
+      : signingManager.onAccountChange(
+          (newAccounts) =>
+            applyAccounts(newAccounts as InjectedAccountWithMeta[]),
+          true,
+        );
+
+    // The Ethereum manager only subscribes to the wallet's `accountsChanged` event; unlike the other
+    // managers it does not replay the current accounts on subscribe. Without seeding, the account
+    // list would stay empty until the user happened to switch accounts in their wallet.
+    if (isEthManager) {
+      getEthAccountsWithMeta(signingManager)
+        .then(applyAccounts)
+        .catch((error: Error) => notifyGlobalError(error.message));
+    }
 
     return () => (unsubCb ? unsubCb() : undefined);
   }, [blockedWallets, signingManager]);
