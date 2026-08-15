@@ -7,7 +7,6 @@ export const transferEventsQuery = ({
   offset,
   pageSize,
   nonFungible,
-  paddedIds,
 }: {
   identityId: string;
   portfolioId: string | null;
@@ -15,7 +14,6 @@ export const transferEventsQuery = ({
   offset: number;
   pageSize: number;
   nonFungible: boolean;
-  paddedIds: boolean;
 }) => {
   const id = portfolioId === 'default' ? '0' : portfolioId;
 
@@ -45,7 +43,7 @@ export const transferEventsQuery = ({
       assetTransactions(
         first: ${pageSize}
         offset: ${offset}
-        orderBy: ${paddedIds ? 'CREATED_EVENT_ID_DESC' : 'CREATED_AT_DESC'}
+        orderBy: CREATED_EVENT_ID_DESC
         filter: {
           ${orFilter}
           amount: {
@@ -98,7 +96,6 @@ export const portfolioMovementsQuery = ({
   portfolioNumber,
   identityId,
   type,
-  paddedIds,
   accountAddress,
 }: {
   offset: number;
@@ -106,7 +103,6 @@ export const portfolioMovementsQuery = ({
   portfolioNumber?: string;
   identityId?: string | null;
   type: string;
-  paddedIds: boolean;
   accountAddress?: string | null;
 }) => {
   const assetDetail = type === 'Fungible' ? 'amount' : 'nftIds';
@@ -134,7 +130,7 @@ export const portfolioMovementsQuery = ({
       portfolioMovements(
         first: ${pageSize}
         offset: ${offset}
-        orderBy: ${paddedIds ? 'CREATED_BLOCK_ID_DESC' : 'CREATED_AT_DESC'}
+        orderBy: CREATED_BLOCK_ID_DESC
         filter: {
           type: { equalTo: ${type} }
           ${filterClause}
@@ -187,19 +183,17 @@ export const historicalDistributionsQuery = ({
   offset,
   pageSize,
   did,
-  paddedIds,
 }: {
   offset: number;
   pageSize: number;
   did: string;
-  paddedIds: boolean;
 }) => {
   const query = gql`
   query {
     distributionPayments(
       first: ${pageSize}
       offset: ${offset}
-      orderBy: ${paddedIds ? 'CREATED_EVENT_ID_DESC' : 'CREATED_AT_DESC'}
+      orderBy: CREATED_EVENT_ID_DESC
       filter: {
         targetId: {
           equalTo: "${did}"
@@ -257,13 +251,11 @@ export const StakingRewardsQuery = ({
   pageSize,
   accountRawKey,
   identityId,
-  paddedIds,
 }: {
   offset: number;
   pageSize: number;
   accountRawKey?: string;
   identityId?: string;
-  paddedIds: boolean;
 }) => {
   if (!accountRawKey && !identityId) {
     throw new Error('an accountRawKey or identityId must be provided');
@@ -281,7 +273,7 @@ export const StakingRewardsQuery = ({
       stakingEvents(
         first: ${pageSize}
         offset: ${offset}
-        orderBy: ${paddedIds ? 'CREATED_EVENT_ID_DESC' : 'CREATED_AT_DESC'}
+        orderBy: CREATED_EVENT_ID_DESC
         filter: {
           eventId: { in: [Reward, Rewarded] }
           ${accountFilter}
@@ -297,7 +289,9 @@ export const StakingRewardsQuery = ({
         }
         nodes {
           id
-          ${paddedIds ? 'createdEvent { eventIdx }' : ''}
+          createdEvent {
+            eventIdx
+          }
           createdBlock {
             blockId
           }
@@ -320,14 +314,12 @@ export const getMultisigProposalsQuery = ({
   offset,
   pageSize,
   isHistorical = false,
-  paddedIds,
 }: {
   multisigId: string;
   ids?: number[];
   isHistorical?: boolean;
   offset?: number;
   pageSize?: number;
-  paddedIds?: boolean;
 }) => {
   const offsetFilter = offset ? `offset: ${offset}` : '';
   const pageSizeFilter = pageSize ? `first: ${pageSize}` : '';
@@ -345,7 +337,7 @@ export const getMultisigProposalsQuery = ({
           ${idFilter}
           ${isActiveFilter}
         }
-        orderBy: ${paddedIds ? 'CREATED_EVENT_ID_DESC' : 'PROPOSAL_ID_DESC'}
+        orderBy: CREATED_EVENT_ID_DESC
       ) {
         totalCount
         nodes {
@@ -370,55 +362,12 @@ export const getMultisigProposalsQuery = ({
               }
             }
           }
-          ${
-            paddedIds
-              ? `
-              createdEvent {
-                extrinsic {
-                  params
-                  extrinsicIdx
-                }
-              }`
-              : ''
+          createdEvent {
+            extrinsic {
+              params
+              extrinsicIdx
+            }
           }
-        }
-      }
-    }
-  `;
-
-  return query;
-};
-
-// TODO: Can be removed after SUbQuery v19 update along with paddedIds
-export const getMultisigCreationExtrinsics = ({
-  extrinsicArray,
-}: {
-  extrinsicArray: {
-    blockId: number;
-    extrinsicIdx: number;
-  }[];
-}) => {
-  const extrinsicIds = extrinsicArray.map(
-    ({ blockId, extrinsicIdx }) => `"${blockId}/${extrinsicIdx}"`,
-  );
-  const extrinsicFilter = `id: {in: [${extrinsicIds.join(',')}]}`;
-
-  const query = gql`
-    query {
-      extrinsics(
-        filter: {
-          ${extrinsicFilter}
-        }
-        orderBy: CREATED_AT_DESC
-      ) {
-        totalCount
-        nodes {
-          params
-          block {
-            id
-            blockId
-          }
-          extrinsicIdx
         }
       }
     }

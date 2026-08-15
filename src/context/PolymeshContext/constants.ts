@@ -14,7 +14,6 @@ export interface IPolymeshContext {
     signingManagerLoading: boolean;
     middlewareMetadata: MiddlewareMetadata | null;
     middlewareLoading: boolean;
-    isV8Plus: boolean;
   };
   api: {
     sdk: Polymesh | null;
@@ -55,7 +54,6 @@ export const initialState = {
     signingManagerLoading: false,
     middlewareMetadata: null,
     middlewareLoading: true,
-    isV8Plus: false,
   },
   api: {
     sdk: null,

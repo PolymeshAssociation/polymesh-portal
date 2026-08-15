@@ -43,13 +43,6 @@ export const ManualConnect = () => {
       <PopupActionButtons
         onProceed={handleManualWalletConnect}
         onGoBack={() => setConnectPopup('extensions')}
-        data-event-category="onboarding"
-        data-event-name="connect-manual-view"
-        proceedTag="wallet-proceed"
-        matomoData={{
-          eventCategory: 'onboarding',
-          eventName: 'connect-manual-view',
-        }}
         canProceed={!error && !!value}
       />
     </>

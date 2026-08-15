@@ -32,7 +32,6 @@ import {
 export const PortfolioNavigation = () => {
   const {
     identity,
-    canUseIdentityFeatures,
     identityLoading,
     isExternalConnection,
     account,
@@ -282,9 +281,7 @@ export const PortfolioNavigation = () => {
           round={isTablet || isMobile}
           onClick={toggleModal}
           disabled={
-            !canUseIdentityFeatures ||
-            isExternalConnection ||
-            isTransactionInProgress
+            !identity || isExternalConnection || isTransactionInProgress
           }
           title="Create a new Portfolio"
         >

@@ -1543,9 +1543,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymeshassociation/polymesh-sdk@npm:30.1.1-beta.2":
-  version: 30.1.1-beta.2
-  resolution: "@polymeshassociation/polymesh-sdk@npm:30.1.1-beta.2"
+"@polymeshassociation/polymesh-sdk@npm:31.0.0":
+  version: 31.0.0
+  resolution: "@polymeshassociation/polymesh-sdk@npm:31.0.0"
   dependencies:
     "@apollo/client": "npm:^3.8.1"
     "@polkadot/api": "npm:16.5.2"
@@ -1563,7 +1563,7 @@ __metadata:
     semver: "npm:^7.5.4"
     ts-morph: "npm:^25.0.1"
     ws: "npm:^8.18.3"
-  checksum: 10c0/8b5041df253f8446248034f6ee2c199bcbffe4d0488db0ea128c66fba5e2559cae3181b7ebabd6a869516c02b301fd83ea92c17771e790759a5274e8508f1190
+  checksum: 10c0/9c74bb0a6be7e0c528edb4d4d35f8841d3e754e1fdae694749ee461d9b833e200c62c2563baf3c549cb0434588f91079afc3a53c8ea60e6c009b18b265b91815
   languageName: node
   linkType: hard
 
@@ -6590,7 +6590,7 @@ __metadata:
     "@polkadot/util": "npm:13.5.9"
     "@polkadot/util-crypto": "npm:13.5.9"
     "@polymeshassociation/browser-extension-signing-manager": "npm:^2.5.0"
-    "@polymeshassociation/polymesh-sdk": "npm:30.1.1-beta.2"
+    "@polymeshassociation/polymesh-sdk": "npm:31.0.0"
     "@polymeshassociation/polymesh-types": "npm:^7.4.0"
     "@polymeshassociation/walletconnect-signing-manager": "npm:^2.0.0"
     "@tanstack/react-table": "npm:^8.20.5"
@@ -6629,7 +6629,6 @@ __metadata:
     styled-components: "npm:^6.1.13"
     typescript: "npm:^5.5.4"
     vite: "npm:^4.5.14"
-    vite-plugin-html-injection: "npm:^1.4.2"
     vite-plugin-node-polyfills: "npm:^0.22.0"
     vite-plugin-svgr: "npm:^3.3.0"
     vite-tsconfig-paths: "npm:^4.3.2"
@@ -8323,15 +8322,6 @@ __metadata:
     react:
       optional: true
   checksum: 10c0/9ed337d1da4a3730d429b3415c2cb63340998000e62fb3e545e2fc05d27f55fc510abc89046d6719b4cae02742cdb733fe235bade90bfae50a0e13ece2287106
-  languageName: node
-  linkType: hard
-
-"vite-plugin-html-injection@npm:^1.4.2":
-  version: 1.5.2
-  resolution: "vite-plugin-html-injection@npm:1.5.2"
-  peerDependencies:
-    vite: ">= 4.0.0"
-  checksum: 10c0/6ea7aac619aca59bab0707c8df9413b3d1158cd42b2667c50923ebf6d850ab1c347eb2eb79ef6a98de00aee5762b3a5e61ac37b92defa8ebcce06aaf4b2ba414
   languageName: node
   linkType: hard
 

@@ -32,10 +32,7 @@ export const StyledActionButton = styled.button<{
     $status === EActionButtonStatus.ACTION_DISABLED ? 'auto' : 'pointer'};
 
   & .icon {
-    color: ${({ $status }) =>
-      $status === EActionButtonStatus.ACTION_PENDING
-        ? '#ffffff'
-        : getActionLabelColor($status)};
+    color: ${({ $status }) => getActionLabelColor($status)};
     & > svg {
       fill: transparent;
     }
@@ -64,11 +61,9 @@ export const StyledActionLabelWrap = styled.div`
 
 export const StyledActionLabel = styled.span<{
   $status?: EActionButtonStatus;
-  $underlined?: boolean;
 }>`
   font-size: 16px;
   font-weight: 500;
   color: ${({ $status }) =>
     $status ? getActionLabelColor($status) : '#ffffff'};
-  text-decoration: ${({ $underlined }) => ($underlined ? 'underline' : 'none')};
 `;

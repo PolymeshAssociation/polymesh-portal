@@ -251,9 +251,9 @@ const parseDetails = async (
         },
       ];
 
+    // No v8 extrinsic creates one of these; a legacy authorization stored before v8 can still be
+    // read and removed, so it still has to render.
     case AuthorizationType.OldAddRelayerPayingKey:
-    // eslint-disable-next-line no-fallthrough, deprecation/deprecation -- legacy v7 authorization type
-    case AuthorizationType.AddRelayerPayingKey:
       return [
         {
           permission: details.value.allowance ? 'Allowance' : null,

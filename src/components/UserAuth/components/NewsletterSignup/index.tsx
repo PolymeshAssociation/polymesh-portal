@@ -19,14 +19,12 @@ interface NewsletterSignupProps {
   variant?: 'modal' | 'inline';
   onComplete?: () => void;
   compact?: boolean;
-  eventName?: string;
 }
 
 export const NewsletterSignup = ({
   variant = 'inline',
   onComplete,
   compact = false,
-  eventName,
 }: NewsletterSignupProps) => {
   const {
     value: email,
@@ -111,9 +109,6 @@ export const NewsletterSignup = ({
               onClick={handleSubscribe}
               variant="modalSecondary"
               disabled={!email || !!error || needToCheck || !termsAccepted}
-              data-event-category="newsletter"
-              data-event-action="subscribe"
-              data-event-name={eventName || 'onboarding-newsletter'}
             >
               Subscribe
             </Button>
@@ -171,9 +166,6 @@ export const NewsletterSignup = ({
           className="subscribe-btn"
           disabled={!email || !!error || !termsAccepted || needToCheck}
           onClick={handleSubscribe}
-          data-event-category="newsletter"
-          data-event-action="subscribe"
-          data-event-name={eventName || 'newsletter-view'}
         >
           Subscribe
         </Button>

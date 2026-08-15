@@ -168,32 +168,6 @@ export const useCustomForm = (authType: `${AuthorizationType}` | null) => {
           }),
         ),
       },
-      [AuthorizationType.OldAddRelayerPayingKey]: {
-        mode: 'onTouched' as keyof ValidationMode,
-        defaultValues: {
-          [INPUT_NAMES.ALLOWANCE]: '',
-          [INPUT_NAMES.BENEFICIARY]: '',
-        },
-        resolver: yupResolver(
-          yup.object().shape({
-            [INPUT_NAMES.ALLOWANCE]: yup
-              .number()
-              .required('Allowance is required')
-              .typeError('Amount must be a number'),
-            [INPUT_NAMES.BENEFICIARY]: yup
-              .string()
-              .required('Beneficiary is required')
-              .test(
-                'is-valid-address',
-                'Address must be valid SS58 format',
-                async (value) => {
-                  const result = checkAddressValidity(value);
-                  return result;
-                },
-              ),
-          }),
-        ),
-      },
       [AuthorizationType.RotatePrimaryKey]: {
         mode: 'onTouched' as keyof ValidationMode,
         defaultValues: {
@@ -271,7 +245,6 @@ export const useSubmitHandler = () => {
   >([]);
   const {
     api: { sdk },
-    state: { isV8Plus },
   } = useContext(PolymeshContext);
   const { allPortfolios } = useContext(PortfolioContext);
   const { executeTransaction } = useTransactionStatusContext();
@@ -532,65 +505,6 @@ export const useSubmitHandler = () => {
             refreshAuthorizations();
           },
         });
-      } catch (error) {
-        // Error is already handled by the transaction context and notified to the user
-        // This catch block prevents unhandled promise rejection
-      }
-    },
-
-    [AuthorizationType.OldAddRelayerPayingKey]: async (data: FieldValues) => {
-      if (!sdk) return;
-      const allowance = data.allowance as number;
-      const beneficiary = data.beneficiary as string;
-      const args = {
-        allowance: new BigNumber(allowance),
-        beneficiary,
-      };
-
-      try {
-        if (isV8Plus) {
-          const {
-            signerPermissions: { result },
-          } =
-            await sdk.accountManagement.approveSubsidy.checkAuthorization(args);
-
-          if (!result) {
-            notifyWarning(
-              "The signing Account doesn't have the required permissions to execute this procedure",
-            );
-            return;
-          }
-
-          await executeTransaction(sdk.accountManagement.approveSubsidy(args), {
-            onSuccess: () => {
-              refreshAuthorizations();
-            },
-          });
-          return;
-        }
-
-        const {
-          signerPermissions: { result },
-        } =
-          // eslint-disable-next-line deprecation/deprecation -- pre-v8 chains only
-          await sdk.accountManagement.subsidizeAccount.checkAuthorization(args);
-
-        if (!result) {
-          notifyWarning(
-            "The signing Account doesn't have the required permissions to execute this procedure",
-          );
-          return;
-        }
-
-        await executeTransaction(
-          // eslint-disable-next-line deprecation/deprecation -- pre-v8 chains only
-          sdk.accountManagement.subsidizeAccount(args),
-          {
-            onSuccess: () => {
-              refreshAuthorizations();
-            },
-          },
-        );
       } catch (error) {
         // Error is already handled by the transaction context and notified to the user
         // This catch block prevents unhandled promise rejection

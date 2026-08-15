@@ -11,9 +11,6 @@ export const WalletSelectButton = () => {
       onClick={() => {
         setConnectPopup('extensions');
       }}
-      data-event-category="onboarding"
-      data-event-action="connect-wallet"
-      data-event-name="header"
     >
       <Icon size="24px" name="Wallet" />
     </StyledWrapper>

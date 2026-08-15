@@ -1,10 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useLocalStorage } from '~/hooks/utility';
-import {
-  IdentityPopupState,
-  REGEX_MOBILE_DEVICE,
-  TConnectModalType,
-} from './constants';
+import { REGEX_MOBILE_DEVICE, TConnectModalType } from './constants';
 import AuthContext from './context';
 
 interface IAuthProviderProps {
@@ -16,9 +12,7 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
   const [connectPopup, setConnectPopup] = useState<TConnectModalType | null>(
     null,
   );
-  const [identityPopup, setIdentityPopup] = useState<IdentityPopupState>({
-    type: null,
-  });
+  const [showIdentityPopup, setShowIdentityPopup] = useState(false);
 
   const isMobileDevice = REGEX_MOBILE_DEVICE.test(navigator.userAgent);
 
@@ -26,13 +20,13 @@ const AuthProvider = ({ children }: IAuthProviderProps) => {
     () => ({
       showAuth,
       connectPopup,
-      identityPopup,
+      showIdentityPopup,
       isMobileDevice,
       setShowAuth,
       setConnectPopup,
-      setIdentityPopup,
+      setShowIdentityPopup,
     }),
-    [connectPopup, identityPopup, isMobileDevice, setShowAuth, showAuth],
+    [connectPopup, isMobileDevice, setShowAuth, showAuth, showIdentityPopup],
   );
 
   return (

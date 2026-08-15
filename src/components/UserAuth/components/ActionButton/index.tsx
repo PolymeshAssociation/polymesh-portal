@@ -6,7 +6,6 @@ import {
   StyledActionLabelWrap,
   StyledActionLabel,
 } from './styles';
-import { MatomoData } from '~/helpers/matomo';
 
 interface IActionButtonProps {
   title: string;
@@ -14,7 +13,6 @@ interface IActionButtonProps {
   icon: 'ConnectWalletIcon' | 'ConnectIdentityIcon';
   status: EActionButtonStatus;
   handleClick: () => void;
-  matomoData?: MatomoData; // Accept any additional props
 }
 
 export const ActionButton = ({
@@ -23,7 +21,6 @@ export const ActionButton = ({
   icon,
   status,
   handleClick,
-  matomoData,
 }: IActionButtonProps) => {
   const handleButtonClick = () => {
     if (status === EActionButtonStatus.ACTION_DISABLED) {
@@ -35,25 +32,10 @@ export const ActionButton = ({
   return (
     <StyledActionButtonWrapper>
       <StyledActionLabel>{title}</StyledActionLabel>
-      <StyledActionButton
-        $status={status}
-        onClick={handleButtonClick}
-        data-event-category={matomoData?.eventCategory}
-        data-event-action={matomoData?.eventAction}
-        data-event-name={matomoData?.eventName}
-      >
+      <StyledActionButton $status={status} onClick={handleButtonClick}>
         <Icon name={icon} size="24px" className="icon" />
         <StyledActionLabelWrap>
-          {status === EActionButtonStatus.ACTION_PENDING ? (
-            <>
-              <StyledActionLabel>{label}:</StyledActionLabel>
-              <StyledActionLabel $status={status} $underlined>
-                Pending
-              </StyledActionLabel>
-            </>
-          ) : (
-            <StyledActionLabel $status={status}>{label}</StyledActionLabel>
-          )}
+          <StyledActionLabel $status={status}>{label}</StyledActionLabel>
         </StyledActionLabelWrap>
       </StyledActionButton>
     </StyledActionButtonWrapper>

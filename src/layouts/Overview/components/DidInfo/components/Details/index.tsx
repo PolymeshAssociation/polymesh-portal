@@ -15,12 +15,9 @@ import {
   IconWrapper,
   KeyDetails,
   KeyInfo,
-  Separator,
   SignerDetails,
   StyledAccountWrapper,
   StyledBalance,
-  StyledBottomData,
-  StyledBottomInfo,
   StyledButtonsWrapper,
   StyledDidThumb,
   StyledDidWrapper,
@@ -35,19 +32,11 @@ import {
 interface IDetailsProps {
   toggleModal: () => void;
   did?: string;
-  expiry: string;
-  issuer: string | null;
 }
 
-export const Details: React.FC<IDetailsProps> = ({
-  toggleModal,
-  did,
-  expiry,
-  issuer,
-}) => {
+export const Details: React.FC<IDetailsProps> = ({ toggleModal, did }) => {
   const {
     api: { sdk },
-    state: { isV8Plus },
   } = useContext(PolymeshContext);
   const { isTransactionInProgress, executeTransaction } =
     useTransactionStatusContext();
@@ -150,17 +139,6 @@ export const Details: React.FC<IDetailsProps> = ({
             </StyledDidWrapper>
           </div>
         </StyledTopInfo>
-        {!isV8Plus && (
-          <StyledBottomInfo>
-            <StyledBottomData>
-              Expires on: <span>{expiry}</span>
-            </StyledBottomData>
-            {!isMobile && <Separator />}
-            <StyledBottomData>
-              Verified by: <span>{formatDid(issuer)}</span>
-            </StyledBottomData>
-          </StyledBottomInfo>
-        )}
       </StyledAccountWrapper>
       <Text bold size="large" marginTop={36} marginBottom={22}>
         Your keys

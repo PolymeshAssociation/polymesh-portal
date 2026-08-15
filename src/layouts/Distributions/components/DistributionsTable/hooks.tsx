@@ -55,7 +55,6 @@ export const useDistributionsTable = () => {
             did: identity.did,
             offset: pageIndex * pageSize,
             pageSize,
-            paddedIds: middlewareMetadata.paddedIds,
           }),
         });
         const parsedData = parseHistoricalDistributions(

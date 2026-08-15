@@ -29,7 +29,7 @@ export const SelfAssignDid = () => {
   const { selectedAccount, refreshAccountIdentity, identity } =
     useContext(AccountContext);
   const { executeTransaction } = useTransactionStatusContext();
-  const { setIdentityPopup } = useAuthContext();
+  const { setShowIdentityPopup } = useAuthContext();
 
   const [state, setState] = useState<SelfAssignState>(
     identity?.did ? 'success' : 'ready',
@@ -199,12 +199,7 @@ export const SelfAssignDid = () => {
         onProceed={
           state === 'success' || identity?.did ? undefined : handleRegisterDid
         }
-        onGoBack={() => setIdentityPopup({ type: null })}
-        matomoData={{
-          eventCategory: 'onboarding',
-          eventAction: 'self-assign-did',
-          eventName: 'v8-self-assign',
-        }}
+        onGoBack={() => setShowIdentityPopup(false)}
       />
     </>
   );

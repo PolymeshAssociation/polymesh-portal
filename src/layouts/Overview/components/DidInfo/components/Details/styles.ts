@@ -71,35 +71,6 @@ export const StyledVerifiedLabel = styled.div`
   font-size: 12px;
 `;
 
-export const StyledBottomData = styled.p`
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.textSecondary};
-
-  & span {
-    font-weight: 500;
-    color: ${({ theme }) => theme.colors.textPrimary};
-    text-transform: capitalize;
-  }
-`;
-
-export const StyledBottomInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 16px;
-
-  @media screen and (max-width: 767px) {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 4px;
-  }
-`;
-
-export const Separator = styled.div`
-  width: 1px;
-  height: 24px;
-  background-color: #e6e6e6;
-`;
-
 export const StyledKeysList = styled.ul`
   display: flex;
   flex-direction: column;

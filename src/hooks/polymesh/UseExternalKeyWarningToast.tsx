@@ -19,12 +19,7 @@ export const useExternalKeyWarningToast = () => {
     notifyWarning(
       <>
         An external key is selected. The portal is in view-only mode. Please{' '}
-        <StyledConnectWalletSpan
-          onClick={() => setConnectPopup('extensions')}
-          data-event-category="onboarding"
-          data-event-action="connect-wallet"
-          data-event-name="external-key-warning"
-        >
+        <StyledConnectWalletSpan onClick={() => setConnectPopup('extensions')}>
           connect a wallet
         </StyledConnectWalletSpan>{' '}
         to submit transactions.

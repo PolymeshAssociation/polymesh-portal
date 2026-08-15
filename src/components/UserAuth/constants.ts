@@ -1,5 +1,3 @@
-import { TIcons } from '~/assets/icons/types';
-
 import {
   NOVA_WALLET,
   POLKADOT_WALLET,
@@ -9,19 +7,9 @@ import {
   TWalletName,
 } from '~/constants/wallets';
 
-import {
-  FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER,
-  FINCLUSIVE_IDENTITY_PROVIDER,
-  FRACTAL_IDENTITY_PROVIDER,
-  JUMIO_IDENTITY_PROVIDER,
-  MOCKID_IDENTITY_PROVIDER,
-  NETKI_IDENTITY_PROVIDER,
-} from '~/context/AuthContext/constants';
-
 export enum EActionButtonStatus {
   ACTION_ACTIVE = 'active',
   ACTION_DISABLED = 'disabled',
-  ACTION_PENDING = 'pending',
   ACTION_DONE = 'done',
 }
 
@@ -70,118 +58,6 @@ export const SUPPORTED_BROWSERS = {
   [NOVA_WALLET as TWalletName]: {
     tickers: ['Chrome'],
     names: ['Google Chrome'],
-  },
-};
-
-// TODO(v8-cleanup): CDD provider definitions below are legacy. On v8+ chains, the SelfAssignDid
-// component replaces the CDD provider selection flow. Remove these once pre-v8 support is dropped.
-export type TIdentityProvider =
-  | typeof JUMIO_IDENTITY_PROVIDER
-  | typeof NETKI_IDENTITY_PROVIDER
-  | typeof FRACTAL_IDENTITY_PROVIDER
-  | typeof FINCLUSIVE_IDENTITY_PROVIDER
-  | typeof FINCLUSIVE_BUSINESS_IDENTITY_PROVIDER
-  | typeof MOCKID_IDENTITY_PROVIDER;
-
-export interface IIdentityProvider {
-  name: string;
-  link: string;
-  icon: TIcons;
-  requirements: string[];
-  steps: string[];
-}
-
-export const IDENTITY_PROVIDER_MOCK: IIdentityProvider = {
-  name: 'MockId',
-  link: 'mock',
-  icon: 'MockIdProviderIcon' as TIcons,
-  requirements: [
-    'Selecting this will assign a DID and create a CDD claim on Testnet for the selected key without identity verification.',
-    'Your account will receive 100k testnet POLYX tokens.',
-    'Mock CDD is for testing purposes only and is not available for mainnet.',
-  ],
-  steps: [],
-};
-
-export const IDENTITY_PROVIDER_FINCLUSIVE_KYB: IIdentityProvider = {
-  name: 'Finclusive KYB',
-  link: 'finclusive-kyb',
-  icon: 'FinclusiveProviderIcon' as TIcons,
-  requirements: [
-    'Complete Legal Entity Information section',
-    'Complete section(s) about Significant Parties',
-    'Upload photos of Government issued ID for Significant Parties',
-  ],
-  steps: [
-    'Complete wallet address and Legal Entity Information section',
-    'Complete sections (s) about each Significant Party of the entity (either beneficial owners and/or control persons)',
-    'Upload a proof of identity for each Significant Party (e.g. passport, driver’s license, etc.)',
-  ],
-};
-
-export const IDENTITY_PROVIDERS: {
-  [key: string]: IIdentityProvider;
-} = {
-  [JUMIO_IDENTITY_PROVIDER]: {
-    name: 'Jumio',
-    link: 'jumio',
-    icon: 'JumioProviderIcon' as TIcons,
-    requirements: ['Government issued ID', 'Selfie'],
-    steps: [
-      'Take a picture of a government issued ID front and back',
-      'Take a selfie',
-    ],
-  },
-  [NETKI_IDENTITY_PROVIDER]: {
-    name: 'Netki',
-    link: 'netki',
-    icon: 'NetkiProviderIcon' as TIcons,
-    requirements: [
-      'App Download',
-      'Phone number verification',
-      'Government issued ID',
-      'Liveliness Test',
-      'Selfie',
-    ],
-    steps: [
-      'Install MyVerify App',
-      'Verity your phone number',
-      'Take a picture of a government issued ID front and back',
-      'Take a liveliness test',
-      'Take a selfie',
-    ],
-  },
-  [FRACTAL_IDENTITY_PROVIDER]: {
-    name: 'Fractal',
-    link: 'fractal',
-    icon: 'FractalProviderIcon' as TIcons,
-    requirements: [
-      'Email verification',
-      'Proof of residence',
-      'Government issued ID',
-      'Selfie',
-    ],
-    steps: [
-      'Verify your Email address',
-      'Take a picture of a proof of residence (e.g Bank statement, utility bill, etc.)',
-      'Take a picture of a government issued ID front and back',
-      'Take a selfie',
-    ],
-  },
-  [FINCLUSIVE_IDENTITY_PROVIDER]: {
-    name: 'Finclusive',
-    link: 'finclusive',
-    icon: 'FinclusiveProviderIcon' as TIcons,
-    requirements: [
-      'Complete the application form',
-      'Upload photos of Government issued ID',
-      'Take Selfie',
-    ],
-    steps: [
-      'Provide wallet and personal information',
-      'Upload a proof of identity (e.g. passport, driver’s license, etc.)',
-      'Take selfie',
-    ],
   },
 };
 

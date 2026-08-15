@@ -5,6 +5,10 @@ type TUserSubscriptionData = {
   email: string;
 };
 
+// TODO: this endpoint is dead. `VITE_CDD_SERVICE_URL` points at the legacy onboarding service,
+// which was retired along with chain v7 — the host now redirects to the portal and `/api/*` does
+// not respond, so this request hangs until the browser gives up and the caller reports
+// "Subscription failed". Repoint at a live newsletter service or remove the signup UI.
 export const fetchEmailSubscription = async (
   subscriptionData: TUserSubscriptionData,
 ) => {

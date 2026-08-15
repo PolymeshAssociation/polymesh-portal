@@ -119,7 +119,6 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
                   pageSize,
                   type: 'Fungible',
                   ...getMovementFilterParams(),
-                  paddedIds: middlewareMetadata.paddedIds,
                 }),
               });
             if (movements) {
@@ -143,7 +142,6 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
                   offset,
                   pageSize,
                   nonFungible: false,
-                  paddedIds: middlewareMetadata.paddedIds,
                 }),
               });
             if (transfers) {

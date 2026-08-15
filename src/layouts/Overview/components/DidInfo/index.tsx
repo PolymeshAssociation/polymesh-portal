@@ -1,14 +1,10 @@
-import { Identity } from '@polymeshassociation/polymesh-sdk/types';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { CopyToClipboard, DidSelect, Icon } from '~/components';
 import { Button, SkeletonLoader, Text } from '~/components/UiKit';
 import { AccountContext } from '~/context/AccountContext';
-import { EKeyIdentityStatus } from '~/context/AccountContext/constants';
 import { useAuthContext } from '~/context/AuthContext';
-import { PolymeshContext } from '~/context/PolymeshContext';
 import { useWindowWidth } from '~/hooks/utility';
 import { Details } from './components/Details';
-import { systematicCddProviders } from './constants';
 import {
   IconWrapper,
   StyledBottomInfo,
@@ -20,165 +16,14 @@ import {
 } from './styles';
 
 export const DidInfo = () => {
-  const {
-    api: { sdk, polkadotApi },
-    state: { isV8Plus },
-  } = useContext(PolymeshContext);
-  const { identity, identityLoading, keyCddVerificationInfo } =
-    useContext(AccountContext);
-  const { setIdentityPopup } = useAuthContext();
-  const [expiry, setExpiry] = useState<null | Date | undefined>(undefined);
-  const [issuer, setIssuer] = useState<string | null>(null);
-  const [claimDetailsLoading, setClaimDetailsLoading] = useState(true);
+  const { identity, identityLoading } = useContext(AccountContext);
+  const { setShowIdentityPopup } = useAuthContext();
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const { isMobile, isSmallDesktop } = useWindowWidth();
-
-  useEffect(() => {
-    setClaimDetailsLoading(true);
-    if (identityLoading || !sdk) return undefined;
-    if (!identity) {
-      setExpiry(undefined);
-      setIssuer(null);
-      setClaimDetailsLoading(false);
-      return undefined;
-    }
-
-    // On v8+ chains CDD claims are not used — skip claim lookup
-    if (isV8Plus) {
-      setExpiry(null); // null = never expires (no CDD concept)
-      setIssuer(null);
-      setClaimDetailsLoading(false);
-      return undefined;
-    }
-
-    (async () => {
-      // eslint-disable-next-line deprecation/deprecation -- pre-v8 chains only
-      const claims = await sdk.claims.getCddClaims({ target: identity });
-      if (!claims.length) {
-        setExpiry(undefined);
-        setIssuer(null);
-        setClaimDetailsLoading(false);
-        return;
-      }
-      // Filter to claims from the current CDD providers only.
-      const filteredClaims = await Promise.all(
-        claims.filter(async (claim) => {
-          const issuerIsCddProvider =
-            (await claim.issuer.isCddProvider()) ||
-            systematicCddProviders.includes(claim.issuer.did);
-
-          return issuerIsCddProvider;
-        }),
-      );
-      // Sort claims latest expiry first, null (= never) is sorted first
-      const sortedClaims = filteredClaims.sort((a, b) => {
-        if (!a.expiry) return -1;
-        if (!b.expiry) return 1;
-        return b.expiry.getTime() - a.expiry.getTime();
-      });
-
-      setExpiry(sortedClaims[0].expiry);
-      setIssuer(sortedClaims[0].issuer.did);
-      setClaimDetailsLoading(false);
-    })();
-
-    return () => {
-      setExpiry(undefined);
-      setIssuer(null);
-      setClaimDetailsLoading(false);
-    };
-  }, [identity, identityLoading, sdk, isV8Plus]);
-
-  const parseExpiry = (expiryValue: null | Date | undefined) => {
-    if (typeof expiryValue === 'undefined') return 'CDD claim missing';
-
-    if (expiryValue === null) return 'Never';
-
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric' as const,
-      month: '2-digit' as const,
-      day: '2-digit' as const,
-      hour: '2-digit' as const,
-      minute: '2-digit' as const,
-      hour12: false,
-    };
-
-    const localDateString = expiryValue
-      .toLocaleString('en-CA', options) // locale 'en-CA' returns format YYYY-MM-DD h:mm:ss
-      .replace(',', '');
-    return localDateString;
-  };
 
   const toggleModal = () => setDetailsExpanded((prev) => !prev);
 
   const isSmallScreen = isMobile || isSmallDesktop;
-
-  const renderBottomInfo = (
-    activeIdentity: Identity | null,
-    expiryDate: Date | null | undefined,
-  ) => {
-    const date = parseExpiry(expiryDate);
-    if (!activeIdentity) {
-      return isV8Plus ? (
-        <>
-          <Text size="small" marginTop={6}>
-            A Decentralized Identity (DID) is required for asset management and
-            identity-related features. Click the below button to register a new
-            identity or{' '}
-            <StyledLink
-              href={import.meta.env.VITE_ASSIGN_KEY_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              click here
-            </StyledLink>{' '}
-            if you want to learn how to assign this key to an existing DID.
-          </Text>
-          <Text size="small" marginBottom={6}>
-            <strong>* DID registration is optional:</strong> You can send and
-            receive POLYX and participate in staking without a registered
-            identity. A DID is required for asset management, portfolios, and
-            other identity-related features.
-          </Text>
-        </>
-      ) : (
-        <Text size="small">
-          A DID is required to execute identity and asset related transactions.
-          Complete onboarding to link this key to a new Polymesh identity. If
-          you have already completed onboarding and want to assign this key to
-          an existing account,{' '}
-          <StyledLink
-            href={import.meta.env.VITE_ASSIGN_KEY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            click here
-          </StyledLink>{' '}
-          to learn how.
-        </Text>
-      );
-    }
-    if (expiryDate === undefined) {
-      return (
-        <Text size="small">
-          The selected identity is missing a valid customer due diligence claim.
-          To use this identity, complete the onboarding process with a Polymesh
-          customer due diligence provider to receive a valid CDD claim.
-        </Text>
-      );
-    }
-    if (expiryDate && expiryDate <= new Date()) {
-      return (
-        <Text size="small">
-          The previous identity claim associated with this key has expired as of{' '}
-          <span>{date}</span>. Please renew your identity verification by
-          completing the onboarding process with a Polymesh customer due
-          diligence provider.
-        </Text>
-      );
-    }
-    return null;
-  };
 
   return (
     <>
@@ -218,43 +63,43 @@ export const DidInfo = () => {
           </div>
         </StyledTopInfo>
         <StyledBottomInfo>
-          {!identityLoading &&
-            !claimDetailsLoading &&
-            renderBottomInfo(identity, expiry)}
-          {identityLoading || claimDetailsLoading ? (
+          {identityLoading ? (
             <SkeletonLoader
               count={1}
               baseColor="rgba(255,255,255,0.05)"
               highlightColor="rgba(255, 255, 255, 0.24)"
             />
-          ) : null}
+          ) : (
+            !identity && (
+              <>
+                <Text size="small" marginTop={6}>
+                  A Decentralized Identity (DID) is required for asset
+                  management and identity-related features. Click the below
+                  button to register a new identity or{' '}
+                  <StyledLink
+                    href={import.meta.env.VITE_ASSIGN_KEY_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    click here
+                  </StyledLink>{' '}
+                  if you want to learn how to assign this key to an existing
+                  DID.
+                </Text>
+                <Text size="small" marginBottom={6}>
+                  <strong>* DID registration is optional:</strong> You can send
+                  and receive POLYX and participate in staking without a
+                  registered identity. A DID is required for asset management,
+                  portfolios, and other identity-related features.
+                </Text>
+              </>
+            )
+          )}
         </StyledBottomInfo>
         <StyledButtonWrapper>
           {!identityLoading && !identity ? (
-            <Button
-              disabled={
-                !isV8Plus &&
-                polkadotApi?.genesisHash.toString() !==
-                  import.meta.env.VITE_GENESIS_HASH
-              }
-              onClick={() =>
-                isV8Plus
-                  ? setIdentityPopup({ type: 'self-assign' })
-                  : setIdentityPopup({
-                      type:
-                        keyCddVerificationInfo?.status ===
-                        EKeyIdentityStatus.PENDING
-                          ? 'pending'
-                          : 'providers',
-                    })
-              }
-              matomoData={{
-                eventCategory: 'onboarding',
-                eventAction: 'verify-identity',
-                eventName: 'did-view',
-              }}
-            >
-              {isV8Plus ? 'Register DID' : 'Complete onboarding'}
+            <Button onClick={() => setShowIdentityPopup(true)}>
+              Register DID
             </Button>
           ) : (
             <>
@@ -279,12 +124,7 @@ export const DidInfo = () => {
         </StyledButtonWrapper>
       </StyledWrapper>
       {detailsExpanded && (
-        <Details
-          toggleModal={toggleModal}
-          did={identity?.did}
-          expiry={parseExpiry(expiry)}
-          issuer={issuer}
-        />
+        <Details toggleModal={toggleModal} did={identity?.did} />
       )}
     </>
   );

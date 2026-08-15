@@ -92,10 +92,7 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
     (async () => {
       try {
         const { data, count } = await account.getTransactionHistory({
-          orderBy: middlewareMetadata.paddedIds
-            ? ExtrinsicsOrderBy.BlockIdDesc
-            : // eslint-disable-next-line deprecation/deprecation
-              ExtrinsicsOrderBy.CreatedAtDesc,
+          orderBy: ExtrinsicsOrderBy.BlockIdDesc,
           size: new BigNumber(pageSize),
           start: new BigNumber(pageIndex * pageSize),
         });
@@ -160,7 +157,6 @@ export const useActivityTable = (currentTab: EActivityTableTabs) => {
             offset: pageIndex * pageSize,
             pageSize,
             nonFungible: currentTab === EActivityTableTabs.NFT_ACTIVITY,
-            paddedIds: middlewareMetadata.paddedIds,
           }),
         });
 

@@ -389,13 +389,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
 
   const ss58Prefix = useMemo(() => sdk?.network.getSs58Format(), [sdk]);
 
-  // TODO: Remove post v8 cleanup, as on v8+ chains the presence of a DID implies CDD is valid
-  const isV8Plus = useMemo(
-    () =>
-      (polkadotApi?.runtimeVersion.specVersion.toNumber() ?? 0) >= 7_000_000,
-    [polkadotApi],
-  );
-
   const contextValue = useMemo(
     () => ({
       state: {
@@ -404,7 +397,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
         signingManagerLoading,
         middlewareMetadata,
         middlewareLoading,
-        isV8Plus,
       },
       api: {
         sdk,
@@ -439,7 +431,6 @@ const PolymeshProvider = ({ children }: IProviderProps) => {
       disconnectWalletConnect,
       initialized,
       ipfsProviderUrl,
-      isV8Plus,
       middlewareKey,
       middlewareLoading,
       middlewareMetadata,

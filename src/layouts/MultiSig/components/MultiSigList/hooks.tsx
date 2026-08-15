@@ -63,7 +63,6 @@ export const useMultiSigList = () => {
           query: getMultisigProposalsQuery({
             multisigId: multiSigAccount.address,
             ids: activeProposalsIds,
-            paddedIds: middlewareMetadata.paddedIds,
           }),
         });
 

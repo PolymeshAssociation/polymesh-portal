@@ -8,7 +8,7 @@ import {
   UserAuth,
 } from '~/components';
 import { PopupConnectWallet } from '~/components/UserAuth/components/PopupConnectWallet';
-import { PopupVerifyIdentity } from '~/components/UserAuth/components/PopupVerifyIdentity';
+import { PopupRegisterIdentity } from '~/components/UserAuth/components/PopupRegisterIdentity';
 import { StyledMain, StyledPageWrapper } from './styles';
 import { useWindowWidth } from '~/hooks/utility';
 import { Heading } from '~/components/UiKit';
@@ -92,7 +92,7 @@ const SharedLayout: React.FC<ILayoutProps> = ({ children }) => {
         </div>
       </StyledPageWrapper>
       <PopupConnectWallet />
-      <PopupVerifyIdentity />
+      <PopupRegisterIdentity />
     </>
   );
 };

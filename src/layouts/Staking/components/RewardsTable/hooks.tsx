@@ -117,7 +117,6 @@ export const useRewardTable = (
               offset: pageIndex * pageSize,
               pageSize,
               identityId: identity?.did,
-              paddedIds: middlewareMetadata.paddedIds,
             }),
             fetchPolicy: 'cache-and-network',
           })
@@ -194,7 +193,6 @@ export const useRewardTable = (
               offset: pageIndex * pageSize,
               pageSize,
               accountRawKey: account.address,
-              paddedIds: middlewareMetadata.paddedIds,
             }),
             fetchPolicy: 'cache-and-network',
           })
@@ -290,7 +288,6 @@ export const useRewardTable = (
           ...queryOptions,
           offset: page * batchSize,
           pageSize: batchSize,
-          paddedIds: middlewareMetadata.paddedIds,
         };
 
         promises.push(

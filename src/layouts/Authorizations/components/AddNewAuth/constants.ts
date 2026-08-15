@@ -10,8 +10,6 @@ export const INPUT_NAMES = {
   TARGET_ACCOUNT: 'targetAccount',
   TARGET_IDENTITY: 'targetIdentity',
   EXPIRY: 'expiry',
-  ALLOWANCE: 'allowance',
-  BENEFICIARY: 'beneficiary',
   PERMISSIONS: 'permissions',
   TICKER: 'ticker',
   ASSET: 'asset',
@@ -24,8 +22,6 @@ export interface IFieldValues {
   targetAccount: string;
   targetIdentity: string;
   expiry: string;
-  allowance: string;
-  beneficiary: string;
   permissions: string;
   ticker: string;
   asset: string;
@@ -43,11 +39,21 @@ export const disabledAuthTypes = [
   AuthorizationType.AddMultiSigSigner,
 ];
 
+// Authorization types that are not offered when creating a new authorization.
+// Subsidies are not authorization-based on v8 — `approveSubsidy` has its own
+// accept and revoke lifecycle, which the Portal does not implement yet — so
+// offering the legacy type here would create a subsidy that cannot be
+// completed. Existing authorizations of that type still render in the list so
+// they can be read and removed.
+export const hiddenAuthTypes = [
+  AuthorizationType.AttestPrimaryKeyRotation,
+  AuthorizationType.OldAddRelayerPayingKey,
+];
+
 export type AllowedAuthTypes =
   | AuthorizationType.TransferTicker
   | AuthorizationType.TransferAssetOwnership
   | AuthorizationType.JoinIdentity
-  | AuthorizationType.OldAddRelayerPayingKey
   | AuthorizationType.BecomeAgent
   | AuthorizationType.PortfolioCustody
   | AuthorizationType.RotatePrimaryKey

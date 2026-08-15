@@ -11,6 +11,7 @@ import {
   AllowedAuthTypes,
   AuthTypesWithRequiredEntity,
   disabledAuthTypes,
+  hiddenAuthTypes,
   IFieldValues,
   selectInputsDefaultValue,
 } from './constants';
@@ -174,12 +175,7 @@ export const AddNewAuth: React.FC<IAddNewAuthProps> = ({ toggleModal }) => {
         {typeDropdownExpanded && (
           <StyledExpandedTypeSelect>
             {Object.values(AuthorizationType)
-              .filter(
-                (authType) =>
-                  authType !== AuthorizationType.AttestPrimaryKeyRotation &&
-                  // eslint-disable-next-line deprecation/deprecation -- superseded by OldAddRelayerPayingKey on v8
-                  authType !== AuthorizationType.AddRelayerPayingKey,
-              )
+              .filter((authType) => !hiddenAuthTypes.includes(authType))
               .sort((authType) =>
                 disabledAuthTypes.includes(authType) ? 1 : -1,
               )

@@ -23,12 +23,7 @@ export const ViewVerified = ({ handleDismiss }: IViewVerifiedProps) => {
     <>
       <StyledAuthHeaderWrap>
         <StyledAuthHeader>Onboarding Complete!</StyledAuthHeader>
-        <StyledCloseButton
-          onClick={handleDismiss}
-          data-event-category="newsletter"
-          data-event-action="close"
-          data-event-name="newsletter-view"
-        >
+        <StyledCloseButton onClick={handleDismiss}>
           <Icon name="CloseCircledIcon" size="24px" />
         </StyledCloseButton>
       </StyledAuthHeaderWrap>
@@ -37,7 +32,6 @@ export const ViewVerified = ({ handleDismiss }: IViewVerifiedProps) => {
 
       <NewsletterSignup
         variant="inline"
-        eventName="newsletter-view"
         onComplete={() => setSubscribed(true)}
       />
     </>

@@ -238,18 +238,3 @@ export interface IProposalQueryResponse {
     totalCount: number;
   };
 }
-
-export interface IRawMultiSigExtrinsic {
-  block: {
-    blockId: number;
-  };
-  extrinsicIdx: number;
-  params: IMultiSigProposalParams;
-}
-
-export interface IMultisigExtrinsicQueryResponse {
-  extrinsics: {
-    nodes: IRawMultiSigExtrinsic[];
-    totalCount: number;
-  };
-}

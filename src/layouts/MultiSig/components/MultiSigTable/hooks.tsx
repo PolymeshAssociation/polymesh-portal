@@ -9,14 +9,10 @@ import {
 } from '@tanstack/react-table';
 import { PolymeshContext } from '~/context/PolymeshContext';
 import { useMultiSigContext } from '~/context/MultiSigContext';
-import {
-  getMultisigCreationExtrinsics,
-  getMultisigProposalsQuery,
-} from '~/helpers/graphqlQueries';
+import { getMultisigProposalsQuery } from '~/helpers/graphqlQueries';
 import { notifyError } from '~/helpers/notifications';
 import {
   ERawMultiSigStatus,
-  IMultisigExtrinsicQueryResponse,
   IProposalQueryResponse,
   IMultiSigProposalParams,
   IRawMultiSigProposal,
@@ -113,60 +109,20 @@ export const useMultiSigTable = () => {
             offset: pageIndex * pageSize,
             pageSize,
             isHistorical: true,
-            paddedIds: middlewareMetadata.paddedIds,
           }),
         });
 
-        let list: IMultiSigListItem[];
-        if (!middlewareMetadata.paddedIds) {
-          const createdExtrinsics = nodes.map((proposal) => ({
-            blockId: proposal.createdBlock.blockId,
-            extrinsicIdx: proposal.extrinsicIdx,
-          }));
+        const list: IMultiSigListItem[] = nodes.map((rawProposal) => {
+          const { createdEvent } = rawProposal;
 
-          const {
-            data: {
-              extrinsics: { nodes: extrinsicQueryNodes },
-            },
-          } = await gqlClient.query<IMultisigExtrinsicQueryResponse>({
-            query: getMultisigCreationExtrinsics({
-              extrinsicArray: createdExtrinsics,
-            }),
-          });
-
-          list = nodes.map((rawProposal) => {
-            const {
-              createdBlock: { blockId: createdBlockId },
-              extrinsicIdx,
-            } = rawProposal;
-
-            const proposal = extrinsicQueryNodes.find(
-              (e) =>
-                e.block.blockId === createdBlockId &&
-                e.extrinsicIdx === extrinsicIdx,
+          if (!createdEvent) {
+            throw new Error(
+              `Created event not found for proposal ID ${rawProposal.proposalId}`,
             );
+          }
 
-            if (!proposal) {
-              throw new Error(
-                `Block ID ${rawProposal.createdBlock.blockId}, extrinsic index ${rawProposal.extrinsicIdx} not found`,
-              );
-            }
-
-            return mapProposal(rawProposal, proposal.params);
-          });
-        } else {
-          list = nodes.map((rawProposal) => {
-            const { createdEvent } = rawProposal;
-
-            if (!createdEvent) {
-              throw new Error(
-                `Created event not found for proposal ID ${rawProposal.proposalId}`,
-              );
-            }
-
-            return mapProposal(rawProposal, createdEvent.extrinsic.params);
-          });
-        }
+          return mapProposal(rawProposal, createdEvent.extrinsic.params);
+        });
         const table = list.map(
           ({
             proposalId,

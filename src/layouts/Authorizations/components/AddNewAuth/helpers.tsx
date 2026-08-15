@@ -137,21 +137,6 @@ export const configureInputs = (type: `${AuthorizationType}` | null) => {
           placeholder: 'Enter ID',
         },
       ];
-    case AuthorizationType.OldAddRelayerPayingKey:
-      return [
-        {
-          id: INPUT_NAMES.ALLOWANCE,
-          label: 'Allowance',
-          type: 'text',
-          placeholder: 'Enter POLYX amount',
-        },
-        {
-          id: INPUT_NAMES.BENEFICIARY,
-          label: 'Beneficiary',
-          type: 'text',
-          placeholder: 'Enter Account to subsidize',
-        },
-      ];
     case AuthorizationType.RotatePrimaryKey:
       return [
         {

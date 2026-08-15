@@ -22,8 +22,7 @@ import { useWindowWidth } from '~/hooks/utility';
 
 export const PortfolioInfo = () => {
   const [selectedPortfolio, setSelectedPortfolio] = useState<IPortfolioData>();
-  const { identity, canUseIdentityFeatures, isExternalConnection } =
-    useContext(AccountContext);
+  const { identity, isExternalConnection } = useContext(AccountContext);
   const { allPortfolios, portfolioLoading } = useContext(PortfolioContext);
   const { deletePortfolio, isTransactionInProgress } = usePortfolio(
     selectedPortfolio?.portfolio,
@@ -120,7 +119,7 @@ export const PortfolioInfo = () => {
               isExternalConnection ||
               !!selectedPortfolio.assets.length ||
               isTransactionInProgress ||
-              !canUseIdentityFeatures ||
+              !identity ||
               selectedPortfolio.custodian.did !== identity?.did
             }
             onClick={deletePortfolio}
@@ -154,7 +153,7 @@ export const PortfolioInfo = () => {
               onClick={toggleMoveModal}
               disabled={
                 isExternalConnection ||
-                !canUseIdentityFeatures ||
+                !identity ||
                 isTransactionInProgress ||
                 selectedPortfolio.custodian.did !== identity?.did
               }
@@ -167,9 +166,7 @@ export const PortfolioInfo = () => {
                 <Button
                   variant="secondary"
                   disabled={
-                    isTransactionInProgress ||
-                    !canUseIdentityFeatures ||
-                    isExternalConnection
+                    isTransactionInProgress || !identity || isExternalConnection
                   }
                   onClick={toggleEditModal}
                 >
@@ -183,7 +180,7 @@ export const PortfolioInfo = () => {
                       isExternalConnection ||
                       !!selectedPortfolio.assets.length ||
                       isTransactionInProgress ||
-                      !canUseIdentityFeatures ||
+                      !identity ||
                       selectedPortfolio.custodian.did !== identity?.did
                     }
                     onClick={deletePortfolio}

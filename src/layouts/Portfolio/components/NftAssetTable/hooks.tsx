@@ -217,7 +217,6 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
               pageSize,
               type: 'NonFungible',
               ...getMovementFilterParams(),
-              paddedIds: middlewareMetadata.paddedIds,
             }),
           });
           const parsedMovements = parseNftMovements(data);
@@ -237,7 +236,6 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
                 offset,
                 pageSize,
                 nonFungible: true,
-                paddedIds: middlewareMetadata.paddedIds,
               }),
             });
           const data = parseNftTransactions(transfers);
