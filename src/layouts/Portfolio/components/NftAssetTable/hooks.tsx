@@ -215,15 +215,15 @@ export const useNftAssetTable = (currentTab: ENftAssetsTableTabs) => {
             query: portfolioMovementsQuery({
               offset,
               pageSize,
-              type: 'NonFungible',
+              nonFungible: true,
               ...getMovementFilterParams(),
             }),
           });
           const parsedMovements = parseNftMovements(data);
           setTableData(parsedMovements);
-          setTotalItems(data.portfolioMovements.totalCount);
+          setTotalItems(data.assetTransactions.totalCount);
           setTotalPages(
-            Math.ceil(data.portfolioMovements.totalCount / pageSize),
+            Math.ceil(data.assetTransactions.totalCount / pageSize),
           );
         } else {
           const { data: transfers } =

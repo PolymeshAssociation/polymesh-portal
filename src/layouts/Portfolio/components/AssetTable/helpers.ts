@@ -142,17 +142,17 @@ export const parseAssetsFromSelectedPortfolio = async (
 export const parseMovements = (
   dataFromQuery: IMovementQueryResponse,
 ): IMovementItem[] =>
-  (dataFromQuery.portfolioMovements.nodes.map(
+  (dataFromQuery.assetTransactions.nodes.map(
     ({
       id,
       amount,
       asset,
       assetId,
-      from,
-      fromAccount,
-      to,
-      toAccount,
-      createdBlock,
+      fromPortfolio,
+      fromAccountId,
+      toPortfolio,
+      toAccountId,
+      createdEvent,
     }) => {
       const [paddedBlockId, paddedEventIdx] = id.split('/');
       return {
@@ -162,9 +162,12 @@ export const parseMovements = (
         amount: amount && balanceToBigNumber(amount).toString(),
         assetId: hexToUuid(assetId),
         tokenDetails: asset,
-        dateTime: toParsedDateTime(createdBlock.datetime),
-        from: { name: from?.name ?? null, accountAddress: fromAccount },
-        to: { name: to?.name ?? null, accountAddress: toAccount },
+        dateTime: toParsedDateTime(createdEvent.block.datetime),
+        from: {
+          name: fromPortfolio?.name ?? null,
+          accountAddress: fromAccountId,
+        },
+        to: { name: toPortfolio?.name ?? null, accountAddress: toAccountId },
       };
     },
   ) as IMovementItem[]) || [];
@@ -177,19 +180,20 @@ export const parseTransfers = (
       ({
         amount,
         assetId,
-        datetime,
         fromIdentityId,
         toIdentityId,
-        createdBlock,
+        createdEvent: {
+          eventIdx,
+          extrinsicIdx,
+          block: { blockId, datetime },
+        },
         instructionId,
-        extrinsicIdx,
         asset,
-        eventIdx,
       }) => {
         return {
           id: {
-            eventId: `${createdBlock.blockId}-${eventIdx}`,
-            blockId: createdBlock.blockId.toString(),
+            eventId: `${blockId}-${eventIdx}`,
+            blockId: blockId.toString(),
             extrinsicIdx,
             instructionId,
           },

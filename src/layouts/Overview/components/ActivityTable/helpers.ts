@@ -25,21 +25,22 @@ export const parseExtrinsicHistory = async (
 export const parseTokenActivity = (tokenActivity: IAssetTransaction[]) => {
   return tokenActivity.map(
     ({
-      createdBlock,
-      datetime,
+      createdEvent: {
+        eventIdx,
+        extrinsicIdx,
+        block: { blockId, datetime },
+      },
       amount,
       fromIdentityId,
       toIdentityId,
       assetId,
       instructionId,
-      extrinsicIdx,
-      eventIdx,
       asset,
     }: IAssetTransaction): ITransactionItem => {
       return {
         id: {
-          eventId: `${createdBlock.blockId}-${eventIdx}`,
-          blockId: createdBlock.blockId.toString(),
+          eventId: `${blockId}-${eventIdx}`,
+          blockId: blockId.toString(),
           extrinsicIdx,
           instructionId,
         },
