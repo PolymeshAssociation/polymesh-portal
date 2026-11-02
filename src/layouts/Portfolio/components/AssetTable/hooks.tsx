@@ -117,7 +117,7 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
                 query: portfolioMovementsQuery({
                   offset,
                   pageSize,
-                  type: 'Fungible',
+                  nonFungible: false,
                   ...getMovementFilterParams(),
                 }),
               });
@@ -125,9 +125,9 @@ export const useAssetTable = (currentTab: EAssetsTableTabs) => {
               const parsedMovements = parseMovements(movements);
               setTableData(parsedMovements);
               setTotalPages(
-                Math.ceil(movements.portfolioMovements.totalCount / pageSize),
+                Math.ceil(movements.assetTransactions.totalCount / pageSize),
               );
-              setTotalItems(movements.portfolioMovements.totalCount);
+              setTotalItems(movements.assetTransactions.totalCount);
             }
             break;
           }

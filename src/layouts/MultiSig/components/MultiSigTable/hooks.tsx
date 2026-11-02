@@ -14,13 +14,14 @@ import { notifyError } from '~/helpers/notifications';
 import {
   ERawMultiSigStatus,
   IProposalQueryResponse,
-  IMultiSigProposalParams,
+  IMultiSigProposalArgs,
   IRawMultiSigProposal,
 } from '~/constants/queries/types';
 import { splitCamelCase, splitByUnderscore } from '~/helpers/formatters';
 import { IMultiSigListItem } from '../../types';
 import { IHistoricalMultiSigProposals } from './constants';
 import { columns } from './config';
+import { parseRawMultiSigProposal } from '../../helpers';
 import { AccountContext } from '~/context/AccountContext';
 
 export const useMultiSigTable = () => {
@@ -79,21 +80,27 @@ export const useMultiSigTable = () => {
       return;
     }
 
-    const mapProposal = (
-      rawProposal: IRawMultiSigProposal,
-      params: IMultiSigProposalParams,
-    ) => {
-      const module = params.proposal.section;
-      const call = params.proposal.method;
-      const expiry = params.expiry ? new Date(params.expiry) : null;
-      const { args } = params.proposal;
+    const mapProposal = (rawProposal: IRawMultiSigProposal) => {
+      const extrinsicArgs = rawProposal.createdEvent.extrinsic
+        ?.args as IMultiSigProposalArgs | null;
+
+      // Proposals made by another call, such as a bridge batch, carry no
+      // `proposal` argument
+      const {
+        section = '',
+        method = '',
+        args = {},
+      } = extrinsicArgs?.proposal ?? {};
+      const expiry = extrinsicArgs?.expiry
+        ? new Date(Number(extrinsicArgs.expiry))
+        : null;
 
       return {
-        ...rawProposal,
+        ...parseRawMultiSigProposal(rawProposal),
         args,
-        call: splitByUnderscore(call),
+        call: splitByUnderscore(method),
         expiry,
-        module: splitCamelCase(module),
+        module: splitCamelCase(section),
       };
     };
 
@@ -112,17 +119,7 @@ export const useMultiSigTable = () => {
           }),
         });
 
-        const list: IMultiSigListItem[] = nodes.map((rawProposal) => {
-          const { createdEvent } = rawProposal;
-
-          if (!createdEvent) {
-            throw new Error(
-              `Created event not found for proposal ID ${rawProposal.proposalId}`,
-            );
-          }
-
-          return mapProposal(rawProposal, createdEvent.extrinsic.params);
-        });
+        const list: IMultiSigListItem[] = nodes.map(mapProposal);
         const table = list.map(
           ({
             proposalId,

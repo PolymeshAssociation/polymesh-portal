@@ -7,6 +7,7 @@ import { PolymeshContext } from '~/context/PolymeshContext';
 import { IProposalQueryResponse } from '~/constants/queries/types';
 import { getMultisigProposalsQuery } from '~/helpers/graphqlQueries';
 import { splitCamelCase } from '~/helpers/formatters';
+import { parseRawMultiSigProposal } from '../../helpers';
 
 export const useMultiSigList = () => {
   const [proposalsList, setProposalsList] = useState<IMultiSigListItem[]>([]);
@@ -91,7 +92,7 @@ export const useMultiSigList = () => {
             updatedBlock: { blockId: updatedBlockId },
             votes,
             datetime,
-          } = currentProposal;
+          } = parseRawMultiSigProposal(currentProposal);
           const [module, call] = txTag.split('.');
 
           return {
