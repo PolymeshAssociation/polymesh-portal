@@ -34,9 +34,13 @@ export const isLastManualAffirmation = ({
 
   if (!selectedParticipants.length) return false;
 
+  const affirmed = instructionAffirmations.filter(
+    ({ status }) => status === AffirmationStatus.Affirmed,
+  );
+
   if (
-    instructionAffirmations.length === counterparties - 1 &&
-    !instructionAffirmations.find((affirmation) =>
+    affirmed.length === counterparties - 1 &&
+    !affirmed.find((affirmation) =>
       selectedParticipants.includes(getAffirmationIdentifier(affirmation)),
     )
   ) {
@@ -206,16 +210,21 @@ export const getLegErrors = async ({
   return errors;
 };
 
+// An Identity has one affirmation per portfolio on the legs. It counts as
+// affirmed only once every one of them is affirmed.
 export const dedupeAffirmations = (
   affirmations: InstructionAffirmation[],
 ): InstructionAffirmation[] => {
-  return affirmations.filter(
-    (affirmation, index, self) =>
-      index ===
-      self.findIndex(
-        (candidate) =>
-          getAffirmationIdentifier(candidate) ===
-          getAffirmationIdentifier(affirmation),
-      ),
-  );
+  const byParty = new Map<string, InstructionAffirmation>();
+
+  affirmations.forEach((affirmation) => {
+    const identifier = getAffirmationIdentifier(affirmation);
+    const existing = byParty.get(identifier);
+
+    if (!existing || existing.status === AffirmationStatus.Affirmed) {
+      byParty.set(identifier, affirmation);
+    }
+  });
+
+  return [...byParty.values()];
 };
