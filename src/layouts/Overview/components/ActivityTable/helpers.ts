@@ -2,7 +2,7 @@ import { ExtrinsicData } from '@polymeshassociation/polymesh-sdk/types';
 import { hexToUuid } from '@polymeshassociation/polymesh-sdk/utils';
 import { IAssetTransaction } from '~/constants/queries/types';
 import { toParsedDateTime } from '~/helpers/dateTime';
-import { splitCamelCase } from '~/helpers/formatters';
+import { removeLeadingZeros, splitCamelCase } from '~/helpers/formatters';
 import { IHistoricalItem, ITransactionItem } from './constants';
 
 export const parseExtrinsicHistory = async (
@@ -42,7 +42,7 @@ export const parseTokenActivity = (tokenActivity: IAssetTransaction[]) => {
           eventId: `${blockId}-${eventIdx}`,
           blockId: blockId.toString(),
           extrinsicIdx,
-          instructionId,
+          instructionId: instructionId && removeLeadingZeros(instructionId),
         },
         dateTime: toParsedDateTime(datetime),
         from: fromIdentityId || '',
