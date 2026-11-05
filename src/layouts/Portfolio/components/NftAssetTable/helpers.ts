@@ -156,19 +156,19 @@ export const parseNftAssetsFromPortfolios = async (
 };
 
 export const parseNftMovements = ({
-  portfolioMovements,
+  assetTransactions,
 }: IMovementQueryResponse) =>
-  (portfolioMovements.nodes.map(
+  (assetTransactions.nodes.map(
     ({
       id,
       nftIds,
       asset,
       assetId,
-      from,
-      fromAccount,
-      to,
-      toAccount,
-      createdBlock,
+      fromPortfolio,
+      fromAccountId,
+      toPortfolio,
+      toAccountId,
+      createdEvent,
     }) => {
       const [paddedBlockId, paddedEventIdx] = id.split('/');
 
@@ -176,9 +176,12 @@ export const parseNftMovements = ({
         movementId: `${removeLeadingZeros(paddedBlockId)}-${removeLeadingZeros(paddedEventIdx)}`,
         collection: hexToUuid(assetId),
         nameAndTicker: asset,
-        dateTime: toParsedDateTime(createdBlock.datetime),
-        from: { name: from?.name ?? null, accountAddress: fromAccount },
-        to: { name: to?.name ?? null, accountAddress: toAccount },
+        dateTime: toParsedDateTime(createdEvent.block.datetime),
+        from: {
+          name: fromPortfolio?.name ?? null,
+          accountAddress: fromAccountId,
+        },
+        to: { name: toPortfolio?.name ?? null, accountAddress: toAccountId },
         nftIds,
       };
     },
@@ -192,21 +195,22 @@ export const parseNftTransactions = (
       ({
         nftIds,
         assetId,
-        datetime,
         fromIdentityId,
         toIdentityId,
-        createdBlock,
-        extrinsicIdx,
+        createdEvent: {
+          eventIdx,
+          extrinsicIdx,
+          block: { blockId, datetime },
+        },
         instructionId,
         asset,
-        eventIdx,
       }) => {
         return {
           txId: {
-            eventId: `${createdBlock.blockId}-${eventIdx}`,
-            blockId: createdBlock.blockId.toString(),
+            eventId: `${blockId}-${eventIdx}`,
+            blockId: blockId.toString(),
             extrinsicIdx,
-            instructionId,
+            instructionId: instructionId && removeLeadingZeros(instructionId),
           },
           dateTime: toParsedDateTime(datetime),
           from: fromIdentityId || '',

@@ -42,6 +42,11 @@ export interface ITransferEvent {
   }[];
 }
 
+export interface IEventBlock {
+  blockId: number;
+  datetime: string;
+}
+
 interface IMovement {
   id: string;
   amount?: string;
@@ -51,18 +56,19 @@ interface IMovement {
     name: string;
     ticker: string;
   };
-  createdBlock: {
-    blockId: number;
-    datetime: string;
+  createdEvent: {
+    block: IEventBlock;
   };
-  from: {
+  fromPortfolioId: string | null;
+  fromPortfolio: {
     name: string | null;
   } | null;
-  fromAccount: string | null;
-  to: {
+  fromAccountId: string | null;
+  toPortfolioId: string | null;
+  toPortfolio: {
     name: string | null;
   } | null;
-  toAccount: string | null;
+  toAccountId: string | null;
 }
 
 interface IPortfolioMovements {
@@ -76,7 +82,7 @@ interface ITransferEvents {
 }
 
 export interface IMovementQueryResponse {
-  portfolioMovements: IPortfolioMovements;
+  assetTransactions: IPortfolioMovements;
 }
 
 export interface ITransferQueryResponse {
@@ -88,18 +94,17 @@ export interface IAssetTransaction {
   nftIds: string[] | null;
   assetId: string;
   id: string;
-  datetime: string;
   fromPortfolioId: string | null;
   toPortfolioId: string | null;
-  fromAccount: string | null;
-  toAccount: string | null;
+  fromAccountId: string | null;
+  toAccountId: string | null;
   fromIdentityId: string | null;
   toIdentityId: string | null;
-  createdBlock: {
-    blockId: number;
+  createdEvent: {
+    eventIdx: number;
+    extrinsicIdx: number | null;
+    block: IEventBlock;
   };
-  extrinsicIdx: number | null;
-  eventIdx: number;
   instructionId: string | null;
   instructionMemo: string;
   asset: {
@@ -140,16 +145,11 @@ export interface IDistribution {
     paymentAt: string;
     perShare: string;
   };
-  createdBlock: {
-    blockId: number;
-    datetime: string;
+  createdEvent: {
+    eventIdx: number;
+    block: IEventBlock;
   };
-  eventId: string;
   nodeId: string;
-  updatedBlock: {
-    blockId: number;
-    datetime: string;
-  };
 }
 
 export interface IDistributionsQueryResponse {
@@ -161,15 +161,12 @@ export interface IDistributionsQueryResponse {
 
 export interface IStakingRewardEvent {
   id: string;
-  createdEvent?: {
+  createdEvent: {
     eventIdx: number;
+    block: IEventBlock;
   };
-  createdBlock: {
-    blockId: number;
-  };
-  datetime: string;
   identityId: string;
-  stashAccount: string;
+  stashId: string;
   amount: string;
   eventId: string;
 }
@@ -196,18 +193,20 @@ export interface IRawMultiSigVote {
   };
 }
 
-export interface IMultiSigProposalParams {
-  proposal: {
+// The arguments of the `create_proposal` extrinsic, keyed by name
+export interface IMultiSigProposalArgs {
+  proposal?: {
     args: TMultiSigArgs;
     method: string;
     section: string;
   };
-  expiry: number | null;
-  auto_close: boolean;
+  // milliseconds, as a decimal string
+  expiry: string | null;
+  autoClose?: boolean;
   multisig: string;
 }
 
-export interface IRawMultiSigProposal {
+export interface IMultiSigProposal {
   updatedBlock: {
     blockId: number;
   };
@@ -224,11 +223,30 @@ export interface IRawMultiSigProposal {
   votes: {
     nodes: IRawMultiSigVote[];
   };
-  createdEvent?: {
-    extrinsic: {
-      params: IMultiSigProposalParams;
-      extrinsicIdx: number;
+}
+
+export interface IRawMultiSigProposal {
+  updatedEvent: {
+    block: {
+      blockId: number;
     };
+  };
+  approvalCount: number;
+  creatorAccountId: string | null;
+  proposalId: number;
+  rejectionCount: number;
+  status: ProposalStatus | ERawMultiSigStatus;
+  votes: {
+    nodes: IRawMultiSigVote[];
+  };
+  createdEvent: {
+    block: IEventBlock;
+    extrinsic: {
+      moduleId: string;
+      callId: string;
+      args: IMultiSigProposalArgs | null;
+      extrinsicIdx: number;
+    } | null;
   };
 }
 

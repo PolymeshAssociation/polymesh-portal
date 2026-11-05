@@ -6,22 +6,20 @@ import { IAccountRewardItem, IIdentityRewardItem } from './constants';
 export const parseIdentityRewards = (rewardEvents: IStakingRewardEvent[]) => {
   return rewardEvents.map(
     ({
-      id,
-      createdEvent,
-      createdBlock: { blockId },
-      datetime,
-      stashAccount,
+      createdEvent: {
+        eventIdx,
+        block: { blockId, datetime },
+      },
+      stashId,
       amount,
     }: IStakingRewardEvent) => {
       return {
         id: {
-          eventId: createdEvent
-            ? `${blockId}-${createdEvent.eventIdx}`
-            : id.replace('/', '-'),
+          eventId: `${blockId}-${eventIdx}`,
           blockId: blockId.toString(),
         },
         dateTime: toParsedDateTime(datetime),
-        stash: stashAccount,
+        stash: stashId,
         amount: new BigNumber(amount).dividedBy(1000000).toString(),
       };
     },
@@ -31,17 +29,15 @@ export const parseIdentityRewards = (rewardEvents: IStakingRewardEvent[]) => {
 export const parseAccountRewards = (rewardEvents: IStakingRewardEvent[]) => {
   return rewardEvents.map(
     ({
-      id,
-      createdEvent,
-      createdBlock: { blockId },
-      datetime,
+      createdEvent: {
+        eventIdx,
+        block: { blockId, datetime },
+      },
       amount,
     }: IStakingRewardEvent) => {
       return {
         id: {
-          eventId: createdEvent
-            ? `${blockId}-${createdEvent.eventIdx}`
-            : id.replace('/', '-'),
+          eventId: `${blockId}-${eventIdx}`,
           blockId: blockId.toString(),
         },
         dateTime: toParsedDateTime(datetime),

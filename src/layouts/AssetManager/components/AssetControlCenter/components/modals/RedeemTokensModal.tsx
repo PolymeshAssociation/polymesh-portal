@@ -224,7 +224,7 @@ export const RedeemTokensModal: React.FC<RedeemTokensModalProps> = ({
         return 'Amount must be a whole number for indivisible assets';
       }
 
-      if (isDivisible && amount.decimalPlaces() > 6) {
+      if (isDivisible && (amount.decimalPlaces() ?? 0) > 6) {
         return 'Maximum 6 decimal places allowed';
       }
 
