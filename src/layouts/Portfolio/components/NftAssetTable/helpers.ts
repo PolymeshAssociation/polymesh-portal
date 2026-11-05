@@ -210,7 +210,7 @@ export const parseNftTransactions = (
             eventId: `${blockId}-${eventIdx}`,
             blockId: blockId.toString(),
             extrinsicIdx,
-            instructionId,
+            instructionId: instructionId && removeLeadingZeros(instructionId),
           },
           dateTime: toParsedDateTime(datetime),
           from: fromIdentityId || '',
