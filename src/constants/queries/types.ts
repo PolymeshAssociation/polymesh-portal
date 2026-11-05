@@ -242,6 +242,8 @@ export interface IRawMultiSigProposal {
   createdEvent: {
     block: IEventBlock;
     extrinsic: {
+      moduleId: string;
+      callId: string;
       args: IMultiSigProposalArgs | null;
       extrinsicIdx: number;
     } | null;
