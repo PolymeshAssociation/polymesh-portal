@@ -373,6 +373,8 @@ export const getMultisigProposalsQuery = ({
               datetime
             }
             extrinsic {
+              moduleId
+              callId
               args
               extrinsicIdx
             }

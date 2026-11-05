@@ -18,7 +18,7 @@ import {
   IRawMultiSigProposal,
 } from '~/constants/queries/types';
 import { splitCamelCase, splitByUnderscore } from '~/helpers/formatters';
-import { IMultiSigListItem } from '../../types';
+import { IMultiSigListItem, TMultiSigArgs } from '../../types';
 import { IHistoricalMultiSigProposals } from './constants';
 import { columns } from './config';
 import { parseRawMultiSigProposal } from '../../helpers';
@@ -81,15 +81,15 @@ export const useMultiSigTable = () => {
     }
 
     const mapProposal = (rawProposal: IRawMultiSigProposal) => {
-      const extrinsicArgs = rawProposal.createdEvent.extrinsic
-        ?.args as IMultiSigProposalArgs | null;
+      const { extrinsic } = rawProposal.createdEvent;
+      const extrinsicArgs = extrinsic?.args as IMultiSigProposalArgs | null;
 
       // Proposals made by another call, such as a bridge batch, carry no
-      // `proposal` argument
+      // `proposal` argument: show that call instead
       const {
-        section = '',
-        method = '',
-        args = {},
+        section = extrinsic?.moduleId ?? '',
+        method = extrinsic?.callId ?? '',
+        args = (extrinsicArgs ?? {}) as TMultiSigArgs,
       } = extrinsicArgs?.proposal ?? {};
       const expiry = extrinsicArgs?.expiry
         ? new Date(Number(extrinsicArgs.expiry))
