@@ -42,7 +42,7 @@ export const useSignersTable = (
     const list: ISignerItem[] = votes.map(
       ({ action, signer: { signerValue } }) => ({
         address: signerValue,
-        status: action,
+        status: action ?? 'Voted',
       }),
     );
     if (!isHistorical) {

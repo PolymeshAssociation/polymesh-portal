@@ -78,6 +78,10 @@ export const StyledStatus = styled.div`
     background-color: #fae6e8;
     color: #db2c3e;
   }
+  &.voted {
+    background-color: #ececec;
+    color: #5b5b5b;
+  }
   &.pending {
     background-color: #170087;
     color: #ffffff;
