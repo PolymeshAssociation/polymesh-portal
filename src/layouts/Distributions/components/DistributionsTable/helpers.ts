@@ -9,15 +9,16 @@ import {
 } from '~/constants/queries/types';
 import { toParsedDate } from '~/helpers/dateTime';
 import { IHistoricalDistribution } from './constants';
-import { removeLeadingZeros } from '~/helpers/formatters';
 
 export const parseHistoricalDistributions = (
   distributions: IDistribution[],
 ) => {
   return distributions.map(
     ({
-      id,
-      createdBlock: { blockId, datetime },
+      createdEvent: {
+        eventIdx,
+        block: { blockId, datetime },
+      },
       distributionId,
       amount,
       amountAfterTax,
@@ -30,10 +31,9 @@ export const parseHistoricalDistributions = (
         portfolio: { name: portfolioName },
       },
     }) => {
-      const [paddedBlockId, paddedEventIdx] = id.split('/');
       return {
         id: {
-          eventId: `${removeLeadingZeros(paddedBlockId)}-${removeLeadingZeros(paddedEventIdx)}`,
+          eventId: `${blockId}-${eventIdx}`,
           blockId: blockId.toString(),
         },
         dateTime: toParsedDate(datetime),

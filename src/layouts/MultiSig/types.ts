@@ -1,4 +1,4 @@
-import { IRawMultiSigProposal } from '~/constants/queries/types';
+import { IMultiSigProposal } from '~/constants/queries/types';
 
 export enum EMultiSigTypes {
   PENDING = 'pending',
@@ -32,7 +32,7 @@ export type TMultiSigArgsFormatted = {
   args: TMultiSigCalls;
 };
 
-export interface IMultiSigListItem extends IRawMultiSigProposal {
+export interface IMultiSigListItem extends IMultiSigProposal {
   args: TMultiSigArgs;
   call: string;
   expiry: Date | null;

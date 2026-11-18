@@ -20,8 +20,8 @@ export const transferEventsQuery = ({
   const getOrFilter = () => {
     if (accountAddress) {
       return `or: [
-            { fromAccount: {equalTo: "${accountAddress}"} }
-            { toAccount: {equalTo: "${accountAddress}"} }
+            { fromAccountId: {equalTo: "${accountAddress}"} }
+            { toAccountId: {equalTo: "${accountAddress}"} }
           ]`;
     }
     if (portfolioId !== null) {
@@ -66,18 +66,20 @@ export const transferEventsQuery = ({
           }
           assetId
           nftIds
-          datetime
           id
-          createdBlock {
-            blockId
+          createdEvent {
+            eventIdx
+            extrinsicIdx
+            block {
+              blockId
+              datetime
+            }
           }
-          extrinsicIdx
-          eventIdx
           eventId
           toPortfolioId
           fromPortfolioId
-          toAccount
-          fromAccount
+          toAccountId
+          fromAccountId
           toIdentityId
           fromIdentityId
           instructionId
@@ -90,36 +92,46 @@ export const transferEventsQuery = ({
   return query;
 };
 
+// Movements are the internal transfers that no instruction made
 export const portfolioMovementsQuery = ({
   offset,
   pageSize,
   portfolioNumber,
   identityId,
-  type,
+  nonFungible,
   accountAddress,
 }: {
   offset: number;
   pageSize: number;
   portfolioNumber?: string;
   identityId?: string | null;
-  type: string;
+  nonFungible: boolean;
   accountAddress?: string | null;
 }) => {
-  const assetDetail = type === 'Fungible' ? 'amount' : 'nftIds';
+  const assetDetail = nonFungible ? 'nftIds' : 'amount';
 
   const getFilterClause = () => {
     if (accountAddress) {
       return `or: [
-            { fromAccount: { equalTo: "${accountAddress}" } }
-            { toAccount: { equalTo: "${accountAddress}" } }
+            { fromAccountId: { equalTo: "${accountAddress}" } }
+            { toAccountId: { equalTo: "${accountAddress}" } }
           ]`;
     }
-    if (identityId) {
-      return `identityId: { equalTo: "${identityId}" }`;
+    // A portfolio number is `did/number`, or the bare DID when no portfolio is selected
+    const portfolioIdentity =
+      portfolioNumber && !portfolioNumber.includes('/')
+        ? portfolioNumber
+        : null;
+    if (identityId || portfolioIdentity) {
+      const did = identityId || portfolioIdentity;
+      return `or: [
+            { fromIdentityId: { equalTo: "${did}" } }
+            { toIdentityId: { equalTo: "${did}" } }
+          ]`;
     }
     return `or: [
-            { fromId: { startsWith: "${portfolioNumber}" } }
-            { toId: { startsWith: "${portfolioNumber}" } }
+            { fromPortfolioId: { equalTo: "${portfolioNumber}" } }
+            { toPortfolioId: { equalTo: "${portfolioNumber}" } }
           ]`;
   };
 
@@ -127,12 +139,13 @@ export const portfolioMovementsQuery = ({
 
   const query = gql`
     query {
-      portfolioMovements(
+      assetTransactions(
         first: ${pageSize}
         offset: ${offset}
-        orderBy: CREATED_BLOCK_ID_DESC
+        orderBy: CREATED_EVENT_ID_DESC
         filter: {
-          type: { equalTo: ${type} }
+          isInternalTransfer: { equalTo: true }
+          amount: { isNull: ${nonFungible} }
           ${filterClause}
         }
       ) {
@@ -145,18 +158,14 @@ export const portfolioMovementsQuery = ({
         }
         nodes {
           id
-          fromId
-          fromAccount
-          from {
-            identityId
-            number
+          fromPortfolioId
+          fromAccountId
+          fromPortfolio {
             name
           }
-          toId
-          toAccount
-          to {
-            identityId
-            number
+          toPortfolioId
+          toAccountId
+          toPortfolio {
             name
           }
           assetId
@@ -165,11 +174,12 @@ export const portfolioMovementsQuery = ({
             ticker
           }
           ${assetDetail}
-          address
           memo
-          createdBlock {
-            blockId
-            datetime
+          createdEvent {
+            block {
+              blockId
+              datetime
+            }
           }
         }
       }
@@ -228,16 +238,14 @@ export const historicalDistributionsQuery = ({
             paymentAt
             perShare
           }
-          createdBlock {
-            blockId
-            datetime
+          createdEvent {
+            eventIdx
+            block {
+              blockId
+              datetime
+            }
           }
-          eventId
           nodeId
-          updatedBlock {
-            blockId
-            datetime
-          }
         }
       }
     }
@@ -262,7 +270,7 @@ export const StakingRewardsQuery = ({
   }
 
   const accountFilter = accountRawKey
-    ? `stashAccount: {equalTo: "${accountRawKey}" }`
+    ? `stashId: {equalTo: "${accountRawKey}" }`
     : '';
   const identityFilter = identityId
     ? `identityId: {equalTo: "${identityId}" }`
@@ -291,15 +299,15 @@ export const StakingRewardsQuery = ({
           id
           createdEvent {
             eventIdx
-          }
-          createdBlock {
-            blockId
+            block {
+              blockId
+              datetime
+            }
           }
           eventId
           identityId
-          stashAccount
+          stashId
           amount
-          datetime
         }
       }
     }
@@ -341,16 +349,13 @@ export const getMultisigProposalsQuery = ({
       ) {
         totalCount
         nodes {
-          updatedBlock {
-            blockId
+          updatedEvent {
+            block {
+              blockId
+            }
           }
           approvalCount
-          createdBlock {
-            blockId
-          }
-          creatorAccount
-          datetime
-          extrinsicIdx
+          creatorAccountId
           proposalId
           rejectionCount
           status
@@ -363,8 +368,14 @@ export const getMultisigProposalsQuery = ({
             }
           }
           createdEvent {
+            block {
+              blockId
+              datetime
+            }
             extrinsic {
-              params
+              moduleId
+              callId
+              args
               extrinsicIdx
             }
           }
