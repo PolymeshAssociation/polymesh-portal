@@ -187,7 +187,9 @@ export enum ERawMultiSigStatus {
 }
 
 export interface IRawMultiSigVote {
-  action: 'Approved' | 'Rejected';
+  // null for a vote seeded from chain storage, which keeps that a signer voted
+  // but not which way
+  action: 'Approved' | 'Rejected' | null;
   signer: {
     signerValue: string;
   };
