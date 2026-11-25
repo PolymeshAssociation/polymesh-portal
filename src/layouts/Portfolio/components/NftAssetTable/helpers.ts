@@ -169,6 +169,7 @@ export const parseNftMovements = ({
       toPortfolio,
       toAccountId,
       createdEvent,
+      memo,
     }) => {
       const [paddedBlockId, paddedEventIdx] = id.split('/');
 
@@ -183,6 +184,7 @@ export const parseNftMovements = ({
         },
         to: { name: toPortfolio?.name ?? null, accountAddress: toAccountId },
         nftIds,
+        memo,
       };
     },
   ) as INftMovementItem[]) || [];
@@ -203,6 +205,8 @@ export const parseNftTransactions = (
           block: { blockId, datetime },
         },
         instructionId,
+        instructionMemo,
+        memo,
         asset,
       }) => {
         return {
@@ -219,6 +223,7 @@ export const parseNftTransactions = (
           assetId: hexToUuid(assetId),
           nftIds,
           nameAndTicker: asset,
+          memo: instructionMemo || memo,
         };
       },
     ) as INftTransactionItem[]) || []

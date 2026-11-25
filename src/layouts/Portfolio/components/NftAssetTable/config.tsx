@@ -7,6 +7,7 @@ import { AddressCell } from './components/AddressCell';
 import { CollectionFilter } from './components/CollectionFilter';
 import { DateCell } from './components/DateCell';
 import { IdCell } from './components/IdCell';
+import { MemoCell } from './components/MemoCell';
 import { MovementPartyCell } from './components/MovementPartyCell';
 import { NftIdsCell } from './components/NftIdsCell';
 import { TickerCell } from './components/TickerCell';
@@ -128,6 +129,11 @@ export const columns = {
         return <NftIdsCell info={info} assetId={assetId} />;
       },
     }),
+    transactionColumnHelper.accessor('memo', {
+      header: 'Memo',
+      enableSorting: false,
+      cell: (info) => <MemoCell memo={info.getValue()} />,
+    }),
   ],
   [ENftAssetsTableTabs.MOVEMENTS]: [
     movementColumnHelper.accessor('movementId', {
@@ -169,6 +175,11 @@ export const columns = {
         const assetId = info.row.original.collection;
         return <NftIdsCell info={info} assetId={assetId} />;
       },
+    }),
+    movementColumnHelper.accessor('memo', {
+      header: 'Memo',
+      enableSorting: false,
+      cell: (info) => <MemoCell memo={info.getValue()} />,
     }),
   ],
 };

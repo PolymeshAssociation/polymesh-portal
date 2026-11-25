@@ -69,6 +69,7 @@ interface IMovement {
     name: string | null;
   } | null;
   toAccountId: string | null;
+  memo: string | null;
 }
 
 interface IPortfolioMovements {
@@ -106,7 +107,8 @@ export interface IAssetTransaction {
     block: IEventBlock;
   };
   instructionId: string | null;
-  instructionMemo: string;
+  instructionMemo: string | null;
+  memo: string | null;
   asset: {
     name: string;
     ticker: string;

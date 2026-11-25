@@ -51,6 +51,7 @@ export interface INftTransactionItem {
     name: string;
     ticker: string;
   };
+  memo: string | null;
 }
 
 export enum EActivityTableTabs {

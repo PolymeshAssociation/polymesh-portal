@@ -5,6 +5,7 @@ import { AssetIdCell } from '../../../../components/AssetIdCell';
 import { AddressCell } from '../NftAssetTable/components/AddressCell';
 import { DateCell } from '../NftAssetTable/components/DateCell';
 import { IdCell } from '../NftAssetTable/components/IdCell';
+import { MemoCell } from '../NftAssetTable/components/MemoCell';
 import { MovementPartyCell } from '../NftAssetTable/components/MovementPartyCell';
 import { PercentageFilter } from './components/PercentageFilter';
 import { TokenCell } from './components/TokenCell';
@@ -111,6 +112,11 @@ export const columns = {
       header: 'Amount',
       cell: (info) => info.getValue(),
     }),
+    transactionColumnHelper.accessor('memo', {
+      header: 'Memo',
+      enableSorting: false,
+      cell: (info) => <MemoCell memo={info.getValue()} />,
+    }),
   ],
   [EAssetsTableTabs.MOVEMENTS]: [
     movementColumnHelper.accessor('movementId', {
@@ -171,6 +177,11 @@ export const columns = {
     movementColumnHelper.accessor('amount', {
       header: 'Amount',
       cell: (info) => info.getValue(),
+    }),
+    movementColumnHelper.accessor('memo', {
+      header: 'Memo',
+      enableSorting: false,
+      cell: (info) => <MemoCell memo={info.getValue()} />,
     }),
   ],
 };

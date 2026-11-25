@@ -28,6 +28,7 @@ export interface ITransactionItem {
     name: string;
     ticker: string;
   };
+  memo: string | null;
 }
 
 export interface IMovementParty {
@@ -46,6 +47,7 @@ export interface IMovementItem {
     name: string;
     ticker: string;
   };
+  memo: string | null;
 }
 
 export type AssetTableItem = ITokenItem | ITransactionItem | IMovementItem;

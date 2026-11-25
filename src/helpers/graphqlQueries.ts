@@ -84,6 +84,7 @@ export const transferEventsQuery = ({
           fromIdentityId
           instructionId
           instructionMemo
+          memo
         }
       }
     }

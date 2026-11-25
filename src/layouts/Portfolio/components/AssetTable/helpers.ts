@@ -153,6 +153,7 @@ export const parseMovements = (
       toPortfolio,
       toAccountId,
       createdEvent,
+      memo,
     }) => {
       const [paddedBlockId, paddedEventIdx] = id.split('/');
       return {
@@ -168,6 +169,7 @@ export const parseMovements = (
           accountAddress: fromAccountId,
         },
         to: { name: toPortfolio?.name ?? null, accountAddress: toAccountId },
+        memo,
       };
     },
   ) as IMovementItem[]) || [];
@@ -188,6 +190,8 @@ export const parseTransfers = (
           block: { blockId, datetime },
         },
         instructionId,
+        instructionMemo,
+        memo,
         asset,
       }) => {
         return {
@@ -204,6 +208,7 @@ export const parseTransfers = (
           amount: amount ? (amount / 1_000_000).toString() : '0',
           asset: hexToUuid(assetId),
           tokenDetails: asset,
+          memo: instructionMemo || memo,
         };
       },
     ) as ITransactionItem[]) || []
