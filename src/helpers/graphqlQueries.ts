@@ -208,6 +208,9 @@ export const historicalDistributionsQuery = ({
         targetId: {
           equalTo: "${did}"
         }
+        # a reclaim is stored as a payment to the agent who took back what
+        # remained, but it pays no holder
+        reclaimed: { equalTo: false }
       }
       ) {
         totalCount
