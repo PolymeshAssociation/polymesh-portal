@@ -7,7 +7,12 @@ import { AddressCell } from './components/AddressCell';
 import { CollectionFilter } from './components/CollectionFilter';
 import { DateCell } from './components/DateCell';
 import { IdCell } from './components/IdCell';
-import { MemoCell } from './components/MemoCell';
+import { TruncatedTextCell } from './components/TruncatedTextCell';
+import {
+  formatNameAndTicker,
+  MEMO_MAX_WIDTH,
+  NAME_MAX_WIDTH,
+} from './components/TruncatedTextCell/constants';
 import { MovementPartyCell } from './components/MovementPartyCell';
 import { NftIdsCell } from './components/NftIdsCell';
 import { TickerCell } from './components/TickerCell';
@@ -99,7 +104,7 @@ export const columns = {
     }),
     transactionColumnHelper.accessor('dateTime', {
       header: 'Date / Time',
-      cell: (info) => <DateCell data={info.getValue()} />,
+      cell: (info) => <DateCell data={info.getValue()} compact />,
     }),
     transactionColumnHelper.accessor('from', {
       header: 'From',
@@ -112,10 +117,12 @@ export const columns = {
     transactionColumnHelper.accessor('nameAndTicker', {
       header: 'Name',
       enableSorting: false,
-      cell: (info) => {
-        const tokenDetails = info.getValue();
-        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : ''}`;
-      },
+      cell: (info) => (
+        <TruncatedTextCell
+          text={formatNameAndTicker(info.getValue())}
+          maxWidth={NAME_MAX_WIDTH}
+        />
+      ),
     }),
 
     transactionColumnHelper.accessor('assetId', {
@@ -132,7 +139,13 @@ export const columns = {
     transactionColumnHelper.accessor('memo', {
       header: 'Memo',
       enableSorting: false,
-      cell: (info) => <MemoCell memo={info.getValue()} />,
+      cell: (info) => (
+        <TruncatedTextCell
+          text={info.getValue()}
+          maxWidth={MEMO_MAX_WIDTH}
+          keepCase
+        />
+      ),
     }),
   ],
   [ENftAssetsTableTabs.MOVEMENTS]: [
@@ -147,7 +160,7 @@ export const columns = {
     }),
     movementColumnHelper.accessor('dateTime', {
       header: 'Date / Time',
-      cell: (info) => <DateCell data={info.getValue()} />,
+      cell: (info) => <DateCell data={info.getValue()} compact />,
     }),
     movementColumnHelper.accessor('from', {
       header: 'From',
@@ -160,10 +173,12 @@ export const columns = {
     movementColumnHelper.accessor('nameAndTicker', {
       header: 'Name',
       enableSorting: false,
-      cell: (info) => {
-        const tokenDetails = info.getValue();
-        return `${tokenDetails?.name}${tokenDetails?.ticker ? ` (${tokenDetails.ticker})` : ''}`;
-      },
+      cell: (info) => (
+        <TruncatedTextCell
+          text={formatNameAndTicker(info.getValue())}
+          maxWidth={NAME_MAX_WIDTH}
+        />
+      ),
     }),
     movementColumnHelper.accessor('collection', {
       header: 'Asset ID',
@@ -179,7 +194,13 @@ export const columns = {
     movementColumnHelper.accessor('memo', {
       header: 'Memo',
       enableSorting: false,
-      cell: (info) => <MemoCell memo={info.getValue()} />,
+      cell: (info) => (
+        <TruncatedTextCell
+          text={info.getValue()}
+          maxWidth={MEMO_MAX_WIDTH}
+          keepCase
+        />
+      ),
     }),
   ],
 };
