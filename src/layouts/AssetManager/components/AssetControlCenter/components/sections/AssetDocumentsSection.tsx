@@ -77,7 +77,7 @@ export const AssetDocumentsSection: React.FC<AssetDocumentsSectionProps> = ({
   const displayDocuments = useMemo(
     () =>
       asset?.docs
-        ?.sort((a, b) => a.id.comparedTo(b.id))
+        ?.sort((a, b) => a.id.comparedTo(b.id) ?? 0)
         .map((doc) => ({
           id: doc.id.toString(),
           name: doc.name,

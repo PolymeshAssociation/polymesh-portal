@@ -23,19 +23,6 @@ export const IconWrapper = styled.div`
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
-export const StyledDateTimeCell = styled.span`
-  display: inline-flex;
-  gap: 4px;
-  flex-wrap: wrap;
-  @media screen and (min-width: 1200px) {
-    min-width: 200px;
-  }
-`;
-
-export const StyledTime = styled.span`
-  color: ${({ theme }) => theme.colors.textSecondary};
-`;
-
 export const AddressCellWrapper = styled.span`
   display: flex;
   align-items: center;

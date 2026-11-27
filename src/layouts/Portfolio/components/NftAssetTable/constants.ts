@@ -47,6 +47,7 @@ export interface INftMovementItem {
     name: string;
     ticker: string;
   };
+  memo: string | null;
 }
 
 export type TNftTableItem =
